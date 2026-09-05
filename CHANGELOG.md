@@ -209,6 +209,37 @@ plain background, and that several claims ran ahead of what it checked. See `HAN
   and a Pairs table with a failing boundary row no run produced. The KPIs, the chart and
   the table are generated from `checks()`; the chart shows the lowest ratio each section of
   the gate produced and the table the passing row with the least room left in each.
+- Every count a document quotes is generated. The prose said 630 interface keys, 54
+  TextMate rules, 25 covered states, 122 tests and 397 gate rows while the code produced
+  622, 64, 35, 155 and 600. `npm run sync:design` writes a counts table into `DESIGN.md`,
+  `README.md` and the extension README, and §3.1 of `DESIGN.md` lists every state the
+  floor covers with the foreground that reads worst on it. `PLAN.md` quotes no count at
+  all: it names the command that prints one.
+- The colour-vision paragraph in the extension README described a palette that was
+  replaced. The 0.06 lightness gap moved to the opaque diff gutter strips when the line
+  washes became translucent, and both washes are lighter than the editor and about 0.02
+  apart. The README says what the test asserts, and a second test records what the washes
+  do separate by.
+- The claim that a colour below the floor fails "the build" named the wrong command.
+  `npm run build` runs the emitters; `npm run verify` is the gate, and CI runs it on every
+  branch.
+- Both alternative Windows Terminal install instructions were wrong. The Store path named
+  a `LocalState/Fragments` directory the loader does not read — it enumerates
+  `\Microsoft\Windows Terminal\Fragments` under LocalAppData and ProgramData, and
+  nothing else — and the snippet instruction told a reader to paste a wrapper object into
+  the `schemes` array, which nests a second wrapper. A test holds the README to the shape
+  the package emits.
+- The violet allowlist has five keys, not four. ANSI slot 13 is the violet accent by
+  design and was already in the test; the documents had not counted it.
+- `packages/tokens/README.md` quoted a superseded gold inside a code sample. The parity
+  test now reads every hex in six documents rather than only the ones inside backticks.
+- The lab's "Solving a token" example dropped `solveLightness`'s required direction and
+  passed its numeric return where a colour was expected. It builds the triple from the
+  solved lightness and measures that.
+- `scripts/fetch-fonts.mjs` wrote the two `.woff2` files into `apps/lab/public/fonts`
+  while `styles.css` loads them from `apps/lab/src/fonts`, so a font refresh never reached
+  the built app. It writes the fonts where they are loaded from and the licence where it
+  is served from.
 
 ## 0.1.0
 

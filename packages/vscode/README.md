@@ -12,10 +12,11 @@ sit one step above it, and the panel sits between the two. Your code is the deep
 on the screen. Of the four themes compared below, two put the sidebar under the editor and
 two use one colour for both.
 
-**The contrast floor is a build step, not a claim.** Every colour is defined in OKLCH and
-checked against the surface it sits on. A colour below 4.5:1 fails the build, and so does
-a syntax colour that falls below it under a current line, a selection, a word highlight or
-a diff fill. Those decorated states are the part no comparison below covers.
+**The contrast floor is a gate, not a claim.** Every colour is defined in OKLCH and
+checked against the surface it sits on. `npm run verify` exits non-zero on a colour below
+4.5:1, and on a syntax colour that falls below it under a current line, a selection, a
+word highlight or a diff fill. CI runs that gate on every branch, so no release can carry
+a colour under the floor. Those decorated states are the part no comparison below covers.
 
 Measured across the same eight syntax roles, against each theme's own editor background,
 on a plain editor line:
@@ -53,8 +54,9 @@ where an extension asks for the hue by name, and ANSI slot 13.
 
 ## What is inside
 
-- 630 interface keys. VS Code still falls back to its own default for any key not set.
-- 54 TextMate rules and 32 semantic tokens, kept in step with each other.
+- Every interface key in the table below. VS Code still falls back to its own default for
+  any key a theme does not set.
+- TextMate rules and semantic tokens, kept in step with each other.
 - Language overrides for Markdown, JSON, YAML, HTML, CSS and JSX/TSX.
 - Bracket pairs that nest gold → teal → violet.
 - A terminal whose bright eight are byte-identical to the syntax accents.
@@ -68,12 +70,29 @@ no settings edit. See the repository.
 ## What the contrast floor covers
 
 Every syntax colour clears 4.5:1 on the editor, the peek editor, a hover or suggest
-widget, and under a current-line highlight, a selection, a word highlight, and any stack
-of the three. It clears it again with a diff line wash, or a line wash and a word wash,
-painted on top of any of those. Twenty-five states are covered and the worst of them reads
-4.50:1. A find match keeps the colour under it: VS Code applies each of its two foreground
+widget, and under a current-line highlight, a selection, a word highlight, or a stack of
+the two the renderer can draw together. It clears it again with a diff line wash, or a
+line wash and a word wash, painted on top of a plain line, a current line or a selection.
+A find match keeps the colour under it: VS Code applies each of its two foreground
 override keys to the other one's decoration, so the fills carry every syntax colour on
 their own.
+
+| What the gate checks | Count |
+|---|---:|
+| Rows measured | 611 |
+| Below their floor | 0 |
+| Exempt rows, all documented | 5 |
+| Reading states per syntax colour | 35 |
+| Lowest ratio in a reading state | 4.50:1 |
+| Interface keys the theme sets | 622 |
+| TextMate rules | 64 |
+| Semantic tokens | 32 |
+
+The set is exact rather than approximate. §3.1 of `DESIGN.md` names every state and the
+foreground that reads worst on it. A state outside that table is outside the claim: the
+current line and a selection are not stacked, because VS Code draws the current-line
+background only while every selection is empty, and a diff wash is measured on a plain
+line, a current line and a selection rather than on every decoration in the editor.
 
 Three exemptions are named rather than hidden:
 
@@ -89,10 +108,14 @@ Three exemptions are named rather than hidden:
 ## Colour vision
 
 Success and error separate by 0.06 in OKLCH lightness as well as by hue, and so do the
-diff fills; the added fill sits above the editor and the removed fill below it. A test
-asserts that gap. That is a palette invariant, not a claim of deuteranopia usability: it
-has not been checked with a simulator or with users. Diff lines and problem markers carry
-a gutter glyph and an icon as well as a colour, so the meaning does not rest on hue alone.
+two diff gutter strips. A test asserts that gap on the pair that can hold it: the strips
+are opaque, always drawn and never covered. The line washes cannot hold it and do not
+claim to — both are lighter than the editor and about 0.02 apart, because a green wash
+dark enough to open a 0.06 gap under a red one is invisible.
+
+That is a palette invariant, not a claim of deuteranopia usability: it has not been
+checked with a simulator or with users. Diff lines and problem markers carry a gutter
+glyph and an icon as well as a colour, so the meaning does not rest on hue alone.
 
 ## Licence
 

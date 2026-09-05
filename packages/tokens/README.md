@@ -8,7 +8,7 @@ Every other Aion package reads this one. Nothing downstream defines a colour.
 import { hex, bg, fg, accent, contrastEmitted, flatten, semantic } from '@sltio/aion-tokens';
 
 hex(bg.editor);            // '#11151c'
-hex(accent.gold.solid);    // '#ebc75e'
+hex(accent.gold.solid);    // '#e4c058'
 contrastEmitted(fg.primary, bg.editor);  // 14.87
 flatten(semantic);         // { 'bg.editor': '#11151c', ... }
 ```

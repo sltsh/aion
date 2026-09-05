@@ -121,6 +121,18 @@ test('meaning pairs separate by lightness for colour vision', () => {
   }
 });
 
+// The line washes cannot hold that gap, and no document claims they do any more: a green
+// wash dark enough to open 0.06 under a red one is invisible. This records what they do
+// separate by, composited the way the renderer composites them.
+test('the diff line washes sit above the editor, close together', () => {
+  const on = (name: 'addedLine' | 'removedLine'): Oklch =>
+    compositeEmitted(diffWash[name].color, diffWash[name].alpha, neutral.editor);
+  const [added, removed] = [on('addedLine'), on('removedLine')];
+  expect(added[0]).toBeGreaterThan(neutral.editor[0]);
+  expect(removed[0]).toBeGreaterThan(neutral.editor[0]);
+  expect(Math.abs(added[0] - removed[0])).toBeLessThan(MEANING_PAIR_GAP);
+});
+
 test('every ANSI slot except the two dim ones clears the floor', () => {
   for (const [slot, colour] of Object.entries(ansi)) {
     if (slot === 'black') continue;

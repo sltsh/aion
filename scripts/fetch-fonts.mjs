@@ -1,14 +1,15 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { createWriteStream } from 'node:fs';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
-import { unzipSync } from 'node:zlib';
 
 // Both families are SIL OFL 1.1, so the lab self-hosts them instead of calling a CDN.
-const target = fileURLToPath(new URL('../apps/lab/public/fonts/', import.meta.url));
+// The two `.woff2` files go where `styles.css` loads them from. `public/fonts/` holds the
+// licence text, which is served beside the site rather than bundled; a refresh that wrote
+// the fonts there would leave the built app on the old ones.
+const target = fileURLToPath(new URL('../apps/lab/src/fonts/', import.meta.url));
+const licenceTarget = fileURLToPath(new URL('../apps/lab/public/fonts/', import.meta.url));
 mkdirSync(target, { recursive: true });
+mkdirSync(licenceTarget, { recursive: true });
 
 const CHROME = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
 const MONASPACE_RELEASE = 'https://github.com/githubnext/monaspace/releases/download/v1.400/monaspace-webfont-variable-v1.400.zip';
@@ -41,10 +42,10 @@ const fetchMonaspace = async () => {
 fetchArchivo();
 await fetchMonaspace();
 
-writeFileSync(`${target}LICENSE.txt`, `Archivo — SIL Open Font License 1.1
+writeFileSync(`${licenceTarget}LICENSE.txt`, `Archivo — SIL Open Font License 1.1
 https://github.com/google/fonts/tree/main/ofl/archivo
 
 Monaspace Neon — SIL Open Font License 1.1
 https://github.com/githubnext/monaspace
 `);
-console.log('fonts/LICENSE.txt written');
+console.log('public/fonts/LICENSE.txt written');

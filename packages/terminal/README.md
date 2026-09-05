@@ -21,12 +21,24 @@ Restart Windows Terminal. Aion appears in **Settings → Profiles → Appearance
 scheme**. Windows Terminal owns the file, so no settings edit is needed and an update
 replaces one file.
 
-For the Store build, use `%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\Fragments\sltio`.
+The path is the same for every build, the Store one included. The loader enumerates
+`\Microsoft\Windows Terminal\Fragments` under `FOLDERID_LocalAppData` and under
+`FOLDERID_ProgramData`, and nothing else; read at `093e49e2` of `microsoft/terminal`, in
+`CascadiaSettingsSerialization.cpp`. Use the ProgramData directory to install the scheme
+for every user on the machine:
+
+```powershell
+$target = "$env:PROGRAMDATA\Microsoft\Windows Terminal\Fragments\sltio"
+```
 
 ## Settings snippet
 
-Paste the object in `snippets/settings.json` into the `schemes` array of your
-`settings.json`, then set `"colorScheme": "Aion"` on a profile.
+`snippets/settings.json` is a whole settings fragment: an object with one `schemes` array
+in it. Merge that object into the root of your `settings.json`, or, if you already have a
+`schemes` array, copy the single object inside `schemes` into it. Pasting the file itself
+into the array nests a second wrapper and Windows Terminal shows no new scheme.
+
+Then set `"colorScheme": "Aion"` on a profile.
 
 ## Slots
 

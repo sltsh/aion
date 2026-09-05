@@ -1,18 +1,22 @@
 import { icons } from './icons.js';
-import { kw, fn, nu, va, op, cm, pn, sp, b1, b2, renderCode } from './code.js';
+import { kw, fn, nu, va, op, cm, pn, sp, st, b1, b2, renderCode } from './code.js';
 
 const TOC = [
   ['Getting started', false], ['Install', false], ['The one rule', true],
   ['Contrast', false], ['Adding a colour', false], ['Exemptions', false], ['Reference', false],
 ] as const;
 
+// `solveLightness` returns a lightness, not a colour, and it takes the direction to move
+// in. It bisects the continuous contrast, which is the one place the ideal OKLCH belongs;
+// the emitted pair is what the assertion on the next line reads.
 const SNIPPET = [
   { tokens: [cm('// solve, never choose')] },
-  { tokens: [kw('const'), sp(' '), va('gold'), sp(' '), op('='), sp(' '), fn('solveLightness'), b1('('), nu('0.130'), pn(', '), nu('90'), pn(', '), va('editor'), pn(', '), nu('4.5'), b1(')'), pn(';')] },
-  { tokens: [fn('expect'), b1('('), fn('contrastEmitted'), b2('('), va('gold'), pn(', '), va('editor'), b2(')'), b1(')'), pn('.'), fn('toBeGreaterThanOrEqual'), b1('('), nu('4.5'), b1(')'), pn(';')] },
+  { tokens: [kw('const'), sp(' '), va('lightness'), sp(' '), op('='), sp(' '), fn('solveLightness'), b1('('), nu('0.130'), pn(', '), nu('90'), pn(', '), va('editor'), pn(', '), nu('4.5'), pn(', '), st("'up'"), b1(')'), pn(';')] },
+  { tokens: [kw('const'), sp(' '), va('gold'), sp(' '), op('='), sp(' '), b1('['), va('lightness'), pn(', '), nu('0.130'), pn(', '), nu('90'), b1(']'), pn(';')] },
   { tokens: [] },
-  { tokens: [cm('// the emitted hex is what a reader measures')] },
-  { tokens: [fn('console'), pn('.'), fn('log'), b1('('), fn('hex'), b2('('), va('gold'), b2(')'), b1(')'), pn(';'), sp('  '), cm('// the rounded value a reader measures')] },
+  { tokens: [cm('// the gate reads the emitted hex, so the solved value is checked again')] },
+  { tokens: [fn('expect'), b1('('), fn('contrastEmitted'), b2('('), va('gold'), pn(', '), va('editor'), b2(')'), b1(')'), pn('.'), fn('toBeGreaterThanOrEqual'), b1('('), nu('4.5'), b1(')'), pn(';')] },
+  { tokens: [fn('console'), pn('.'), fn('log'), b1('('), fn('hex'), b2('('), va('gold'), b2(')'), b1(')'), pn(';'), sp('  '), cm('// the rounded value a reader sees')] },
 ] as const;
 
 export function docsSurface(): string {
@@ -51,9 +55,11 @@ export function docsSurface(): string {
         </div>
 
         <h2>Solving a token</h2>
-        <p>Pass the chroma, the hue, the background and the floor. The solver bisects
-          lightness until the emitted pair clears the floor, then rounds in the direction
-          that increases contrast.</p>
+        <p>Pass the chroma, the hue, the background, the floor and the direction to move
+          in. It returns a lightness, not a colour: build the triple from it, then measure
+          that triple with <code>contrastEmitted</code>. The solver bisects the continuous
+          contrast, because bisection needs a smooth function, and the emitted 8-bit pair
+          is what the assertion reads.</p>
 
         ${renderCode(SNIPPET)}
 

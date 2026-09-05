@@ -3,33 +3,37 @@
 Read `DESIGN.md` first. It is the specification. This document is the order of work and
 the record of what is done.
 
-For the 2026-09-05 theme review findings, read [`HANDOVER.md`](HANDOVER.md). All five
-findings are now implemented in code and in the documents. **Native acceptance is still
-open:** nothing below has been seen inside VS Code or Windows Terminal. Every ratio in
-this repository is a calculation over configured colours, not an observation of a
-rendered pixel.
+For the 2026-09-05 theme review findings, read [`HANDOVER.md`](HANDOVER.md). For the
+adversarial review of the same date, read [`ADVERSARIAL_REVIEW.md`](ADVERSARIAL_REVIEW.md);
+its fourteen findings are implemented, and `CHANGELOG.md` records each one. **Native
+acceptance is still open:** nothing below has been seen inside VS Code or Windows
+Terminal. Every ratio in this repository is a calculation over configured colours, not an
+observation of a rendered pixel. The CSS package is the one exception: its cascade, its
+nested-theme case and its selection foreground were checked in Chromium 151.
 
-## State on 2026-09-04
+## State on 2026-09-05
 
 | Task | State | Where |
 |---|---|---|
-| 1. `packages/tokens` — the colour core | **done** | 49 tests |
-| 2. The contrast report | **done** | `npm run verify`, 397 checks |
-| 3. `packages/vscode` | **done** | 630 keys, 64 rules, 30 tests |
-| 4. `packages/terminal` | **done** | 10 tests |
-| 5. `packages/css` | **done** | 11 tests |
-| 6. `apps/lab` | **done** | five surfaces, 41 tests |
-| 7. Release pipeline | **done** | two workflows, two scripts |
-| 8. Marketplace listing | README done, icon and screenshots pending | |
+| 1. `packages/tokens` — the colour core | **done** | `packages/tokens/test` |
+| 2. The contrast report | **done** | `npm run verify` |
+| 3. `packages/vscode` | **done** | `packages/vscode/test/theme.test.ts` |
+| 4. `packages/terminal` | **done** | `packages/terminal/test` |
+| 5. `packages/css` | **done** | `packages/css/test` |
+| 6. `apps/lab` | **done** | five surfaces, `apps/lab/test` |
+| 7. Release pipeline | **done** | two workflows, four scripts, `test/` at the root |
+| 8. Marketplace listing | README done, icon done, screenshots pending | |
 
-The whole workspace is green:
+A count of tests or of gate rows is not written here. Both move with the palette, and a
+stale one in a document is a defect this repository has already shipped twice. Run the
+commands:
 
 ```
 npm run build      every package emits its artefact
-npm test           141 tests, 0 fail
+npm test           every workspace, plus the release and bootstrap tests at the root
 npm run typecheck   strict, noUncheckedIndexedAccess, noUnusedLocals
-npm run verify     397 checks: 368 pass, 0 fail, 5 exempt, 24 informational
-npm run sync:design  regenerates nine tables in DESIGN.md and both READMEs
+npm run verify     the contrast gate; the last line prints the counts
+npm run sync:design  regenerates every generated table from the emitter
 ```
 
 Green here means the calculation passes. It is not evidence that a native editor renders
@@ -166,13 +170,18 @@ documents is typed by hand.
 
 Since the review the gate composites decorations. A translucent overlay is blended as
 8-bit bytes by `compositeEmitted` and the ratio is read afterwards, and `states.ts` names
-the set of backgrounds that a syntax colour is guaranteed on. That is what took the check
-count from 154 to 397.
+the set of backgrounds that a syntax colour is guaranteed on. That is what took the gate
+from a plain-background check to one over every state, and `readingStates()` takes the
+palette it measures, so the lab reports the same set rather than a list of its own.
 
 ## Task 3 — `packages/vscode` — done
 
-630 colour keys, 54 TextMate rules, 32 semantic tokens. Language overrides for Markdown,
-JSON, YAML, HTML, CSS and JSX/TSX. No italics.
+Language overrides for Markdown, JSON, YAML, HTML, CSS and JSX/TSX. No italics. The key,
+rule and token counts are in the generated table in §3 of `DESIGN.md`.
+
+A rule may only use a colour `readingForegrounds()` names, and a test derives that list
+from the emitted theme. Four rules used `dimText`, which is chrome, so no decoration was
+solved against them and no test measured them.
 
 Every key whose value carries an alpha byte names the opaque key it is painted over, in
 the `OVER` table in the theme test. A new alpha key with no entry fails a test rather
@@ -186,15 +195,19 @@ generated theme, so a one-line palette change appears as a reviewable JSON diff.
 ## Task 4 — `packages/terminal` — done
 
 `fragments/aion.json` installs the scheme without a settings edit.
-`snippets/settings.json` is the paste-in form. A test asserts the bright eight are
+`snippets/settings.json` is a whole settings fragment, so a reader merges it at the root
+or copies the object inside its `schemes` array; a test holds the README to that shape and
+to the two directories the loader reads. A test asserts the bright eight are
 byte-identical to the syntax accents.
 
 ## Task 5 — `packages/css` — done
 
 `css/aion.css` carries both schemes under `prefers-color-scheme` and `[data-theme]`, plus
 a base layer, so a page that sets no colours of its own renders correctly.
-`css/aion.theme.css` maps every variable into a Tailwind v4 `@theme` block by reference,
-so a utility class follows the active scheme instead of freezing one.
+`css/aion.theme.css` maps every variable into a Tailwind v4 `@theme inline` block, so a
+utility resolves at the element that carries it and a nested `[data-theme]` region works.
+The element rules live in the `base` cascade layer, so a utility overrides them; Tailwind
+has to be imported first, because its preflight is in the same layer.
 
 ---
 
@@ -239,7 +252,7 @@ Still open:
 
 - **Four screenshots:** editor, diff, terminal, sidebar. Install the `.vsix` in a real
   VS Code window and capture them there. The lab is a good rehearsal, but a marketplace
-  screenshot has to be the editor itself.
+  screenshot has to be the editor itself. Nothing is committed for them yet.
 
 ---
 
@@ -262,6 +275,9 @@ been seen rendered. These remain open, in the order they matter:
 - **Keyboard navigation** through lists and controls, so the raised `border` and the
   solid gold `list.focusOutline` are visibly the focused item.
 - **Git conflicts and debugging state**, now that violet has left both.
+- **Unused code.** The fade is gone, because no opacity keeps a syntax colour above the
+  floor, and `editorUnnecessaryCode.border` draws a dashed underline instead. Confirm the
+  underline is visible and that the language service still marks an unused import.
 - **The terminal scenarios**: SGR 30, bright black prompt text, coloured backgrounds and
   reverse video, in the VS Code panel and in Windows Terminal. Record whether either
   applies a minimum-contrast correction that changes the requested colours.
@@ -273,11 +289,11 @@ been seen rendered. These remain open, in the order they matter:
 ## Definition of done for the whole plan
 
 - `npm run verify` exits 0. **Met.**
-- Every test passes, including the snapshots. **Met, 141 tests.**
+- Every test passes, including the snapshots. **Met.**
 - The `.vsix` installs and renders correctly in VS Code. **Packages; not yet installed.**
 - The Windows Terminal fragment installs and renders correctly. **Not yet installed.**
 - The lab renders all five surfaces from the same token module. **Met.**
 - `DESIGN.md` and the emitted values agree. **Met, and asserted by a test.**
-- Every shared claim agrees with the emitter. **Met: the rival tables in both READMEs are
-  generated, and a test rejects a hex quoted in any of the four documents that the token
-  package does not emit.**
+- Every shared claim agrees with the emitter. **Met: every table and every count in
+  `DESIGN.md` and the three READMEs is generated, and a test rejects any hex in six
+  documents that the token package does not emit.**

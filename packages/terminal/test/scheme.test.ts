@@ -18,6 +18,22 @@ test('the committed settings snippet matches the generated snippet', () => {
   expect(onDisk).toEqual(JSON.parse(JSON.stringify(settingsSnippet())));
 });
 
+// Finding 13: the README told a reader to paste the snippet file into the `schemes` array,
+// which nests a second wrapper, and named a Store-only fragments directory the loader does
+// not read. Both instructions are checked against the shape this package emits.
+test('the install instructions match the files this package ships', () => {
+  const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+  const snippet = settingsSnippet() as { schemes: { name: string }[] };
+  expect(Object.keys(snippet), 'the snippet is a wrapper, not a scheme').toEqual(['schemes']);
+  expect(snippet.schemes[0]!.name).toBe('Aion');
+  expect(readme, 'tell the reader to merge the wrapper or copy the object inside it')
+    .toContain('copy the single object inside `schemes` into it');
+  expect(readme, 'the loader reads no LocalState fragments directory').not.toContain('LocalState');
+  for (const folder of ['LOCALAPPDATA', 'PROGRAMDATA']) {
+    expect(readme, folder).toContain(`$env:${folder}\\Microsoft\\Windows Terminal\\Fragments`);
+  }
+});
+
 test('the scheme carries all sixteen slots plus the four surface colours', () => {
   expect(Object.keys(built)).toHaveLength(21);
   for (const [key, value] of Object.entries(built)) {

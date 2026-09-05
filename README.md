@@ -16,11 +16,23 @@ editor is the **darkest** surface and the sidebar is raised above it.
 | Nord | `#2e3440` | `#2e3440` | one surface |
 | Catppuccin Mocha | `#1e1e2e` | `#1e1e2e` | one surface |
 
-**The contrast floor is a build step.** Every token is defined in OKLCH and checked
+**The contrast floor is a gate, not a claim.** Every token is defined in OKLCH and checked
 against the surface it sits on, decorations composited the way the renderer composites
-them. A token below 4.5:1 fails the build. The gate covers a named set of reading states,
-not every state a renderer can produce; `packages/vscode/README.md` lists the set and the
-three exemptions.
+them. `npm run verify` exits non-zero on a token below its floor, and CI runs it on every
+branch, so a colour below the floor cannot be released. The gate covers a named set of
+reading states, not every state a renderer can produce; §3.1 of `DESIGN.md` is the set,
+and there are three documented exemptions.
+
+| What the gate checks | Count |
+|---|---:|
+| Rows measured | 611 |
+| Below their floor | 0 |
+| Exempt rows, all documented | 5 |
+| Reading states per syntax colour | 35 |
+| Lowest ratio in a reading state | 4.50:1 |
+| Interface keys the theme sets | 622 |
+| TextMate rules | 64 |
+| Semantic tokens | 32 |
 
 | Theme | Lowest ratio | Below 4.5:1 | Source |
 |---|---|---|---|
@@ -31,16 +43,17 @@ three exemptions.
 | Catppuccin Mocha | 5.81 | none | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
 
 Eight syntax roles on a plain editor line, against each theme's own editor background,
-read on 2026-09-05 at the revision named. Both tables are generated: `npm run sync:design`
-rewrites them from the token package, so the copy cannot drift from the emitter. This
-compares eight colours, not accessibility and not usability.
+read on 2026-09-05 at the revision named. Every table here is generated: `npm run
+sync:design` rewrites them from the token package and the emitted theme, so the copy
+cannot drift from the emitter. This compares eight colours, not accessibility and not
+usability.
 
 ## Packages
 
 | Package | What it ships |
 |---|---|
 | `packages/tokens` | `@sltio/aion-tokens` — the OKLCH definitions and the build gate |
-| `packages/vscode` | the VS Code extension, 630 keys |
+| `packages/vscode` | the VS Code extension: the theme, its gate and its scope fixtures |
 | `packages/terminal` | the Windows Terminal fragment and settings snippet |
 | `packages/css` | custom properties and a Tailwind v4 `@theme` block |
 | `apps/lab` | the surface gallery: five surfaces, one palette, six live sliders |
@@ -50,7 +63,7 @@ compares eight colours, not accessibility and not usability.
 ```bash
 npm install
 npm run build       # every package emits its artefact
-npm test            # 122 tests
+npm test            # every workspace, plus the release and bootstrap tests at the root
 npm run typecheck
 npm run verify      # the contrast gate; exits non-zero on any failure
 npm run sync:design # regenerates the generated tables in DESIGN.md and both READMEs

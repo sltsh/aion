@@ -334,5 +334,15 @@ export function designTables(): Record<string, string> {
     return `| ${index} | ${wt(normal)} | \`${hex(ansi[normal])}\` | ${index + 8} | ${wt(bright)} | \`${hex(ansi[bright])}\` |`;
   }).join('\n');
 
-  return { rivals: rivalRows, surfaces: surfaceRows, listing: listingRows, slots: slotRows, neutral: neutralRows, accent: accentRows, syntax: syntaxRows, overlay: overlayRows, diff: diffRows, ansi: ansiRows, light: lightRows };
+  // The covered set, written out. The documents used to say "twenty-five states" in prose
+  // while the function returned thirty-five, and a reader had no way to see which ones.
+  const foregrounds = readingForegrounds();
+  const stateRows = readingStates().map((state) => {
+    const worst = Object.entries(foregrounds)
+      .map(([role, colour]) => ({ role, value: contrastEmitted(colour, state.background) }))
+      .sort((a, b) => a.value - b.value)[0]!;
+    return `| ${state.name} | \`${hex(state.background)}\` | ${worst.role} | ${ratio(worst.value)} |`;
+  }).join('\n');
+
+  return { rivals: rivalRows, surfaces: surfaceRows, listing: listingRows, slots: slotRows, neutral: neutralRows, accent: accentRows, syntax: syntaxRows, overlay: overlayRows, diff: diffRows, ansi: ansiRows, light: lightRows, states: stateRows };
 }

@@ -29,7 +29,7 @@ suite. Do not edit a hex value by hand; change the OKLCH definition and regenera
 | Secondary | Teal — §5 carries the value |
 | Base hue | 264° — the same hue as Ayu Dark, at higher lightness |
 | Structure | Raised sidebar: the editor is the darkest surface |
-| Violet | A syntax hue. Four interface keys carry it, listed in §6. |
+| Violet | A syntax hue. Five interface keys carry it, listed in §6. |
 
 ## 3. Rules the build enforces
 
@@ -44,22 +44,32 @@ suite. Do not edit a hex value by hand; change the OKLCH definition and regenera
 | Meaning-pair lightness gap | ≥ 0.06 |
 | Gamut | every colour inside sRGB |
 
-**What the floor covers.** A syntax colour has to clear 4.5:1 on the editor, the peek
-editor, a hover or suggest widget, and under a current-line highlight, a selection, a word
-highlight, or any stack of the three. It has to clear it again with a diff line wash, or a
-line wash and a word wash, painted on top of any of those. The gate composites each decoration the way the renderer composites it and
-measures the result. Twenty-five states are covered and the worst reads 4.50:1. A state
-that is not in that set is not covered by the claim, and `packages/tokens/src/states.ts`
-is the list.
+**What the floor covers.** A syntax colour has to clear 4.5:1 on every state in §3.1. The
+gate composites each decoration the way the renderer composites it and measures the
+result. A state that is not in that table is not covered by the claim;
+`packages/tokens/src/states.ts` is the list the table is generated from, and the current
+line and a selection are deliberately not stacked, because VS Code renders the
+current-line background only while every selection is empty.
+
+| What the gate checks | Count |
+|---|---:|
+| Rows measured | 611 |
+| Below their floor | 0 |
+| Exempt rows, all documented | 5 |
+| Reading states per syntax colour | 35 |
+| Lowest ratio in a reading state | 4.50:1 |
+| Interface keys the theme sets | 622 |
+| TextMate rules | 64 |
+| Semantic tokens | 32 |
 
 **Keys a dark theme must not set.** VS Code registers 47 colours with `light: null,
 dark: null` and a value only for the high contrast themes. An outline round every match is
 the point there and noise here: `editor.wordHighlightBorder` boxes every occurrence of the
-word under the caret. Aion sets sixteen of them, all structural — one edge between two
-regions, plus `input.border` and the terminal's current-match outline —
-and `test/high-contrast-only.json` fails the build on a seventeenth.
+word under the caret. Aion sets only structural ones — one edge between two regions, plus
+`input.border`, the terminal's current-match outline and the unused-code underline — and
+`test/high-contrast-only.json` fails the build on any other.
 
-**Documented exemptions.** Three, and only three.
+**Documented exemptions.** Three kinds, and only three.
 
 - **Inactive line numbers** sit at 4.25:1. They are decorative; the active line number
   uses primary text. The exemption is dark only; the light ramp clears the floor.
@@ -69,6 +79,50 @@ and `test/high-contrast-only.json` fails the build on a seventeenth.
 - **ANSI slot 0** reads 1.31:1 as a foreground. SGR 30 does select it, so this is a
   limitation, not a claim that no application uses the slot for text. §10 gives the
   trade-off and what slot 0 does guarantee.
+
+### 3.1 The states the floor covers
+
+Every background a syntax colour is guaranteed on, composited the way the renderer
+composites it, with the foreground that reads worst on each. Generated from
+`readingStates()`.
+
+| State | Background | Worst foreground | Ratio |
+|---|---|---|---:|
+| editor | `#11151c` | comment | 6.95 |
+| editor + lineHighlight | `#21252d` | comment | 5.84 |
+| editor + selection | `#0b2d5f` | comment | 5.13 |
+| editor + wordHighlight | `#191d25` | comment | 6.42 |
+| editor + lineHighlight + wordHighlight | `#252931` | comment | 5.54 |
+| editor + selection + wordHighlight | `#152f55` | comment | 5.09 |
+| peekEditor | `#14181f` | comment | 6.76 |
+| peekEditor + lineHighlight | `#23272f` | comment | 5.69 |
+| peekEditor + selection | `#0d2f61` | comment | 5.00 |
+| peekEditor + wordHighlight | `#1c2027` | comment | 6.21 |
+| peekEditor + lineHighlight + wordHighlight | `#262a32` | comment | 5.47 |
+| peekEditor + selection + wordHighlight | `#163056` | comment | 5.02 |
+| hoverWidget | `#1e222a` | comment | 6.06 |
+| findMatch | `#463500` | comment | 4.51 |
+| findMatch + wordHighlight | `#403410` | comment | 4.65 |
+| editor + addedLine | `#0f1f1d` | comment | 6.47 |
+| editor + addedLine + addedWord | `#0d2b1e` | comment | 5.78 |
+| editor + removedLine | `#2f1921` | comment | 6.23 |
+| editor + removedLine + removedWord | `#491d25` | comment | 5.37 |
+| editor + lineHighlight + addedLine | `#1d2d2c` | comment | 5.45 |
+| editor + lineHighlight + addedLine + addedWord | `#18362b` | comment | 4.98 |
+| editor + lineHighlight + removedLine | `#3c262f` | comment | 5.28 |
+| editor + lineHighlight + removedLine + removedWord | `#542731` | comment | 4.66 |
+| editor + selection + addedLine | `#0a3458` | comment | 4.85 |
+| editor + selection + addedLine + addedWord | `#093c50` | comment | 4.50 |
+| editor + selection + removedLine | `#2a2d59` | comment | 4.93 |
+| editor + selection + removedLine + removedWord | `#452d54` | comment | 4.54 |
+| editor + findMatchOther | `#2d2816` | comment | 5.60 |
+| peekEditor + findMatchOther | `#2f2a17` | comment | 5.45 |
+| editor + lineHighlight + findMatchOther | `#373220` | comment | 4.87 |
+| peekEditor + lineHighlight + findMatchOther | `#383321` | comment | 4.80 |
+| editor + selection + findMatchOther | `#29373e` | comment | 4.67 |
+| peekEditor + selection + findMatchOther | `#2b383f` | comment | 4.59 |
+| editor + selection + wordHighlight + findMatchOther | `#2f3838` | comment | 4.58 |
+| peekEditor + selection + wordHighlight + findMatchOther | `#303838` | comment | 4.57 |
 
 **How a ratio is measured.** Every ratio in this document reads the emitted 8-bit hex,
 not the ideal OKLCH, because that hex is what a user sees. The two readings differ by up
@@ -144,10 +198,11 @@ The One Dark Pro **role map**, with every hex re-derived inside the drift limit.
 
 - **No italics.** Not on comments, not on keywords.
 - **Bracket pairs** nest gold → teal → violet, then repeat.
-- **Violet in the interface** reaches exactly four keys, and a test fails on a fifth:
+- **Violet in the interface** reaches exactly five keys, and a test fails on a sixth:
   `editorBracketHighlight.foreground3` and `foreground6` for the cycle above,
   `symbolIcon.keywordForeground`, which mirrors the keyword colour, `charts.purple`,
-  where an extension asks for the hue by name, and ANSI slot 13.
+  where an extension asks for the hue by name, and `terminal.ansiBrightMagenta`, which is
+  slot 13 and is the violet accent by design.
 - **Cursor** is gold.
 - **Semantic tokens are on**, mirroring the TextMate map. No extra distinctions.
 - **Language overrides** for six languages only: Markdown, JSON, YAML, HTML, CSS,
@@ -417,8 +472,8 @@ Consumers use the semantic layer. Changing what "keyword" means is one line.
 
 ## 13. Scope of v1
 
-**In.** Colour. VS Code (630 keys, 54 token rules, 32 semantic tokens), Windows Terminal,
-a CSS layer with custom properties and a Tailwind v4 `@theme` block, and the lab site.
+**In.** Colour. VS Code, Windows Terminal, a CSS layer with custom properties and a
+Tailwind v4 `@theme inline` block, and the lab site. §3 counts what the theme sets.
 
 **Out.** Typography, spacing, radius, elevation and motion as shipped tokens. A light VS
 Code theme. JetBrains and Neovim. Italic variants. More than six language overrides.
