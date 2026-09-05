@@ -32,8 +32,8 @@ export {
 export type { Marker, Solution } from './solve.js';
 export { solveMarker, binding, distanceEmitted } from './solve.js';
 
-export type { ReadingState, SurfaceName } from './states.js';
-export { readingStates, readingForegrounds } from './states.js';
+export type { ReadingState, StateSource, SurfaceName } from './states.js';
+export { readingStates, readingForegrounds, SHIPPED } from './states.js';
 
 export { flatten } from './flatten.js';
 

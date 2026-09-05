@@ -6,7 +6,7 @@ show a colour the extension does not ship.
 ```
 npm run dev -w ./apps/lab       # http://localhost:8421
 npm run build -w ./apps/lab     # static output in dist/
-npm test -w ./apps/lab          # 20 tests
+npm test -w ./apps/lab          # 52 tests
 ```
 
 ## How it works
@@ -20,7 +20,7 @@ rather than a copy of them.
 |---|---|
 | `src/variables.ts` | palette → custom properties on the root |
 | `src/controls.ts` | six OKLCH sliders and a reset to the shipped values |
-| `src/readout.ts` | live contrast table that marks any token below 4.5:1 |
+| `src/readout.ts` | live contrast table over the reading states, ANSI slots and chrome |
 | `src/render/code.ts` | the tokenised code sample and its renderer |
 | `src/render/icons.ts` | inline SVG glyphs, never a Nerd Font web build |
 | `src/render/*.ts` | one module per surface |
@@ -39,7 +39,7 @@ build works under any `base`. GitHub Pages will need only the `base` option in
 | VS Code | raised sidebar, tabs, diff hunk, nested brackets, selection, word highlight, find match, hover card, terminal panel, status bar |
 | Windows Terminal | prompt with git status, coloured listing, an error, all sixteen ANSI slots |
 | Landing page | hero, feature cards, buttons, pull quote |
-| Admin dashboard | KPI cards, chart, alerts in all four statuses, table with status pills |
+| Admin dashboard | KPI cards, chart, alerts in all four statuses, table with status pills. Every figure comes from `checks()`; the two invented alerts say SAMPLE |
 | Documentation | prose, callouts, a code block on the editor surface, a reference table |
 
 ## What the tests hold in place
@@ -53,6 +53,11 @@ build works under any `base`. GitHub Pages will need only the `base` option in
 - **Violet is a syntax hue only.** The test asserts the violet accent scale never reaches
   the interface, and that `--s-keyword` does.
 - No source file and no stylesheet contains a hex literal.
+- The readout measures the palette the sliders build against `readingStates()`, the same
+  set the build gate uses, rather than a second list of its own. A test drops the comment
+  to lightness 0.600, which still clears 4.5:1 on the plain editor, and asserts the readout
+  reports the failure it has on a selected word inside an added diff line.
+- Every number the dashboard prints is a row `checks()` produced.
 
 ## Still open
 

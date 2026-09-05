@@ -1,4 +1,4 @@
-import { exemptRows, figures } from '../figures.js';
+import { exemptRows, figures, sections, tightest } from '../figures.js';
 import { icons } from './icons.js';
 
 const NAV = [
@@ -6,23 +6,18 @@ const NAV = [
   ['shield', 'Audits', false], ['gear', 'Settings', false],
 ] as const;
 
+// Every number on this surface comes from the same `checks()` the build gate runs. The
+// dashboard used to hardcode a token count, four deltas, twelve chart bars, a claim about
+// releases since 0.0.9 and a failing boundary row, none of which any run produced.
 const KPIS = [
-  { label: 'Tokens checked', value: '154', delta: '+12', trend: 'up' },
-  { label: 'Below the floor', value: '0', delta: '−2', trend: 'up' },
-  { label: 'Lowest ratio', value: '4.54', delta: '+0.09', trend: 'up' },
-  { label: 'Exemptions', value: '2', delta: '0', trend: 'flat' },
+  { label: 'Rows gated', value: String(figures.gated), note: `${figures.passed} pass` },
+  { label: 'Below the floor', value: String(figures.failed), note: `floor ${figures.floor}` },
+  { label: 'Reading states', value: String(figures.readingStates), note: 'per syntax colour' },
+  { label: 'Exemptions', value: String(figures.exempt), note: 'each documented' },
 ] as const;
 
-const ROWS = [
-  ['fg.primary', 'bg.editor', '14.8', 'success', 'Pass'],
-  ['fg.secondary', 'bg.sidebar', '7.71', 'success', 'Pass'],
-  ['fg.dim', 'bg.widget', '4.54', 'warning', 'Near'],
-  ['fg.muted', 'bg.editor', '4.25', 'info', 'Exempt'],
-  ['accent.gold', 'bg.editor', '11.2', 'success', 'Pass'],
-  ['border.ui', 'bg.page', '2.60', 'error', 'Fail'],
-] as const;
-
-const BARS = [62, 88, 45, 96, 74, 58, 81, 39, 92, 67, 84, 71];
+const HEADROOM = (row: { ratio: number; floor: number }): number => row.ratio - row.floor;
+const CHART_CEILING = 12;
 
 export function dashboardSurface(): string {
   return `
@@ -57,15 +52,18 @@ export function dashboardSurface(): string {
           <div class="kpi">
             <span class="kpi-label">${kpi.label}</span>
             <span class="kpi-value">${kpi.value}</span>
-            <span class="kpi-delta is-${kpi.trend}">${kpi.delta}</span>
+            <span class="kpi-delta is-flat">${kpi.note}</span>
           </div>`).join('')}
       </div>
 
       <div class="app-split">
         <section class="surface-card">
-          <h3>Ratio by build</h3>
-          <div class="chart">${BARS.map((height) => `<i style="height:${height}%"></i>`).join('')}</div>
-          <p class="chart-note">Twelve builds. The gate has not been below the floor since 0.0.9.</p>
+          <h3>Lowest ratio by section</h3>
+          <div class="chart">${sections.map((section) => `
+            <i title="${section.name}: ${section.lowest.toFixed(2)}:1 over ${section.count} rows"
+               style="height:${Math.min(100, (section.lowest / CHART_CEILING) * 100).toFixed(1)}%"></i>`).join('')}</div>
+          <p class="chart-note">${sections.length} sections of the gate, ${figures.gated} rows.
+            Each bar is the lowest ratio that section produced, against a ${CHART_CEILING}:1 ceiling.</p>
         </section>
 
         <section class="surface-card">
@@ -78,16 +76,17 @@ export function dashboardSurface(): string {
       </div>
 
       <section class="surface-card">
-        <h3>Pairs</h3>
+        <h3>Pairs <span class="app-sub">the least room left in each section</span></h3>
         <table class="table">
           <thead><tr><th>Foreground</th><th>Background</th><th class="is-numeric">Ratio</th><th>State</th></tr></thead>
           <tbody>
-            ${ROWS.map(([fg, bg, ratio, status, label]) => `
+            ${tightest.map((row) => `
               <tr>
-                <td class="is-mono">${fg}</td>
-                <td class="is-mono">${bg}</td>
-                <td class="is-numeric is-mono">${ratio}</td>
-                <td><span class="status-pill is-${status}">${label}</span></td>
+                <td class="is-mono">${row.token}</td>
+                <td class="is-mono">${row.surface}</td>
+                <td class="is-numeric is-mono">${row.ratio.toFixed(2)}</td>
+                <td><span class="status-pill is-${HEADROOM(row) < 0.1 ? 'warning' : 'success'}">${
+                  HEADROOM(row) < 0.1 ? 'Near' : 'Pass'}</span></td>
               </tr>`).join('')}
           </tbody>
         </table>

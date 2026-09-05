@@ -1,6 +1,6 @@
 import type { Oklch } from './oklch.js';
 import { compositeEmitted } from './oklch.js';
-import type { DiffWashName, OverlayName, SyntaxRole } from './palette.js';
+import type { DiffWashName, NeutralName, Overlay, OverlayName, SyntaxRole } from './palette.js';
 import { ACCENTS, SYNTAX, comment, diffWash, findMatch, neutral, overlay } from './palette.js';
 
 export interface ReadingState {
@@ -8,16 +8,35 @@ export interface ReadingState {
   readonly background: Oklch;
 }
 
-const SURFACE = {
-  editor: neutral.editor,
-  peekEditor: neutral.terminal,
-  hoverWidget: neutral.widget,
+// The palette the states are read from. The shipped one is the default; the lab passes its
+// preview palette, so the live readout measures the same states the build gate does rather
+// than a second list that drifts from this one.
+export interface StateSource {
+  readonly neutral: Record<NeutralName, Oklch>;
+  readonly overlay: Record<OverlayName, Overlay>;
+  readonly diffWash: Record<DiffWashName, Overlay>;
+  readonly findMatch: { readonly current: Oklch };
+  readonly syntax: Record<SyntaxRole, Oklch>;
+  readonly comment: Oklch;
+}
+
+export const SHIPPED: StateSource = {
+  neutral, overlay, diffWash, findMatch, comment,
+  syntax: Object.fromEntries(
+    (Object.keys(SYNTAX) as SyntaxRole[]).map((role) => [role, ACCENTS[SYNTAX[role]]]),
+  ) as Record<SyntaxRole, Oklch>,
+};
+
+const surfaces = (source: StateSource) => ({
+  editor: source.neutral.editor,
+  peekEditor: source.neutral.terminal,
+  hoverWidget: source.neutral.widget,
   // The current find match is opaque, so it is a surface rather than an overlay. Nothing
   // it covers can raise it, which is why it may be the loudest decoration in the editor.
-  findMatch: findMatch.current,
-} as const satisfies Record<string, Oklch>;
+  findMatch: source.findMatch.current,
+});
 
-export type SurfaceName = keyof typeof SURFACE;
+export type SurfaceName = keyof ReturnType<typeof surfaces>;
 
 // A stack is the decorations the native editor paints over one another on the same
 // characters. A selection and a word highlight can both land on a word the caret is
@@ -63,44 +82,44 @@ const OTHER_MATCH_BASES: readonly (readonly OverlayName[])[] = [
   [], ['lineHighlight'], ['selection'], ['selection', 'wordHighlight'],
 ];
 
-const stackOn = (base: Oklch, names: readonly OverlayName[]): Oklch =>
-  names.reduce((under, name) => compositeEmitted(overlay[name].color, overlay[name].alpha, under), base);
-
-const washOn = (base: Oklch, names: readonly DiffWashName[]): Oklch =>
-  names.reduce((under, name) => compositeEmitted(diffWash[name].color, diffWash[name].alpha, under), base);
-
 // The complete set of backgrounds the contrast guarantee covers. Anything absent here is
 // outside the claim, and `README.md` says so rather than implying every state passes.
-export function readingStates(): ReadingState[] {
+export function readingStates(source: StateSource = SHIPPED): ReadingState[] {
+  const stackOn = (base: Oklch, names: readonly OverlayName[]): Oklch =>
+    names.reduce((under, name) =>
+      compositeEmitted(source.overlay[name].color, source.overlay[name].alpha, under), base);
+  const washOn = (base: Oklch, names: readonly DiffWashName[]): Oklch =>
+    names.reduce((under, name) =>
+      compositeEmitted(source.diffWash[name].color, source.diffWash[name].alpha, under), base);
+
+  const surface = surfaces(source);
   const rows: ReadingState[] = [];
-  for (const [surface, base] of Object.entries(SURFACE) as [SurfaceName, Oklch][]) {
-    for (const stack of STACKS[surface]) {
-      rows.push({ name: [surface, ...stack].join(' + '), background: stackOn(base, stack) });
+  for (const [name, base] of Object.entries(surface) as [SurfaceName, Oklch][]) {
+    for (const stack of STACKS[name]) {
+      rows.push({ name: [name, ...stack].join(' + '), background: stackOn(base, stack) });
     }
   }
   for (const base of DIFF_BASES) {
     for (const layer of DIFF_LAYERS) {
       rows.push({
         name: ['editor', ...base, ...layer].join(' + '),
-        background: washOn(stackOn(SURFACE.editor, base), layer),
+        background: washOn(stackOn(surface.editor, base), layer),
       });
     }
   }
   for (const base of OTHER_MATCH_BASES) {
-    for (const surface of ['editor', 'peekEditor'] as const) {
+    for (const name of ['editor', 'peekEditor'] as const) {
       rows.push({
-        name: [surface, ...base, 'findMatchOther'].join(' + '),
-        background: stackOn(stackOn(SURFACE[surface], base), ['findMatchOther']),
+        name: [name, ...base, 'findMatchOther'].join(' + '),
+        background: stackOn(stackOn(surface[name], base), ['findMatchOther']),
       });
     }
   }
   return rows;
 }
 
-export const readingForegrounds = (): Record<string, Oklch> => ({
-  comment,
-  punctuation: neutral.textSecondary,
-  ...Object.fromEntries(
-    (Object.keys(SYNTAX) as SyntaxRole[]).map((role) => [role, ACCENTS[SYNTAX[role]]]),
-  ),
+export const readingForegrounds = (source: StateSource = SHIPPED): Record<string, Oklch> => ({
+  comment: source.comment,
+  punctuation: source.neutral.textSecondary,
+  ...source.syntax,
 });

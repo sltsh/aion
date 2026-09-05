@@ -135,6 +135,8 @@ code, .is-mono { font-family: var(--mono); font-size: 0.92em; }
 .readout-table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .readout-table td { padding: 3px 0; border-bottom: 1px solid var(--n-hairline); color: var(--n-text-secondary); }
 .readout-table tr.is-fail td { color: var(--a-coral); font-weight: 600; }
+.readout-scope { font-size: 10px; color: var(--n-dim); margin: 2px 0 6px; }
+.readout-against { display: block; font-size: 10px; color: var(--n-dim); }
 .readout-hex { font-family: var(--mono); color: var(--n-dim); }
 .readout-ratio { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .swatch { display: inline-block; width: 9px; height: 9px; margin-right: 7px; border-radius: 2px; }

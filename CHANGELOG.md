@@ -198,6 +198,17 @@ plain background, and that several claims ran ahead of what it checked. See `HAN
 - The Tailwind aliases use `@theme inline`. A plain alias resolves where it is defined, at
   the root, so `bg-bg-raised` inside a nested `[data-theme="light"]` region kept the dark
   root value even though the region's own Aion variables were light.
+- The lab's live readout measured each syntax colour against the plain editor and three
+  plain UI pairs, which is the blind spot the gate was rewritten to close. It reported ALL
+  CLEAR for a comment at lightness 0.600 that reads 4.62:1 on the editor and 2.99:1 on a
+  selected word inside an added diff line. `readingStates` and `readingForegrounds` now
+  take the palette they measure, so the lab passes its preview palette to the same
+  evaluator the build gate uses instead of keeping a second list of states.
+- The lab dashboard presented invented numbers as measurements: a token count of 154, four
+  deltas, twelve chart bars, a claim that the gate had stayed above the floor since 0.0.9,
+  and a Pairs table with a failing boundary row no run produced. The KPIs, the chart and
+  the table are generated from `checks()`; the chart shows the lowest ratio each section of
+  the gate produced and the table the passing row with the least room left in each.
 
 ## 0.1.0
 

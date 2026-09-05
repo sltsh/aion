@@ -1,7 +1,11 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
-import { ACCENTS, buildPalette, checks, hex, neutral, terminalBackground } from '@sltio/aion-tokens';
-import { figures } from '../src/figures.js';
+import {
+  ACCENTS, CONTRAST_FLOOR, buildPalette, checks, contrastEmitted, hex, neutral,
+  readingForegrounds, readingStates, terminalBackground,
+} from '@sltio/aion-tokens';
+import { figures, tightest } from '../src/figures.js';
+import { readoutRows } from '../src/readout.js';
 import { variables } from '../src/variables.js';
 import { SURFACES } from '../src/render/index.js';
 
@@ -214,12 +218,54 @@ describe('the lab demonstrates the mappings the extension ships', () => {
 // A number the lab renders next to a colour reads as a measurement. These come from the
 // same `checks()` the build gate runs, so a palette change moves them; anything the lab
 // invents to fill a mock UI says SAMPLE instead.
+describe('the live readout', () => {
+  // Finding 11: the readout checked each syntax colour against the plain editor alone, so
+  // a comment at lightness 0.600 read 4.62:1 there and the lab said ALL CLEAR while the
+  // same colour failed on a selected word inside an added diff line.
+  test('measures every reading state, not the plain editor alone', () => {
+    const palette = buildPalette({ commentLightness: 0.600 });
+    const comment = readoutRows(palette).find((row) => row.label === 'comment')!;
+    expect(contrastEmitted(palette.comment, palette.neutral.editor)).toBeGreaterThan(CONTRAST_FLOOR);
+    expect(comment.ratio).toBeLessThan(CONTRAST_FLOOR);
+    expect(comment.against).toContain('selection');
+  });
+
+  test('the shipped palette is all clear', () => {
+    const failing = readoutRows(buildPalette()).filter((row) => row.ratio < row.floor);
+    expect(failing.map((row) => `${row.label} on ${row.against}`)).toEqual([]);
+  });
+
+  test('it reads the reading states rather than a second list of its own', () => {
+    const palette = buildPalette();
+    const names = new Set(readingStates(palette).map((state) => state.name));
+    const covered = readoutRows(palette).filter((row) => names.has(row.against));
+    expect(covered.length).toBeGreaterThanOrEqual(Object.keys(readingForegrounds(palette)).length - 2);
+  });
+});
+
 describe('the figures the lab quotes', () => {
   test('every ratio on a surface is one the gate produced', () => {
     const quoted = [...html.matchAll(/(\d+\.\d+):1/g)].map((match) => match[0]);
     expect(quoted.length).toBeGreaterThan(2);
-    const produced = new Set(Object.values(figures).map(String));
+    const produced = new Set([
+      ...Object.values(figures).map(String),
+      ...checks().map((row) => `${row.ratio.toFixed(2)}:1`),
+    ]);
     expect(quoted.filter((value) => !produced.has(value))).toEqual([]);
+  });
+
+  // Finding 14: the dashboard hardcoded a token count, four deltas, twelve chart bars, a
+  // claim about releases since 0.0.9, and a Pairs table with a failing row no run produced.
+  test('the dashboard quotes no number the gate did not produce', () => {
+    const dashboard = SURFACES.find((surface) => surface.id === 'dashboard')!.html();
+    for (const row of tightest) {
+      expect(dashboard, row.token).toContain(row.token);
+      expect(dashboard, `${row.token} ratio`).toContain(row.ratio.toFixed(2));
+    }
+    expect(dashboard).toContain(String(figures.gated));
+    expect(dashboard).not.toContain('0.0.9');
+    // Every cell of the Pairs table is a row of the gate, so none of them can be a failure.
+    expect(tightest.every((row) => row.state === 'pass')).toBe(true);
   });
 
   test('the counts match the gate, not a transcribed number', () => {
