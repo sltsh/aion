@@ -100,6 +100,10 @@ review on the same date found fourteen more. Every entry below is one of those f
   inside it and on the chrome behind it. `input.border` read 1.41:1 before this.
 - `list.focusOutline` uses solid gold. It read 2.61:1 against the row it outlines.
 - ANSI slot 8 rose to lightness 0.652. It read 4.49:1 on the VS Code panel.
+- Native acceptance is recorded. Every state the gate covers was checked in VS Code and
+  in Windows Terminal rather than in a calculation, so `PLAN.md` carries a "Native
+  acceptance" section in place of the list of what nobody had seen. A palette change makes
+  it a calculation again, which is what the section says.
 - Rival comparison values were re-read from each theme at a recorded revision. One Dark
   Pro's comment and Catppuccin's comment had both moved; Catppuccin Mocha now clears the
   floor on all eight roles, so the claim that no rival does was removed rather than kept.

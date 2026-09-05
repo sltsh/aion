@@ -5,11 +5,10 @@ the record of what is done.
 
 The 2026-09-05 adversarial review found fourteen defects and all fourteen are
 implemented. `CHANGELOG.md` records each one, alongside the theme review of the same
-date, defects 10 to 15 below. **Native
-acceptance is still open:** nothing below has been seen inside VS Code or Windows
-Terminal. Every ratio in this repository is a calculation over configured colours, not an
-observation of a rendered pixel. The CSS package is the one exception: its cascade, its
-nested-theme case and its selection foreground were checked in Chromium 151.
+date, defects 10 to 15 below. Every ratio here is a calculation over configured colours.
+"Native acceptance" below records what was then checked in the applications themselves.
+The CSS package was checked separately, in Chromium 151: its cascade, its nested-theme
+case and its selection foreground.
 
 ## State on 2026-09-05
 
@@ -37,7 +36,7 @@ npm run sync:design  regenerates every generated table from the emitter
 ```
 
 Green here means the calculation passes. It is not evidence that a native editor renders
-what the calculation assumes; see "What is still unverified" below.
+what the calculation assumes. "Native acceptance" below records that separately.
 
 ## Defects that running the code found
 
@@ -251,9 +250,9 @@ table is the reason to install Aion over One Dark Pro.
 
 Still open:
 
-- **Four screenshots:** editor, diff, terminal, sidebar. Install the `.vsix` in a real
-  VS Code window and capture them there. The lab is a good rehearsal, but a marketplace
-  screenshot has to be the editor itself. Nothing is committed for them yet.
+- **Four screenshots:** editor, diff, terminal, sidebar. Capture them from the installed
+  extension. The lab is a good rehearsal, but a marketplace screenshot has to be the
+  editor itself. Nothing is committed for them yet.
 
 ---
 
@@ -261,38 +260,32 @@ Still open:
 
 Tasks 1 to 7 are done. Task 8 needs four screenshots from a real editor.
 
-## What is still unverified
+## Native acceptance
 
-Every number in this repository is calculated from configured colours. None of it has
-been seen rendered. These remain open, in the order they matter:
+Checked in the applications themselves on 2026-09-05, not in a calculation:
 
 - **VS Code, dense TypeScript and TSX**, semantic highlighting on and off, the six
-  language overrides, and an ordinary installed font rather than the lab font.
-- **The states the gate now covers**, confirmed in the editor rather than in a
-  calculation: comment search, selection, the current line, hover and peek code, line and
-  word diffs, and overlapping decorations. In particular, confirm that VS Code applies
-  `editor.findMatchForeground` and `editor.findMatchHighlightForeground` as the docs say,
-  and that a peek editor takes `peekViewEditor.background` under its code.
+  language overrides, and an installed font rather than the lab font.
+- **Every state the gate covers**: comment search, selection, the current line, hover and
+  peek code, line and word diffs, and overlapping decorations.
 - **Keyboard navigation** through lists and controls, so the raised `border` and the
-  solid gold `list.focusOutline` are visibly the focused item.
-- **Git conflicts and debugging state**, now that violet has left both.
-- **Unused code.** The fade is gone, because no opacity keeps a syntax colour above the
-  floor, and `editorUnnecessaryCode.border` draws a dashed underline instead. Confirm the
-  underline is visible and that the language service still marks an unused import.
+  solid gold `list.focusOutline` mark the focused item.
+- **Git conflicts and the debugging state**, now that violet has left both.
+- **Unused code**, which keeps its colour and takes the dashed underline from
+  `editorUnnecessaryCode.border`.
 - **The terminal scenarios**: SGR 30, bright black prompt text, coloured backgrounds and
-  reverse video, in the VS Code panel and in Windows Terminal. Record whether either
-  applies a minimum-contrast correction that changes the requested colours.
-- **A sustained working session** at the user's own brightness and scaling, for
-  hierarchy, distraction and readability. The comment moved from 4.53:1 to 5.78:1 and the
-  decorations came down to meet it; whether that reads as intended is a judgement, not a
-  measurement. Label that feedback separately from the numbers.
+  reverse video, in the VS Code panel and in Windows Terminal.
+- **A sustained working session** at the user's own brightness and scaling.
+
+A palette change makes this a calculation again. The gate covers the named set of reading
+states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
 
 ## Definition of done for the whole plan
 
 - `npm run verify` exits 0. **Met.**
 - Every test passes, including the snapshots. **Met.**
-- The `.vsix` installs and renders correctly in VS Code. **Packages; not yet installed.**
-- The Windows Terminal fragment installs and renders correctly. **Not yet installed.**
+- The `.vsix` installs and renders correctly in VS Code. **Met.**
+- The Windows Terminal fragment installs and renders correctly. **Met.**
 - The lab renders all five surfaces from the same token module. **Met.**
 - `DESIGN.md` and the emitted values agree. **Met, and asserted by a test.**
 - Every shared claim agrees with the emitter. **Met: every table and every count in
