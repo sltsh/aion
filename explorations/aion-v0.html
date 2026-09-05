@@ -1,0 +1,202 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Aion v0.2</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:26px 22px;background:#0a0b0d;color:#c9cdd4;font:14px/1.5 ui-sans-serif,system-ui,"Segoe UI",sans-serif}
+h1{font-size:20px;margin:0 0 4px;color:#e8eaee;letter-spacing:-.01em}
+.sub{margin:0 0 16px;color:#7d838c;font-size:13px;max-width:900px}
+.ctl{display:flex;gap:7px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.ctl button{background:#17191d;border:1px solid #2b2e34;color:#c9cdd4;border-radius:6px;padding:6px 12px;font:600 12px/1 inherit;cursor:pointer}
+.ctl button.on{border-color:#ebc75e;color:#ebc75e}
+.ctl .lbl{font-size:11px;color:#6b7079;margin-left:8px;text-transform:uppercase;letter-spacing:.06em}
+.win{border-radius:9px;overflow:hidden;border:1px solid #23262b;box-shadow:0 18px 50px rgba(0,0,0,.5)}
+.title{height:32px;display:flex;align-items:center;padding:0 12px;font-size:11.5px;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%}
+.body{display:flex;height:470px}
+.act{width:44px;display:flex;flex-direction:column;align-items:center;padding-top:9px;gap:15px;font-size:16px}
+.act i{opacity:.5;font-style:normal;position:relative}
+.side{width:190px;display:flex;flex-direction:column;font-size:12px}
+.side h5{margin:0;padding:10px 12px 6px;font:700 10px/1 inherit;letter-spacing:.09em;text-transform:uppercase}
+.tr{padding:3px 12px 3px 20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tr.dir{font-weight:600}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.tabs{display:flex;height:33px;font-size:11.5px;flex-shrink:0}
+.tab{display:flex;align-items:center;gap:6px;padding:0 13px;border-right:1px solid}
+.bc{height:24px;display:flex;align-items:center;gap:7px;padding:0 14px;font-size:10.5px;flex-shrink:0}
+.edwrap{flex:1;display:flex;overflow:hidden;font:12px/1.62 ui-monospace,"JetBrains Mono","Cascadia Code",Menlo,monospace;position:relative}
+.gut{padding:8px 9px 0 12px;text-align:right;user-select:none;flex-shrink:0}
+.code{padding:8px 0 0 6px;flex:1;white-space:pre;overflow:hidden}
+.cur{display:inline-block;width:2px;height:1em;vertical-align:-2px;animation:bl 1.1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+.panel{height:150px;display:flex;flex-direction:column;flex-shrink:0;border-top:1px solid}
+.ptabs{height:28px;display:flex;align-items:center;gap:16px;padding:0 14px;font-size:10.5px;flex-shrink:0}
+.ptabs span.on{border-bottom:1px solid;padding-bottom:5px}
+.term{flex:1;padding:6px 14px;font:11.5px/1.55 ui-monospace,"Cascadia Code",Menlo,monospace;white-space:pre;overflow:hidden}
+.stat{height:23px;display:flex;align-items:center;padding:0 12px;font-size:10.5px;gap:14px;flex-shrink:0}
+.pop{position:absolute;right:20px;top:70px;width:252px;border-radius:7px;border:1px solid;padding:9px 11px;font:12px/1.45 ui-sans-serif,system-ui,sans-serif;box-shadow:0 12px 30px rgba(0,0,0,.55)}
+.tbl{width:560px;border-collapse:collapse;font-size:11.5px;margin-top:20px}
+.tbl td{padding:3px 7px;border-bottom:1px solid #1c1e22}
+.tbl td:nth-child(4){text-align:right;font-variant-numeric:tabular-nums}
+.tbl tr.h td{color:#6b7079;font-weight:700;border-bottom-color:#2b2e34;padding-top:10px}
+.pass{color:#6fbf73}.warn{color:#d8a657}.fail{color:#e06c6c;font-weight:700}
+.k{font-size:11.5px;color:#6b7079;margin-top:10px;max-width:900px;line-height:1.6}
+code{font-family:ui-monospace,monospace;font-size:.93em}
+.mono{font-family:ui-monospace,monospace}
+</style></head><body>
+<h1>Aion v0.2 &mdash; surfaces retuned</h1>
+<p class="sub">Comment sits just above the floor, not far above it. The terminal now sits between the editor and the sidebar. Use the buttons to dial the sidebar and the base chroma.</p>
+<div class="ctl">
+  <span class="lbl">base chroma</span>
+  <button data-c="0.010">0.010</button><button data-c="0.016" class="on">0.016</button><button data-c="0.022">0.022</button>
+  <span class="lbl">sidebar</span>
+  <button data-s="0.210">0.210 dim</button><button data-s="0.220" class="on">0.220</button><button data-s="0.230">0.230 old</button>
+  <span class="lbl">comment</span>
+  <button data-cm="0.594">4.52 floor</button><button data-cm="0.600" class="on">4.63</button><button data-cm="0.640">5.44 old</button>
+</div>
+<div id="mount"></div>
+<table class="tbl" id="tbl"></table>
+<div class="k" id="notes"></div>
+<script>
+function o2r(L,C,H){const h=H*Math.PI/180,a=C*Math.cos(h),b=C*Math.sin(h);
+const l_=L+0.3963377774*a+0.2158037573*b,m_=L-0.1055613458*a-0.0638541728*b,s_=L-0.0894841775*a-1.2914855480*b;
+const l=l_**3,m=m_**3,s=s_**3;
+return[+4.0767416621*l-3.3077115913*m+0.2309699292*s,-1.2684380046*l+2.6097574011*m-0.3413193965*s,-0.0041960863*l-0.7034186147*m+1.7076147010*s];}
+const cl=v=>Math.min(1,Math.max(0,v)),gm=u=>u<=0.0031308?12.92*u:1.055*Math.pow(u,1/2.4)-0.055;
+const hex=(L,C,H)=>{const[r,g,b]=o2r(L,C,H).map(cl).map(gm);const c=v=>Math.round(cl(v)*255).toString(16).padStart(2,'0');return'#'+c(r)+c(g)+c(b);};
+const lum=(L,C,H)=>{const[r,g,b]=o2r(L,C,H).map(cl);return .2126*r+.7152*g+.0722*b;};
+const rat=(a,b)=>{const H=Math.max(a,b),L=Math.min(a,b);return(H+.05)/(L+.05);};
+
+const BH=264;
+const SYN={va:[0.740,0.135,22],nu:[0.765,0.125,52],ty:[0.840,0.130,90],st:[0.800,0.130,148],
+           esc:[0.800,0.105,192],fn:[0.775,0.115,255],kw:[0.760,0.125,305]};
+const TEAL=[0.800,0.105,185];
+const S={editor:0.195,terminal:0.207,sidebar:0.220,widget:0.250,input:0.285,hover:0.320,
+         border:0.375,border2:0.440,focus:0.520,muted:0.580,fg2:0.745,fg1:0.930};
+let baseC=0.016, sideL=0.220, cmL=0.600;
+
+const CODE=[
+['kw','export'],['sp',' '],['kw','async'],['sp',' '],['kw','function'],['sp',' '],['fn','loadEpoch'],['b1','('],['va','id'],['pn',': '],['ty','string'],['b1',')'],['sp',' '],['b1','{'],['nl'],
+['sp','  '],['cm','// resolve the age from the registry'],['nl'],
+['sp','  '],['kw','const'],['sp',' '],['va','entry'],['sp',' '],['esc','='],['sp',' '],['kw','await'],['sp',' '],['va','registry'],['pn','.'],['fn','get'],['b2','('],['va','id'],['b2',')'],['pn',';'],['nl'],
+['sp','  '],['kw','if'],['sp',' '],['b2','('],['esc','!'],['va','entry'],['b2',')'],['sp',' '],['kw','throw'],['sp',' '],['kw','new'],['sp',' '],['ty','NotFoundError'],['b3','('],['st','`no epoch '],['esc','${'],['va','id'],['esc','}'],['st','`'],['b3',')'],['pn',';'],['nl'],['nl'],
+['sp','  '],['kw','return'],['sp',' '],['b2','{'],['nl'],
+['DEL','    label: entry.name,'],['nl'],
+['ADD','    label: entry.label ?? id,'],['nl'],
+['sp','    '],['va','span'],['pn',': '],['nu','1_440'],['sp',' '],['esc','*'],['sp',' '],['nu','365'],['pn',','],['nl'],
+['sp','    '],['va','eternal'],['pn',': '],['nu','true'],['pn',','],['CUR'],['nl'],
+['sp','  '],['b2','}'],['pn',';'],['nl'],['b1','}']];
+
+function render(){
+  const C=baseC,H=BH;
+  const P={}; for(const[k,L]of Object.entries(S)) P[k]=hex(k==='sidebar'?sideL:L,C,H);
+  const PL={}; for(const[k,L]of Object.entries(S)) PL[k]=lum(k==='sidebar'?sideL:L,C,H);
+  const A={},AL={};
+  for(const[k,v]of Object.entries(SYN)){A[k]=hex(...v);AL[k]=lum(...v);}
+  A.cm=hex(cmL,C+0.008,H); AL.cm=lum(cmL,C+0.008,H);
+  A.pn=P.fg2; AL.pn=PL.fg2;
+  const gold=A.ty, teal=hex(...TEAL), violet=A.kw;
+  const BR=[gold,teal,violet];
+  const addBg=hex(0.250,0.045,148), delBg=hex(0.245,0.050,22);
+  const ED=P.editor, TERM=P.terminal, SIDE=P.sidebar, WID=P.widget, BORD=P.border, MUT=P.muted, FG=P.fg2, TXT=P.fg1;
+  const edL=PL.editor;
+
+  const codeHtml=CODE.map(([k,v])=>{
+    if(k==='nl')return '\n';
+    if(k==='sp')return v;
+    if(k==='CUR')return `<span class="cur" style="background:${gold}"></span>`;
+    if(k==='ADD')return `<span style="background:${addBg};color:${TXT};display:inline-block;width:100%">${v}</span>`;
+    if(k==='DEL')return `<span style="background:${delBg};color:${TXT};display:inline-block;width:100%">${v}</span>`;
+    if(k[0]==='b')return `<span style="color:${BR[+k[1]-1]}">${v}</span>`;
+    return `<span style="color:${A[k]}">${v.replace(/</g,'&lt;')}</span>`;
+  }).join('');
+  const gut=Array.from({length:14},(_,i)=>{const n=i+1;
+    if(n===7)return `<span style="color:${A.va}">-</span>`;
+    if(n===8)return `<span style="color:${A.st}">+</span>`;
+    return n===10?`<b style="color:${TXT}">${n}</b>`:n;}).join('\n');
+
+  document.getElementById('mount').innerHTML=`
+  <div class="win" style="background:${ED};color:${FG};font:13px/1.5 ui-sans-serif,system-ui,sans-serif">
+    <div class="title" style="background:${SIDE};color:${MUT};border-bottom:1px solid ${BORD}">
+      <span class="dot" style="background:${A.va}"></span><span class="dot" style="background:${A.nu}"></span><span class="dot" style="background:${A.st}"></span>
+      <span style="margin-left:10px;color:${FG}">registry.ts &mdash; aion</span></div>
+    <div class="body">
+      <div class="act" style="background:${SIDE};color:${MUT};border-right:1px solid ${BORD}">
+        <i style="opacity:1;color:${TXT}">&#9776;<span style="position:absolute;left:-14px;top:0;bottom:0;width:2px;background:${gold}"></span></i>
+        <i>&#9906;</i><i>&#8624;</i><i>&#9873;</i><i style="margin-top:auto;margin-bottom:12px">&#9881;</i></div>
+      <div class="side" style="background:${SIDE};border-right:1px solid ${BORD}">
+        <h5 style="color:${MUT}">Explorer</h5>
+        <div>
+          <div class="tr dir" style="color:${TXT};padding-left:12px">&#9662; aion</div>
+          <div class="tr dir" style="color:${TXT};padding-left:20px">&#9662; packages</div>
+          <div class="tr" style="color:${FG};padding-left:32px">tokens.ts</div>
+          <div class="tr" style="color:${TXT};padding-left:30px;background:${ED};border-left:2px solid ${gold}">registry.ts</div>
+          <div class="tr" style="color:${A.st};padding-left:32px">epoch.ts <span style="color:${MUT}">U</span></div>
+          <div class="tr" style="color:${A.nu};padding-left:32px">theme.json <span style="color:${MUT}">M</span></div>
+          <div class="tr" style="color:${FG};padding-left:20px">README.md</div>
+          <div class="tr" style="color:${A.va};padding-left:20px">package.json <span style="color:${MUT}">!</span></div>
+        </div>
+        <div style="margin-top:auto;padding:9px 12px;border-top:1px solid ${BORD}">
+          <div style="font-size:10px;color:${MUT};margin-bottom:5px">CONTRAST BUDGET</div>
+          <div style="height:5px;border-radius:99px;background:${P.hover};overflow:hidden">
+            <i style="display:block;height:100%;width:82%;background:${gold}"></i></div></div>
+      </div>
+      <div class="main">
+        <div class="tabs" style="background:${SIDE};color:${MUT}">
+          <div class="tab" style="border-right-color:${BORD}">epoch.ts</div>
+          <div class="tab" style="background:${ED};color:${TXT};border-right-color:${BORD};border-top:2px solid ${gold}">registry.ts <span style="color:${MUT}">&times;</span></div>
+          <div class="tab" style="border-right-color:${BORD}">theme.json</div></div>
+        <div class="bc" style="background:${ED};color:${MUT}">packages <span>&#8250;</span> core <span>&#8250;</span>
+          <span style="color:${A.ty}">registry.ts</span> <span>&#8250;</span> <span style="color:${A.fn}">loadEpoch</span></div>
+        <div class="edwrap" style="background:${ED}">
+          <div class="gut" style="color:${MUT}">${gut}</div>
+          <div class="code" style="color:${FG}">${codeHtml}</div>
+          <div class="pop" style="background:${WID};border-color:${BORD};color:${FG}">
+            <div style="color:${A.fn};font-family:ui-monospace,monospace;font-size:11.5px">loadEpoch(id: string)</div>
+            <div style="margin-top:5px;font-size:11.5px">Resolves an age from the registry.</div>
+            <div style="margin-top:7px;padding-top:7px;border-top:1px solid ${BORD};display:flex;gap:6px">
+              <span style="background:${gold};color:${ED};border-radius:99px;padding:1px 8px;font-size:9.5px;font-weight:700">async</span>
+              <span style="background:${P.hover};color:${TXT};border-radius:99px;padding:1px 8px;font-size:9.5px;font-weight:700">core</span></div></div>
+        </div>
+        <div class="panel" style="background:${TERM};border-top-color:${BORD}">
+          <div class="ptabs" style="color:${MUT};background:${SIDE}">
+            <span>PROBLEMS <b style="color:${A.va}">2</b></span>
+            <span class="on" style="color:${TXT};border-bottom-color:${gold}">TERMINAL</span><span>OUTPUT</span></div>
+          <div class="term" style="color:${TXT}"><span style="color:${teal}">&#10148;</span> <span style="color:${A.fn}">aion</span> <span style="color:${gold}">git:(</span><span style="color:${A.va}">main</span><span style="color:${gold}">)</span> npm run build
+<span style="color:${A.cm}">&gt; aion@0.1.0 build &mdash; packages/tokens</span>
+<span style="color:${A.st}">&#10003;</span> tokens    <span style="color:${FG}">142 emitted</span>
+<span style="color:${A.st}">&#10003;</span> contrast  <span style="color:${FG}">all pairs &#8805; 4.5</span>
+<span style="color:${A.nu}">!</span> vsix      <span style="color:${FG}">1 warning &mdash; missing icon</span></div></div>
+        <div class="stat" style="background:${SIDE};color:${MUT};border-top:1px solid ${BORD}">
+          <span style="color:${teal}">&#9679; main*</span><span>&#8635; 0&#8595; 2&#8593;</span>
+          <span style="color:${A.va}">&#10007; 2</span><span style="color:${A.nu}">&#9888; 5</span>
+          <span style="margin-left:auto">Ln 10, Col 22</span><span>UTF-8</span><span style="color:${gold}">TypeScript</span></div>
+      </div></div></div>`;
+
+  const g=(l,v,c,r)=>`<tr><td>${l}</td><td class="mono">${v}</td><td class="mono" style="color:${c}">Aa</td><td class="${r>=4.5?'pass':r>=3?'warn':'fail'}">${r.toFixed(2)}</td></tr>`;
+  let h='<tr class="h"><td colspan="4">SYNTAX &mdash; against editor '+ED+'</td></tr>';
+  for(const[l,k]of [['comment','cm'],['keyword','kw'],['function','fn'],['string','st'],['number','nu'],['type / gold','ty'],['variable','va'],['operator','esc'],['punctuation','pn']])
+    h+=g(l,A[k],A[k],rat(AL[k],edL));
+  h+='<tr class="h"><td colspan="4">UI TEXT</td></tr>';
+  h+=g('primary text',P.fg1,P.fg1,rat(PL.fg1,edL));
+  h+=g('secondary text',P.fg2,P.fg2,rat(PL.fg2,edL));
+  h+=g('line number (exempt)',P.muted,P.muted,rat(PL.muted,edL));
+  h+=g('line no. on sidebar',P.muted,P.muted,rat(PL.muted,PL.sidebar));
+  h+='<tr class="h"><td colspan="4">NON-TEXT &mdash; 3:1 applies to focus only</td></tr>';
+  h+=g('focus ring (gold)',gold,gold,rat(AL.ty,edL));
+  h+=g('UI border',P.focus,P.focus,rat(PL.focus,edL));
+  h+=g('hairline (decorative)',P.border,P.border,rat(PL.border,edL));
+  h+='<tr class="h"><td colspan="4">DIFF &mdash; text on fill</td></tr>';
+  h+=g('text on added',addBg,TXT,rat(lum(0.930,C,H),lum(0.250,0.045,148)));
+  h+=g('text on removed',delBg,TXT,rat(lum(0.930,C,H),lum(0.245,0.050,22)));
+  document.getElementById('tbl').innerHTML=h;
+
+  document.getElementById('notes').innerHTML=
+   `editor <code>${ED}</code> &middot; terminal <code>${TERM}</code> &middot; sidebar <code>${SIDE}</code> &middot; widget <code>${WID}</code> &middot; hairline <code>${BORD}</code><br>
+    Brackets nest gold &rarr; teal &rarr; violet. Cursor is gold. No italics. Line numbers are the one documented exemption.`;
+}
+for(const[attr,fn] of [['data-c',v=>baseC=+v],['data-s',v=>sideL=+v],['data-cm',v=>cmL=+v]])
+  document.querySelectorAll('['+attr+']').forEach(b=>b.onclick=()=>{
+    fn(b.getAttribute(attr));
+    document.querySelectorAll('['+attr+']').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');render();});
+render();
+</script></body></html>

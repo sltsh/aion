@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Aion vs the field</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:28px 20px;background:#0e0f11;color:#c9cdd4;font:14px/1.5 ui-sans-serif,system-ui,"Segoe UI",sans-serif}
+h1{font-size:20px;margin:0 0 4px;color:#e8eaee;letter-spacing:-.01em}
+.sub{margin:0 0 24px;color:#7d838c;font-size:13px;max-width:900px}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media(max-width:1500px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.col{min-width:0}
+.col h2{font-size:14px;margin:0 0 2px;color:#e8eaee}
+.col p.st{margin:0 0 8px;font-size:11px;color:#7d838c;min-height:30px}
+.panel{border-radius:7px;overflow:hidden;border:1px solid #24262b;margin-bottom:10px}
+.sws{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:8px}
+.sw{height:26px;border-radius:4px}
+.ed{font:11.5px/1.5 ui-monospace,"JetBrains Mono","Cascadia Code",Menlo,monospace}
+.tabs{display:flex;height:27px;font-size:10.5px}
+.tab{display:flex;align-items:center;padding:0 9px}
+.tab.on{border-top:2px solid}
+.edb{display:flex}
+.gut{padding:7px 7px 10px 8px;text-align:right;user-select:none}
+.code{padding:7px 10px 10px 3px;flex:1;white-space:pre;overflow:hidden}
+.act{display:flex;align-items:center;gap:9px;padding:0 8px;height:24px;font-size:10px}
+.stat{height:21px;display:flex;align-items:center;padding:0 9px;font-size:9.5px;gap:10px}
+.ui{padding:11px}
+.card{border-radius:6px;padding:10px;border:1px solid}
+.row{display:flex;align-items:center;gap:6px;margin-top:9px;flex-wrap:wrap}
+.btn{border:0;border-radius:5px;padding:5px 10px;font-size:11px;font-weight:600}
+.btn.g{background:transparent;border:1px solid}
+.bdg{border-radius:999px;padding:2px 8px;font-size:9.5px;font-weight:700}
+.inp{border-radius:5px;padding:5px 8px;font-size:11px;border:1px solid;width:100%;margin-top:8px}
+table.m{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:2px}
+table.m td{padding:2px 3px;border-bottom:1px solid #1c1e22}
+table.m td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.pass{color:#6fbf73}.warn{color:#d8a657}.fail{color:#e06c6c;font-weight:700}
+.k{font-size:10.5px;color:#6b7079;margin-top:5px;line-height:1.45}
+.mine h2{color:#ebc75e}
+</style></head><body>
+<h1>Aion against the field</h1>
+<p class="sub">Same file, same UI, five themes. Aion keeps the One&nbsp;Dark&nbsp;Pro role map, so the question is whether the base, the chrome and the contrast make it a different theme or a recolour. The bottom table is WCAG contrast against each theme's own editor background; the floor is 4.5.</p>
+<div class="grid" id="g"></div>
+<script>
+const T = [
+{ id:'aion', mine:true, name:'Aion', story:'Cool near-black base, gold chrome, ODP role map re-derived.',
+  bg:'#14171b', side:'#0e1114', raise:'#1e2124', stat:'#0e1114', fg:'#a7abb0', text:'#e4e6e9',
+  line:'#64686c', border:'#2b2f34', sel:'#243040', cursorAcc:'#ebc75e', accent:'#ebc75e', accent2:'#63d4c6',
+  syn:{cm:'#7f858d',kw:'#c9a0e8',fn:'#83b9fe',st:'#87d498',nu:'#f09c61',ty:'#ebc75e',va:'#f48687',esc:'#66d2eb',op:'#63d4c6',pn:'#a7abb0'} },
+{ id:'odp', name:'One Dark Pro', story:'The reference. Blue-grey base, no signature accent, borderless.',
+  bg:'#282c34', side:'#21252b', raise:'#2c313a', stat:'#21252b', fg:'#abb2bf', text:'#abb2bf',
+  line:'#4b5263', border:'#181a1f', sel:'#3e4451', cursorAcc:'#528bff', accent:'#528bff', accent2:'#56b6c2',
+  syn:{cm:'#5c6370',kw:'#c678dd',fn:'#61afef',st:'#98c379',nu:'#d19a66',ty:'#e5c07b',va:'#e06c75',esc:'#56b6c2',op:'#56b6c2',pn:'#abb2bf'} },
+{ id:'ayu', name:'Ayu Mirage', story:'Warm amber accent on a desaturated navy. Lower contrast overall.',
+  bg:'#242936', side:'#1f2430', raise:'#2a3140', stat:'#1f2430', fg:'#cccac2', text:'#cccac2',
+  line:'#4d5566', border:'#171b24', sel:'#33415e', cursorAcc:'#ffcc66', accent:'#ffcc66', accent2:'#73d0ff',
+  syn:{cm:'#6e7c8f',kw:'#ffa659',fn:'#ffcd66',st:'#d5ff80',nu:'#dfbfff',ty:'#73d0ff',va:'#cccac2',esc:'#95e6cb',op:'#f29e74',pn:'#cccac2'} },
+{ id:'nord', name:'Nord', story:'Arctic blue everywhere, including the accents. Low chroma throughout.',
+  bg:'#2e3440', side:'#2e3440', raise:'#3b4252', stat:'#3b4252', fg:'#d8dee9', text:'#d8dee9',
+  line:'#4c566a', border:'#3b4252', sel:'#434c5e', cursorAcc:'#88c0d0', accent:'#88c0d0', accent2:'#8fbcbb',
+  syn:{cm:'#616e88',kw:'#81a1c1',fn:'#88c0d0',st:'#a3be8c',nu:'#b48ead',ty:'#8fbcbb',va:'#d8dee9',esc:'#ebcb8b',op:'#81a1c1',pn:'#eceff4'} },
+{ id:'cat', name:'Catppuccin Mocha', story:'Mauve-led pastels on a violet-tinted base.',
+  bg:'#1e1e2e', side:'#181825', raise:'#313244', stat:'#181825', fg:'#cdd6f4', text:'#cdd6f4',
+  line:'#45475a', border:'#313244', sel:'#45475a', cursorAcc:'#cba6f7', accent:'#cba6f7', accent2:'#94e2d5',
+  syn:{cm:'#6c7086',kw:'#cba6f7',fn:'#89b4fa',st:'#a6e3a1',nu:'#fab387',ty:'#f9e2af',va:'#f38ba8',esc:'#94e2d5',op:'#89dceb',pn:'#cdd6f4'} },
+];
+
+const CODE=[['kw','export'],['sp',' '],['kw','async'],['sp',' '],['kw','function'],['sp',' '],['fn','loadEpoch'],['pn','('],['va','id'],['pn',': '],['ty','string'],['pn',') {'],['nl'],
+['sp','  '],['cm','// resolve the age from the registry'],['nl'],
+['sp','  '],['kw','const'],['sp',' '],['va','entry'],['sp',' '],['op','='],['sp',' '],['kw','await'],['sp',' '],['va','registry'],['pn','.'],['fn','get'],['pn','('],['va','id'],['pn',');'],['nl'],
+['sp','  '],['kw','if'],['sp',' '],['pn','('],['op','!'],['va','entry'],['pn',') '],['kw','throw'],['sp',' '],['kw','new'],['sp',' '],['ty','NotFound'],['pn','('],['st','`no '],['esc','${'],['va','id'],['esc','}'],['st','`'],['pn',');'],['nl'],['nl'],
+['sp','  '],['kw','return'],['sp',' '],['pn','{'],['nl'],
+['sp','    '],['va','name'],['pn',': '],['va','entry'],['pn','.'],['va','label'],['pn',','],['nl'],
+['sp','    '],['va','span'],['pn',': '],['nu','1_440'],['sp',' '],['op','*'],['sp',' '],['nu','365'],['pn',','],['nl'],
+['sp','    '],['va','eternal'],['pn',': '],['nu','true'],['pn',','],['nl'],
+['sp','  '],['pn','};'],['nl'],['pn','}']];
+
+function hex2lin(h){const n=parseInt(h.slice(1),16);const f=[(n>>16&255)/255,(n>>8&255)/255,(n&255)/255];
+ return f.map(u=>u<=0.04045?u/12.92:Math.pow((u+0.055)/1.055,2.4));}
+const lum=h=>{const[r,g,b]=hex2lin(h);return 0.2126*r+0.7152*g+0.0722*b;};
+const rat=(a,b)=>{const x=lum(a),y=lum(b),h=Math.max(x,y),l=Math.min(x,y);return (h+0.05)/(l+0.05);};
+
+const g=document.getElementById('g');
+for(const t of T){
+  const code=CODE.map(([k,v])=>k==='nl'?'\n':k==='sp'?v:`<span style="color:${t.syn[k]}">${v.replace(/</g,'&lt;')}</span>`).join('');
+  const gut=Array.from({length:12},(_,i)=>i+1).join('\n');
+  const sws=['va','nu','ty','st','esc','fn','kw'].map(k=>`<div class="sw" style="background:${t.syn[k]}"></div>`).join('');
+  const order=[['comment','cm'],['keyword','kw'],['function','fn'],['string','st'],['number','nu'],['type','ty'],['variable','va'],['punct','pn']];
+  let worst=99;
+  const rows=order.map(([label,k])=>{const r=rat(t.syn[k],t.bg);worst=Math.min(worst,r);
+    const c=r>=4.5?'pass':r>=3?'warn':'fail';
+    return `<tr><td>${label}</td><td style="color:${t.syn[k]}">Aa</td><td class="${c}">${r.toFixed(2)}</td></tr>`;}).join('');
+  const el=document.createElement('div');
+  el.className='col'+(t.mine?' mine':'');
+  el.innerHTML=`
+  <h2>${t.name}${t.mine?' &#9733;':''}</h2><p class="st">${t.story}</p>
+  <div class="sws">${sws}</div>
+  <div class="panel ed" style="background:${t.bg};border-color:${t.border}">
+    <div class="tabs" style="background:${t.side};color:${t.line}">
+      <div class="tab">epoch.ts</div>
+      <div class="tab on" style="background:${t.bg};color:${t.text};border-top-color:${t.accent}">registry.ts</div>
+      <div class="tab">README</div>
+    </div>
+    <div class="act" style="background:${t.side};color:${t.line};border-bottom:1px solid ${t.border}">
+      <span style="color:${t.accent}">&#9776;</span><span>src</span><span>&#8250;</span><span style="color:${t.text}">registry.ts</span>
+    </div>
+    <div class="edb"><div class="gut" style="color:${t.line}">${gut}</div>
+    <div class="code" style="color:${t.fg}">${code}</div></div>
+    <div class="stat" style="background:${t.stat};color:${t.line}">
+      <span style="color:${t.accent2}">&#9679; main</span><span>Ln 8</span><span>TS</span>
+      <span style="margin-left:auto;color:${t.syn.va}">2</span></div>
+  </div>
+  <div class="panel ui" style="background:${t.side};border-color:${t.border}">
+    <div class="card" style="background:${t.raise};border-color:${t.border}">
+      <div style="color:${t.text};font-weight:600;font-size:12px">Epoch registry</div>
+      <div style="color:${t.fg};font-size:11px;margin-top:2px">Records that outlast the process.
+        <a href="#" style="color:${t.accent2}">Spec</a>.</div>
+      <input class="inp" style="background:${t.bg};border-color:${t.border};color:${t.text}" value="aion://epoch/1440">
+      <div class="row">
+        <button class="btn" style="background:${t.accent};color:${t.bg}">Publish</button>
+        <button class="btn g" style="border-color:${t.line};color:${t.text}">Cancel</button>
+        <span class="bdg" style="background:${t.syn.st};color:${t.bg}">stable</span>
+        <span class="bdg" style="background:${t.syn.va};color:${t.bg}">2 errors</span>
+      </div>
+    </div>
+  </div>
+  <table class="m">${rows}</table>
+  <div class="k">bg <code>${t.bg}</code> &middot; lowest ratio <b class="${worst>=4.5?'pass':worst>=3?'warn':'fail'}">${worst.toFixed(2)}</b></div>`;
+  g.appendChild(el);
+}
+</script></body></html>
