@@ -94,7 +94,7 @@ current line and a selection are not stacked, because VS Code draws the current-
 background only while every selection is empty, and a diff wash is measured on a plain
 line, a current line and a selection rather than on every decoration in the editor.
 
-Three exemptions are named rather than hidden:
+Three kinds of exemption are named rather than hidden:
 
 - The inactive line number sits at 4.25:1. It is decorative.
 - Hairline and divider borders sit below 3:1. They separate regions that already read as

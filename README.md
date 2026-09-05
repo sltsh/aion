@@ -21,7 +21,7 @@ against the surface it sits on, decorations composited the way the renderer comp
 them. `npm run verify` exits non-zero on a token below its floor, and CI runs it on every
 branch, so a colour below the floor cannot be released. The gate covers a named set of
 reading states, not every state a renderer can produce; §3.1 of `DESIGN.md` is the set,
-and there are three documented exemptions.
+and three kinds of exemption are documented.
 
 | What the gate checks | Count |
 |---|---:|

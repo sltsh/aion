@@ -250,6 +250,13 @@ review on the same date found fourteen more. Every entry below is one of those f
   emitter wrote it and no document quoted it: a palette change reached every surface
   except that one, and nothing failed. The manifest joins the parity test's document list,
   and a theme test pins the banner to `editor.background`.
+- Six stale claims in `PLAN.md` and the two READMEs. `PLAN.md` said nine defects over a
+  list of fifteen, `36` light semantic aliases where the module exports 37, `nine` tables
+  where `sync:design` writes eleven, and that nothing was committed. Its tree omitted
+  `pack-dev.mjs` and the root `test/`. Both READMEs called three kinds of exemption three
+  exemptions, next to a generated row that counts five exempt rows.
+- `.gitignore` now covers `release-notes.md`. `release.yml` writes it at the repository
+  root, so a local rehearsal of `scripts/release-notes.mjs` left it untracked.
 - `scripts/fetch-fonts.mjs` wrote the two `.woff2` files into `apps/lab/public/fonts`
   while `styles.css` loads them from `apps/lab/src/fonts`, so a font refresh never reached
   the built app. It writes the fonts where they are loaded from and the licence where it

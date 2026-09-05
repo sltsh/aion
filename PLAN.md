@@ -41,7 +41,8 @@ what the calculation assumes; see "What is still unverified" below.
 
 ## Defects that running the code found
 
-Nine, none of which was visible by inspection. This is why the plan is executed, not read.
+Fifteen, none of which was visible by inspection. This is why the plan is executed, not
+read.
 
 **Before Task 1 started**, running the design-phase modules found three:
 
@@ -108,21 +109,24 @@ decoration first. Keep both patterns when adding a surface or an overlay.
 
 ## Repository
 
-Branch from `main`. Never commit on `main`. The current branch is
-`design/palette-exploration` and **nothing is committed yet.**
+`design/palette-exploration` carries the work and is the default branch on GitHub. No
+`main` exists yet. Create one before a release if you want the tag to sit on a stable
+branch; neither workflow names a branch, so neither needs an edit for that.
 
 ```
 aion/
   package.json            # npm workspaces root
   DESIGN.md  PLAN.md  README.md  LICENSE  CHANGELOG.md
   AGENTS.md  CLAUDE.md    # git-ignored; CLAUDE.md imports AGENTS.md
-  assets/                 # aion-icon.png source, icon.png 128, icon-1024.png
+  assets/                 # the icon sources and the derivation note in assets/README.md
+  test/                   # bootstrap, release notes and workflow tests
   scripts/
     sync-design.mjs       # regenerates the DESIGN.md tables
     fetch-fonts.mjs       # Archivo and Monaspace Neon, both OFL
     unzip.mjs             # single-entry zip reader; this machine has no unzip
     check-version.mjs     # the tag and every package agree
     release-notes.mjs     # changelog section plus the commits since the previous tag
+    pack-dev.mjs          # a numbered development .vsix, from .dev-version
   packages/
     tokens/               # @sltio/aion-tokens — the product
     vscode/               # the .vsix
@@ -148,7 +152,7 @@ has npm 11 and no pnpm.
 | `oklch.ts` | conversion, gamut, `contrast`, `contrastEmitted`, `solveLightness` |
 | `palette.ts` | dark ramp, accents, syntax map, ANSI 16, `dimText`, the rules |
 | `light.ts` | light ramp, `lightAccent`, `lightAccentScale` |
-| `semantic.ts` | 71 dark aliases, 36 light aliases |
+| `semantic.ts` | 71 dark aliases, 37 light aliases |
 | `status.ts` | 4 statuses × 5 values, both schemes |
 | `preview.ts` | `buildPalette(overrides)` — the parameterised palette the lab drives |
 | `report.ts` | the build gate and the `DESIGN.md` tables |
@@ -161,9 +165,9 @@ assertion is what stops the lab advertising a theme the extension does not ship.
 ## Task 2 — the contrast report — done
 
 `npm run verify` prints every check, its hex, its surface and its ratio, and exits
-non-zero on any failure. `npm run sync:design` writes nine tables in `DESIGN.md` and the
-rival tables in both READMEs from the same data, so no hex and no ratio in any of those
-documents is typed by hand.
+non-zero on any failure. `npm run sync:design` writes every generated table in
+`DESIGN.md` and the rival tables in both READMEs from the same data, so no hex and no
+ratio in any of those documents is typed by hand. The command prints how many it wrote.
 
 Since the review the gate composites decorations. A translucent overlay is blended as
 8-bit bytes by `compositeEmitted` and the ratio is read afterwards, and `states.ts` names
