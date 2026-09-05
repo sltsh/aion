@@ -45,6 +45,8 @@ const DOCUMENTS = [
   ['packages/terminal/README.md', '../../terminal/README.md', 16],
   ['packages/tokens/README.md', '../README.md', 0],
   ['packages/css/README.md', '../../css/README.md', 0],
+  // The Marketplace banner is a hex no emitter writes and no README quotes.
+  ['packages/vscode/package.json', '../../vscode/package.json', 1],
 ] as const;
 
 test.each(DOCUMENTS)('every hex quoted in %s is a value this package emits', (name, path, least) => {

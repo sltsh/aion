@@ -7,7 +7,7 @@ the versions follow Semantic Versioning.
 
 The 2026-09-05 theme review found that the contrast gate measured a colour only against a
 plain background, and that several claims ran ahead of what it checked. An adversarial
-review on the same date found fourteen more; `ADVERSARIAL_REVIEW.md` is that report.
+review on the same date found fourteen more. Every entry below is one of those findings.
 
 ### Added
 
@@ -121,6 +121,8 @@ review on the same date found fourteen more; `ADVERSARIAL_REVIEW.md` is that rep
   word under the caret, and the diff borders outlined every line of a diff, because a
   whole inserted line is one changed range.
 - `diffWordBorder`. A diff marks a changed word with a fill rather than an edge.
+- `ADVERSARIAL_REVIEW.md`. Its fourteen findings are implemented and `CHANGELOG.md`
+  records each one, so the report was a second copy of that record.
 - `aion.txt`, a first-person note on the name. The root README carries the etymology.
 - `HANDOVER.md`. It said "remediation pending" for five findings that shipped;
   `CHANGELOG.md` and `PLAN.md` are the record.
@@ -243,6 +245,11 @@ review on the same date found fourteen more; `ADVERSARIAL_REVIEW.md` is that rep
 - The lab's "Solving a token" example dropped `solveLightness`'s required direction and
   passed its numeric return where a colour was expected. It builds the triple from the
   solved lightness and measures that.
+- `galleryBanner.color` in `packages/vscode/package.json` was a hand-typed hex. VS Code
+  reads the Marketplace banner from the manifest rather than from the theme file, so no
+  emitter wrote it and no document quoted it: a palette change reached every surface
+  except that one, and nothing failed. The manifest joins the parity test's document list,
+  and a theme test pins the banner to `editor.background`.
 - `scripts/fetch-fonts.mjs` wrote the two `.woff2` files into `apps/lab/public/fonts`
   while `styles.css` loads them from `apps/lab/src/fonts`, so a font refresh never reached
   the built app. It writes the fonts where they are loaded from and the licence where it

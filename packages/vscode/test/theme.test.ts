@@ -19,6 +19,14 @@ test('the committed theme file matches the generated theme', () => {
   expect(onDisk).toEqual(JSON.parse(JSON.stringify(built)));
 });
 
+// VS Code reads the banner from the manifest rather than from the theme file, so a
+// palette change reaches every surface except this one.
+test('the Marketplace banner is the editor surface', () => {
+  const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  expect(manifest.galleryBanner.color).toBe(colors['editor.background']);
+  expect(manifest.galleryBanner.theme).toBe('dark');
+});
+
 test('the theme covers the surface VS Code asks for', () => {
   expect(Object.keys(built.colors).length).toBeGreaterThanOrEqual(300);
   expect(built.tokenColors.length).toBeGreaterThanOrEqual(40);

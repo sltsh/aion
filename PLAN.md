@@ -3,10 +3,9 @@
 Read `DESIGN.md` first. It is the specification. This document is the order of work and
 the record of what is done.
 
-For the 2026-09-05 adversarial review, read
-[`ADVERSARIAL_REVIEW.md`](ADVERSARIAL_REVIEW.md); its fourteen findings are implemented,
-and `CHANGELOG.md` records each one. The theme review of the same date is recorded in the
-`Unreleased` section of `CHANGELOG.md`, defects 10 to 15 below. **Native
+The 2026-09-05 adversarial review found fourteen defects and all fourteen are
+implemented. `CHANGELOG.md` records each one, alongside the theme review of the same
+date, defects 10 to 15 below. **Native
 acceptance is still open:** nothing below has been seen inside VS Code or Windows
 Terminal. Every ratio in this repository is a calculation over configured colours, not an
 observation of a rendered pixel. The CSS package is the one exception: its cascade, its
