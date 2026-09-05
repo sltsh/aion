@@ -4,6 +4,10 @@ Reviewed 2026-09-05 at `3b143a1`, branch `design/palette-exploration`.
 
 Expanded after a coverage audit on the same date. The original six-finding pass concentrated on VS Code and its gate; it was **not a complete project review**. This revision adds the CSS package, browser behavior, lab readout and claims, terminal installation instructions, clean workspace bootstrap, and release failure handling. There are **14 findings**. The coverage table below distinguishes reviewed source, executed checks and work that remains unverified.
 
+**All fourteen findings are implemented.** Each one carries a **Resolved** line naming
+what changed and the test that holds it. `CHANGELOG.md` carries the same record in
+release form. Nothing below has been edited otherwise: the report is the report.
+
 **Verdict:** the core colour calculations are useful, but the green suite does not substantiate the advertised contrast guarantee. Shipped VS Code and CSS styles produce reproducible sub-floor text; a fresh CI checkout cannot reach the gate in the current command order; and a later release prerequisite can fail without stopping publication. Fix those boundaries before further palette tuning or expansion of the theme.
 
 This is a source, generated-artifact, calculation, browser and configuration review. No native VS Code or Windows Terminal rendering was observed. Prior native-renderer assertions in comments were not independently confirmed across the supported VS Code version range. No implementation changes or publishing were performed.
@@ -11,6 +15,10 @@ This is a source, generated-artifact, calculation, browser and configuration rev
 ## Findings
 
 ### 1. High — Four shipped TextMate rules escape the decorated-text gate
+
+**Resolved.** The four rules take the comment, the dimmest colour a rule may use.
+`theme.test.ts` derives every foreground from the emitted theme, rejects one
+`readingForegrounds()` does not name, and measures each on every covered state.
 
 **Locations:** `packages/vscode/src/tokens.ts:55,81,92,109`; `packages/tokens/src/states.ts:100`; `packages/vscode/test/theme.test.ts:406`.
 
@@ -31,6 +39,11 @@ Selecting an HTML doctype or searching struck-through Markdown therefore violate
 
 ### 2. High — Unused-code opacity is incorrectly classified as non-reading decoration
 
+**Resolved.** `codeEditorWidget.ts` writes the alpha byte as a CSS `opacity` on the
+glyph, so the key is modelled as a foreground opacity and not as a wash. No fade is
+affordable — VS Code's own `#000a` default reads 2.69:1 — so unused code keeps its colour
+and takes the dashed underline `editor.css` draws from `editorUnnecessaryCode.border`.
+
 **Locations:** `packages/vscode/src/colors.ts:216`; `packages/vscode/test/theme.test.ts:252,266,319`.
 
 `editorUnnecessaryCode.opacity` sets alpha to 128/255. Its `OVER` entry says `reads: 'none'`, so the tests skip it. The nearby comment says opacity masks sit beside or behind text. This particular key fades the text itself; that behavior is documented in the [VS Code theme-color reference](https://code.visualstudio.com/api/references/theme-color#editor-colors).
@@ -40,6 +53,10 @@ Compositing an emitted variable foreground at that opacity over the plain editor
 **Fix:** model foreground opacity separately from background washes. Solve the opacity against the supported foreground/background pairs, retain full-opacity text with another unnecessary-code cue, or explicitly disclose an additional exemption. Removing the key alone is insufficient unless the inherited default is also checked. The current “three exemptions, and only three” claim excludes this behavior.
 
 ### 3. High — CI and release typecheck before their required generated dependency exists
+
+**Resolved.** The root `build` and `typecheck` build the token package by name first,
+`prepare` builds it after an install, and both workflows build before they check.
+Reproduced and re-checked in a disposable checkout with no `dist`.
 
 **Locations:** `.github/workflows/ci.yml:29-41`; `.github/workflows/release.yml:52-62`; `packages/tokens/package.json:8-14`; `package.json:12`.
 
@@ -61,6 +78,10 @@ Simply moving the existing root build earlier is also insufficient: the observed
 
 ### 4. Medium — The colour-vision paragraph describes a palette that is no longer shipped
 
+**Resolved.** The listing names the opaque gutter strips as the measured pair, which is
+what the invariant test asserts, and a second test records what the line washes separate
+by.
+
 **Location:** `packages/vscode/README.md:89-95`; compare `packages/tokens/src/palette.ts:95-108`.
 
 The listing says diff fills separate by 0.06 in OKLCH lightness, with the added fill above the editor and removed fill below it. The emitted line washes, composited on the editor, measure:
@@ -76,6 +97,11 @@ Both fills are lighter than the editor, and their gap is approximately **0.0221*
 **Fix:** identify the gutter strips as the measured pair and remove the above/below assertion about line fills. Keep the existing caveat that lightness separation is not a demonstrated colour-vision usability result. Test or generate this claim from its actual operands.
 
 ### 5. Medium — The published state guarantee is broader than the executable contract
+
+**Resolved.** §3.1 of `DESIGN.md` lists every covered state and the foreground that
+reads worst on it, generated from `readingStates()`. A generated counts table replaced
+every hardcoded count in `DESIGN.md` and the three READMEs; `PLAN.md` names the command
+instead. The build claim now names `verify` and CI.
 
 **Locations:** `packages/vscode/README.md:70-76`; `DESIGN.md:45-53`; `packages/tokens/src/states.ts:39-64`.
 
@@ -99,6 +125,9 @@ The root README also says a below-floor token fails “the build.” `npm run bu
 
 ### 6. Medium — The development packer deletes unrelated release artifacts and can reuse versions
 
+**Resolved.** The script removes only its own development archives and keeps its counter
+in `packages/vscode/.dev-version`.
+
 **Location:** `scripts/pack-dev.mjs:16-32`.
 
 After packaging a development build, the script deletes every `.vsix` in the extension directory whose name lacks `-dev.`. That includes a deliberately retained release candidate or an unrelated extension archive. Creating a development package does not require this cleanup.
@@ -108,6 +137,10 @@ Its “every test build gets its own version” promise also depends on keeping 
 **Fix:** remove broad artifact deletion. Use a build identity that survives archive cleanup, or explicitly manage a persistent counter. Keep development artifacts clearly separated from release artifacts without modifying unrelated files.
 
 ### 7. High — The CSS selection style makes ordinary light-theme text fail the floor
+
+**Resolved.** `::selection` sets a foreground as well as a background, and the pair is
+measured on every surface a selection can land on, in both schemes. Confirmed in Chromium
+151.
 
 **Locations:** `packages/css/src/build.ts:25`; `packages/css/src/variables.ts`, `light()`; `packages/css/test/css.test.ts:85-120`.
 
@@ -121,6 +154,10 @@ A separate Chromium probe confirmed that `getComputedStyle(element, '::selection
 
 ### 8. Medium — CSS form controls retain the boundary defect fixed in VS Code
 
+**Resolved.** The control rules use `--aion-border-ui`, the light border moved to
+lightness 0.605, and `BOUNDARY_PAIRS_LIGHT` puts the light scheme under the same
+both-surfaces gate as the dark one. The test reads the generated rule, not the token.
+
 **Locations:** `packages/css/src/build.ts:68-85`; `packages/css/test/css.test.ts`, the focus/UI-border test; `packages/tokens/src/light.ts:13`.
 
 Inputs, textareas, selects and secondary buttons use the decorative hairline token. That border measures **1.407:1** against the dark input and **1.212:1** against the light input. A Chromium computed-style probe confirmed that the generated input rule is actually applied.
@@ -130,6 +167,10 @@ The CSS test checks the unused-in-this-rule `border-ui` token against the page, 
 **Fix:** use a functional boundary token and solve the light boundary against both input and surrounding surfaces. Assert the actual generated control rule and both pairs. This is a concrete violation of Aion's own boundary contract, independent of any broader accessibility certification.
 
 ### 9. Medium — Unlayered CSS defaults override Tailwind utilities
+
+**Resolved.** The element rules are in the `base` cascade layer. Tailwind has to be
+imported first, because its preflight is in the same layer; `packages/css/README.md`
+documents the order and the reason. Checked with Tailwind 4.3.3 in Chromium 151.
 
 **Location:** `packages/css/src/build.ts:12-97`.
 
@@ -141,6 +182,10 @@ Compiled the shipped CSS and theme block with **Tailwind 4.3.3**, then loaded th
 
 ### 10. Medium — Tailwind colour aliases freeze the ancestor's theme in nested theme regions
 
+**Resolved.** The aliases use `@theme inline`. A nested `[data-theme="light"]` region
+now resolves `bg-bg-raised` and `text-fg-primary` against itself, confirmed in the same
+browser fixture.
+
 **Location:** `packages/css/src/build.ts:99-110`; `packages/css/README.md`, Schemes and Tailwind.
 
 The package supports `[data-theme]` selectors on elements but emits ordinary `@theme` aliases that reference Aion custom properties. Those aliases resolve where they are defined, at the root, and their computed values are inherited.
@@ -151,6 +196,10 @@ In the same compiled browser fixture, a light region inside an explicitly dark r
 
 ### 11. Medium — The live lab reports “all clear” for a palette that fails decorated text
 
+**Resolved.** `readingStates()` and `readingForegrounds()` take the palette they
+measure, so the lab passes its preview palette to the same evaluator the gate uses. At
+comment lightness 0.600 the readout reports the failure at 2.99:1 rather than ALL CLEAR.
+
 **Locations:** `apps/lab/src/readout.ts:6-23`; `packages/tokens/src/preview.ts`; `apps/lab/README.md`.
 
 The live readout checks syntax and comments only against the editor, with three extra plain UI pairs. It does not evaluate selections, find matches, diff stacks, terminal slots or boundaries. That recreates the exact plain-background blind spot the project says it fixed.
@@ -160,6 +209,10 @@ In Chromium, set Comment lightness to **0.600**. The readout still shows **ALL C
 **Fix:** let the existing reading-state evaluator consume the preview palette, or explicitly label this as a limited plain-surface readout. Do not create another independent list of states. The surface DOM identity remained unchanged through the slider update, and reset worked: preserve that useful behavior.
 
 ### 12. High — The release-notes pipeline swallows a failed prerequisite
+
+**Resolved.** The step runs under `shell: bash` with `pipefail` and redirects instead of
+piping. A root test executes the step's own script body against a tag with no changelog
+section and asserts a non-zero exit.
 
 **Location:** `.github/workflows/release.yml:79-80`; `scripts/release-notes.mjs`.
 
@@ -173,6 +226,10 @@ After fixing the earlier bootstrap failure, a tag lacking its changelog section 
 
 ### 13. Medium — Both alternative Windows Terminal installation instructions are incorrect
 
+**Resolved.** The Store path is gone; the README names the two directories the loader
+reads, at a recorded revision, and tells a reader to merge the wrapper or copy the object
+inside its `schemes` array. A test holds the README to the shape the package emits.
+
 **Location:** `packages/terminal/README.md:24-29`; `packages/terminal/src/scheme.ts`, `settingsSnippet()`.
 
 The main PowerShell fragment path is consistent with Microsoft's documented user fragment directory. The Store-specific alternative switches to `LocalState/Fragments`, however. The [official fragment instructions](https://learn.microsoft.com/en-us/windows/terminal/json-fragment-extensions#applications-installed-from-the-web) use the shared user directory, and the [current Terminal loader](https://github.com/microsoft/terminal/blob/main/src/cascadia/TerminalSettingsModel/CascadiaSettingsSerialization.cpp) enumerates that directory under LocalAppData and ProgramData. The documented Store alternative is not that discovery path.
@@ -182,6 +239,10 @@ The manual alternative says to paste the object in `snippets/settings.json` into
 **Fix:** remove the unsupported Store path and instruct users to merge the wrapper at the settings root or copy only its `schemes[0]` object into the existing array. Native Windows installation remains untested; the JSON shape and documented/source discovery-path mismatches are independently verifiable.
 
 ### 14. Medium — The lab presents invented results as project history and current measurements
+
+**Resolved.** The KPIs, the chart and the Pairs table are generated from `checks()`. The
+invented history is gone, and a test asserts every row of the table is a row the gate
+produced.
 
 **Locations:** `apps/lab/src/render/dashboard.ts:10-25,72`; `apps/lab/src/figures.ts`; `apps/lab/test/lab.test.ts`, sample-data checks.
 

@@ -78,7 +78,7 @@ fails when a build or a `sync:design` changes a tracked file. A `v*.*.*` tag pub
 - `DESIGN.md` — the specification. Every table in it is generated.
 - `PLAN.md` — the order of work, what is done, and every defect the code found.
 - `RELEASING.md` — the secrets, the tag procedure and the dry run.
-- `aion.txt` — the etymology the brand comes from.
+- `ADVERSARIAL_REVIEW.md` — the 2026-09-05 review, with what each finding turned into.
 
 ## Rules
 

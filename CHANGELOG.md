@@ -6,7 +6,8 @@ the versions follow Semantic Versioning.
 ## Unreleased
 
 The 2026-09-05 theme review found that the contrast gate measured a colour only against a
-plain background, and that several claims ran ahead of what it checked. See `HANDOVER.md`.
+plain background, and that several claims ran ahead of what it checked. An adversarial
+review on the same date found fourteen more; `ADVERSARIAL_REVIEW.md` is that report.
 
 ### Added
 
@@ -118,8 +119,14 @@ plain background, and that several claims ran ahead of what it checked. See `HAN
   `peekViewEditor.matchHighlightBorder` and `terminal.findMatchHighlightBorder`. Each
   boxed every matching range: the word-highlight border outlined every occurrence of the
   word under the caret, and the diff borders outlined every line of a diff, because a
-  whole inserted line is one changed range. 630 keys down to 624.
+  whole inserted line is one changed range.
 - `diffWordBorder`. A diff marks a changed word with a fill rather than an edge.
+- `aion.txt`, a first-person note on the name. The root README carries the etymology.
+- `HANDOVER.md`. It said "remediation pending" for five findings that shipped;
+  `CHANGELOG.md` and `PLAN.md` are the record.
+- `explorations/`, the design-phase HTML pages and the legacy invariant suite. No
+  workspace built or tested them, and their duplicated calculations were not evidence for
+  a release.
 
 ### Fixed
 

@@ -3,9 +3,10 @@
 Read `DESIGN.md` first. It is the specification. This document is the order of work and
 the record of what is done.
 
-For the 2026-09-05 theme review findings, read [`HANDOVER.md`](HANDOVER.md). For the
-adversarial review of the same date, read [`ADVERSARIAL_REVIEW.md`](ADVERSARIAL_REVIEW.md);
-its fourteen findings are implemented, and `CHANGELOG.md` records each one. **Native
+For the 2026-09-05 adversarial review, read
+[`ADVERSARIAL_REVIEW.md`](ADVERSARIAL_REVIEW.md); its fourteen findings are implemented,
+and `CHANGELOG.md` records each one. The theme review of the same date is recorded in the
+`Unreleased` section of `CHANGELOG.md`, defects 10 to 15 below. **Native
 acceptance is still open:** nothing below has been seen inside VS Code or Windows
 Terminal. Every ratio in this repository is a calculation over configured colours, not an
 observation of a rendered pixel. The CSS package is the one exception: its cascade, its
@@ -116,7 +117,6 @@ aion/
   package.json            # npm workspaces root
   DESIGN.md  PLAN.md  README.md  LICENSE  CHANGELOG.md
   AGENTS.md  CLAUDE.md    # git-ignored; CLAUDE.md imports AGENTS.md
-  aion.txt                # the etymology the brand comes from
   assets/                 # aion-icon.png source, icon.png 128, icon-1024.png
   scripts/
     sync-design.mjs       # regenerates the DESIGN.md tables
@@ -133,7 +133,6 @@ aion/
   RELEASING.md            # secrets, the tag procedure, the dry run
   apps/
     lab/                  # Vite plus TypeScript, no framework
-  explorations/           # the design-phase pages; keep, do not build
 ```
 
 TypeScript, `culori` (test only), `vitest`, `vite`. npm workspaces, because this machine
@@ -143,8 +142,7 @@ has npm 11 and no pnpm.
 
 ## Task 1 — `packages/tokens` — done
 
-`explorations/validated/` is the historical record. `packages/tokens/src/` is the source
-of truth.
+`packages/tokens/src/` is the source of truth.
 
 | File | Holds |
 |---|---|
