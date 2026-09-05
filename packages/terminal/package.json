@@ -1,0 +1,19 @@
+{
+  "name": "@sltio/aion-terminal",
+  "version": "0.1.0",
+  "description": "The Aion colour scheme for Windows Terminal, as a fragment extension and a settings snippet.",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "fragments",
+    "snippets"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node dist/build.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@sltio/aion-tokens": "*"
+  }
+}

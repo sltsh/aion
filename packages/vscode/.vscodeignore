@@ -1,0 +1,7 @@
+src/**
+test/**
+dist/**
+tsconfig.json
+tsconfig.build.json
+.vscodeignore
+node_modules/**

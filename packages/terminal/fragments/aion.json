@@ -1,0 +1,28 @@
+{
+  "$schema": "https://aka.ms/terminal-profiles-schema",
+  "schemes": [
+    {
+      "name": "Aion",
+      "background": "#11151c",
+      "foreground": "#a7acb7",
+      "cursorColor": "#e4c058",
+      "selectionBackground": "#122339",
+      "black": "#2a2e36",
+      "red": "#d86e6c",
+      "green": "#67ba75",
+      "yellow": "#d1ad43",
+      "blue": "#6b9fe2",
+      "purple": "#aa84d5",
+      "cyan": "#43b9b5",
+      "white": "#a7acb7",
+      "brightBlack": "#8b909a",
+      "brightRed": "#ed807e",
+      "brightGreen": "#7bce88",
+      "brightYellow": "#e4c058",
+      "brightBlue": "#7db2f7",
+      "brightPurple": "#bd96e9",
+      "brightCyan": "#59cdc8",
+      "brightWhite": "#e2e8f3"
+    }
+  ]
+}

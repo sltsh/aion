@@ -1,0 +1,58 @@
+{
+  "name": "aion",
+  "displayName": "Aion",
+  "description": "A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "publisher": "sltio",
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#11151c",
+    "theme": "dark"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "dark theme",
+    "color theme",
+    "contrast",
+    "accessibility"
+  ],
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sltio/aion.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sltio/aion/issues"
+  },
+  "homepage": "https://github.com/sltio/aion#readme",
+  "contributes": {
+    "themes": [
+      {
+        "label": "Aion",
+        "uiTheme": "vs-dark",
+        "path": "./themes/aion.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node dist/build.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "package": "vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "@sltio/aion-tokens": "*"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.2.1",
+    "ovsx": "^1.1.1"
+  }
+}
