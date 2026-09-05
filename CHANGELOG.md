@@ -149,6 +149,20 @@ plain background, and that several claims ran ahead of what it checked. See `HAN
   that every other dark theme puts the sidebar below the editor when two of the four
   compared use one colour for both, and read a count of interface keys as proof that no
   key falls back to a VS Code default.
+- A clean checkout could not reach the gate. `npm run typecheck` and `npm run build` walk
+  the workspaces in declaration order, which starts with the CSS package, so every
+  consumer failed to resolve `@sltio/aion-tokens` before the token package had emitted
+  `dist`. Both root scripts now build the token package by name first, `prepare` builds it
+  after an install, and both workflows build before they check.
+- The release workflow piped the notes script through `tee`, so a tag with no changelog
+  section produced an empty notes file and a step that passed. The step now redirects
+  under `shell: bash` with `pipefail`, and a root test runs the step's own script body
+  against a failing tag.
+- `scripts/pack-dev.mjs` deleted every `.vsix` in the extension directory whose name
+  lacked `-dev.`, including a release candidate it did not create. It now removes only its
+  own earlier development archives, and reads its counter from `.dev-version` rather than
+  from the archive names, so cleaning the directory cannot hand VS Code a version it still
+  has cached.
 
 ## 0.1.0
 

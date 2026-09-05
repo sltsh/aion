@@ -28,6 +28,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Build
+        run: npm run build
+
       - name: Typecheck
         run: npm run typecheck
 
@@ -36,9 +39,6 @@ jobs:
 
       - name: Test
         run: npm test
-
-      - name: Build
-        run: npm run build
 
       - name: Sync DESIGN.md
         run: npm run sync:design
