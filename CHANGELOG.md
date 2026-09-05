@@ -26,7 +26,7 @@ review on the same date found fourteen more; `ADVERSARIAL_REVIEW.md` is that rep
   the one decoration allowed to replace the colour under it.
 - A gate over functional boundaries that measures a control edge on both surfaces it
   touches, not only against the editor.
-- A test that fails on violet in any interface key outside a four-key allowlist.
+- A test that fails on violet in any interface key outside a five-key allowlist.
 - Terminal gates over both supported backgrounds, over ANSI slot 0 as a background, and
   over reverse video.
 - `npm run sync:design` now regenerates the rival tables in `README.md` and
@@ -217,8 +217,8 @@ review on the same date found fourteen more; `ADVERSARIAL_REVIEW.md` is that rep
   the table are generated from `checks()`; the chart shows the lowest ratio each section of
   the gate produced and the table the passing row with the least room left in each.
 - Every count a document quotes is generated. The prose said 630 interface keys, 54
-  TextMate rules, 25 covered states, 122 tests and 397 gate rows while the code produced
-  622, 64, 35, 155 and 600. `npm run sync:design` writes a counts table into `DESIGN.md`,
+  TextMate rules, 25 covered states, 122 tests and 397 gate rows, and not one of the five
+  matched what the code produced. `npm run sync:design` writes a counts table into `DESIGN.md`,
   `README.md` and the extension README, and §3.1 of `DESIGN.md` lists every state the
   floor covers with the foreground that reads worst on it. `PLAN.md` quotes no count at
   all: it names the command that prints one.
