@@ -1,5 +1,10 @@
 import { syntaxHex as c } from './colors.js';
 
+// A rule may only use a colour `readingForegrounds()` names. Four rules used `dimText`,
+// which is a chrome colour and not in that budget, so no overlay was ever solved against
+// them and they read 3.37:1 on a selected word inside an added diff line. The comment is
+// the dimmest colour a rule is allowed to take.
+
 export interface TokenRule {
   readonly name: string;
   readonly scope: string[];
@@ -52,7 +57,7 @@ export const tokenColors: TokenRule[] = [
   ]),
   rule('Decorator', c.gold, ['meta.decorator', 'entity.name.function.decorator', 'punctuation.decorator']),
   rule('Invalid', c.coral, ['invalid', 'invalid.illegal']),
-  { name: 'Deprecated', scope: ['invalid.deprecated'], settings: { foreground: c.dim, fontStyle: 'strikethrough' } },
+  { name: 'Deprecated', scope: ['invalid.deprecated'], settings: { foreground: c.comment, fontStyle: 'strikethrough' } },
   // `constant.other.character-class` rather than `.regexp`: the grammar also emits
   // `.range.regexp` and `.set.regexp`, which a selector ending in `.regexp` never matches.
   rule('Regular expression', c.green, ['string.regexp', 'constant.other.character-class']),
@@ -77,7 +82,7 @@ export const tokenColors: TokenRule[] = [
   rule('Markdown link url', c.teal, ['markup.underline.link.markdown', 'string.other.link.description.markdown']),
   rule('Markdown list marker', c.coral, ['punctuation.definition.list.begin.markdown', 'beginning.punctuation.definition.list.markdown']),
   rule('Markdown quote', c.violet, ['markup.quote', 'punctuation.definition.quote.begin.markdown']),
-  rule('Markdown separator', c.dim, ['meta.separator.markdown']),
+  rule('Markdown separator', c.comment, ['meta.separator.markdown']),
   rule('Markdown deleted', c.coral, ['markup.deleted']),
   rule('Markdown changed', c.copper, ['markup.changed']),
   // The grid is what makes a table readable, so the rules carry the colour and the cells
@@ -88,7 +93,7 @@ export const tokenColors: TokenRule[] = [
     'punctuation.definition.table.markdown', 'punctuation.separator.table.markdown',
   ]),
   { name: 'Markdown strikethrough', scope: ['markup.strikethrough'],
-    settings: { foreground: c.dim, fontStyle: 'strikethrough' } },
+    settings: { foreground: c.comment, fontStyle: 'strikethrough' } },
   rule('Markdown strikethrough punctuation', c.punctuation, ['punctuation.definition.strikethrough.markdown']),
   rule('Markdown indented code', c.green, ['markup.raw.block']),
   rule('Markdown reference link', c.blue, ['constant.other.reference.link.markdown']),
@@ -106,7 +111,7 @@ export const tokenColors: TokenRule[] = [
   rule('HTML tag', c.variable, ['entity.name.tag.html', 'entity.name.tag.structure.any.html']),
   rule('HTML attribute', c.number, ['entity.other.attribute-name.html']),
   rule('HTML attribute value', c.string, ['string.quoted.double.html', 'string.quoted.single.html']),
-  rule('HTML doctype', c.dim, ['meta.tag.sgml.doctype.html', 'entity.name.tag.doctype.html']),
+  rule('HTML doctype', c.comment, ['meta.tag.sgml.doctype.html', 'entity.name.tag.doctype.html']),
 
 
   rule('CSS selector element', c.variable, ['entity.name.tag.css']),

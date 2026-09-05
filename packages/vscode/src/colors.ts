@@ -207,8 +207,14 @@ export const editorCore = {
   'editorBracketHighlight.unexpectedBracket.foreground': coral,
   'editorBracketPairGuide.background1': hex(s('gold').border),
   'editorBracketPairGuide.activeBackground1': gold,
-  'editorUnnecessaryCode.border': transparent,
-  'editorUnnecessaryCode.opacity': '#00000080',
+  // `codeEditorWidget.ts` turns the alpha byte of `editorUnnecessaryCode.opacity` into a
+  // CSS `opacity` on the glyph, so it fades the text rather than tinting what is behind
+  // it. The comment already sits on the floor in the worst state the gate covers, so any
+  // fade at all drops a syntax colour under it: VS Code's own dark default of `#000a`
+  // reads 2.69:1. Unused code keeps its colour and `editor.css` marks it with the dashed
+  // underline VS Code documents for the high contrast themes instead.
+  'editorUnnecessaryCode.border': dim,
+  'editorUnnecessaryCode.opacity': '#000000ff',
   'editorInlayHint.background': widget,
   'editorInlayHint.foreground': dim,
   'editorInlayHint.typeBackground': widget,

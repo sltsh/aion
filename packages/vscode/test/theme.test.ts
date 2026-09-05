@@ -249,8 +249,9 @@ const OVER: Record<string, { under: string; reads: 'code' | 'terminal' | 'uiText
   // A find match is the one decoration allowed to replace what it covers, so the pair to
   // measure is its own foreground key, checked separately below.
   'editor.findMatchHighlightBackground': { under: 'editor.background', reads: 'none' },
-  // Nothing is ever drawn on top of these: rulers, sliders, shadows, drop targets and
-  // opacity masks sit beside the text or behind it, never under a glyph.
+  // Nothing is ever drawn on top of these: rulers, sliders, shadows and drop targets sit
+  // beside the text or behind it, never under a glyph. A key that scales the glyph itself
+  // is not in this table at all; see the unused-code test below.
   'button.separator': { under: 'button.background', reads: 'none' },
   'extensionButton.separator': { under: 'extensionButton.background', reads: 'none' },
   'diffEditorOverview.insertedForeground': { under: 'editor.background', reads: 'none' },
@@ -263,7 +264,7 @@ const OVER: Record<string, { under: string; reads: 'code' | 'terminal' | 'uiText
   'editorOverviewRuler.selectionHighlightForeground': { under: 'editor.background', reads: 'none' },
   'editorOverviewRuler.wordHighlightForeground': { under: 'editor.background', reads: 'none' },
   'editorOverviewRuler.wordHighlightStrongForeground': { under: 'editor.background', reads: 'none' },
-  'editorUnnecessaryCode.opacity': { under: 'editor.background', reads: 'none' },
+  // The minimap draws one or two pixels per character rather than a glyph a reader reads.
   'minimap.foregroundOpacity': { under: 'minimap.background', reads: 'none' },
   'minimap.findMatchHighlight': { under: 'minimap.background', reads: 'none' },
   'minimap.selectionHighlight': { under: 'minimap.background', reads: 'none' },
@@ -289,8 +290,15 @@ const OVER: Record<string, { under: string; reads: 'code' | 'terminal' | 'uiText
   'terminal.dropBackground': { under: 'terminal.background', reads: 'none' },
 };
 
+// An alpha byte means one of two different things. In most keys it is the opacity of a
+// wash the renderer blends into the surface, and the text on top reads against the blend.
+// In these it is the opacity of the glyph itself, so the pair to measure is the faded
+// foreground against the surface it stands on. They have their own tests.
+const FOREGROUND_OPACITY = new Set(['editorUnnecessaryCode.opacity']);
+
 const alphaKeys = (): string[] =>
   Object.entries(colors)
+    .filter(([key]) => !FOREGROUND_OPACITY.has(key))
     .filter(([, value]) => value.length === 9 && !value.endsWith('00'))
     .map(([key]) => key);
 
@@ -404,8 +412,61 @@ test('violet reaches no interface key outside the documented allowlist', () => {
   for (const key of VIOLET_ALLOWED) expect(colors[key], key).toBe(violet);
 });
 
-// The syntax colours the extension ships have to be the ones the gate measured.
-test('the token rules agree with the reading states the gate covers', () => {
+// Every foreground the theme emits, derived from the theme rather than listed beside it.
+// Four rules shipped `dimText`, which `readingForegrounds()` does not name, so the gate
+// never measured them and no overlay was ever solved against them: they read 3.37:1 on a
+// selected word inside an added diff line. A rule may only take a colour the budget names.
+test('every emitted foreground is in the budget and clears the floor on every state', () => {
+  const emitted = new Map<string, string[]>();
+  const add = (value: string, name: string) =>
+    emitted.set(value, [...(emitted.get(value) ?? []), name]);
+  for (const rule of tokenColors) {
+    if (rule.settings.foreground !== undefined) add(rule.settings.foreground, rule.name);
+  }
+  for (const [token, value] of Object.entries(semanticTokenColors)) add(value, token);
+
+  const budget = new Map(
+    Object.entries(readingForegrounds()).map(([role, colour]) => [hex(colour), role]),
+  );
+  const outside = [...emitted].filter(([value]) => !budget.has(value));
+  expect(
+    outside.map(([value, names]) => `${value} (${names.join(', ')})`),
+    'these ship as code and no decoration was solved against them',
+  ).toEqual([]);
+
+  for (const [value, names] of emitted) {
+    for (const state of readingStates()) {
+      const ratio = contrastEmitted(hexToOklch(value), state.background);
+      expect(ratio, `${names.join(', ')} on ${state.name} = ${ratio.toFixed(2)}`)
+        .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    }
+  }
+});
+
+// `codeEditorWidget.ts` writes `opacity: <alpha>` on the inline decoration from
+// `editorUnnecessaryCode.opacity`, so the key fades the glyph rather than tinting the
+// background under it. The comment sits exactly on the floor in the worst state the gate
+// covers, so no fade is affordable at all. `editor.css` draws a dashed underline from
+// `editorUnnecessaryCode.border`, which is what VS Code's own description recommends.
+test('unused code keeps its colour and takes an underline instead of a fade', () => {
+  expect(colors['editorUnnecessaryCode.opacity']).toBe('#000000ff');
+  const border = hexToOklch(colors['editorUnnecessaryCode.border']!);
+  for (const state of readingStates()) {
+    const ratio = contrastEmitted(border, state.background);
+    expect(ratio, `the unused underline on ${state.name} = ${ratio.toFixed(2)}`)
+      .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+  }
+  // Why the key is set at all: VS Code's dark default is `#000a`, a fade to 0.667.
+  const faded = Object.values(readingForegrounds())
+    .flatMap((colour) => readingStates().map((state) =>
+      contrastEmitted(compositeEmitted(colour, 0xaa / 255, state.background), state.background)));
+  expect(Math.min(...faded), 'the inherited default fades code below the floor')
+    .toBeLessThan(CONTRAST_FLOOR);
+});
+
+// The colours the budget names have to clear the floor on every state, whether or not a
+// rule uses them: the decorations are solved against all of them.
+test('the reading budget clears the floor on every state the gate covers', () => {
   const foregrounds = readingForegrounds();
   for (const state of readingStates()) {
     for (const [role, colour] of Object.entries(foregrounds)) {
@@ -528,6 +589,9 @@ const STRUCTURAL = new Set([
   // One match at a time, and the terminal wash has to stay translucent, so it is faint
   // enough that the border is what makes the current match findable.
   'terminal.findMatchBorder',
+  // One dashed underline under one unused range, and the only cue left once the fade is
+  // gone. `editor.css` draws it as `border-bottom`, not as an outline round the range.
+  'editorUnnecessaryCode.border',
 ]);
 
 test('the high contrast key fixture records where it came from', () => {

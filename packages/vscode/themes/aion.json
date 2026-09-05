@@ -220,8 +220,8 @@
     "editorSuggestWidget.selectedForeground": "#e2e8f3",
     "editorSuggestWidget.selectedIconForeground": "#e4c058",
     "editorSuggestWidgetStatus.foreground": "#848993",
-    "editorUnnecessaryCode.border": "#00000000",
-    "editorUnnecessaryCode.opacity": "#00000080",
+    "editorUnnecessaryCode.border": "#848993",
+    "editorUnnecessaryCode.opacity": "#000000ff",
     "editorWarning.border": "#00000000",
     "editorWarning.foreground": "#ea955f",
     "editorWhitespace.foreground": "#3d414a",
@@ -828,7 +828,7 @@
         "invalid.deprecated"
       ],
       "settings": {
-        "foreground": "#848993",
+        "foreground": "#98a0af",
         "fontStyle": "strikethrough"
       }
     },
@@ -978,7 +978,7 @@
         "meta.separator.markdown"
       ],
       "settings": {
-        "foreground": "#848993"
+        "foreground": "#98a0af"
       }
     },
     {
@@ -1024,7 +1024,7 @@
         "markup.strikethrough"
       ],
       "settings": {
-        "foreground": "#848993",
+        "foreground": "#98a0af",
         "fontStyle": "strikethrough"
       }
     },
@@ -1170,7 +1170,7 @@
         "entity.name.tag.doctype.html"
       ],
       "settings": {
-        "foreground": "#848993"
+        "foreground": "#98a0af"
       }
     },
     {

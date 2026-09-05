@@ -163,6 +163,20 @@ plain background, and that several claims ran ahead of what it checked. See `HAN
   own earlier development archives, and reads its counter from `.dev-version` rather than
   from the archive names, so cleaning the directory cannot hand VS Code a version it still
   has cached.
+- Four TextMate rules shipped `dimText`, a chrome colour the reading budget does not
+  name: `Deprecated`, `Markdown separator`, `Markdown strikethrough` and `HTML doctype`.
+  No decoration was ever solved against them, and they read 3.37:1 on a selected word
+  inside an added diff line. They take the comment, which is the dimmest colour a rule is
+  allowed to use. A test now derives every foreground from the emitted theme, rejects one
+  the budget does not name, and measures each on every state the gate covers.
+- `editorUnnecessaryCode.opacity` faded unused code to 50%, which put a variable at
+  2.63:1 on the plain editor. `codeEditorWidget.ts` writes that alpha byte as a CSS
+  `opacity` on the glyph, so the key scales the text rather than tinting the surface, and
+  the alpha table in the theme test had classified it as a background wash that carries no
+  text. The comment already sits on the floor in the worst state the gate covers, so no
+  fade is affordable: VS Code's own dark default of `#000a` reads 2.69:1. Unused code now
+  keeps its colour and takes the dashed underline from `editorUnnecessaryCode.border`,
+  which is what that key's description recommends.
 
 ## 0.1.0
 
