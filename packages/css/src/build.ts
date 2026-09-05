@@ -12,77 +12,93 @@ const block = (selector: string, extra: string, variables: Variables): string =>
   return `${selector} {\n${extra}${body}\n}\n`;
 };
 
+// Every element rule lives in the `base` layer. Tailwind v4 puts its utilities in the
+// `utilities` layer, and an unlayered rule beats any layered one whatever its specificity,
+// so an unlayered `button` background won `bg-bg-raised` on a button. The variable blocks
+// stay unlayered: they are definitions a consumer overrides directly.
 const BASE = `
-html {
-  background-color: var(--aion-bg-page);
-  color: var(--aion-fg-primary);
-  accent-color: var(--aion-gold-solid);
-  caret-color: var(--aion-caret);
-}
+@layer base {
+  html {
+    background-color: var(--aion-bg-page);
+    color: var(--aion-fg-primary);
+    accent-color: var(--aion-gold-solid);
+    caret-color: var(--aion-caret);
+  }
 
-body { background-color: inherit; color: inherit; }
+  body { background-color: inherit; color: inherit; }
 
-::selection { background-color: var(--aion-overlay-selection); }
+  /* The selection replaces the foreground as well as the background. Solving one overlay
+     that keeps every foreground this sheet ships above the floor would take a light
+     selection to within a step of the page, so the pair is measured instead: primary text
+     on the selection, on every surface the selection can land on. */
+  ::selection {
+    background-color: var(--aion-overlay-selection);
+    color: var(--aion-fg-primary);
+  }
 
-::placeholder { color: var(--aion-fg-secondary); opacity: 1; }
+  ::placeholder { color: var(--aion-fg-secondary); opacity: 1; }
 
-:focus-visible {
-  outline: 2px solid var(--aion-border-focus);
-  outline-offset: 2px;
-}
+  :focus-visible {
+    outline: 2px solid var(--aion-border-focus);
+    outline-offset: 2px;
+  }
 
-a { color: var(--aion-fg-link); }
-a:hover { color: var(--aion-teal-solid); }
+  a { color: var(--aion-fg-link); }
+  a:hover { color: var(--aion-teal-solid); }
 
-hr { border: 0; border-top: 1px solid var(--aion-border-divider); }
+  hr { border: 0; border-top: 1px solid var(--aion-border-divider); }
 
-small, .aion-dim { color: var(--aion-fg-dim); }
+  small, .aion-dim { color: var(--aion-fg-dim); }
 
-code, kbd, samp, pre {
-  background-color: var(--aion-bg-surface);
-  color: var(--aion-fg-primary);
-}
+  code, kbd, samp, pre {
+    background-color: var(--aion-bg-surface);
+    color: var(--aion-fg-primary);
+  }
 
-pre { border: 1px solid var(--aion-border-hairline); }
+  pre { border: 1px solid var(--aion-border-hairline); }
 
-kbd {
-  border: 1px solid var(--aion-border-hairline);
-  border-bottom-color: var(--aion-border-divider);
-}
+  kbd {
+    border: 1px solid var(--aion-border-hairline);
+    border-bottom-color: var(--aion-border-divider);
+  }
 
-mark {
-  background-color: var(--aion-overlay-find-match);
-  color: var(--aion-fg-primary);
-}
+  mark {
+    background-color: var(--aion-overlay-find-match);
+    color: var(--aion-fg-primary);
+  }
 
-blockquote {
-  border-left: 2px solid var(--aion-teal-border);
-  color: var(--aion-fg-secondary);
-}
+  blockquote {
+    border-left: 2px solid var(--aion-teal-border);
+    color: var(--aion-fg-secondary);
+  }
 
-table { border-collapse: collapse; }
-th, td { border-bottom: 1px solid var(--aion-border-hairline); }
-th { color: var(--aion-fg-primary); }
-td { color: var(--aion-fg-secondary); }
+  table { border-collapse: collapse; }
+  th, td { border-bottom: 1px solid var(--aion-border-hairline); }
+  th { color: var(--aion-fg-primary); }
+  td { color: var(--aion-fg-secondary); }
 
-input, textarea, select {
-  background-color: var(--aion-bg-input);
-  color: var(--aion-fg-primary);
-  border: 1px solid var(--aion-border-hairline);
-}
+  /* A control edge is functional, not decorative, so it uses the UI border rather than the
+     hairline. The hairline read 1.41:1 against the dark field and 1.21:1 against the light
+     one, which is no edge at all for anyone finding the control by keyboard. */
+  input, textarea, select {
+    background-color: var(--aion-bg-input);
+    color: var(--aion-fg-primary);
+    border: 1px solid var(--aion-border-ui);
+  }
 
-button {
-  background-color: var(--aion-gold-solid);
-  color: var(--aion-fg-on-accent);
-  border: 1px solid transparent;
-}
+  button {
+    background-color: var(--aion-gold-solid);
+    color: var(--aion-fg-on-accent);
+    border: 1px solid transparent;
+  }
 
-button:hover { background-color: var(--aion-gold-solid); filter: brightness(1.08); }
+  button:hover { background-color: var(--aion-gold-solid); filter: brightness(1.08); }
 
-button[data-variant="secondary"] {
-  background-color: var(--aion-bg-input);
-  color: var(--aion-fg-primary);
-  border-color: var(--aion-border-hairline);
+  button[data-variant="secondary"] {
+    background-color: var(--aion-bg-input);
+    color: var(--aion-fg-primary);
+    border-color: var(--aion-border-ui);
+  }
 }
 `;
 
@@ -104,8 +120,13 @@ const themeBlock = (): string => {
     .join('\n');
   return `${HEADER}
 /* Import aion.css first. These utilities read its custom properties, so a Tailwind class
-   follows the active colour scheme instead of freezing one of them. */
-@theme {
+   follows the active colour scheme instead of freezing one of them.
+
+   The inline keyword is what makes that true inside a nested [data-theme] region. A
+   plain @theme alias resolves where it is defined, at the root, and a utility on an
+   element inside a light region then inherits the root's dark value. An inline alias
+   substitutes the var() into the utility, so it resolves at the consuming element. */
+@theme inline {
 ${colours}
 }
 `;

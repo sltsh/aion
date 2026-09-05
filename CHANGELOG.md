@@ -177,6 +177,27 @@ plain background, and that several claims ran ahead of what it checked. See `HAN
   fade is affordable: VS Code's own dark default of `#000a` reads 2.69:1. Unused code now
   keeps its colour and takes the dashed underline from `editorUnnecessaryCode.border`,
   which is what that key's description recommends.
+- The CSS selection changed the background and left the foreground alone, so ordinary text
+  the package styles itself failed the floor under a selection: dim text read 3.47:1 in
+  the light scheme and 2.98:1 in the dark one, and a link 3.95:1. `::selection` now sets
+  the foreground as well, and the pair is measured on every surface the selection can land
+  on. A browser supplies no corrective selection foreground here, which a Chromium probe
+  of `getComputedStyle(element, '::selection')` confirmed.
+- The CSS form controls drew their edge with the decorative hairline token, which read
+  1.41:1 against the dark field and 1.21:1 against the light one. They use the UI border,
+  and the test reads the generated rule rather than a token the rule does not mention.
+- The light `border` moved to lightness 0.605, `#7f8287`. It was solved against `page`,
+  the lightest surface, so it read 2.56:1 against the input it delimits. A light border is
+  darker than every surface it touches, so the darkest one binds. `BOUNDARY_PAIRS_LIGHT`
+  puts the light scheme under the same both-surfaces gate as the dark one.
+- The CSS element rules moved into the `base` cascade layer. An unlayered rule beats every
+  layered one whatever its specificity, so the base `button` background won over a
+  Tailwind `bg-bg-raised` utility. Verified with Tailwind 4.3.3 in Chromium 151. Tailwind
+  has to be imported before `aion.css`, because its preflight is in the same layer, and
+  `packages/css/README.md` now documents that order and the reason.
+- The Tailwind aliases use `@theme inline`. A plain alias resolves where it is defined, at
+  the root, so `bg-bg-raised` inside a nested `[data-theme="light"]` region kept the dark
+  root value even though the region's own Aion variables were light.
 
 ## 0.1.0
 

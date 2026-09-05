@@ -389,7 +389,7 @@ surface is outside this guarantee; hover rows use neutral text.
 | hover | `#d8dbe0` | | teal | `#007876` | 5.17 |
 | hairline | `#ced1d6` | | blue | `#1f6bc2` | 5.18 |
 | divider | `#bec1c6` | | violet | `#8851bd` | 5.16 |
-| border | `#8d8f94` | | | | |
+| border | `#7f8287` | | | | |
 | muted | `#727479` | | | | |
 | secondary text | `#53555a` | | | | |
 | primary text | `#191b1e` | | | | |

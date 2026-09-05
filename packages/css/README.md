@@ -8,7 +8,8 @@ Aion as CSS custom properties and a Tailwind v4 `@theme` block.
 ```
 
 `aion.css` sets both schemes and a base layer, so a page that sets no colours of its own
-already renders correctly.
+already renders correctly. The element rules live in the `base` cascade layer, so any
+utility or component layer overrides them.
 
 ## Schemes
 
@@ -39,14 +40,42 @@ Surfaces stay monotonic in both schemes: `page`, `surface`, `raised`, `input`, `
 
 ## Tailwind
 
-`aion.theme.css` maps every variable by reference, so `bg-bg-raised` and
-`text-fg-primary` follow the active scheme instead of freezing one of them. Import
-`aion.css` first.
+Import Tailwind first, then both Aion files:
 
-## Known limit
+```css
+@import "tailwindcss";
+@import "@sltio/aion-css/aion.css";
+@import "@sltio/aion-css/aion.theme.css";
+```
+
+The order is not a preference. Tailwind's preflight and Aion's element rules are both in
+the `base` layer, so whichever comes last wins: with Aion first, preflight resets the
+button background Aion just set. `aion.theme.css` reads the variables `aion.css` defines,
+so it comes after it.
+
+`aion.theme.css` maps every variable with `@theme inline`, so `bg-bg-raised` and
+`text-fg-primary` resolve at the element that carries the class. A plain `@theme` alias
+resolves at the root instead, and a utility inside a nested `[data-theme="light"]` region
+then keeps the root's dark value.
+
+## The selection
+
+`::selection` sets a foreground as well as a background, so selected text is primary text
+on the selection fill in both schemes. Selected code loses its syntax colour, which is
+what a browser's own selection does. The alternative is a selection pale enough for every
+foreground this package ships, and in the light scheme that is one step off the page.
+
+## Known limits
 
 Accent text is guaranteed legible on `page`, `surface`, `raised` and on its own subtle
 fill. It is not guaranteed on `hover`; hover rows use neutral text.
+
+`--aion-border-ui` clears the 3:1 non-text floor on `input`, `raised`, `surface` and
+`page`. A control edge on `hover` is outside that; this package paints no control there.
+
+Every ratio here is a calculation over the emitted hex. Chromium 151 was used to check
+the cascade, the nested-theme case and the selection foreground. No other browser and no
+assistive technology was checked.
 
 ## Licence
 

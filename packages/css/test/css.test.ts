@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
-import { CONTRAST_FLOOR, NON_TEXT_FLOOR, contrastEmitted, hexToOklch } from '@sltio/aion-tokens';
+import {
+  CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hexToOklch,
+} from '@sltio/aion-tokens';
+import type { Oklch } from '@sltio/aion-tokens';
 import { dark, light } from '../src/variables.js';
 
 const read = (name: string): string =>
@@ -43,6 +46,75 @@ test('the base layer styles a page that sets no colours of its own', () => {
   }
   expect(sheet).toContain('background-color: var(--aion-bg-page)');
   expect(sheet).toContain('color: var(--aion-fg-primary)');
+});
+
+// The rule text as it ships, not the variable names the package happens to define. The
+// control border was checked through `--aion-border-ui` while the rule used the hairline,
+// so the test passed and the field shipped a 1.21:1 edge.
+const rule = (selector: string): string => {
+  const start = sheet.indexOf(`${selector} {`);
+  expect(start, `${selector} is not in the stylesheet`).toBeGreaterThan(-1);
+  return sheet.slice(start, sheet.indexOf('}', start));
+};
+
+const SURFACES = ['page', 'surface', 'raised', 'input', 'hover'] as const;
+
+const over = (value: string, under: Oklch): Oklch =>
+  value.length === 9
+    ? compositeEmitted(hexToOklch(value.slice(0, 7)), parseInt(value.slice(7), 16) / 255, under)
+    : hexToOklch(value);
+
+// An unlayered element rule beats every layered one, whatever its specificity, so the base
+// `button` background won over a Tailwind `bg-bg-raised` utility. Tailwind v4 puts its
+// utilities in the `utilities` layer; these have to be in a layer to lose to it.
+test('every element rule is inside the base cascade layer', () => {
+  const base = sheet.slice(sheet.indexOf('@layer base {'));
+  const outside = sheet.slice(0, sheet.indexOf('@layer base {'));
+  expect(base, 'the base layer is not emitted').toContain('@layer base {');
+  for (const selector of ['html', 'body', '::selection', 'input, textarea, select', 'button']) {
+    expect(base, selector).toContain(`${selector} {`);
+  }
+  // Only the four scheme blocks may sit outside a layer, and they define variables alone.
+  const selectors = [...outside.matchAll(/^\s*([^@\s][^{\n]*)\{/gm)].map((m) => m[1]!.trim());
+  expect(selectors).toEqual([':root', ':root:not([data-theme])', '[data-theme="light"]', '[data-theme="dark"]']);
+});
+
+// A Tailwind alias resolves where it is defined. A plain `@theme` block defines them at
+// the root, so a utility inside a nested `[data-theme="light"]` region kept the root's
+// dark value. `inline` substitutes the var() into the utility instead.
+test('the Tailwind aliases resolve at the element that uses them', () => {
+  expect(tailwind).toContain('@theme inline {');
+});
+
+// The selection is the one decoration in this sheet that replaces the foreground under it,
+// so the pair to measure is its own foreground on it, on every surface it can land on.
+test('selected text clears the floor in both schemes', () => {
+  expect(rule('::selection')).toContain('color: var(--aion-fg-primary)');
+  for (const [name, variables] of [['dark', dark()], ['light', light()]] as const) {
+    for (const surface of SURFACES) {
+      const background = over(variables['--aion-overlay-selection']!, hexToOklch(variables[`--aion-bg-${surface}`]!));
+      const ratio = contrastEmitted(hexToOklch(variables['--aion-fg-primary']!), background);
+      expect(ratio, `${name} selected text on bg-${surface} = ${ratio.toFixed(2)}`)
+        .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    }
+  }
+});
+
+// The edge of a control a keyboard user has to find, measured on the field it encloses and
+// on each surface the field can sit on. A ratio against the page alone is how the light
+// border shipped at 2.56:1 against the input it delimits.
+test('the control rules use a functional border and clear the non-text floor', () => {
+  for (const selector of ['input, textarea, select', 'button[data-variant="secondary"]']) {
+    expect(rule(selector), selector).toContain('var(--aion-border-ui)');
+  }
+  for (const [name, variables] of [['dark', dark()], ['light', light()]] as const) {
+    const edge = hexToOklch(variables['--aion-border-ui']!);
+    for (const surface of ['input', 'page', 'surface', 'raised'] as const) {
+      const ratio = contrastEmitted(edge, hexToOklch(variables[`--aion-bg-${surface}`]!));
+      expect(ratio, `${name} border-ui on bg-${surface} = ${ratio.toFixed(2)}`)
+        .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    }
+  }
 });
 
 test('the Tailwind theme maps every colour variable except the overlays', () => {

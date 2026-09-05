@@ -4,9 +4,13 @@ import type { AccentName, AccentScale } from './palette.js';
 import { ACCENTS, BASE_CHROMA, BASE_HUE, CONTRAST_FLOOR, NON_TEXT_FLOOR } from './palette.js';
 import { mapValues } from './util.js';
 
+// `border` is solved against `input`, the darkest surface a control edge encloses, not
+// against `page`. A light border is darker than every surface it touches, so the darkest
+// surface is the one that binds: at 0.650 it read 3.15:1 on the page and 2.56:1 on the
+// field it was supposed to delimit.
 export const LIGHT_LIGHTNESS = {
   page: 0.990, surface: 0.970, raised: 0.945, input: 0.920, hover: 0.890,
-  hairline: 0.860, divider: 0.810, border: 0.650, muted: 0.560,
+  hairline: 0.860, divider: 0.810, border: 0.605, muted: 0.560,
   textSecondary: 0.450, textPrimary: 0.220,
 } as const;
 

@@ -26,7 +26,7 @@ export { status, statusLight } from './status.js';
 
 export {
   bg, fg, border, syntax, accent, brackets, semantic, BOUNDARY_PAIRS,
-  bgLight, fgLight, borderLight, accentLight, semanticLight,
+  bgLight, fgLight, borderLight, accentLight, semanticLight, BOUNDARY_PAIRS_LIGHT,
 } from './semantic.js';
 
 export type { Marker, Solution } from './solve.js';

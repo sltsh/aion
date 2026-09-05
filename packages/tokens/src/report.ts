@@ -9,7 +9,7 @@ import {
 } from './palette.js';
 import { LIGHT_LIGHTNESS, lightAccentScale, lightNeutral } from './light.js';
 import { status, statusLight } from './status.js';
-import { BOUNDARY_PAIRS, bg, border } from './semantic.js';
+import { BOUNDARY_PAIRS, BOUNDARY_PAIRS_LIGHT, bg, bgLight, border, borderLight } from './semantic.js';
 import { readingForegrounds, readingStates } from './states.js';
 import { RIVALS, contrastHex, measure, surfaceOrder } from './rivals.js';
 
@@ -181,7 +181,12 @@ export function checks(): Check[] {
     rows.push(build('light', `light.${name}`, colour, 'page', lightNeutral.page,
       isText ? CONTRAST_FLOOR : 0, name === 'page' ? 'info' : isText ? undefined : 'info'));
   }
-  rows.push(build('light', 'light.border', lightNeutral.border, 'page', lightNeutral.page, NON_TEXT_FLOOR));
+  for (const { edge, inside, outside } of BOUNDARY_PAIRS_LIGHT) {
+    for (const side of [inside, outside]) {
+      rows.push(build('light', `light.border.${edge}`, borderLight[edge], `light.${side}`,
+        bgLight[side], NON_TEXT_FLOOR));
+    }
+  }
   for (const name of ACCENT_NAMES) {
     const scale = lightAccentScale(name);
     rows.push(build('light', `light.${name}.solid`, scale.solid, 'page', lightNeutral.page, CONTRAST_FLOOR));

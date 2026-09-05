@@ -98,6 +98,23 @@ export const borderLight = {
   focus: lightAccentScale('gold').solid,
 } as const satisfies Record<string, Oklch>;
 
+// The light scheme has the same contract as the dark one: a functional edge clears the
+// non-text floor on the field it encloses and on the surface behind it. `input` is the
+// darkest of those, and a light border is darker than every surface it touches, so
+// `input` binds. A ratio against `page` alone is how the light control edge reached
+// 2.56:1 on the field it delimits. `hover` carries no control in this package and is
+// outside the pairs below.
+export const BOUNDARY_PAIRS_LIGHT = [
+  { edge: 'input', inside: 'input', outside: 'page' },
+  { edge: 'input', inside: 'input', outside: 'surface' },
+  { edge: 'input', inside: 'input', outside: 'raised' },
+  { edge: 'ui', inside: 'raised', outside: 'page' },
+  { edge: 'focus', inside: 'input', outside: 'page' },
+  { edge: 'focus', inside: 'raised', outside: 'page' },
+] as const satisfies readonly {
+  edge: keyof typeof borderLight; inside: keyof typeof bgLight; outside: keyof typeof bgLight;
+}[];
+
 export const accentLight: Record<AccentName, ReturnType<typeof lightAccentScale>> = mapValues(
   ACCENTS,
   (_value, name) => lightAccentScale(name),

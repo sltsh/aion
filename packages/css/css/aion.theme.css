@@ -2,8 +2,13 @@
    Change the OKLCH definition in @sltio/aion-tokens and rebuild. */
 
 /* Import aion.css first. These utilities read its custom properties, so a Tailwind class
-   follows the active colour scheme instead of freezing one of them. */
-@theme {
+   follows the active colour scheme instead of freezing one of them.
+
+   The inline keyword is what makes that true inside a nested [data-theme] region. A
+   plain @theme alias resolves where it is defined, at the root, and a utility on an
+   element inside a light region then inherits the root's dark value. An inline alias
+   substitutes the var() into the utility, so it resolves at the consuming element. */
+@theme inline {
   --color-bg-page: var(--aion-bg-page);
   --color-bg-surface: var(--aion-bg-surface);
   --color-bg-raised: var(--aion-bg-raised);
