@@ -1,5 +1,5 @@
-import { buildPalette, PREVIEW_DEFAULTS } from '@sltio/aion-tokens';
-import type { PreviewOptions } from '@sltio/aion-tokens';
+import { buildPalette, PREVIEW_DEFAULTS } from '@sltsh/aion-tokens';
+import type { PreviewOptions } from '@sltsh/aion-tokens';
 import { applyVariables } from './variables.js';
 import { renderControls } from './controls.js';
 import { renderReadout } from './readout.js';

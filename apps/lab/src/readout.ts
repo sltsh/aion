@@ -1,8 +1,8 @@
 import {
   ANSI_BLACK_TEXT, ANSI_ORDER, CONTRAST_FLOOR, NON_TEXT_FLOOR, contrastEmitted, hex,
   readingForegrounds, readingStates,
-} from '@sltio/aion-tokens';
-import type { AnsiSlot, Oklch, Palette } from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
+import type { AnsiSlot, Oklch, Palette } from '@sltsh/aion-tokens';
 
 export interface Row {
   readonly label: string;

@@ -4,8 +4,8 @@ import {
   ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, NON_TEXT_FLOOR, accentScale, ansi, compositeEmitted,
   contrastEmitted, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, neutral, overlay,
   readingForegrounds, readingStates,
-} from '@sltio/aion-tokens';
-import type { Oklch } from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
+import type { Oklch } from '@sltsh/aion-tokens';
 import { theme } from '../src/theme.js';
 import { colors } from '../src/colors.js';
 import { semanticTokenColors, tokenColors } from '../src/tokens.js';

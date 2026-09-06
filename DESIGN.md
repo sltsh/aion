@@ -473,12 +473,12 @@ Consumers use the semantic layer. Changing what "keyword" means is one line.
 ## 13. Scope of v1
 
 **In.** Colour. VS Code, Windows Terminal, a CSS layer with custom properties and a
-Tailwind v4 `@theme inline` block, and the lab site. §3 counts what the theme sets.
+Tailwind v4 `@theme inline` block, the lab, and the public site. §3 counts what the theme sets.
 
 **Out.** Typography, spacing, radius, elevation and motion as shipped tokens. A light VS
 Code theme. JetBrains and Neovim. Italic variants. More than six language overrides.
 
-Type appears in this project only for the lab and the site: **Archivo** for display and
+Type appears in this project only for the lab and the public site: **Archivo** for display and
 body, using its width axis for headlines, and **Monaspace Neon** for code.
 
 ## 14. Rejected, and why

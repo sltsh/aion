@@ -1,7 +1,7 @@
 import {
   ACCENTS, accentScale, ansi, comment, cursor, diff, diffWash, dimText, findMatch, hex,
   hexAlpha, neutral, overlay, status, terminalSelection,
-} from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
 
 const n = neutral;
 const a = ACCENTS;

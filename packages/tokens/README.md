@@ -1,11 +1,11 @@
-# @sltio/aion-tokens
+# @sltsh/aion-tokens
 
 The Aion colour system. OKLCH definitions, contrast invariants and sRGB emitters.
 
 Every other Aion package reads this one. Nothing downstream defines a colour.
 
 ```ts
-import { hex, bg, fg, accent, contrastEmitted, flatten, semantic } from '@sltio/aion-tokens';
+import { hex, bg, fg, accent, contrastEmitted, flatten, semantic } from '@sltsh/aion-tokens';
 
 hex(bg.editor);            // '#11151c'
 hex(accent.gold.solid);    // '#e4c058'

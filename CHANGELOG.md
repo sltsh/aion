@@ -5,6 +5,14 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 0.3.0
+
+### Added
+
+- Palette reference site & Aion landing page
+
+## 0.2.0
+
 The 2026-09-05 theme review found that the contrast gate measured a colour only against a
 plain background, and that several claims ran ahead of what it checked. An adversarial
 review on the same date found fourteen more. Every entry below is one of those findings.

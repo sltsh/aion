@@ -1,6 +1,6 @@
 {
-  "name": "@sltio/aion-tokens",
-  "version": "0.1.0",
+  "name": "@sltsh/aion-tokens",
+  "version": "0.3.0",
   "description": "The Aion colour system: OKLCH definitions, contrast invariants and sRGB emitters.",
   "license": "MIT",
   "type": "module",

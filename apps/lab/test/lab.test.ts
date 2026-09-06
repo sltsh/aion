@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 import {
   ACCENTS, CONTRAST_FLOOR, buildPalette, checks, contrastEmitted, hex, neutral,
   readingForegrounds, readingStates, terminalBackground,
-} from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
 import { figures, tightest } from '../src/figures.js';
 import { readoutRows } from '../src/readout.js';
 import { variables } from '../src/variables.js';

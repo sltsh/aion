@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import {
   CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hexToOklch,
-} from '@sltio/aion-tokens';
-import type { Oklch } from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
+import type { Oklch } from '@sltsh/aion-tokens';
 import { dark, light } from '../src/variables.js';
 
 const read = (name: string): string =>
@@ -187,6 +187,26 @@ test('status text clears the floor on its own subtle fill', () => {
         hexToOklch(variables[`--aion-status-${level}-subtle`]!),
       );
       expect(ratio, `${name} status-${level} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    }
+  }
+});
+
+test('the package root export emits the same names in both schemes', async () => {
+  const entry = await import('@sltsh/aion-css');
+  const darkKeys = Object.keys(entry.dark()).sort();
+  const lightKeys = Object.keys(entry.light()).sort();
+  expect(darkKeys).toEqual(lightKeys);
+  expect(darkKeys.length).toBeGreaterThan(0);
+});
+
+// Four dark variables and one light variable carry an alpha byte: the selection, the
+// line highlight and the two diff fills. VS Code paints a diff fill over the selection,
+// so an opaque one would hide it.
+test('the package root export emits a hex for every variable, with or without alpha', async () => {
+  const entry = await import('@sltsh/aion-css');
+  for (const scheme of [entry.dark(), entry.light()]) {
+    for (const [name, value] of Object.entries(scheme)) {
+      expect(value, name).toMatch(/^#(?:[0-9a-f]{6}|[0-9a-f]{8})$/);
     }
   }
 });

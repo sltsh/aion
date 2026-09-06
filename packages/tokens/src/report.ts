@@ -41,7 +41,7 @@ const build = (
 const compositeOverlay = (name: keyof typeof overlay, under: Oklch): Oklch =>
   compositeEmitted(overlay[name].color, overlay[name].alpha, under);
 
-const NEUTRAL_ROLE: Record<keyof typeof NEUTRAL_LIGHTNESS, string> = {
+export const NEUTRAL_ROLE: Record<keyof typeof NEUTRAL_LIGHTNESS, string> = {
   editor: 'editor',
   terminal: 'terminal, panel',
   sidebar: 'sidebar, activity bar, status bar, tab bar',

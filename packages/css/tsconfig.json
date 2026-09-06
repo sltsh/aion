@@ -7,7 +7,7 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
-    "declaration": false,
+    "declaration": true,
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": ".",

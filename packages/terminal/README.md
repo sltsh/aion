@@ -12,7 +12,7 @@ standalone window does not.
 Copy `fragments/aion.json` into the Windows Terminal fragments folder:
 
 ```powershell
-$target = "$env:LOCALAPPDATA\Microsoft\Windows Terminal\Fragments\sltio"
+$target = "$env:LOCALAPPDATA\Microsoft\Windows Terminal\Fragments\sltsh"
 New-Item -ItemType Directory -Force -Path $target
 Copy-Item fragments\aion.json -Destination $target
 ```
@@ -28,7 +28,7 @@ The path is the same for every build, the Store one included. The loader enumera
 for every user on the machine:
 
 ```powershell
-$target = "$env:PROGRAMDATA\Microsoft\Windows Terminal\Fragments\sltio"
+$target = "$env:PROGRAMDATA\Microsoft\Windows Terminal\Fragments\sltsh"
 ```
 
 ## Settings snippet

@@ -1,5 +1,5 @@
-import { ANSI_ORDER, hex, hexAlpha } from '@sltio/aion-tokens';
-import type { Palette } from '@sltio/aion-tokens';
+import { ANSI_ORDER, hex, hexAlpha } from '@sltsh/aion-tokens';
+import type { Palette } from '@sltsh/aion-tokens';
 
 const kebab = (value: string): string => value.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
 

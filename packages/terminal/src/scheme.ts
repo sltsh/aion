@@ -1,5 +1,5 @@
-import { ANSI_ORDER, ansi, cursor, hex, neutral, terminalBackground, terminalSelection } from '@sltio/aion-tokens';
-import type { AnsiSlot } from '@sltio/aion-tokens';
+import { ANSI_ORDER, ansi, cursor, hex, neutral, terminalBackground, terminalSelection } from '@sltsh/aion-tokens';
+import type { AnsiSlot } from '@sltsh/aion-tokens';
 
 export interface Scheme {
   readonly name: string;
