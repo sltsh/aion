@@ -38,7 +38,7 @@ export { readingStates, readingForegrounds, SHIPPED } from './states.js';
 export { flatten } from './flatten.js';
 
 export type { Check, CheckState } from './report.js';
-export { checks, failures, designTables } from './report.js';
+export { checks, failures, designTables, NEUTRAL_ROLE } from './report.js';
 
 export type { Palette, PreviewOptions } from './preview.js';
 export { buildPalette, PREVIEW_DEFAULTS } from './preview.js';

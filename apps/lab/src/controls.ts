@@ -1,5 +1,5 @@
-import { PREVIEW_DEFAULTS } from '@sltio/aion-tokens';
-import type { PreviewOptions } from '@sltio/aion-tokens';
+import { PREVIEW_DEFAULTS } from '@sltsh/aion-tokens';
+import type { PreviewOptions } from '@sltsh/aion-tokens';
 
 export interface Control {
   readonly key: keyof PreviewOptions;

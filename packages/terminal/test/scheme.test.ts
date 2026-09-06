@@ -3,7 +3,7 @@ import { test, expect } from 'vitest';
 import {
   ACCENTS, ANSI_BLACK_TEXT, ANSI_ORDER, CONTRAST_FLOOR, TERMINAL_BACKGROUNDS, ansi,
   contrastEmitted, hex, hexToOklch, neutral, terminalBackground, terminalSelection,
-} from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
 import { fragment, scheme, settingsSnippet } from '../src/scheme.js';
 
 const built = scheme();

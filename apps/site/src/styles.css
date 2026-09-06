@@ -1,0 +1,524 @@
+@font-face {
+  font-family: 'Archivo';
+  src: url('./fonts/Archivo.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Monaspace Neon';
+  src: url('./fonts/MonaspaceNeon.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-display: swap;
+}
+
+:root {
+  --site-page: 78rem;
+  --site-prose: 46rem;
+  --site-gap: 1.5rem;
+  --site-radius: 12px;
+  --site-bar: 3.5rem;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+/* The site chrome sits on the surface one step above the editor, so the code sample can
+   drop to the editor colour and read as a window rather than as part of the page. Both
+   surfaces carry text the gate measures. */
+body {
+  margin: 0;
+  background: var(--aion-bg-surface);
+  color: var(--aion-fg-primary);
+  font-family: 'Archivo', system-ui, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  max-width: var(--site-page);
+  margin: 0 auto;
+  padding: 0 var(--site-gap);
+}
+
+:focus-visible { outline: 2px solid var(--aion-border-focus); outline-offset: 2px; }
+
+a { color: var(--aion-fg-link); }
+
+h1 {
+  font-stretch: 118%;
+  font-weight: 700;
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0 0 1rem;
+}
+
+h2 {
+  font-stretch: 110%;
+  font-weight: 650;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5rem;
+}
+
+h3 { font-size: 0.95rem; font-weight: 650; margin: 0 0 0.4rem; }
+
+p { margin: 0 0 1rem; }
+
+.lede { color: var(--aion-fg-secondary); font-size: 1.15rem; max-width: var(--site-prose); }
+.note { color: var(--aion-fg-dim); font-size: 0.875rem; max-width: var(--site-prose); }
+.band { max-width: var(--site-prose); margin-bottom: 2rem; }
+
+/* Header and footer */
+
+.site-head {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: var(--site-bar);
+  margin: 0 calc(var(--site-gap) * -1);
+  padding: 0 var(--site-gap);
+  background: var(--aion-bg-surface);
+  border-bottom: 1px solid var(--aion-border-hairline);
+}
+
+.mark {
+  font-stretch: 118%;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: var(--aion-fg-primary);
+  text-decoration: none;
+}
+
+.site-nav { display: flex; gap: 1.25rem; overflow-x: auto; }
+
+.site-nav a {
+  color: var(--aion-fg-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.site-nav a:hover { color: var(--aion-fg-primary); }
+.site-nav a[aria-current] { color: var(--aion-gold-solid); }
+
+.site-foot {
+  max-width: var(--site-page);
+  margin: 3rem auto 0;
+  padding: 2rem var(--site-gap) 4rem;
+  border-top: 1px solid var(--aion-border-hairline);
+  color: var(--aion-fg-dim);
+  font-size: 0.875rem;
+}
+
+.site-foot p { margin: 0 0 0.4rem; }
+
+/* Hero */
+
+.hero { padding: 5rem 0 4rem; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.75rem 0 0; }
+
+.button {
+  display: inline-block;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--aion-gold-border);
+  border-radius: 8px;
+  background: var(--aion-gold-subtle);
+  color: var(--aion-gold-solid);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.button:hover { border-color: var(--aion-border-focus); }
+
+.button.ghost {
+  background: none;
+  border-color: var(--aion-border-hairline);
+  color: var(--aion-fg-secondary);
+}
+
+.button.ghost:hover { border-color: var(--aion-border-ui); color: var(--aion-fg-primary); }
+
+.strip { display: flex; gap: 0.5rem; max-width: 38rem; margin-top: 2.5rem; }
+.strip-bar { flex: 1; height: 1rem; border-radius: 999px; }
+
+/* The code sample as a window */
+
+.editor {
+  margin: 0 0 4rem;
+  padding: 0.6rem;
+  background: var(--aion-bg-raised);
+  border: 1px solid var(--aion-border-hairline);
+  border-radius: var(--site-radius);
+}
+
+.editor-bar {
+  padding: 0.25rem 0.5rem 0.65rem;
+  color: var(--aion-fg-dim);
+  font-size: 0.8rem;
+}
+
+.editor-body {
+  padding: 1.4rem 1.1rem;
+  background: var(--aion-bg-page);
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+/* Cards */
+
+.card-list, .install-list {
+  list-style: none;
+  margin: 0 0 4rem;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.card-list li, .install-list li {
+  padding: 1.25rem;
+  background: var(--aion-bg-raised);
+  border: 1px solid var(--aion-border-hairline);
+  border-radius: var(--site-radius);
+}
+
+.card-list p, .install-list p {
+  margin: 0.5rem 0 0;
+  color: var(--aion-fg-secondary);
+  font-size: 0.875rem;
+}
+
+.gate, .install, .manual, .principles { padding-top: 1rem; }
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin: 0 0 4rem;
+  padding: 0;
+}
+
+.figures div {
+  padding: 1.1rem 1.25rem;
+  background: var(--aion-bg-raised);
+  border: 1px solid var(--aion-border-hairline);
+  border-radius: var(--site-radius);
+}
+
+.figures dt {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-stretch: 110%;
+  line-height: 1.1;
+  color: var(--aion-gold-solid);
+}
+
+.figures dd { margin: 0.2rem 0 0; color: var(--aion-fg-secondary); font-size: 0.85rem; }
+
+.figures.small { margin-bottom: 0; }
+.figures.small div { padding: 0.75rem 1rem; }
+.figures.small dt { font-size: 1.5rem; }
+
+/* Manual setup */
+
+.manual-grid {
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
+  margin-bottom: 2.5rem;
+}
+
+.roles { margin: 0; }
+.roles td { vertical-align: top; }
+.roles .note { font-size: 0.85rem; }
+
+.ansi-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.4rem 1.5rem;
+}
+
+.ansi-list li {
+  display: grid;
+  grid-template-columns: 1rem 1.1rem 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
+/* Column flow puts slot n beside slot n+8, so each row pairs a colour with its bright twin. */
+@media (min-width: 44rem) {
+  .ansi-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(8, auto);
+    grid-auto-flow: column;
+  }
+}
+
+.slot { color: var(--aion-fg-dim); text-align: right; }
+.slot-name { color: var(--aion-fg-secondary); }
+.slot-hex { color: var(--aion-fg-dim); }
+
+.blocks {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  margin-bottom: 2.5rem;
+}
+
+.block {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--aion-bg-raised);
+  border: 1px solid var(--aion-border-hairline);
+  border-radius: var(--site-radius);
+  overflow: hidden;
+}
+
+.block-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--aion-border-hairline);
+}
+
+.block-head h3 { margin: 0; }
+.block pre { border-radius: 0; }
+
+.rules {
+  max-width: var(--site-prose);
+  margin: 0 0 2rem;
+  padding-left: 1.2rem;
+  color: var(--aion-fg-secondary);
+  font-size: 0.925rem;
+}
+
+.rules li { margin-bottom: 0.6rem; }
+
+/* Palette page */
+
+.page-head { padding: 4rem 0 2rem; }
+
+.jump {
+  position: sticky;
+  top: var(--site-bar);
+  z-index: 4;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 calc(var(--site-gap) * -1);
+  padding: 0.7rem var(--site-gap);
+  background: var(--aion-bg-surface);
+  border-bottom: 1px solid var(--aion-border-hairline);
+  overflow-x: auto;
+}
+
+.jump a {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--aion-border-hairline);
+  border-radius: 999px;
+  background: var(--aion-bg-raised);
+  color: var(--aion-fg-secondary);
+  text-decoration: none;
+  font-size: 0.825rem;
+  white-space: nowrap;
+}
+
+.jump a:hover { color: var(--aion-fg-primary); border-color: var(--aion-border-ui); }
+
+.group { scroll-margin-top: calc(var(--site-bar) * 2); }
+
+.group-head {
+  display: grid;
+  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+  gap: 0.5rem 3rem;
+  align-items: start;
+  padding: 4rem 0 1.5rem;
+}
+
+.group-head h2 { margin: 0; font-size: clamp(1.4rem, 2.4vw, 1.75rem); }
+.convention { margin: 0; color: var(--aion-fg-secondary); }
+
+@media (max-width: 54rem) {
+  .group-head { grid-template-columns: 1fr; gap: 0.75rem; }
+}
+
+/* Swatches */
+
+.swatch-grid {
+  display: grid;
+  gap: 1rem 0.9rem;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  margin: 0 0 2rem;
+}
+
+.swatch {
+  display: block;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.swatch-chip {
+  display: block;
+  height: 4.75rem;
+  border-radius: var(--site-radius);
+  border: 1px solid var(--aion-border-hairline);
+  transition: transform 120ms ease;
+}
+
+.swatch:hover .swatch-chip { transform: translateY(-3px); }
+
+.swatch-meta { display: grid; gap: 0.1rem; padding: 0.6rem 0.15rem 0; }
+.swatch-name { font-size: 0.78rem; overflow-wrap: anywhere; }
+.swatch-hex { font-size: 0.78rem; color: var(--aion-fg-dim); }
+
+/* A translucent value composites over the page colour, which is the editor, rather than
+   over the surface the site itself is painted on. That is where the gate measured it. */
+.swatch-chip, .dot, .bar, .strip-bar {
+  background-image: linear-gradient(var(--site-swatch), var(--site-swatch));
+  background-color: var(--aion-bg-page);
+}
+
+.dot {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  vertical-align: -1px;
+}
+
+.bar {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  border: 1px solid var(--aion-border-hairline);
+  vertical-align: -3px;
+}
+
+/* Copy affordance */
+
+[data-copy] { position: relative; }
+
+.hex-cell {
+  padding: 0.1rem 0.4rem;
+  margin: 0 -0.4rem;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.hex-cell:hover { background: var(--aion-bg-raised); border-color: var(--aion-border-hairline); }
+
+.copy-button {
+  padding: 0.3rem 0.8rem;
+  background: var(--aion-bg-input);
+  border: 1px solid var(--aion-border-hairline);
+  border-radius: 6px;
+  color: var(--aion-fg-secondary);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.copy-button:hover { color: var(--aion-fg-primary); border-color: var(--aion-border-ui); }
+
+.hex-cell[data-copied], .copy-button[data-copied], .swatch[data-copied] .swatch-hex {
+  color: var(--aion-status-success-text);
+}
+
+.hex-cell[data-copied]::after,
+.copy-button[data-copied]::after,
+.swatch[data-copied] .swatch-hex::after { content: ' ✓'; }
+
+/* Tables and code */
+
+.toggle {
+  padding: 0.4rem 0.9rem;
+  background: var(--aion-bg-raised);
+  border: 1px solid var(--aion-border-ui);
+  border-radius: 8px;
+  color: var(--aion-fg-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+table { border-collapse: collapse; width: 100%; margin: 0 0 2rem; font-size: 0.85rem; }
+
+th, td {
+  text-align: left;
+  padding: 0.45rem 0.9rem 0.45rem 0;
+  border-bottom: 1px solid var(--aion-border-hairline);
+}
+
+th { color: var(--aion-fg-dim); font-weight: 600; }
+td { color: var(--aion-fg-secondary); }
+.cell-bar { width: 1.6rem; padding-right: 0; }
+
+pre, code { font-family: 'Monaspace Neon', ui-monospace, monospace; }
+
+pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--aion-bg-page);
+  border-radius: 8px;
+  overflow: auto;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--aion-fg-secondary);
+}
+
+.install-list pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.code { font-family: 'Monaspace Neon', ui-monospace, monospace; font-size: 0.85rem; line-height: 1.75; }
+.code-row { display: flex; }
+
+.code-gutter {
+  display: inline-flex;
+  gap: 0.5rem;
+  width: 3rem;
+  flex: none;
+  justify-content: flex-end;
+  padding-right: 1rem;
+  color: var(--aion-fg-muted);
+}
+
+.code-line { white-space: pre; }
+
+.t-keyword { color: var(--aion-syntax-keyword); }
+.t-function { color: var(--aion-syntax-function); }
+.t-type { color: var(--aion-syntax-type); }
+.t-string { color: var(--aion-syntax-string); }
+.t-number { color: var(--aion-syntax-number); }
+.t-constant { color: var(--aion-syntax-constant); }
+.t-variable { color: var(--aion-syntax-variable); }
+.t-operator { color: var(--aion-syntax-operator); }
+.t-escape { color: var(--aion-syntax-escape); }
+.t-comment { color: var(--aion-syntax-comment); }
+.t-punctuation, .t-plain { color: var(--aion-fg-secondary); }
+.b1 { color: var(--aion-gold-solid); }
+.b2 { color: var(--aion-teal-solid); }
+.b3 { color: var(--aion-violet-solid); }

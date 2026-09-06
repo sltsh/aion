@@ -1,5 +1,5 @@
-import { CONTRAST_FLOOR, checks, readingStates } from '@sltio/aion-tokens';
-import type { Check, CheckState } from '@sltio/aion-tokens';
+import { CONTRAST_FLOOR, checks, readingStates } from '@sltsh/aion-tokens';
+import type { Check, CheckState } from '@sltsh/aion-tokens';
 
 const rows = checks();
 const count = (state: CheckState): number => rows.filter((row) => row.state === state).length;

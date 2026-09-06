@@ -38,7 +38,7 @@ export const dw = (token: Token): Token => [`${token[0]} diff-word`, token[1]];
 
 export const TYPESCRIPT: readonly CodeLine[] = [
   { tokens: [cm('// Every colour below is solved, never chosen.')] },
-  { tokens: [kw('import'), sp(' '), b1('{'), sp(' '), va('solveLightness'), pn(', '), va('contrastEmitted'), sp(' '), b1('}'), sp(' '), kw('from'), sp(' '), st("'@sltio/aion-tokens'"), pn(';')] },
+  { tokens: [kw('import'), sp(' '), b1('{'), sp(' '), va('solveLightness'), pn(', '), va('contrastEmitted'), sp(' '), b1('}'), sp(' '), kw('from'), sp(' '), st("'@sltsh/aion-tokens'"), pn(';')] },
   { tokens: [] },
   { tokens: [kw('export'), sp(' '), kw('async'), sp(' '), kw('function'), sp(' '), fn('loadEpoch'), b1('('), va('id'), pn(': '), ty('string'), b1(')'), pn(': '), ty('Promise'), op('<'), ty('Epoch'), op('>'), sp(' '), b1('{')] },
   { tokens: [sp('  '), cm('// resolve the age from the registry')] },

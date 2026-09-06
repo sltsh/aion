@@ -2,10 +2,10 @@
   "name": "aion",
   "displayName": "Aion",
   "description": "A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "publisher": "sltio",
+  "publisher": "sltsh",
   "license": "MIT",
   "icon": "assets/icon.png",
   "galleryBanner": {
@@ -27,12 +27,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sltio/aion.git"
+    "url": "https://github.com/sltsh/aion.git"
   },
   "bugs": {
-    "url": "https://github.com/sltio/aion/issues"
+    "url": "https://github.com/sltsh/aion/issues"
   },
-  "homepage": "https://github.com/sltio/aion#readme",
+  "homepage": "https://github.com/sltsh/aion#readme",
   "contributes": {
     "themes": [
       {
@@ -49,7 +49,7 @@
     "package": "vsce package --no-dependencies"
   },
   "dependencies": {
-    "@sltio/aion-tokens": "*"
+    "@sltsh/aion-tokens": "*"
   },
   "devDependencies": {
     "@vscode/vsce": "^3.2.1",

@@ -1,10 +1,10 @@
-# @sltio/aion-css
+# @sltsh/aion-css
 
 Aion as CSS custom properties and a Tailwind v4 `@theme` block.
 
 ```css
-@import "@sltio/aion-css/aion.css";
-@import "@sltio/aion-css/aion.theme.css";  /* optional, Tailwind v4 only */
+@import "@sltsh/aion-css/aion.css";
+@import "@sltsh/aion-css/aion.theme.css";  /* optional, Tailwind v4 only */
 ```
 
 `aion.css` sets both schemes and a base layer, so a page that sets no colours of its own
@@ -44,8 +44,8 @@ Import Tailwind first, then both Aion files:
 
 ```css
 @import "tailwindcss";
-@import "@sltio/aion-css/aion.css";
-@import "@sltio/aion-css/aion.theme.css";
+@import "@sltsh/aion-css/aion.css";
+@import "@sltsh/aion-css/aion.theme.css";
 ```
 
 The order is not a preference. Tailwind's preflight and Aion's element rules are both in
@@ -80,3 +80,15 @@ assistive technology was checked.
 ## Licence
 
 MIT.
+
+## Reading the variables from code
+
+The package also exports its emitter, so a tool can read the variable map directly rather
+than parse the stylesheet:
+
+```js
+import { dark, light } from '@sltsh/aion-css';
+```
+
+Both return a map of custom property name to emitted hex, and both return the same keys.
+Four dark values and one light value carry an alpha byte.

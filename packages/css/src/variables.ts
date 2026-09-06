@@ -1,8 +1,8 @@
 import {
   ACCENTS, ACCENT_NAMES, ANSI_ORDER, SYNTAX, accentScale, ansi, comment, cursor, dimText, diff, diffWash,
   findMatch, hex, hexAlpha, lightAccentScale, lightNeutral, neutral, overlay, status, statusLight,
-} from '@sltio/aion-tokens';
-import type { AccentName, Oklch, SyntaxRole } from '@sltio/aion-tokens';
+} from '@sltsh/aion-tokens';
+import type { AccentName, Oklch, SyntaxRole } from '@sltsh/aion-tokens';
 
 export type Variables = Record<string, string>;
 

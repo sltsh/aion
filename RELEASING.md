@@ -5,10 +5,10 @@ extension, publishes it to both marketplaces and creates the GitHub release.
 
 ## One-time setup
 
-1. Create a Visual Studio Marketplace publisher named `sltio` and an Azure DevOps personal
+1. Create a Visual Studio Marketplace publisher named `sltsh` and an Azure DevOps personal
    access token with the **Marketplace: Manage** scope.
 2. Create the Open VSX namespace once, from your own machine:
-   `npx ovsx create-namespace sltio -p <token>`.
+   `npx ovsx create-namespace sltsh -p <token>`.
 3. Add both tokens as secrets on the `marketplace` environment: `VSCE_PAT` and `OVSX_PAT`.
    Use an environment rather than repository secrets, so a publish can require a review.
 

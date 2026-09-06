@@ -9,7 +9,7 @@
     "apps/*"
   ],
   "scripts": {
-    "build:tokens": "npm run build -w @sltio/aion-tokens",
+    "build:tokens": "npm run build -w @sltsh/aion-tokens",
     "build": "npm run build:tokens && npm run build --workspaces --if-present",
     "test": "vitest run && npm run test --workspaces --if-present",
     "typecheck": "npm run build:tokens && tsc -p tsconfig.json --noEmit && npm run typecheck --workspaces --if-present",

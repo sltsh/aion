@@ -1,8 +1,11 @@
 {
-  "name": "@sltio/aion-lab",
+  "name": "@sltsh/aion-lab",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "exports": {
+    "./render/code": "./src/render/code.ts"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,6 +14,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@sltio/aion-tokens": "*"
+    "@sltsh/aion-tokens": "*"
   }
 }

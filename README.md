@@ -52,11 +52,12 @@ usability.
 
 | Package | What it ships |
 |---|---|
-| `packages/tokens` | `@sltio/aion-tokens` — the OKLCH definitions and the build gate |
+| `packages/tokens` | `@sltsh/aion-tokens` — the OKLCH definitions and the build gate |
 | `packages/vscode` | the VS Code extension: the theme, its gate and its scope fixtures |
 | `packages/terminal` | the Windows Terminal fragment and settings snippet |
 | `packages/css` | custom properties and a Tailwind v4 `@theme` block |
 | `apps/lab` | the surface gallery: five surfaces, one palette, six live sliders |
+| `apps/site` | the public site at https://aion.slt.sh: the landing page and the palette reference |
 
 ## Commands
 
@@ -68,6 +69,7 @@ npm run typecheck
 npm run verify      # the contrast gate; exits non-zero on any failure
 npm run sync:design # regenerates the generated tables in DESIGN.md and both READMEs
 npm run dev -w ./apps/lab   # the surface gallery on http://localhost:8421
+npm run dev -w ./apps/site  # the public site on http://localhost:8422
 ```
 
 CI runs the same gate on every branch and pull request under Node 22 and Node 24, and

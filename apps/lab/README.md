@@ -1,6 +1,6 @@
 # Aion lab
 
-Five surfaces, one palette. The lab imports `@sltio/aion-tokens` directly, so it cannot
+Five surfaces, one palette. The lab imports `@sltsh/aion-tokens` directly, so it cannot
 show a colour the extension does not ship.
 
 ```

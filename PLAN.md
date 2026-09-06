@@ -22,6 +22,7 @@ case and its selection foreground.
 | 6. `apps/lab` | **done** | five surfaces, `apps/lab/test` |
 | 7. Release pipeline | **done** | two workflows, four scripts, `test/` at the root |
 | 8. Marketplace listing | README done, icon done, screenshots pending | |
+| 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -127,7 +128,7 @@ aion/
     release-notes.mjs     # changelog section plus the commits since the previous tag
     pack-dev.mjs          # a numbered development .vsix, from .dev-version
   packages/
-    tokens/               # @sltio/aion-tokens — the product
+    tokens/               # @sltsh/aion-tokens — the product
     vscode/               # the .vsix
     terminal/             # Windows Terminal fragment plus snippet
     css/                  # custom properties and Tailwind v4 @theme
@@ -220,7 +221,7 @@ The surfaces are written once. A control change sets custom properties on the do
 root and nothing else, so a re-render is a variable update rather than a DOM rebuild.
 Read `apps/lab/README.md` for the module map and the rules the tests hold in place.
 
-Still open: GitHub Pages. The build is static and needs only a `base` and a workflow.
+GitHub Pages ships the public site, not the lab. The lab stays local. See Task 9.
 
 ## Task 7 — release — done
 
@@ -256,9 +257,25 @@ Still open:
 
 ---
 
+## Task 9 — `apps/site` — done
+
+The public site at https://aion.slt.sh. A landing page and a palette reference over the 91
+variables `@sltsh/aion-css` emits. Vite multi-page, no framework, HTML pre-rendered at
+build time, so the page reads with JavaScript disabled.
+
+The light scheme is built and tested but not visible. `FLAGS.lightVisible` is `false`:
+there is no light VS Code theme, and §11 records that light gold is olive rather than gold.
+Every render function takes the flags as a parameter and the tests run both settings, so
+the hidden path is proven rather than merely written.
+
+Read `apps/site/README.md` for the module map and the rules the tests hold in place.
+
+Still open: the DNS `CNAME` from `aion.slt.sh` to `sltsh.github.io`, and GitHub Pages
+enabled for the repository with the custom domain. Neither lives in this repository.
+
 ## Order and parallelism
 
-Tasks 1 to 7 are done. Task 8 needs four screenshots from a real editor.
+Tasks 1 to 7 and Task 9 are done. Task 8 needs four screenshots from a real editor.
 
 ## Native acceptance
 
