@@ -1,6 +1,6 @@
 {
   "name": "aion-theme",
-  "displayName": "Aion",
+  "displayName": "Aion Theme",
   "description": "A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.",
   "version": "0.3.0",
   "private": true,
