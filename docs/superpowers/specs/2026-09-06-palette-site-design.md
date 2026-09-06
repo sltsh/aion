@@ -57,11 +57,17 @@ file:
 The shipped HTML therefore carries every swatch and every hex. A reader without
 JavaScript sees the whole page, and a crawler indexes it.
 
-`src/main.ts` carries three behaviours and nothing else:
+`src/main.ts` carries two behaviours and nothing else:
 
 1. A delegated click handler that copies a swatch's hex to the clipboard.
-2. A toggle that reveals the OKLCH triple on every swatch in a section.
-3. The dark/light toggle on the palette page, when the build emits it. See §5.
+2. The dark/light toggle on the palette page, when the build emits it. See §5.
+
+**No per-swatch OKLCH.** `dark()` returns hex only, and `hexToOklch` recovers the emitted
+value rather than the authored one. Measured: the editor is authored at hue 264 and reads
+back at 261.57; gold is authored at lightness 0.820 and reads back at 0.8193. A per-swatch
+OKLCH would therefore contradict `DESIGN.md` on every row. The site shows the authored
+OKLCH only where it has the authored source: the lightness column of the neutral ramp
+table, and the hue and chroma columns of the accent table.
 
 The light toggle re-renders nothing. Both value sets are pre-rendered into the HTML and
 the toggle sets one class on `<body>`, so the toggle needs no palette import at runtime
@@ -178,14 +184,32 @@ to `true` is a one-line change at release time.
 Six sections in this order. Each carries a short paragraph that states the convention,
 then its swatches. All six show the dark scheme.
 
-| # | Section | Rows | Convention stated |
+Every one of the 91 variables belongs to exactly one section. The partition is by name
+prefix, it is total, and a test proves both. The counts are measured, not estimated:
+
+| # | Section | Variables | Prefixes |
+|---|---|---:|---|
+| 1 | Surfaces, text and borders | 15 | `--aion-bg-`, `--aion-fg-`, `--aion-border-` |
+| 2 | Accents | 21 | `--aion-<accent>-` |
+| 3 | Syntax | 12 | `--aion-syntax-`, `--aion-caret` |
+| 4 | Status | 20 | `--aion-status-` |
+| 5 | Diff and overlays | 7 | `--aion-diff-`, `--aion-overlay-` |
+| 6 | Terminal | 16 | `--aion-ansi-` |
+
+| # | Section | Extra content | Convention stated |
 |---|---|---|---|
-| 1 | Neutral ramp | 12 steps of `NEUTRAL_LIGHTNESS`, each with its role and lightness | The editor is the darkest surface and the sidebar is raised above it. Step 10 is a solid-hover step, not a text step; dimmed text uses `dimText`. `hairline` and `divider` are decorative and exempt from the 3:1 floor. |
-| 2 | Accents | 7 hues × `subtle`, `border`, `solid`, plus hue and chroma | An accent is solved against the worst surface it can land on. Violet is a syntax hue: five interface keys carry it and no sixth. |
+| 1 | Surfaces, text and borders | A table of the 12 `NEUTRAL_LIGHTNESS` steps: step, role, authored lightness, and the variable that carries it | The editor is the darkest surface and the sidebar is raised above it. Step 10 is a solid-hover step, not a text step; dimmed text uses `dimText`. `hairline` and `divider` are decorative and exempt from the 3:1 floor. |
+| 2 | Accents | The authored hue and chroma per accent | An accent is solved against the worst surface it can land on. Violet is a syntax hue: five interface keys carry it and no sixth. |
 | 3 | Syntax | 9 roles plus `comment` and `punctuation`, each shown as the token it colours | The role map follows One Dark Pro, so muscle memory survives. The comment is the dimmest thing a reader reads, so it sets the budget for every decoration. No italics. |
 | 4 | Status | 4 statuses × `text`, `solid`, `subtle`, `border`, `onSolid` | A status pairs its own foreground with its own fill. |
 | 5 | Diff and overlays | The four diff values and the three overlays, each shown composited over the editor | The renderer blends bytes, so `compositeEmitted` measures the result. A diff fill paints over the selection, so it must carry an alpha byte. Green costs more luminance per unit of chroma than red does. |
 | 6 | Terminal | 16 ANSI slots in `ANSI_ORDER`, on both terminal backgrounds | Every slot is gated on both backgrounds and the VS Code panel binds. Slot 0 is not a text colour; slots 7 and 15 are guaranteed on top of it. |
+
+**One ramp step has no CSS variable.** The CSS layer names surfaces by depth, so it emits
+five of them; `sidebar` at lightness 0.220, `#171b22`, is a VS Code surface with no web
+equivalent. Its row in the ramp table states "VS Code only" where the other eleven name a
+variable. The row is present because the ramp is the design, and a reader who compares the
+table against `DESIGN.md` §4 must find all twelve steps.
 
 ### The light scheme ships hidden
 
@@ -217,8 +241,8 @@ only, there is no light VS Code theme, and light gold reads olive.
 └────────────────────────────┘
 ```
 
-The OKLCH triple is present in the HTML and hidden by CSS. The section toggle reveals it.
-A copy writes the hex to the clipboard and the swatch confirms it for two seconds.
+A copy writes the hex to the clipboard and the swatch confirms it for two seconds. A
+swatch carries no OKLCH; see §1 for why.
 
 Names that carry alpha render their eight-digit value and, beside it, the six-digit hex
 they composite to over the editor. A reader sees both what is declared and what is seen.
