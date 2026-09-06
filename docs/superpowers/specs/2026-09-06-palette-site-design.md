@@ -61,11 +61,28 @@ JavaScript sees the whole page, and a crawler indexes it.
 
 1. A delegated click handler that copies a swatch's hex to the clipboard.
 2. A toggle that reveals the OKLCH triple on every swatch in a section.
-3. A toggle on the palette page that switches the swatch data between dark and light.
+3. The dark/light toggle on the palette page, when the build emits it. See §5.
 
-The light toggle re-renders swatch text only. Both value sets are pre-rendered into the
-HTML and the toggle sets a class on the section, so the toggle needs no palette import at
-runtime and cannot disagree with the build.
+The light toggle re-renders nothing. Both value sets are pre-rendered into the HTML and
+the toggle sets one class on `<body>`, so the toggle needs no palette import at runtime
+and cannot disagree with the build.
+
+### Flags
+
+`src/flags.ts` declares the two build flags and their shipped values:
+
+```ts
+export interface SiteFlags {
+  readonly released: boolean;
+  readonly lightVisible: boolean;
+}
+
+export const FLAGS: SiteFlags = { released: false, lightVisible: false };
+```
+
+Every render function takes `SiteFlags` as a parameter. No module reads `FLAGS` except
+`vite.config.ts` and the tests, so the tests exercise both settings of both flags. A
+hidden path is therefore built and proven, not merely written.
 
 ## 2. Where the values come from
 
@@ -145,10 +162,9 @@ for the theme rather than to the site.
 ### Install links before the first release
 
 No `v*` tag exists and no package is on npm, so every install target in this table is
-unpublished today. `src/content.ts` exports `const RELEASED = false`. While it is `false`
-the install section renders each command with a short note that the first release has not
-shipped. Setting it to `true` is a one-line change at release time. A test asserts the
-note is present exactly when `RELEASED` is `false`.
+unpublished today. `FLAGS.released` is `false`. While it is `false` the install section
+renders each command with a short note that the first release has not shipped. Setting it
+to `true` is a one-line change at release time.
 
 | Target | Command or link |
 |---|---|
@@ -159,8 +175,8 @@ note is present exactly when `RELEASED` is `false`.
 
 ## 4. The palette page — `palette.html`
 
-Six sections in this order, plus a dark/light toggle that applies to all of them. Each
-section carries a short paragraph that states the convention, then its swatches.
+Six sections in this order. Each carries a short paragraph that states the convention,
+then its swatches. All six show the dark scheme.
 
 | # | Section | Rows | Convention stated |
 |---|---|---|---|
@@ -171,13 +187,25 @@ section carries a short paragraph that states the convention, then its swatches.
 | 5 | Diff and overlays | The four diff values and the three overlays, each shown composited over the editor | The renderer blends bytes, so `compositeEmitted` measures the result. A diff fill paints over the selection, so it must carry an alpha byte. Green costs more luminance per unit of chroma than red does. |
 | 6 | Terminal | 16 ANSI slots in `ANSI_ORDER`, on both terminal backgrounds | Every slot is gated on both backgrounds and the VS Code panel binds. Slot 0 is not a text colour; slots 7 and 15 are guaranteed on top of it. |
 
-Sections 1 to 6 cover the dark scheme. `dark()` and `light()` emit the same 91 keys —
-asserted, not assumed — so the light scheme is not a seventh grid. It is a page-level
-toggle: every swatch pre-renders both values, and the toggle sets one class on `<body>`
-that swaps which value each swatch shows.
+### The light scheme ships hidden
 
-One short paragraph above the toggle states the convention: light is web only, and there
-is no light VS Code theme.
+`dark()` and `light()` emit the same 91 keys — asserted, not assumed — so the light
+scheme is never a seventh grid. It is a page-level toggle: each swatch carries both
+values and one class on `<body>` selects which one it shows.
+
+**`FLAGS.lightVisible` is `false` at launch.** When it is `false` the build emits no
+toggle control, no light value and no light paragraph. The page is dark only, and a
+reader who reads the source finds nothing about light.
+
+The reason is in `DESIGN.md` §11 in the project's own words: light gold is `#846800`,
+which reads olive, so "the light layer does not carry Aion's signature the way the dark
+layer does". A promotional page should not lead with the weakest thing the project
+ships. There is also no light VS Code theme, and a toggle invites a reader to expect one.
+
+The render path is still written and still tested, at both settings of the flag. Setting
+`lightVisible` to `true` is then a one-line change, not a new feature. When it is `true`
+the toggle appears and one paragraph states the convention: light ships in the CSS layer
+only, there is no light VS Code theme, and light gold reads olive.
 
 ### The swatch
 
@@ -214,7 +242,15 @@ Runs in Node, because every render function is pure.
 7. **Violet stays a syntax hue.** The landing page applies no violet accent scale to the
    interface, matching the lab's assertion.
 8. **The release note.** The install section carries the unreleased note exactly when
-   `RELEASED` is `false`.
+   `released` is `false`.
+9. **Light is absent when hidden.** With `lightVisible` false, the rendered palette page
+   contains no toggle control and no hex that `light()` emits and `dark()` does not.
+10. **Light is complete when shown.** With `lightVisible` true, every key `light()`
+    returns appears in a swatch, and the toggle control is present. This is what keeps
+    the hidden path correct while nobody looks at it.
+
+Assertions 4, 5, 9 and 10 run the render functions directly with each flag set, so a
+hidden path is proven rather than assumed. `FLAGS` supplies only the shipped default.
 
 ## 6. Publication
 
@@ -257,14 +293,19 @@ No framework. No search. No analytics. No per-accent detail page. No rival table
 semantic alias table of 71 dark and 37 light names; the variable on each swatch replaces
 it. No blog, no changelog page; `CHANGELOG.md` on GitHub stays the record.
 
+The light scheme is not out of scope, but it is not visible at launch. `lightVisible`
+governs that, and §4 gives the reason.
+
 ## 9. Definition of done
 
 - `npm run build -w ./apps/site` emits `dist/index.html` and `dist/palette.html`, both
   with swatch markup in the file rather than in a script.
-- `npm test` passes, including the eight new assertions.
+- `npm test` passes, including the ten new assertions.
 - `npm run typecheck` passes under `noUncheckedIndexedAccess` and `noUnusedLocals`.
 - `npm run verify` still exits 0.
 - `npm run sync:design` changes nothing.
 - The site renders correctly in Chromium with JavaScript disabled, and the copy action
   works with it enabled.
 - Every claim on the landing page is a number `checks()` produced.
+- The shipped `dist/palette.html` holds no light value and no toggle control, and the
+  test suite still proves the light path at `lightVisible: true`.
