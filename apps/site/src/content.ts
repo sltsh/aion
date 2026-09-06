@@ -77,7 +77,7 @@ export interface InstallEntry {
 export const INSTALL: readonly InstallEntry[] = [
   {
     label: 'VS Code',
-    command: 'code --install-extension sltsh.aion',
+    command: 'code --install-extension sltsh.aion-theme',
     note: 'The theme, six language overrides, no italics.',
   },
   {
