@@ -1,0 +1,30 @@
+{
+  "name": "@sltio/aion-tokens",
+  "version": "0.1.0",
+  "description": "The Aion colour system: OKLCH definitions, contrast invariants and sRGB emitters.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify": "npm run build && node dist/verify.js",
+    "tables": "npm run build && node dist/verify.js --markdown"
+  },
+  "devDependencies": {
+    "@types/culori": "^4.0.1",
+    "@types/node": "^26.4.1",
+    "culori": "^4.0.1"
+  }
+}

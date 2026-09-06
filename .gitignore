@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.vsix
+.DS_Store
+AGENTS.md
+CLAUDE.md
+.dev-version
+release-notes.md

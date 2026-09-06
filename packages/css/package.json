@@ -1,0 +1,22 @@
+{
+  "name": "@sltio/aion-css",
+  "version": "0.1.0",
+  "description": "Aion as CSS custom properties and a Tailwind v4 @theme block.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./aion.css": "./css/aion.css",
+    "./aion.theme.css": "./css/aion.theme.css"
+  },
+  "files": [
+    "css"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node dist/build.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@sltio/aion-tokens": "*"
+  }
+}
