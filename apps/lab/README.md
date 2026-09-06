@@ -39,7 +39,7 @@ build works under any `base`. GitHub Pages will need only the `base` option in
 | VS Code | raised sidebar, tabs, diff hunk, nested brackets, selection, word highlight, find match, hover card, terminal panel, status bar |
 | Windows Terminal | prompt with git status, coloured listing, an error, all sixteen ANSI slots |
 | Landing page | hero, feature cards, buttons, pull quote |
-| Admin dashboard | KPI cards, chart, alerts in all four statuses, table with status pills. Every figure comes from `checks()`; the two invented alerts say SAMPLE |
+| Admin dashboard | KPI cards, chart, alerts in all four statuses, table with status pills. Measurements are labelled as fixed shipped-palette results; slider changes are measured in the live Contrast readout. The two invented alerts say SAMPLE |
 | Documentation | prose, callouts, a code block on the editor surface, a reference table |
 
 ## What the tests hold in place

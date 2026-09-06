@@ -35,8 +35,8 @@ export function dashboardSurface(): string {
     <div class="app-main">
       <header class="app-head">
         <div>
-          <h2>Contrast report</h2>
-          <p class="app-sub">Every emitted token, measured on the surface it ships on.</p>
+          <h2>Shipped palette results</h2>
+          <p class="app-sub">These measurements stay fixed. Slider changes are measured in the live Contrast readout.</p>
         </div>
         <div class="app-head-actions">
           <label class="field">
@@ -71,7 +71,7 @@ export function dashboardSurface(): string {
           <div class="alert alert-error">${icons.cross}<div><b>SAMPLE — an invented failure</b><span>Shown so the error colours appear on this surface</span></div></div>
           <div class="alert alert-warning">${icons.warning}<div><b>SAMPLE — an invented warning</b><span>Shown so the warning colours appear on this surface</span></div></div>
           <div class="alert alert-info">${icons.info}<div><b>${figures.exempt} exemptions are documented</b><span>${exemptRows.map((row) => row.token).join(', ')}</span></div></div>
-          <div class="alert alert-success">${icons.check}<div><b>Every syntax colour passes on every supported state</b><span>The worst reads ${figures.decoratedLowest}, floor ${figures.floor}</span></div></div>
+          <div class="alert alert-success">${icons.check}<div><b>Shipped syntax colours pass on every supported state</b><span>The worst reads ${figures.decoratedLowest}, floor ${figures.floor}</span></div></div>
         </section>
       </div>
 

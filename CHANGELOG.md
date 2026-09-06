@@ -222,6 +222,8 @@ review on the same date found fourteen more. Every entry below is one of those f
   and a Pairs table with a failing boundary row no run produced. The KPIs, the chart and
   the table are generated from `checks()`; the chart shows the lowest ratio each section of
   the gate produced and the table the passing row with the least room left in each.
+  These measurements are labelled as fixed shipped-palette results, with slider changes
+  measured separately in the live Contrast readout.
 - Every count a document quotes is generated. The prose said 630 interface keys, 54
   TextMate rules, 25 covered states, 122 tests and 397 gate rows, and not one of the five
   matched what the code produced. `npm run sync:design` writes a counts table into `DESIGN.md`,
