@@ -17,6 +17,8 @@ const HEADERS = {
   light: '| Role | Hex | | Accent | Hex | Ratio |',
 };
 
+const normalizeTableRow = (line) => line.split('|').map((cell) => cell.trim()).join('|');
+
 // Every document that quotes a generated number reads it from here, so listing copy
 // cannot drift from the emitter the way the 4.61 in the READMEs did.
 const DOCUMENTS = [
@@ -69,7 +71,7 @@ for (const [path, wanted] of DOCUMENTS) {
 
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
-    const name = wanted.find((key) => HEADERS[key] === line);
+    const name = wanted.find((key) => normalizeTableRow(HEADERS[key]) === normalizeTableRow(line));
     if (!name) { output.push(line); continue; }
     output.push(line, lines[i + 1]);
     let j = i + 2;

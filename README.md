@@ -49,10 +49,10 @@ of reading states, not every state an application can produce; see the
 
 | Theme            | Editor    | Sidebar   | Order                |
 | ---------------- | --------- | --------- | -------------------- |
-| One Dark Pro     | `#282c34` | `#21252b` | sidebar below editor |
-| Ayu Mirage       | `#242936` | `#1f2430` | sidebar below editor |
-| Nord             | `#2e3440` | `#2e3440` | one surface          |
-| Catppuccin Mocha | `#1e1e2e` | `#1e1e2e` | one surface          |
+| One Dark Pro | `#282c34` | `#21252b` | sidebar below editor |
+| Ayu Mirage | `#242936` | `#1f2430` | sidebar below editor |
+| Nord | `#2e3440` | `#2e3440` | one surface |
+| Catppuccin Mocha | `#1e1e2e` | `#1e1e2e` | one surface |
 
 **The contrast floor is a gate, not a claim.** Every token is defined in OKLCH and checked
 against the surface it sits on, decorations composited the way the renderer composites
@@ -63,22 +63,22 @@ and three kinds of exemption are documented.
 
 | What the gate checks             |  Count |
 | -------------------------------- | -----: |
-| Rows measured                    |    611 |
-| Below their floor                |      0 |
-| Exempt rows, all documented      |      5 |
-| Reading states per syntax colour |     35 |
-| Lowest ratio in a reading state  | 4.50:1 |
-| Interface keys the theme sets    |    622 |
-| TextMate rules                   |     64 |
-| Semantic tokens                  |     32 |
+| Rows measured | 611 |
+| Below their floor | 0 |
+| Exempt rows, all documented | 5 |
+| Reading states per syntax colour | 35 |
+| Lowest ratio in a reading state | 4.50:1 |
+| Interface keys the theme sets | 622 |
+| TextMate rules | 64 |
+| Semantic tokens | 32 |
 
 | Theme            | Lowest ratio | Below 4.5:1       | Source                                                                                                                           |
 | ---------------- | ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Aion             | 6.95         | none              | —                                                                                                                                |
-| One Dark Pro     | 3.73         | comment, variable | [One Dark Pro](https://github.com/Binaryify/OneDark-Pro/blob/main/themes/OneDark-Pro.json) @ `54c3280`                           |
-| Ayu Mirage       | 3.42         | comment           | [Ayu Mirage](https://github.com/ayu-theme/vscode-ayu/blob/master/ayu-mirage.json) @ `444ef92`                                    |
-| Nord             | 2.43         | comment, number   | [Nord](https://github.com/nordtheme/visual-studio-code/blob/develop/themes/nord-color-theme.json) @ `8ead098`                    |
-| Catppuccin Mocha | 5.81         | none              | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
+| Aion | 6.95 | none | — |
+| One Dark Pro | 3.73 | comment, variable | [One Dark Pro](https://github.com/Binaryify/OneDark-Pro/blob/main/themes/OneDark-Pro.json) @ `54c3280` |
+| Ayu Mirage | 3.42 | comment | [Ayu Mirage](https://github.com/ayu-theme/vscode-ayu/blob/master/ayu-mirage.json) @ `444ef92` |
+| Nord | 2.43 | comment, number | [Nord](https://github.com/nordtheme/visual-studio-code/blob/develop/themes/nord-color-theme.json) @ `8ead098` |
+| Catppuccin Mocha | 5.81 | none | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
 
 Eight syntax roles on a plain editor line, against each theme's own editor background,
 read on 2026-09-05 at the revision named. Every table here is generated: `npm run
