@@ -1,6 +1,6 @@
 {
   "name": "@sltsh/aion-tokens",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The Aion colour system: OKLCH definitions, contrast invariants and sRGB emitters.",
   "license": "MIT",
   "type": "module",
@@ -20,11 +20,21 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify": "npm run build && node dist/verify.js",
-    "tables": "npm run build && node dist/verify.js --markdown"
+    "tables": "npm run build && node dist/verify.js --markdown",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@types/culori": "^4.0.1",
     "@types/node": "^26.4.1",
     "culori": "^4.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sltsh/aion.git",
+    "directory": "packages/tokens"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }

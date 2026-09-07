@@ -5,6 +5,17 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 0.3.1
+
+### Added
+
+- npm release flow for aion-tokens and aion-css
+
+### Fixed
+
+- Readme and documentation
+- Presentation website
+
 ## 0.3.0
 
 ### Added

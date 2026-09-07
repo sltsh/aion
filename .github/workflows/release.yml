@@ -10,7 +10,7 @@ on:
         description: 'Tag to release, for example v0.1.0'
         required: true
       dry_run:
-        description: 'Run every gate and skip both publish steps'
+        description: 'Run every gate and skip all publishing'
         type: boolean
         default: true
 
@@ -23,6 +23,7 @@ jobs:
     environment: marketplace
     permissions:
       contents: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +34,9 @@ jobs:
         with:
           node-version: '24'
           cache: npm
+
+      - name: Use npm with trusted publishing support
+        run: npm install --global npm@11.17.0
 
       - run: npm ci
 
@@ -82,6 +86,31 @@ jobs:
           set -o pipefail
           node scripts/release-notes.mjs "$TAG" > release-notes.md
           cat release-notes.md
+
+      - name: Check npm packages
+        run: |
+          npm publish -w @sltsh/aion-tokens --dry-run
+          npm publish -w @sltsh/aion-css --dry-run
+
+      - name: Publish npm packages
+        if: ${{ !inputs.dry_run }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          result=$(mktemp)
+          trap 'rm -f "$result"' EXIT
+          for package in tokens css; do
+            name=$(node -p "require('./packages/$package/package.json').name")
+            version=$(node -p "require('./packages/$package/package.json').version")
+            if npm view "$name@$version" version --json --registry=https://registry.npmjs.org/ > "$result"; then
+              echo "$name@$version is already published; skipping."
+            elif jq -e '.error.code == "E404"' "$result" > /dev/null; then
+              npm publish -w "./packages/$package" --tag latest
+            else
+              cat "$result"
+              exit 1
+            fi
+          done
 
       - name: Publish to the Visual Studio Marketplace
         if: ${{ !inputs.dry_run }}

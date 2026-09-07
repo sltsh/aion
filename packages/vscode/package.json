@@ -2,7 +2,7 @@
   "name": "aion-theme",
   "displayName": "Aion Theme",
   "description": "A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "publisher": "sltsh",

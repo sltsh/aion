@@ -20,5 +20,11 @@ for (const manifest of wrong) {
   console.error(`${manifest.path} is ${manifest.version}, the tag says ${version}`);
 }
 
-if (wrong.length > 0) process.exit(1);
+const css = JSON.parse(readFileSync('packages/css/package.json', 'utf8'));
+const dependencyMatches = css.dependencies['@sltsh/aion-tokens'] === version;
+if (!dependencyMatches) {
+  console.error(`CSS must depend on @sltsh/aion-tokens ${version}`);
+}
+
+if (wrong.length > 0 || !dependencyMatches) process.exit(1);
 console.log(`${manifests.length} packages are at ${version}`);

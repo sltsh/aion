@@ -1,6 +1,6 @@
 {
   "name": "@sltsh/aion-css",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Aion as CSS custom properties and a Tailwind v4 @theme block.",
   "license": "MIT",
   "type": "module",
@@ -19,9 +19,19 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node dist/build.js",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "npm run build"
   },
   "dependencies": {
-    "@sltsh/aion-tokens": "*"
+    "@sltsh/aion-tokens": "0.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sltsh/aion.git",
+    "directory": "packages/css"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
