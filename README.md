@@ -25,12 +25,12 @@ The name comes from the Ancient Greek αἰών: an age, an epoch, a span of exi
 Aion is preparing for its first release. Marketplace and npm installation will be
 available after the first tag; for now, build from this repository.
 
-| Use Aion in | Get started |
-|---|---|
-| VS Code | Run `npm install` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. Select **Aion** as your colour theme. |
-| Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below. |
-| CSS / Tailwind | Build locally; see the [CSS package](packages/css/README.md) for custom properties and Tailwind integration. |
-| Another app | [Copy the essentials](https://aion.slt.sh/#essentials), or use the [terminal colours](https://aion.slt.sh/palette.html#terminal). |
+| Use Aion in      | Get started                                                                                                                                             |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VS Code          | Run `code --install-extension sltsh.aion-theme`, then select **Aion** as your colour theme. To build locally, run `npm install` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. |
+| Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
+| CSS / Tailwind   | Build locally; see the [CSS package](packages/css/README.md) for custom properties and Tailwind integration.                                            |
+| Another app      | [Copy the essentials](https://aion.slt.sh/#essentials), or use the [terminal colours](https://aion.slt.sh/palette.html#terminal).                       |
 
 For Windows Terminal, save `aion.json` in
 `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\sltsh` (create the folder if needed).
@@ -47,12 +47,12 @@ of reading states, not every state an application can produce; see the
 <details>
 <summary>Contrast measurements and theme comparisons</summary>
 
-| Theme | Editor | Sidebar | Order |
-|---|---|---|---|
-| One Dark Pro | `#282c34` | `#21252b` | sidebar below editor |
-| Ayu Mirage | `#242936` | `#1f2430` | sidebar below editor |
-| Nord | `#2e3440` | `#2e3440` | one surface |
-| Catppuccin Mocha | `#1e1e2e` | `#1e1e2e` | one surface |
+| Theme            | Editor    | Sidebar   | Order                |
+| ---------------- | --------- | --------- | -------------------- |
+| One Dark Pro     | `#282c34` | `#21252b` | sidebar below editor |
+| Ayu Mirage       | `#242936` | `#1f2430` | sidebar below editor |
+| Nord             | `#2e3440` | `#2e3440` | one surface          |
+| Catppuccin Mocha | `#1e1e2e` | `#1e1e2e` | one surface          |
 
 **The contrast floor is a gate, not a claim.** Every token is defined in OKLCH and checked
 against the surface it sits on, decorations composited the way the renderer composites
@@ -61,24 +61,24 @@ branch, so a colour below the floor cannot be released. The gate covers a named 
 reading states, not every state a renderer can produce; §3.1 of `DESIGN.md` is the set,
 and three kinds of exemption are documented.
 
-| What the gate checks | Count |
-|---|---:|
-| Rows measured | 611 |
-| Below their floor | 0 |
-| Exempt rows, all documented | 5 |
-| Reading states per syntax colour | 35 |
-| Lowest ratio in a reading state | 4.50:1 |
-| Interface keys the theme sets | 622 |
-| TextMate rules | 64 |
-| Semantic tokens | 32 |
+| What the gate checks             |  Count |
+| -------------------------------- | -----: |
+| Rows measured                    |    611 |
+| Below their floor                |      0 |
+| Exempt rows, all documented      |      5 |
+| Reading states per syntax colour |     35 |
+| Lowest ratio in a reading state  | 4.50:1 |
+| Interface keys the theme sets    |    622 |
+| TextMate rules                   |     64 |
+| Semantic tokens                  |     32 |
 
-| Theme | Lowest ratio | Below 4.5:1 | Source |
-|---|---|---|---|
-| Aion | 6.95 | none | — |
-| One Dark Pro | 3.73 | comment, variable | [One Dark Pro](https://github.com/Binaryify/OneDark-Pro/blob/main/themes/OneDark-Pro.json) @ `54c3280` |
-| Ayu Mirage | 3.42 | comment | [Ayu Mirage](https://github.com/ayu-theme/vscode-ayu/blob/master/ayu-mirage.json) @ `444ef92` |
-| Nord | 2.43 | comment, number | [Nord](https://github.com/nordtheme/visual-studio-code/blob/develop/themes/nord-color-theme.json) @ `8ead098` |
-| Catppuccin Mocha | 5.81 | none | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
+| Theme            | Lowest ratio | Below 4.5:1       | Source                                                                                                                           |
+| ---------------- | ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Aion             | 6.95         | none              | —                                                                                                                                |
+| One Dark Pro     | 3.73         | comment, variable | [One Dark Pro](https://github.com/Binaryify/OneDark-Pro/blob/main/themes/OneDark-Pro.json) @ `54c3280`                           |
+| Ayu Mirage       | 3.42         | comment           | [Ayu Mirage](https://github.com/ayu-theme/vscode-ayu/blob/master/ayu-mirage.json) @ `444ef92`                                    |
+| Nord             | 2.43         | comment, number   | [Nord](https://github.com/nordtheme/visual-studio-code/blob/develop/themes/nord-color-theme.json) @ `8ead098`                    |
+| Catppuccin Mocha | 5.81         | none              | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
 
 Eight syntax roles on a plain editor line, against each theme's own editor background,
 read on 2026-09-05 at the revision named. Every table here is generated: `npm run
@@ -93,19 +93,17 @@ usability.
 Bug reports and port contributions are welcome. For a rendering issue, include the app
 version, a screenshot, and the steps needed to reproduce it. For palette changes, edit
 the OKLCH source in `packages/tokens`; generated colours should never be edited by hand.
-Read [AGENTS.md](AGENTS.md) for the project rules and run the checks below before opening
-a pull request.
 
 ## Packages
 
-| Package | What it ships |
-|---|---|
-| `packages/tokens` | `@sltsh/aion-tokens` — the OKLCH definitions and the build gate |
-| `packages/vscode` | the VS Code extension: the theme, its gate and its scope fixtures |
-| `packages/terminal` | the Windows Terminal fragment and settings snippet |
-| `packages/css` | custom properties and a Tailwind v4 `@theme` block |
-| `apps/lab` | the surface gallery: five surfaces, one palette, six live sliders |
-| `apps/site` | the public site at https://aion.slt.sh: the landing page and the palette reference |
+| Package             | What it ships                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `packages/tokens`   | `@sltsh/aion-tokens` — the OKLCH definitions and the build gate                    |
+| `packages/vscode`   | the VS Code extension: the theme, its gate and its scope fixtures                  |
+| `packages/terminal` | the Windows Terminal fragment and settings snippet                                 |
+| `packages/css`      | custom properties and a Tailwind v4 `@theme` block                                 |
+| `apps/lab`          | the surface gallery: five surfaces, one palette, six live sliders                  |
+| `apps/site`         | the public site at https://aion.slt.sh: the landing page and the palette reference |
 
 ## Commands
 
