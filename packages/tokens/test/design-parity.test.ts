@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import {
   hex, hexAlpha, neutral, ACCENTS, ACCENT_NAMES, accentScale, comment, diff, ansi,
-  ANSI_ORDER, overlay, diffWash, dimText, findMatch,
+  ANSI_ORDER, overlay, diffWash, dimText, findMatch, status,
 } from '../src/index.js';
 import { lightNeutral, lightAccents, lightAccentScale } from '../src/light.js';
 import { readingStates } from '../src/states.js';
@@ -25,6 +25,9 @@ const emitted = (): Set<string> => {
   for (const c of Object.values(findMatch)) out.add(hex(c));
   out.add(hex(comment));
   out.add(hex(dimText));
+  for (const scale of Object.values(status)) {
+    for (const colour of Object.values(scale)) out.add(hex(colour));
+  }
   // The covered-state table quotes each composited background, so those are emitted too.
   for (const state of readingStates()) out.add(hex(state.background));
   // A rival's hex is a foreign value, but it is still generated: the documents quote it
@@ -40,6 +43,7 @@ const emitted = (): Set<string> => {
 // The emitted values win when a document disagrees with them. This is what notices.
 const DOCUMENTS = [
   ['DESIGN.md', '../../../DESIGN.md', 50],
+  ['APP-THEMING.md', '../../../APP-THEMING.md', 40],
   ['README.md', '../../../README.md', 0],
   ['packages/vscode/README.md', '../../vscode/README.md', 10],
   ['packages/terminal/README.md', '../../terminal/README.md', 16],

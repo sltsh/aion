@@ -30,7 +30,7 @@ available after the first tag; for now, build from this repository.
 | VS Code          | Run `code --install-extension sltsh.aion-theme`, then select **Aion** as your colour theme. To build locally, run `npm install` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. |
 | Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
 | CSS / Tailwind   | Build locally; see the [CSS package](packages/css/README.md) for custom properties and Tailwind integration.                                            |
-| Another app      | [Copy the essentials](https://aion.slt.sh/#essentials), or use the [terminal colours](https://aion.slt.sh/palette.html#terminal).                       |
+| Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
 For Windows Terminal, save `aion.json` in
 `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\sltsh` (create the folder if needed).

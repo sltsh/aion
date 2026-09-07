@@ -15,6 +15,10 @@ const HEADERS = {
   diff: '| Token | Hex | Lightness |',
   ansi: '| # | Slot | Hex | Ratio | | # | Slot | Hex | Ratio |',
   light: '| Role | Hex | | Accent | Hex | Ratio |',
+  appBase: '| App role | Token | Hex |',
+  appAccents: '| Accent | Text / solid | Subtle fill | Border |',
+  appStatus: '| Status | Text | Subtle fill | Solid fill | Text on solid | Border |',
+  appSyntax: '| Syntax role | Hex |',
 };
 
 const normalizeTableRow = (line) => line.split('|').map((cell) => cell.trim()).join('|');
@@ -27,6 +31,7 @@ const DOCUMENTS = [
   ['README.md', ['gate', 'rivals', 'surfaces']],
   ['packages/vscode/README.md', ['gate', 'rivals', 'listing']],
   ['packages/terminal/README.md', ['slots']],
+  ['APP-THEMING.md', ['appBase', 'appAccents', 'appStatus', 'appSyntax', 'slots']],
 ];
 
 const emitted = execFileSync('node', ['packages/tokens/dist/verify.js', '--markdown'], { encoding: 'utf8' });
@@ -43,6 +48,36 @@ for (const line of emitted.split('\n')) {
 // theme, never typed: the prose said 630 interface keys, 54 TextMate rules and 25 covered
 // states while the code produced 622, 64 and 35.
 const { checks, readingStates } = await import('../packages/tokens/dist/index.js');
+const { hex, neutral, fg, border, accent, status, syntax, cursor, compositeEmitted, overlay } =
+  await import('../packages/tokens/dist/index.js');
+const appBase = [
+  ['Main content', 'neutral.editor', neutral.editor],
+  ['Panel', 'neutral.terminal', neutral.terminal],
+  ['Sidebar / navigation', 'neutral.sidebar', neutral.sidebar],
+  ['Elevated popup', 'neutral.widget', neutral.widget],
+  ['Input', 'neutral.input', neutral.input],
+  ['Hover', 'neutral.hover', neutral.hover],
+  ['Primary text', 'fg.primary', fg.primary],
+  ['Secondary text', 'fg.secondary', fg.secondary],
+  ['Dim text', 'fg.dim', fg.dim],
+  ['Text on accent', 'fg.onAccent', fg.onAccent],
+  ['Hairline', 'border.hairline', border.hairline],
+  ['Divider', 'border.divider', border.divider],
+  ['Control edge', 'border.control', border.control],
+  ['Focus', 'border.focus', border.focus],
+  ['Link', 'fg.link', fg.link],
+  ['Caret', 'cursor', cursor],
+  ['Selection on main content', 'selection composited over neutral.editor',
+    compositeEmitted(overlay.selection.color, overlay.selection.alpha, neutral.editor)],
+  ['Current line on main content', 'lineHighlight composited over neutral.editor',
+    compositeEmitted(overlay.lineHighlight.color, overlay.lineHighlight.alpha, neutral.editor)],
+];
+tables.appBase = appBase.map(([role, token, colour]) => `| ${role} | ${token} | \`${hex(colour)}\` |`);
+tables.appAccents = Object.entries(accent).map(([name, scale]) =>
+  `| ${name} | \`${hex(scale.solid)}\` | \`${hex(scale.subtle)}\` | \`${hex(scale.border)}\` |`);
+tables.appStatus = Object.entries(status).map(([name, scale]) =>
+  `| ${name} | \`${hex(scale.text)}\` | \`${hex(scale.subtle)}\` | \`${hex(scale.solid)}\` | \`${hex(scale.onSolid)}\` | \`${hex(scale.border)}\` |`);
+tables.appSyntax = Object.entries(syntax).map(([role, colour]) => `| ${role} | \`${hex(colour)}\` |`);
 const theme = JSON.parse(readFileSync('packages/vscode/themes/aion.json', 'utf8'));
 const rows = checks();
 const count = (state) => rows.filter((row) => row.state === state).length;
