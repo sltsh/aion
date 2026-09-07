@@ -1,28 +1,20 @@
 import type { SiteFlags } from '../flags.js';
-import type { Group, SwatchData } from '../groups.js';
-import { escapeHtml } from './html.js';
+import type { SwatchData } from '../groups.js';
+import { colourBlock } from '../groups.js';
+import { escapeAttr, escapeHtml } from './html.js';
+import { icon } from './icons.js';
 
-const PREFIX = '--aion-';
-
-const shortName = (variable: string): string =>
-  variable.startsWith(PREFIX) ? variable.slice(PREFIX.length) : variable;
-
-// Four dark values carry an alpha byte. The chip sits on the site's own surface, which is
-// one step above the editor, so painting the value straight onto it would composite a
-// decoration over a background the gate never measured. The chip lays the value over the
-// page colour instead, and that is the surface the ratio was read on.
 export function swatch(data: SwatchData, flags: SiteFlags): string {
-  const name = escapeHtml(data.variable);
   const lightAttr = flags.lightVisible ? ` data-light="${data.light}"` : '';
-  return `<button type="button" class="swatch" data-copy data-dark="${data.dark}"${lightAttr} title="${name}">
-    <span class="swatch-chip" style="--site-swatch:var(${name})"></span>
-    <span class="swatch-meta">
-      <code class="swatch-name">${escapeHtml(shortName(data.variable))}</code>
-      <code class="swatch-hex">${data.dark}</code>
-    </span>
+  return `<button type="button" class="swatch" data-copy data-dark="${data.dark}"${lightAttr} aria-label="Copy ${escapeAttr(data.label)}" title="${escapeAttr(data.variable)}">
+    <span class="swatch-chip" style="--site-swatch:var(${data.variable})"><span class="swatch-copy">${icon('copy')}</span></span>
+    <span class="swatch-meta"><span class="swatch-name">${escapeHtml(data.label)}</span><code class="swatch-hex">${data.dark}</code></span>
+    <span class="swatch-role">${escapeHtml(data.role)}</span>
   </button>`;
 }
 
-export function swatchGrid(group: Group, flags: SiteFlags): string {
-  return `<div class="swatch-grid">${group.swatches.map((s) => swatch(s, flags)).join('')}</div>`;
-}
+export const swatchGrid = (rows: readonly SwatchData[], flags: SiteFlags): string =>
+  `<div class="swatch-grid">${rows.map((row) => swatch(row, flags)).join('')}</div>`;
+
+export const copyColours = (rows: readonly SwatchData[], flags: SiteFlags, label = 'Copy all'): string =>
+  `<button type="button" class="copy-button" data-copy data-dark="${escapeAttr(colourBlock(rows, 'dark'))}"${flags.lightVisible ? ` data-light="${escapeAttr(colourBlock(rows, 'light'))}"` : ''}>${icon('copy')}${escapeHtml(label)}</button>`;

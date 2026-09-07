@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/sltsh/aion/main/assets/aion-lockup-horizontal.png" alt="Aion" width="720"></p>
+
 # Aion
 
 A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.
@@ -48,7 +50,7 @@ the one before it, which is why the revision is recorded.
 | comment | `#98a0af` | | violet, keywords | `#bd96e9` |
 
 Gold is the signature: the cursor, the focus ring, the search hit and the active tab
-marker. Violet is a syntax hue. It reaches four interface keys and no others: the two
+marker. Violet is a syntax hue. It reaches five interface keys and no others: the two
 bracket-cycle steps, the keyword symbol icon that mirrors the syntax colour, `charts.purple`
 where an extension asks for the hue by name, and ANSI slot 13.
 

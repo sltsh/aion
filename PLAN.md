@@ -259,16 +259,19 @@ Still open:
 
 ## Task 9 — `apps/site` — done
 
-The public site at https://aion.slt.sh. A landing page and a palette reference over the 91
-variables `@sltsh/aion-css` emits. Vite multi-page, no framework, HTML pre-rendered at
-build time, so the page reads with JavaScript disabled.
+The public site at https://aion.slt.sh. A landing page and a curated palette: foundations,
+main colours with their syntax roles, and terminal slots, all read from `@sltsh/aion-css`.
+The homepage shares the essentials selection and provides a generated terminal download.
+The full token inventory and authored tables remain in the technical documentation.
+Vite multi-page, no framework, HTML pre-rendered at build time, so the page reads with
+JavaScript disabled. Navigation highlights the visible section on both pages.
 
 The light scheme is built and tested but not visible. `FLAGS.lightVisible` is `false`:
 there is no light VS Code theme, and §11 records that light gold is olive rather than gold.
 Every render function takes the flags as a parameter and the tests run both settings, so
 the hidden path is proven rather than merely written.
 
-Read `apps/site/README.md` for the module map and the rules the tests hold in place.
+Read `apps/site/README.md` for the presentation scope and validation contract.
 
 Still open: the DNS `CNAME` from `aion.slt.sh` to `sltsh.github.io`, and GitHub Pages
 enabled for the repository with the custom domain. Neither lives in this repository.

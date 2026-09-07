@@ -1,13 +1,51 @@
-# Aion
+<p align="center">
+  <img src="assets/aion-lockup-horizontal.png" alt="Aion" width="720">
+</p>
 
-A dark theme and a colour system for editors, terminals and web interfaces.
+<p align="center">A dark theme for editors, terminals and the web.<br>Gold accents, cool surfaces, familiar syntax. No italics.</p>
 
-The name comes from the Ancient Greek αἰών: an age, an epoch, a span of existence. An
-ancient word with a futuristic appearance, which is where the gold and the teal come from.
+<p align="center">
+  <a href="https://aion.slt.sh">Explore Aion</a> ·
+  <a href="https://aion.slt.sh/#essentials">Copy colours</a> ·
+  <a href="#install">Install</a> ·
+  <a href="https://aion.slt.sh/palette.html">Full palette</a>
+</p>
 
-**Familiar syntax, distinct chrome.** Syntax follows the One Dark Pro role map, so muscle
-memory survives. Identity comes from the base, the gold chrome and the structure: the
-editor is the **darkest** surface and the sidebar is raised above it.
+## A familiar place to work
+
+Aion follows the One Dark Pro syntax role map, with gold for focus and navigation and
+teal as a secondary accent. The editor is the darkest surface; the raised sidebar and
+panels keep the workspace easy to read.
+
+Explore the [live code preview](https://aion.slt.sh/#sample) to see the palette in use.
+The name comes from the Ancient Greek αἰών: an age, an epoch, a span of existence.
+
+## Install
+
+Aion is preparing for its first release. Marketplace and npm installation will be
+available after the first tag; for now, build from this repository.
+
+| Use Aion in | Get started |
+|---|---|
+| VS Code | Run `npm install` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. Select **Aion** as your colour theme. |
+| Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below. |
+| CSS / Tailwind | Build locally; see the [CSS package](packages/css/README.md) for custom properties and Tailwind integration. |
+| Another app | [Copy the essentials](https://aion.slt.sh/#essentials), or use the [terminal colours](https://aion.slt.sh/palette.html#terminal). |
+
+For Windows Terminal, save `aion.json` in
+`%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\sltsh` (create the folder if needed).
+Restart Terminal, then select **Aion** under **Settings → Profiles → Appearance → Colour
+scheme**. The [terminal guide](packages/terminal/README.md) also covers manual settings.
+
+## Built for readable code
+
+Syntax, interface text and decorations are checked against their intended surfaces.
+The contrast gate runs in CI and blocks colours below their floor. It covers a named set
+of reading states, not every state an application can produce; see the
+[design specification](DESIGN.md#31-the-states-the-floor-covers) for the scope and exemptions.
+
+<details>
+<summary>Contrast measurements and theme comparisons</summary>
 
 | Theme | Editor | Sidebar | Order |
 |---|---|---|---|
@@ -47,6 +85,16 @@ read on 2026-09-05 at the revision named. Every table here is generated: `npm ru
 sync:design` rewrites them from the token package and the emitted theme, so the copy
 cannot drift from the emitter. This compares eight colours, not accessibility and not
 usability.
+
+</details>
+
+## Contributing
+
+Bug reports and port contributions are welcome. For a rendering issue, include the app
+version, a screenshot, and the steps needed to reproduce it. For palette changes, edit
+the OKLCH source in `packages/tokens`; generated colours should never be edited by hand.
+Read [AGENTS.md](AGENTS.md) for the project rules and run the checks below before opening
+a pull request.
 
 ## Packages
 

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { FLAGS } from './src/flags.js';
@@ -24,6 +25,17 @@ export default defineConfig({
   plugins: [
     {
       name: 'aion-prerender',
+      generateBundle() {
+        this.emitFile({ type: 'asset', fileName: 'downloads/aion.json',
+          source: readFileSync(resolve(import.meta.dirname, '../../packages/terminal/fragments/aion.json')) });
+      },
+      configureServer(server) {
+        server.middlewares.use('/downloads/aion.json', (_req, res) => {
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Content-Disposition', 'attachment; filename="aion.json"');
+          res.end(readFileSync(resolve(import.meta.dirname, '../../packages/terminal/fragments/aion.json')));
+        });
+      },
       transformIndexHtml(html: string): string {
         let out = html;
         for (const [marker, render] of Object.entries(MARKERS)) out = out.replace(marker, render());
