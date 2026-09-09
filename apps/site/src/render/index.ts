@@ -5,7 +5,7 @@ import { essentials, groups } from '../groups.js';
 import { renderHero } from '../samples/hero.js';
 import { escapeAttr, escapeHtml } from './html.js';
 import { icon } from './icons.js';
-import { copyColours, swatchGrid } from './swatch.js';
+import { copyColours, copyIndicator, swatchGrid } from './swatch.js';
 
 const REPO = 'https://github.com/sltsh/aion';
 
@@ -36,16 +36,16 @@ const footer = (): string => `<footer class="site-foot">
 const link = (href: string, text: string): string =>
   `<a class="text-link" href="${href}">${escapeHtml(text)}${icon('arrow')}</a>`;
 
-function renderEssentials(flags: SiteFlags, page: Page = 'home'): string {
+function renderEssentials(flags: SiteFlags): string {
   const rows = essentials();
-  return `<section class="essentials ${page === 'home' ? 'section' : 'palette-group'}" id="essentials" aria-labelledby="essentials-title">
-    ${page === 'home' ? '<span id="manual" class="anchor-alias" aria-hidden="true"></span>' : ''}
-    <div class="section-heading"><div><h2 id="essentials-title">${page === 'home' ? 'Make it yours.' : 'Essentials'}</h2>
+  return `<section class="essentials section" id="essentials" aria-labelledby="essentials-title">
+    <span id="manual" class="anchor-alias" aria-hidden="true"></span>
+    <div class="section-heading"><div><h2 id="essentials-title">Make it yours.</h2>
       <p>The essentials for bringing Aion to another app.<br>Click a colour to copy its hex, or take the whole set.</p></div>
       ${copyColours(rows, flags)}</div>
     <div class="essentials-foundations">${swatchGrid(rows.slice(0, 4), flags)}</div>
     <div class="essentials-colours">${swatchGrid(rows.slice(4), flags)}</div>
-    ${page === 'home' ? `<a class="palette-link" href="/palette.html"><span><strong>Explore the palette</strong><span>Colour roles, terminal colours, and everything you need to get started.</span></span>${icon('arrow')}</a>` : ''}
+    <a class="palette-link" href="/palette.html"><span><strong>Explore the palette</strong><span>Colour roles, terminal colours, and everything you need to get started.</span></span>${icon('arrow')}</a>
   </section>`;
 }
 
@@ -62,7 +62,7 @@ function install(flags: SiteFlags): string {
     return `<li class="install-card">
       <h3>${escapeHtml(entry.label)}</h3><p>${escapeHtml(note)}</p>
       <div class="command-block"><div class="command-head"><span>${terminal ? 'Destination folder' : useInstallCommand ? 'Install command' : 'Run from the repository'}</span>
-        <button type="button" class="copy-button" data-copy data-text="${escapeAttr(command)}" aria-label="Copy ${escapeAttr(entry.label)} ${terminal ? 'folder' : 'command'}">${icon('copy')}Copy</button></div>
+        <button type="button" class="copy-button" data-copy data-text="${escapeAttr(command)}" aria-label="Copy ${escapeAttr(entry.label)} ${terminal ? 'folder' : 'command'}">${copyIndicator()}Copy</button></div>
         <pre><code>${escapeHtml(command)}</code></pre></div>
       <div class="install-action"><a class="${terminal ? 'button' : 'text-link'}" href="${entry.href}"${terminal ? ' download="aion.json"' : ''}>${escapeHtml(entry.action)}${icon(terminal ? 'download' : 'arrow')}</a></div>
     </li>`;
@@ -111,8 +111,8 @@ export function palette(flags: SiteFlags): string {
   return `${chrome('palette')}<article class="palette" id="content">
     <header class="page-head"><h1>A palette to make<br>your own.</h1><p class="lede">The colours that make Aion, with names that tell you where they belong.<br>Click any swatch to copy its hex.</p>
       ${flags.lightVisible ? `<button type="button" class="button secondary" data-scheme-toggle aria-pressed="false">Show light palette</button><p class="note">${escapeHtml(LIGHT_NOTE)}</p>` : ''}</header>
-    <div class="palette-layout"><nav class="jump" aria-label="Palette sections"><a href="#essentials" data-section="essentials" aria-current="location"><span>Essentials</span><span class="nav-count">${essentials().length}</span></a>${all.map((group) => `<a href="#${group.id}" data-section="${group.id}"><span>${group.title}</span><span class="nav-count">${group.swatches.length}</span></a>`).join('')}</nav>
-    <div class="palette-sections">${renderEssentials(flags, 'palette')}${sections}
+    <div class="palette-layout"><nav class="jump" aria-label="Palette sections">${all.map((group, index) => `<a href="#${group.id}" data-section="${group.id}"${index === 0 ? ' aria-current="location"' : ''}><span>${group.title}</span><span class="nav-count">${group.swatches.length}</span></a>`).join('')}</nav>
+    <div class="palette-sections">${sections}
       <aside class="developer-note"><h2>Building something deeper?</h2><p>Component states, selections, diff overlays, and the full neutral ramp live in the technical reference. They’re specific to how an interface renders.</p>${link(`${REPO}/tree/main/packages/css`, 'CSS & token reference')}${link(`${REPO}/blob/main/DESIGN.md`, 'Colour specification')}</aside>
     </div></div>
   </article>${footer()}<p class="copy-status" role="status" aria-live="polite"></p>`;

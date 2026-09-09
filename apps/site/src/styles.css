@@ -65,7 +65,7 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .editor-body { padding: 1.5rem; overflow-x: auto; }
 .editor-foot { display: flex; justify-content: space-between; padding: 0.65rem 1.25rem; font-size: 0.75rem; color: var(--aion-fg-secondary); border-top: 1px solid var(--aion-border-hairline); }
 .section { padding: 5.5rem 0; }
-.install + .gate { border-top: 1px solid var(--aion-border-hairline); }
+.essentials + .install, .install + .gate { border-top: 1px solid var(--aion-border-hairline); }
 .section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; margin-bottom: 2rem; }
 .section-heading p { margin-top: 1rem; max-width: 52ch; }
 .section-heading > .copy-button { flex: none; }
@@ -79,18 +79,27 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .swatch:hover .swatch-copy, .swatch:focus-visible .swatch-copy { opacity: 1; }
 .swatch-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.2rem 0.6rem; margin-top: 0.7rem; }
 .swatch-name { font-size: 0.95rem; font-weight: 550; }
+.swatch-value { display: inline-flex; align-items: center; gap: 0.35rem; }
 .swatch-hex { font-family: 'Monaspace Neon', monospace; font-size: 0.75rem; color: var(--aion-fg-secondary); }
+.swatch-check { display: none; color: var(--aion-green-solid); }
+.swatch[data-copied] .swatch-check { display: inline-flex; }
+.swatch-check .icon { width: 0.9rem; height: 0.9rem; }
 .swatch-role { display: block; font-size: 0.75rem; color: var(--aion-fg-secondary); margin-top: 0.15rem; }
 .copy-button { display: inline-flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 0.45rem 0.75rem; background: var(--aion-bg-raised); color: var(--aion-fg-primary); border: 1px solid var(--aion-border-ui); border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
 .copy-button:hover { color: var(--aion-gold-solid); }
-[data-copied] { outline: 2px solid var(--aion-teal-solid); outline-offset: 3px; }
-.copy-status { position: fixed; z-index: 20; bottom: 1.5rem; left: 50%; transform: translateX(-50%); max-width: calc(100vw - 2rem); padding: 0.65rem 1.1rem; border: 1px solid var(--aion-teal-border); border-radius: 8px; background: var(--aion-bg-page); color: var(--aion-fg-primary); font-size: 0.85rem; }
+.copy-indicator { display: inline-flex; align-items: center; justify-content: center; width: 1.1rem; height: 1.1rem; }
+.copy-icon, .copy-check { display: inline-flex; }
+.copy-check { display: none; color: var(--aion-green-solid); }
+.copy-button[data-copied] .copy-icon { display: none; }
+.copy-button[data-copied] .copy-check { display: inline-flex; }
+.copy-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.copy-status[data-visible] { position: fixed; z-index: 20; bottom: 1.5rem; left: 50%; width: auto; height: auto; transform: translateX(-50%); max-width: calc(100vw - 2rem); margin: 0; padding: 0.65rem 1.1rem; overflow: visible; clip: auto; white-space: normal; border: 1px solid var(--aion-teal-border); border-radius: 8px; background: var(--aion-bg-page); color: var(--aion-fg-primary); font-size: 0.85rem; }
 .copy-status:empty { display: none; }
-.palette-link { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2.5rem; padding: 1.5rem 0; color: var(--aion-gold-solid); text-decoration: none; border-top: 1px solid var(--aion-gold-border); border-bottom: 1px solid var(--aion-border-hairline); }
+.palette-link { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2.5rem; padding: 1.5rem 0; color: var(--aion-gold-solid); text-decoration: none; border-top: 1px solid var(--aion-gold-border); }
 .palette-link strong { display: block; font-size: 1.15rem; font-weight: 550; }
 .palette-link span span { display: block; color: var(--aion-fg-secondary); font-size: 0.9rem; margin-top: 0.3rem; }
 .palette-link > .icon { width: 1.5rem; height: 1.5rem; }
-.palette-link:hover { border-bottom-color: var(--aion-gold-border); }
+.palette-link:hover { border-top-color: var(--aion-gold-solid); }
 .release-note { max-width: none; padding: 1rem 1.25rem; border-left: 2px solid var(--aion-gold-solid); background: var(--aion-bg-page); margin-bottom: 1.5rem; font-size: 0.9rem; }
 .release-note .text-link { margin-left: 0.5rem; }
 .install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border: 1px solid var(--aion-border-divider); border-radius: 12px; overflow: hidden; }
@@ -124,6 +133,8 @@ code { font-family: 'Monaspace Neon', monospace; }
 .palette-group h2 { font-size: 2rem; }
 .palette-group .section-heading p { font-size: 0.95rem; }
 .palette-group .swatch-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+#accents .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#interface .swatch-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .set-label { font-size: 1rem; margin-bottom: 1.2rem; }
 .set-label span { margin-left: 0.5rem; font-size: 0.8rem; color: var(--aion-fg-secondary); font-weight: 400; }
 .set-label:not(:first-child) { margin-top: 2rem; }
@@ -146,7 +157,7 @@ code { font-family: 'Monaspace Neon', monospace; }
 @media (max-width: 1000px) {
   .essentials-colours .swatch-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .palette-layout { gap: 2rem; grid-template-columns: 8.5rem minmax(0, 1fr); }
-  .palette-group .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .palette-group .swatch-grid, #interface .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .install-card { padding: 1rem; }
   .command-head { flex-wrap: wrap; }
 }
@@ -177,7 +188,8 @@ code { font-family: 'Monaspace Neon', monospace; }
   .jump a { flex: 1; gap: 0.25rem; padding: 0.6rem 0.3rem; border-left: 0; border-bottom: 2px solid transparent; font-size: 0.7rem; border-radius: 5px 5px 0 0; }
   .jump .nav-count { display: none; }
   .palette-group { scroll-margin-top: 4rem; }
-  .palette-group .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .palette-group:not(#accents) .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #accents .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .palette-group + .palette-group { padding-top: 2rem; }
   .developer-note { padding: 1.5rem; }
   .footer-intro { align-items: flex-start; flex-direction: column; gap: 0.5rem; }

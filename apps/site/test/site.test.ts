@@ -25,12 +25,13 @@ it('escapes text and copy attributes', () => {
 });
 
 describe('curated colours', () => {
-  it('shows foundations, the main colours and terminal slots once each', () => {
+  it('organizes colours into foundations, accents, interface roles, syntax, and terminal', () => {
     expect(groups().map((group) => group.id)).toEqual([...GROUP_IDS]);
-    expect(groups().map((group) => group.swatches.length)).toEqual([4, 7, 16]);
+    expect(groups().map((group) => group.swatches.length)).toEqual([13, 21, 5, 11, 16]);
     const variables = groups().flatMap((group) => group.swatches.map((row) => row.variable));
     expect(new Set(variables).size).toBe(variables.length);
-    expect(variables.some((name) => /status|overlay|diff|subtle/.test(name))).toBe(false);
+    expect(variables.filter((name) => name === '--aion-fg-link')).toHaveLength(1);
+    expect(variables.some((name) => /overlay|diff/.test(name))).toBe(false);
   });
 
   it('gets every displayed value from its named CSS token in both schemes', () => {
@@ -44,9 +45,82 @@ describe('curated colours', () => {
     }
   });
 
-  it('uses the same essentials on the homepage and palette', () => {
-    expect(essentials()).toEqual(groups().filter((group) => group.id !== 'terminal').flatMap((group) => group.swatches));
-    for (const row of essentials()) expect(landing(FLAGS)).toContain(swatch(row, FLAGS));
+  it('retains the compact essentials set on the homepage only', () => {
+    const rows = essentials();
+    expect(rows).toHaveLength(11);
+    expect(rows.slice(0, 4).map((row) => [row.label, row.variable])).toEqual([
+      ['Background', '--aion-bg-page'],
+      ['Surface', '--aion-bg-surface'],
+      ['Text', '--aion-fg-primary'],
+      ['Secondary text', '--aion-fg-secondary'],
+    ]);
+    expect(rows.slice(4).map((row) => [row.label, row.role, row.variable])).toEqual([
+      ['Gold', 'Primary accent', '--aion-gold-solid'],
+      ['Teal', 'Secondary accent', '--aion-teal-solid'],
+      ['Coral', 'Errors & variables', '--aion-coral-solid'],
+      ['Copper', 'Warnings & numbers', '--aion-copper-solid'],
+      ['Green', 'Success & strings', '--aion-green-solid'],
+      ['Blue', 'Links & functions', '--aion-blue-solid'],
+      ['Violet', 'Keywords & emphasis', '--aion-violet-solid'],
+    ]);
+    for (const row of rows) expect(landing(FLAGS)).toContain(swatch(row, FLAGS));
+    expect(palette(FLAGS)).not.toContain('id="essentials"');
+  });
+
+  it('exposes the complete foundation roles needed for hierarchy and controls', () => {
+    const foundations = groups().find((group) => group.id === 'foundations');
+    expect(foundations).toBeDefined();
+    const vars = foundations!.swatches.map((row) => row.variable);
+    // Surface ladder
+    for (const surface of ['page', 'surface', 'raised', 'input', 'hover']) {
+      expect(vars).toContain(`--aion-bg-${surface}`);
+    }
+    // Text hierarchy
+    for (const text of ['primary', 'secondary', 'dim', 'on-accent']) {
+      expect(vars).toContain(`--aion-fg-${text}`);
+    }
+    // Functional border and focus. Link is owned by Interface roles.
+    expect(vars).toContain('--aion-border-ui');
+    expect(vars).toContain('--aion-border-focus');
+    expect(vars).not.toContain('--aion-fg-link');
+  });
+
+  it('exposes accents with canonical hue names and solid, subtle, and border variants', () => {
+    const accents = groups().find((group) => group.id === 'accents');
+    expect(accents).toBeDefined();
+    expect(accents!.swatches).toHaveLength(21);
+    const hues = ['coral', 'copper', 'gold', 'green', 'teal', 'blue', 'violet'];
+    for (const hue of hues) {
+      for (const variant of ['solid', 'subtle', 'border']) {
+        expect(accents!.swatches.some((row) => row.variable === `--aion-${hue}-${variant}`)).toBe(true);
+      }
+    }
+  });
+
+  it('includes status mappings and makes blue the portable link role while preserving gold site links', () => {
+    const iface = groups().find((group) => group.id === 'interface');
+    expect(iface).toBeDefined();
+    const vars = iface!.swatches.map((row) => row.variable);
+    for (const statusName of ['success', 'warning', 'error', 'info']) {
+      expect(vars).toContain(`--aion-status-${statusName}-solid`);
+    }
+    expect(vars).toContain('--aion-fg-link');
+    // Marketing site preserves gold links
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).toContain('.text-link { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--aion-gold-solid);');
+  });
+
+  it('includes core syntax roles plus comment and punctuation', () => {
+    const syntaxGroup = groups().find((group) => group.id === 'syntax');
+    expect(syntaxGroup).toBeDefined();
+    const vars = syntaxGroup!.swatches.map((row) => row.variable);
+    const expected = [
+      'variable', 'number', 'constant', 'type', 'string',
+      'operator', 'escape', 'function', 'keyword', 'comment', 'punctuation',
+    ];
+    for (const role of expected) {
+      expect(vars).toContain(`--aion-syntax-${role}`);
+    }
   });
 
   it('keeps the complete ANSI set in slot order', () => {
@@ -65,8 +139,20 @@ describe('curated colours', () => {
         const html = swatch(row, FLAGS);
         expect(html).toContain(`aria-label="Copy ${row.label}"`);
         expect(html).toContain(`data-dark="${row.dark}"`);
+        expect(html).toContain('class="swatch-check"');
       }
     }
+  });
+
+  it('confirms successful copies in place and reserves the toast for errors', () => {
+    const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(client).toContain("announce('Copied to clipboard', false)");
+    expect(client).toContain("announce('Could not copy. Select and copy the text instead.')");
+    expect(css).toContain('.copy-button[data-copied] .copy-check { display: inline-flex; }');
+    expect(css).toContain('.swatch[data-copied] .swatch-check { display: inline-flex; }');
+    expect(css).toContain('.copy-check { display: none; color: var(--aion-green-solid); }');
+    expect(css).toContain('.copy-status[data-visible]');
   });
 });
 
@@ -86,11 +172,16 @@ describe('the presentation pages', () => {
     expect(html).toContain('class="palette-link"');
   });
 
-  it('offers essentials before the detailed colours without engineering tables', () => {
+  it('places matching dividers on the section boundaries', () => {
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).toContain('.essentials + .install, .install + .gate { border-top: 1px solid var(--aion-border-hairline); }');
+    expect(css).not.toMatch(/\.palette-link \{[^}]*border-bottom/);
+  });
+
+  it('renders a role-first reference without repeating essentials or using engineering tables', () => {
     const html = palette(FLAGS);
-    expect(html.match(/class="swatch"/g)).toHaveLength(essentials().length + groups().flatMap((group) => group.swatches).length);
+    expect(html.match(/class="swatch"/g)).toHaveLength(groups().flatMap((group) => group.swatches).length);
     expect(html).not.toContain('<table');
-    expect(html).not.toContain('status-error-subtle');
     for (const group of groups()) {
       expect(html).toContain(escapeHtml(group.description));
       for (const row of group.swatches) expect(html).toContain(swatch(row, FLAGS));
@@ -98,9 +189,15 @@ describe('the presentation pages', () => {
     expect(html).toContain('CSS &amp; token reference');
   });
 
+  it('keeps accent variants together in three columns on mobile', () => {
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).toContain('.palette-group:not(#accents) .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }');
+    expect(css).toContain('#accents .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }');
+  });
+
   it('provides active page and section navigation with matching targets', () => {
     expect(palette(FLAGS)).toContain('href="#content" aria-current="page"');
-    for (const [html, ids] of [[landing(FLAGS), ['overview', 'essentials', 'install']], [palette(FLAGS), ['essentials', ...GROUP_IDS]]] as const) {
+    for (const [html, ids] of [[landing(FLAGS), ['overview', 'essentials', 'install']], [palette(FLAGS), [...GROUP_IDS]]] as const) {
       for (const id of ids) {
         expect(html).toContain(`data-section="${id}"`);
         expect(html).toContain(`id="${id}"`);

@@ -12,15 +12,16 @@ npm test -w ./apps/site
 
 ## Content
 
-The homepage shows the brand, code preview, essentials, installation, and a short contrast
-explanation. The palette starts with the same essentials, followed by foundations, the main colours
-with their syntax roles, and the complete ANSI set. Swatches show readable names, roles,
-and hex values.
-Status variants, overlays, and authored OKLCH tables belong in the linked package and
-design documentation, not the public palette. This curated selection replaces the former
-requirement to display every emitted variable on the site.
+The homepage shows the brand, code preview, compact essentials, installation, and a short contrast
+explanation. The palette page is a non-duplicative, role-first reference organized into five sections:
+expanded Foundations (surfaces, text hierarchy, functional boundaries, and focus), Accents (canonical
+hue names with solid, subtle, and border variants), Interface roles (status mappings and the portable blue link role),
+Syntax (core syntax mapping, comments, and punctuation), and Terminal (the complete ANSI palette in slot order).
+Swatches show readable names, roles, and hex values.
+Raw overlays and authored OKLCH tables belong in the linked package and
+design documentation, not the public palette.
 
-`src/groups.ts` defines the public selection once; both pages and their copy buttons use
+`src/groups.ts` defines the public selection; both pages and their copy buttons use
 it. Every value comes from its named `@sltsh/aion-css` token. Tests check those pairings,
 complete ANSI coverage, hidden light values, and the absence of handwritten hex values.
 

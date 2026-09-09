@@ -3,6 +3,7 @@ const PATHS = {
   arrow: 'M5 12h14m-6-6 6 6-6 6',
   external: 'M14 4h6v6m0-6L10 14M10 4H4v16h16v-6',
   copy: 'M9 9h11v11H9zM15 9V4H4v11h5',
+  check: 'M5 12l4 4L19 6',
   download: 'M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5',
 } as const;
 

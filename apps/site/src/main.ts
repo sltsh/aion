@@ -5,11 +5,15 @@ const COPIED_MS = 2000;
 let statusTimer: ReturnType<typeof setTimeout> | undefined;
 const status = document.querySelector<HTMLElement>('.copy-status');
 
-const announce = (message: string): void => {
+const announce = (message: string, visible = true): void => {
   if (!status) return;
   clearTimeout(statusTimer);
   status.textContent = message;
-  statusTimer = setTimeout(() => { status.textContent = ''; }, COPIED_MS);
+  status.toggleAttribute('data-visible', visible);
+  statusTimer = setTimeout(() => {
+    status.textContent = '';
+    status.removeAttribute('data-visible');
+  }, COPIED_MS);
 };
 
 document.addEventListener('click', (event) => {
@@ -26,7 +30,7 @@ document.addEventListener('click', (event) => {
     }
     void navigator.clipboard.writeText(value).then(() => {
       source.dataset['copied'] = 'true';
-      announce('Copied to clipboard');
+      announce('Copied to clipboard', false);
       setTimeout(() => { delete source.dataset['copied']; }, COPIED_MS);
     }).catch(() => { announce('Could not copy. Select and copy the text instead.'); });
     return;

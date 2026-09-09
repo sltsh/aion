@@ -1,0 +1,28 @@
+# Aion for Herdr 0.9.0.
+# Merge these tables into the matching sections of your Herdr config.
+# The values are emitted from Aion's authored OKLCH tokens.
+
+[theme]
+name = "one-dark"
+auto_switch = false
+
+[theme.custom]
+accent = "#e4c058"
+panel_bg = "#1e222a"
+sidebar_bg = "#171b22"
+active_row_bg = "#262a32"
+selection_bg = "#0b2d5f"
+surface0 = "#262a32"
+surface1 = "#2f333b"
+surface_dim = "#3d414a"
+overlay0 = "#98a0af"
+overlay1 = "#a7acb7"
+text = "#e2e8f3"
+subtext0 = "#98a0af"
+mauve = "#bd96e9"
+green = "#7bce88"
+yellow = "#e4c058"
+red = "#ed807e"
+blue = "#7db2f7"
+teal = "#59cdc8"
+peach = "#ea955f"
