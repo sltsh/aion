@@ -46,8 +46,7 @@ dark palette below is the listing reference; the light palette is independently 
 against its light editor and panel surfaces.
 
 The repository's [Light variant guide](../../LIGHT.md) explains the philosophy, package
-coverage and the distinction between the source theme and the currently published
-marketplace version.
+coverage, availability and native acceptance.
 
 | | Hex | | | Hex |
 |---|---|---|---|---|

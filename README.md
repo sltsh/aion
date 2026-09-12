@@ -35,16 +35,15 @@ current availability and native-acceptance status.
 
 ## Install
 
-Aion `0.3.1` is available from npm, the Visual Studio Marketplace and Open VSX. That
-published extension contains the dark theme; the refined Light theme is complete on
-`main` and will reach those channels with the next tagged release. npm `0.3.1` contains
-the earlier Light token and CSS APIs, not the refined palette documented here.
+Aion is available from npm, the Visual Studio Marketplace and Open VSX. The published
+extension contains both **Aion** and **Aion Light**, and the npm packages expose both
+scheme palettes.
 
 | Use Aion in      | Get started                                                                                                                                             |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| VS Code          | Run `code --install-extension sltsh.aion-theme` for the published theme. To try **Aion Light** before its next tagged release, run `npm ci` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. |
+| VS Code          | Run `code --install-extension sltsh.aion-theme`, then choose **Aion** or **Aion Light** with **Preferences: Color Theme**. |
 | Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
-| CSS / Tailwind   | Run `npm install @sltsh/aion-css`; build from `main` to use the refined Light palette before its next tagged release. See the [CSS package](packages/css/README.md). |
+| CSS / Tailwind   | Run `npm install @sltsh/aion-css`; see the [CSS package](packages/css/README.md) for Dark and Light usage. |
 | Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
 For Windows Terminal, save `aion.json` in

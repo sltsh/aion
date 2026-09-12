@@ -49,19 +49,18 @@ the user switches themes.
 
 ## Availability
 
-| Target | Repository state | Published state on 2026-09-12 |
+| Target | Repository state | Published state |
 | --- | --- | --- |
-| Token package | Complete refined Light exports | npm `0.3.1` has the earlier Light API |
-| CSS package | Dark and Light variables | npm `0.3.1` has the earlier Light palette |
-| VS Code | **Aion** and **Aion Light** | Marketplace and Open VSX `0.3.1` are dark-only |
-| VS Code terminal | Light ANSI palette included in Aion Light | Ships with the next extension release |
+| Token package | Complete refined Light exports | Available from npm |
+| CSS package | Dark and Light variables | Available from npm |
+| VS Code | **Aion** and **Aion Light** | Available from the Marketplace and Open VSX |
+| VS Code terminal | Light ANSI palette included in Aion Light | Included with Aion Light |
 | Windows Terminal | Dark standalone scheme only | Dark standalone scheme only |
 | Lab | Dark and Light preview and tuning | Local development tool; not deployed |
 | Public site | Light data path is built and tested | Hidden while `lightVisible` is disabled |
 
-The refined Light palette therefore needs a new tagged version before package-manager or
-marketplace users receive it. Published versions are immutable; the existing `0.3.1`
-artifacts cannot be replaced in place.
+Tagged releases publish the Light palette to npm and both VS Code marketplaces. Published
+versions remain immutable, so corrections require a new release.
 
 ## Try the repository version
 
