@@ -2,6 +2,7 @@ import {
   ACCENTS, accentScale, ansi, comment, cursor, diff, diffWash, dimText, findMatch, hex,
   hexAlpha, neutral, overlay, status, terminalSelection,
 } from '@sltsh/aion-tokens';
+import type { Palette, StatusName } from '@sltsh/aion-tokens';
 
 const n = neutral;
 const a = ACCENTS;
@@ -775,4 +776,169 @@ export const syntaxHex = {
   operator: teal, escape: teal, function: blue, keyword: violet,
   comment: hex(comment), punctuation: secondary, dim, secondary, primary,
   coral, copper, gold, green, teal, blue, violet,
+};
+
+export type SyntaxHex = typeof syntaxHex;
+
+export const syntaxHexFor = (palette: Palette): SyntaxHex => ({
+  variable: hex(palette.accents.coral), number: hex(palette.accents.copper),
+  constant: hex(palette.accents.copper), type: hex(palette.accents.gold),
+  string: hex(palette.accents.green), operator: hex(palette.accents.teal),
+  escape: hex(palette.accents.teal), function: hex(palette.accents.blue),
+  keyword: hex(palette.accents.violet), comment: hex(palette.comment),
+  punctuation: hex(palette.neutral.textSecondary), dim: hex(palette.dim),
+  secondary: hex(palette.neutral.textSecondary), primary: hex(palette.neutral.textPrimary),
+  coral: hex(palette.accents.coral), copper: hex(palette.accents.copper),
+  gold: hex(palette.accents.gold), green: hex(palette.accents.green),
+  teal: hex(palette.accents.teal), blue: hex(palette.accents.blue),
+  violet: hex(palette.accents.violet),
+});
+
+// The dark object above remains the snapshot source. A light scheme reuses this map and
+// substitutes each emitted token value from a complete palette, so key coverage cannot
+// drift between schemes and the dark JSON stays byte-for-byte stable.
+const addPair = (pairs: Map<string, string>, from: string, to: string): void => {
+  pairs.set(from, to);
+};
+
+interface PalettePairs {
+  readonly colours: Map<string, string>;
+  readonly alphaColours: Map<string, string>;
+  readonly exact: Map<string, string>;
+  readonly keyColours: Map<string, string>;
+}
+
+const STATUS_KEYS: Record<StatusName, {
+  text: readonly string[];
+  subtle: readonly string[];
+  border: readonly string[];
+  solid: readonly string[];
+  onSolid: readonly string[];
+}> = {
+  success: {
+    text: ['testing.iconPassed', 'testing.runAction', 'notebookStatusSuccessIcon.foreground',
+      'ports.iconRunningProcessForeground'],
+    subtle: [], border: [],
+    solid: ['terminalCommandDecoration.successBackground'], onSolid: [],
+  },
+  warning: {
+    text: [
+      'list.warningForeground', 'editorWarning.foreground', 'editorOverviewRuler.warningForeground',
+      'problemsWarningIcon.foreground', 'editorMarkerNavigationWarning.background',
+      'inputValidation.warningForeground', 'notificationsWarningIcon.foreground',
+      'minimap.warningHighlight', 'debugConsole.warningForeground',
+    ],
+    subtle: ['inputValidation.warningBackground'],
+    border: ['inputValidation.warningBorder'],
+    solid: ['statusBarItem.warningBackground', 'statusBarItem.warningHoverBackground'],
+    onSolid: ['statusBarItem.warningForeground'],
+  },
+  error: {
+    text: [
+      'errorForeground', 'list.errorForeground', 'editorError.foreground',
+      'editorOverviewRuler.errorForeground', 'problemsErrorIcon.foreground',
+      'editorMarkerNavigationError.background', 'inputValidation.errorForeground',
+      'notificationsErrorIcon.foreground', 'minimap.errorHighlight', 'debugConsole.errorForeground',
+      'testing.message.error.decorationForeground', 'notebookStatusErrorIcon.foreground',
+      'testing.iconFailed', 'testing.iconErrored',
+    ],
+    subtle: ['inputValidation.errorBackground', 'testing.message.error.lineBackground',
+      'debugExceptionWidget.background', 'testing.peekHeaderBackground'],
+    border: ['inputValidation.errorBorder', 'debugExceptionWidget.border', 'testing.peekBorder',
+      'testing.uncoveredBorder'],
+    solid: ['statusBarItem.errorBackground', 'statusBarItem.errorHoverBackground',
+      'terminalCommandDecoration.errorBackground', 'statusBarItem.offlineBackground',
+      'debugView.exceptionLabelBackground'],
+    onSolid: ['statusBarItem.errorForeground', 'statusBarItem.offlineForeground',
+      'debugView.exceptionLabelForeground'],
+  },
+  info: {
+    text: [
+      'editorInfo.foreground', 'editorOverviewRuler.infoForeground', 'problemsInfoIcon.foreground',
+      'editorMarkerNavigationInfo.background', 'inputValidation.infoForeground',
+      'notificationsInfoIcon.foreground', 'minimap.infoHighlight', 'debugConsole.infoForeground',
+      'testing.message.info.decorationForeground',
+    ],
+    subtle: ['inputValidation.infoBackground', 'testing.message.info.lineBackground'],
+    border: ['inputValidation.infoBorder'],
+    solid: [], onSolid: [],
+  },
+};
+
+const palettePairs = (palette: Palette): PalettePairs => {
+  const colours = new Map<string, string>();
+  const alphaColours = new Map<string, string>();
+  const exact = new Map<string, string>();
+  const keyColours = new Map<string, string>();
+  const add = (from: string, to: string): void => addPair(colours, from, to);
+  for (const name of Object.keys(neutral) as (keyof typeof neutral)[]) {
+    add(hex(neutral[name]), hex(palette.neutral[name]));
+    // A translucent border is used as a reading-state wash in a few editor keys. Use the
+    // light line wash for that form; the opaque border still maps to the functional edge.
+    alphaColours.set(hex(neutral[name]), name === 'border' || name === 'hover'
+      ? hex(palette.overlay.lineHighlight.color) : hex(palette.neutral[name]));
+  }
+  add(hex(dimText), hex(palette.dim));
+  add(hex(comment), hex(palette.comment));
+  for (const name of Object.keys(ACCENTS) as (keyof typeof ACCENTS)[]) {
+    add(hex(ACCENTS[name]), hex(palette.accents[name]));
+    // Opaque accent roles stay saturated; translucent decorations need the light subtle
+    // fill, otherwise a dark light-theme wash can lower syntax contrast on the page.
+    alphaColours.set(hex(ACCENTS[name]), hex(palette.scales[name].subtle));
+    const source = accentScale(name);
+    const target = palette.scales[name];
+    add(hex(source.subtle), hex(target.subtle));
+    add(hex(source.border), hex(target.border));
+    add(hex(source.solid), hex(target.solid));
+  }
+  for (const name of Object.keys(ansi) as (keyof typeof ansi)[]) {
+    // ANSI white shares its dark emitted value with secondary text. Keep every terminal
+    // slot key-specific so that a light role cannot be replaced by the last literal alias.
+    keyColours.set(`terminal.ansi${name.charAt(0).toUpperCase()}${name.slice(1)}`, hex(palette.ansi[name]));
+  }
+  for (const name of Object.keys(diff) as (keyof typeof diff)[]) {
+    add(hex(diff[name]), hex(palette.diff[name]));
+  }
+  for (const name of Object.keys(diffWash) as (keyof typeof diffWash)[]) {
+    exact.set(hexAlpha(diffWash[name].color, diffWash[name].alpha),
+      hexAlpha(palette.diffWash[name].color, palette.diffWash[name].alpha));
+  }
+  for (const name of Object.keys(overlay) as (keyof typeof overlay)[]) {
+    exact.set(hexAlpha(overlay[name].color, overlay[name].alpha),
+      hexAlpha(palette.overlay[name].color, palette.overlay[name].alpha));
+  }
+  for (const name of Object.keys(findMatch) as (keyof typeof findMatch)[]) {
+    add(hex(findMatch[name]), hex(palette.findMatch[name]));
+  }
+  add(hex(cursor), hex(palette.cursor));
+  // The dark source deliberately shares blue subtle with the opaque terminal selection.
+  // Preserve the role at the key boundary instead of allowing either literal to win.
+  keyColours.set('terminal.selectionBackground', hex(palette.terminalSelection));
+  keyColours.set('terminal.inactiveSelectionBackground', hexAlpha(palette.terminalSelection, 0.5));
+  for (const [name, keys] of Object.entries(STATUS_KEYS) as [StatusName, typeof STATUS_KEYS[StatusName]][]) {
+    const scale = palette.statuses[name];
+    for (const key of keys.text) keyColours.set(key, hex(scale.text));
+    for (const key of keys.subtle) keyColours.set(key, hex(scale.subtle));
+    for (const key of keys.border) keyColours.set(key, hex(scale.border));
+    for (const key of keys.solid) keyColours.set(key, hex(scale.solid));
+    for (const key of keys.onSolid) keyColours.set(key, hex(scale.onSolid));
+  }
+  return { colours, alphaColours, exact, keyColours };
+};
+
+const substitute = (key: string, value: string, pairs: PalettePairs): string => {
+  const byKey = pairs.keyColours.get(key);
+  if (byKey !== undefined) return byKey;
+  const exact = pairs.exact.get(value);
+  if (exact !== undefined) return exact;
+  const source = value.slice(0, 7);
+  const colour = value.length === 9
+    ? pairs.alphaColours.get(source) ?? pairs.colours.get(source) ?? source
+    : pairs.colours.get(source) ?? source;
+  return value.length === 9 ? `${colour}${value.slice(7)}` : colour;
+};
+
+export const buildColors = (palette: Palette): Record<string, string> => {
+  const pairs = palettePairs(palette);
+  return Object.fromEntries(Object.entries(colors).map(([key, value]) => [key, substitute(key, value, pairs)]));
 };

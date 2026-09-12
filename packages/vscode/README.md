@@ -2,14 +2,14 @@
 
 # Aion
 
-A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.
+Dark and light themes with a measured contrast floor. Familiar syntax, distinct chrome.
 
 Syntax follows the One Dark Pro role map, so muscle memory survives. Identity comes from
 the base, the gold chrome and the structure.
 
 ## Two things make Aion different
 
-**The editor is the darkest surface.** The sidebar, the activity bar and the status bar
+**The editor is the darkest surface in Aion.** The sidebar, the activity bar and the status bar
 sit one step above it, and the panel sits between the two. Your code is the deepest thing
 on the screen. Of the four themes compared below, two put the sidebar under the editor and
 two use one colour for both.
@@ -37,7 +37,17 @@ The values were read from each definition on 2026-09-05, at the revision named. 
 changes: One Dark Pro's comment and Catppuccin's comment both moved between this table and
 the one before it, which is why the revision is recorded.
 
-## The palette
+## The palettes
+
+The extension contributes **Aion** (`vs-dark`) and **Aion Light** (`vs`). They share the
+same syntax selectors and semantic-token names, while each scheme supplies its own
+measured surfaces, accents, overlays, diff washes and integrated-terminal values. The
+dark palette below is the listing reference; the light palette is independently solved
+against its light editor and panel surfaces.
+
+The repository's [Light variant guide](../../LIGHT.md) explains the philosophy, package
+coverage and the distinction between the source theme and the currently published
+marketplace version.
 
 | | Hex | | | Hex |
 |---|---|---|---|---|
@@ -66,12 +76,14 @@ where an extension asks for the hue by name, and ANSI slot 13.
 
 ## Matching terminal
 
-The same sixteen ANSI slots ship for Windows Terminal, as a fragment extension that needs
-no settings edit. See the repository.
+The dark palette's same sixteen ANSI slots ship for Windows Terminal, as a fragment
+extension that needs no settings edit. Aion Light has a separate integrated-terminal ANSI
+set measured on its light panel; the standalone Windows Terminal fragment remains dark.
+See the repository.
 
 ## What the contrast floor covers
 
-Every syntax colour clears 4.5:1 on the editor, the peek editor, a hover or suggest
+Every syntax colour in each generated theme clears 4.5:1 on the editor, the peek editor, a hover or suggest
 widget, and under a current-line highlight, a selection, a word highlight, or a stack of
 the two the renderer can draw together. It clears it again with a diff line wash, or a
 line wash and a word wash, painted on top of a plain line, a current line or a selection.
@@ -81,7 +93,7 @@ their own.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 611 |
+| Rows measured | 1057 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |
@@ -90,7 +102,7 @@ their own.
 | TextMate rules | 64 |
 | Semantic tokens | 32 |
 
-The set is exact rather than approximate. §3.1 of `DESIGN.md` names every state and the
+The set is exact rather than approximate for both schemes. §3.1 of `DESIGN.md` names every state and the
 foreground that reads worst on it. A state outside that table is outside the claim: the
 current line and a selection are not stacked, because VS Code draws the current-line
 background only while every selection is empty, and a diff wash is measured on a plain
@@ -98,7 +110,8 @@ line, a current line and a selection rather than on every decoration in the edit
 
 Three kinds of exemption are named rather than hidden:
 
-- The inactive line number sits at 4.25:1. It is decorative.
+- The inactive line number sits at 4.25:1 in the dark theme. It is decorative. The light
+  theme's corresponding line-number value clears the text floor.
 - Hairline and divider borders sit below 3:1. They separate regions that already read as
   separate; the edges of controls do not use them.
 - ANSI slot 0 reads 1.31:1 as a foreground. SGR 30 does select it, so that is a real

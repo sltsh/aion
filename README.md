@@ -2,10 +2,11 @@
   <img src="assets/aion-lockup-horizontal.png" alt="Aion" width="720">
 </p>
 
-<p align="center">A dark theme for editors, terminals and the web.<br>Gold accents, cool surfaces, familiar syntax. No italics.</p>
+<p align="center">Dark and light themes for editors and the web, with matching terminal colours.<br>Gold accents, cool surfaces, familiar syntax. No italics.</p>
 
 <p align="center">
   <a href="https://aion.slt.sh">Explore Aion</a> ·
+  <a href="LIGHT.md">Aion Light</a> ·
   <a href="https://aion.slt.sh/#essentials">Copy colours</a> ·
   <a href="#install">Install</a> ·
   <a href="https://aion.slt.sh/palette.html">Full palette</a>
@@ -14,22 +15,36 @@
 ## A familiar place to work
 
 Aion follows the One Dark Pro syntax role map, with gold for focus and navigation and
-teal as a secondary accent. The editor is the darkest surface; the raised sidebar and
-panels keep the workspace easy to read.
+teal as a secondary accent. The dark editor is the darkest surface; the raised sidebar
+and panels keep the workspace easy to read. Aion Light is tuned independently for light
+surfaces and generated alongside the dark VS Code theme.
 
 Explore the [live code preview](https://aion.slt.sh/#sample) to see the palette in use.
 The name comes from the Ancient Greek αἰών: an age, an epoch, a span of existence.
 
+## Aion Light
+
+Aion Light preserves the dark theme's roles rather than inverting its values. Its editor
+is the cleanest, lightest canvas; supporting surfaces deepen gradually, and the familiar
+syntax hues are solved again for light backgrounds. Gold remains the interaction accent,
+violet remains primarily syntax, comments stay deliberately quiet, and there are no
+italics.
+
+Read [the Light variant guide](LIGHT.md) for its design philosophy, implementation,
+current availability and native-acceptance status.
+
 ## Install
 
-Aion is preparing for its first release. Marketplace and npm installation will be
-available after the first tag; for now, build from this repository.
+Aion `0.3.1` is available from npm, the Visual Studio Marketplace and Open VSX. That
+published extension contains the dark theme; the refined Light theme is complete on
+`main` and will reach those channels with the next tagged release. npm `0.3.1` contains
+the earlier Light token and CSS APIs, not the refined palette documented here.
 
 | Use Aion in      | Get started                                                                                                                                             |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| VS Code          | Run `code --install-extension sltsh.aion-theme`, then select **Aion** as your colour theme. To build locally, run `npm install` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. |
+| VS Code          | Run `code --install-extension sltsh.aion-theme` for the published theme. To try **Aion Light** before its next tagged release, run `npm ci` and `npm run pack:dev`, then use **Extensions → Install from VSIX** with the generated package. |
 | Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
-| CSS / Tailwind   | Build locally; see the [CSS package](packages/css/README.md) for custom properties and Tailwind integration.                                            |
+| CSS / Tailwind   | Run `npm install @sltsh/aion-css`; build from `main` to use the refined Light palette before its next tagged release. See the [CSS package](packages/css/README.md). |
 | Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
 For Windows Terminal, save `aion.json` in
@@ -63,7 +78,7 @@ and three kinds of exemption are documented.
 
 | What the gate checks             |  Count |
 | -------------------------------- | -----: |
-| Rows measured | 611 |
+| Rows measured | 1057 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |
@@ -88,6 +103,11 @@ usability.
 
 </details>
 
+The dark and light VS Code themes are generated from their complete scheme palettes and
+share the same selectors and semantic-token names. Their contrast guarantees are
+calculated over the named renderer states; native editor rendering remains a separate
+acceptance check after a palette change.
+
 ## Contributing
 
 Bug reports and port contributions are welcome. For a rendering issue, include the app
@@ -98,10 +118,10 @@ the OKLCH source in `packages/tokens`; generated colours should never be edited 
 
 | Package             | What it ships                                                                      |
 | ------------------- | ---------------------------------------------------------------------------------- |
-| `packages/tokens`   | `@sltsh/aion-tokens` — the OKLCH definitions and the build gate                    |
-| `packages/vscode`   | the VS Code extension: the theme, its gate and its scope fixtures                  |
-| `packages/terminal` | the Windows Terminal fragment and settings snippet                                 |
-| `packages/css`      | custom properties and a Tailwind v4 `@theme` block                                 |
+| `packages/tokens`   | `@sltsh/aion-tokens` — both scheme palettes, OKLCH definitions and the build gate  |
+| `packages/vscode`   | the VS Code extension: Aion, Aion Light, their gates and scope fixtures            |
+| `packages/terminal` | the dark Windows Terminal fragment and settings snippet                            |
+| `packages/css`      | both schemes as custom properties and a Tailwind v4 `@theme` block                 |
 | `apps/lab`          | the surface gallery: five surfaces, one palette, six live sliders                  |
 | `apps/site`         | the public site at https://aion.slt.sh: the landing page and the palette reference |
 
@@ -121,9 +141,27 @@ npm run dev -w ./apps/site  # the public site on http://localhost:8422
 CI runs the same gate on every branch and pull request under Node 22 and Node 24, and
 fails when a build or a `sync:design` changes a tracked file. A `v*.*.*` tag publishes.
 
+## Release and deployment
+
+Pushes to `main` run CI and deploy `apps/site` to GitHub Pages. The lab remains local,
+and the site's Light palette stays hidden until its `lightVisible` flag is enabled.
+
+A version tag is the package release trigger. Before tagging, move the changelog section,
+set the same version in all four package manifests, update the CSS token dependency and
+refresh the lockfile. The release workflow rebuilds and rechecks the repository, then:
+
+- publishes `@sltsh/aion-tokens` and `@sltsh/aion-css` to npm;
+- publishes one VSIX containing Aion and Aion Light to the Visual Studio Marketplace and
+  Open VSX;
+- creates the GitHub release with the VSIX and generated notes.
+
+The Windows Terminal fragment remains a repository and site download; it is not published
+to npm. See [RELEASING.md](RELEASING.md) for setup, dry-run and tag instructions.
+
 ## Documents
 
 - `DESIGN.md` — the specification. Every table in it is generated.
+- `LIGHT.md` — the Light variant's philosophy, implementation and availability.
 - `PLAN.md` — the order of work, what is done, and every defect the code found.
 - `RELEASING.md` — the secrets, the tag procedure and the dry run.
 

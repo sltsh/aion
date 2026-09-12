@@ -1,6 +1,7 @@
 import {
   ACCENTS, ACCENT_NAMES, ANSI_ORDER, SYNTAX, accentScale, ansi, comment, cursor, dimText, diff, diffWash,
-  findMatch, hex, hexAlpha, lightAccentScale, lightNeutral, neutral, overlay, status, statusLight,
+  findMatch, hex, hexAlpha, lightAccentScale, lightAnsi, lightComment, lightDimText, lightNeutral,
+  neutral, overlay, status, statusLight,
 } from '@sltsh/aion-tokens';
 import type { AccentName, Oklch, SyntaxRole } from '@sltsh/aion-tokens';
 
@@ -78,12 +79,12 @@ export const dark = (): Variables => ({
 export const light = (): Variables => ({
   ...scheme(
     LIGHT_SURFACE,
-    { primary: lightNeutral.textPrimary, secondary: lightNeutral.textSecondary, dim: lightNeutral.muted, muted: lightNeutral.muted, onAccent: lightNeutral.page },
+    { primary: lightNeutral.textPrimary, secondary: lightNeutral.textSecondary, dim: lightDimText, muted: lightNeutral.muted, onAccent: lightNeutral.page },
     { hairline: lightNeutral.hairline, divider: lightNeutral.divider, ui: lightNeutral.border, focus: lightAccentScale('gold').solid },
     lightAccentScale,
     statusLight,
   ),
-  ...syntax((role) => lightAccentScale(SYNTAX[role]).solid, lightNeutral.muted, lightNeutral.textSecondary),
+  ...syntax((role) => lightAccentScale(SYNTAX[role]).solid, lightComment, lightNeutral.textSecondary),
   '--aion-fg-link': hex(lightAccentScale('blue').solid),
   '--aion-caret': hex(lightAccentScale('gold').solid),
   '--aion-overlay-selection': hexAlpha(lightNeutral.hover, 0.9),
@@ -93,5 +94,5 @@ export const light = (): Variables => ({
   '--aion-diff-removed': hex(lightAccentScale('coral').subtle),
   '--aion-diff-added-gutter': hex(lightAccentScale('green').solid),
   '--aion-diff-removed-gutter': hex(lightAccentScale('coral').solid),
-  ...Object.fromEntries(ANSI_ORDER.map((slot) => [`--aion-ansi-${kebab(slot)}`, hex(ansi[slot])])),
+  ...Object.fromEntries(ANSI_ORDER.map((slot) => [`--aion-ansi-${kebab(slot)}`, hex(lightAnsi[slot])])),
 });

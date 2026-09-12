@@ -4,6 +4,21 @@ The tag is the trigger. `.github/workflows/release.yml` runs every gate again, p
 extension, publishes tokens and CSS to npm, publishes the extension to both marketplaces
 and creates the GitHub release.
 
+## What deploys where
+
+| Artefact | Destination | Light support |
+| --- | --- | --- |
+| `@sltsh/aion-tokens` | npm | Dark and Light exports |
+| `@sltsh/aion-css` | npm | Dark and Light custom properties |
+| VS Code extension | Visual Studio Marketplace, Open VSX and the GitHub release | Aion and Aion Light in one VSIX |
+| Windows Terminal fragment | Repository and public-site download | Dark standalone scheme only |
+| Public site | GitHub Pages on pushes to `main` | Light remains hidden while `lightVisible` is disabled |
+| Lab | None | Local development tool only |
+
+The release workflow publishes package artefacts only from a version tag. A push to
+`main` deploys the public site separately through `pages.yml`; it does not publish npm or
+marketplace packages.
+
 ## One-time setup
 
 1. Create a Visual Studio Marketplace publisher named `sltsh` and an Azure DevOps personal
@@ -72,7 +87,11 @@ publication. Published versions are immutable: corrections need a new version.
 2. Set the same version in all four `packages/*/package.json` files and in CSS's exact
    `@sltsh/aion-tokens` dependency. Run `npm install --package-lock-only --ignore-scripts`
    to refresh the lockfile.
-3. Commit, then tag: `git tag v0.2.0 && git push origin v0.2.0`.
+3. For a release containing Aion Light, package and install the VSIX once before tagging.
+   Confirm that **Aion Light** appears as a theme and record the native checks in
+   `PLAN.md`; the calculation and lab preview do not replace this step.
+4. Commit, then tag and push the chosen version. A Light feature release would normally
+   use the next pre-`1.0` minor version, for example `v0.4.0`.
 
 `scripts/check-version.mjs` compares the tag against every package. `scripts/release-notes.mjs`
 takes the changelog section and appends the commits since the previous tag, grouped by the

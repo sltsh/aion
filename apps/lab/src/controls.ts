@@ -1,5 +1,5 @@
-import { PREVIEW_DEFAULTS } from '@sltsh/aion-tokens';
-import type { PreviewOptions } from '@sltsh/aion-tokens';
+import type { ColourScheme, PreviewOptions } from '@sltsh/aion-tokens';
+import type { LabController } from './state.js';
 
 export interface Control {
   readonly key: keyof PreviewOptions;
@@ -24,13 +24,29 @@ const format = (control: Control, value: number): string =>
 
 export function renderControls(
   root: HTMLElement,
-  options: PreviewOptions,
-  onChange: (next: PreviewOptions) => void,
+  controller: LabController,
 ): void {
+  const state = controller.getState();
+  const scheme = state.activeScheme;
+  const options = state.options[scheme];
+
   root.innerHTML = `
+    <div class="scheme-section">
+      <div class="scheme-switch" role="radiogroup" aria-label="Colour scheme">
+        <label class="scheme-option" for="scheme-dark">
+          <input type="radio" name="scheme" id="scheme-dark" value="dark"${scheme === 'dark' ? ' checked' : ''} />
+          <span>Dark</span>
+        </label>
+        <label class="scheme-option" for="scheme-light">
+          <input type="radio" name="scheme" id="scheme-light" value="light"${scheme === 'light' ? ' checked' : ''} />
+          <span>Light</span>
+        </label>
+      </div>
+    </div>
     <h2>Controls</h2>
-    <p class="rail-note">Every surface below re-renders from one palette. Reset returns the
-      shipped values.</p>
+    <p class="rail-note">Surfaces render once; controls and scheme switches update root custom
+      properties. Reset returns the shipped values. Light accent inputs are solver-bound by
+      the contrast floor.</p>
     ${CONTROLS.map((control) => `
       <label class="control" for="c-${control.key}">
         <span class="control-label">${control.label}</span>
@@ -38,27 +54,58 @@ export function renderControls(
         <input id="c-${control.key}" type="range" min="${control.min}" max="${control.max}"
                step="${control.step}" value="${options[control.key]}" />
       </label>`).join('')}
-    <button id="reset" type="button" data-variant="secondary">Reset to shipped</button>
+    <button id="reset" type="button" data-variant="secondary">Reset ${scheme === 'light' ? 'Light' : 'Dark'} to shipped</button>
     <div id="readout" class="readout"></div>`;
 
-  const current = { ...options };
+  const radios = root.querySelectorAll<HTMLInputElement>('input[name="scheme"]');
+  for (const radio of radios) {
+    radio.addEventListener('change', () => {
+      if (radio.checked) {
+        controller.setScheme(radio.value as ColourScheme);
+      }
+    });
+  }
 
   for (const control of CONTROLS) {
     const input = root.querySelector<HTMLInputElement>(`#c-${control.key}`)!;
     const value = root.querySelector<HTMLElement>(`#v-${control.key}`)!;
     input.addEventListener('input', () => {
-      current[control.key] = Number(input.value);
-      value.textContent = format(control, current[control.key]);
-      onChange({ ...current });
+      const num = Number(input.value);
+      controller.setControl(control.key, num);
+      value.textContent = format(control, num);
     });
   }
 
-  root.querySelector<HTMLButtonElement>('#reset')!.addEventListener('click', () => {
-    Object.assign(current, PREVIEW_DEFAULTS);
-    for (const control of CONTROLS) {
-      root.querySelector<HTMLInputElement>(`#c-${control.key}`)!.value = String(current[control.key]);
-      root.querySelector<HTMLElement>(`#v-${control.key}`)!.textContent = format(control, current[control.key]);
+  const resetBtn = root.querySelector<HTMLButtonElement>('#reset')!;
+  resetBtn.addEventListener('click', () => {
+    controller.resetActive();
+  });
+
+  controller.subscribe((nextState) => {
+    const nextScheme = nextState.activeScheme;
+    const nextOptions = nextState.options[nextScheme];
+
+    const darkRadio = root.querySelector<HTMLInputElement>('#scheme-dark');
+    const lightRadio = root.querySelector<HTMLInputElement>('#scheme-light');
+    if (darkRadio && lightRadio) {
+      darkRadio.checked = nextScheme === 'dark';
+      lightRadio.checked = nextScheme === 'light';
     }
-    onChange({ ...current });
+
+    for (const control of CONTROLS) {
+      const input = root.querySelector<HTMLInputElement>(`#c-${control.key}`);
+      const value = root.querySelector<HTMLElement>(`#v-${control.key}`);
+      if (input && value) {
+        const val = nextOptions[control.key];
+        if (Number(input.value) !== val) {
+          input.value = String(val);
+        }
+        value.textContent = format(control, val);
+      }
+    }
+
+    if (resetBtn) {
+      resetBtn.textContent = `Reset ${nextScheme === 'light' ? 'Light' : 'Dark'} to shipped`;
+    }
   });
 }

@@ -20,8 +20,8 @@ export const SURFACES: readonly Surface[] = [
   },
   {
     id: 'terminal',
-    title: 'Windows Terminal',
-    note: 'The bright eight are byte-identical to the syntax accents. The background is the editor value, not the panel value.',
+    title: 'Terminal',
+    note: 'Dark previews the standalone Windows Terminal fragment; Light previews Aion Light\'s integrated-terminal palette (standalone Windows Terminal ships in dark only). The bright eight match the syntax accents.',
     html: terminalSurface,
   },
   {

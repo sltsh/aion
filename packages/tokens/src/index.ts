@@ -18,7 +18,10 @@ export {
 
 export type { LightNeutralName } from './light.js';
 export {
-  LIGHT_LIGHTNESS, lightNeutral, lightAccent, lightAccents, lightAccentScale,
+  LIGHT_LIGHTNESS, lightNeutral, lightEditorNeutral, lightDimText, lightComment, lightSyntax,
+  lightAnsiWhite, lightAnsiBrightBlack, LIGHT_CHROMA_FLOOR_EXCEPTION,
+  lightAccent, lightAccents, lightAccentScale, lightOverlay, lightFindMatch, lightDiff,
+  lightDiffWash, lightBrackets, lightCursor, lightAnsi, lightTerminalSelection,
 } from './light.js';
 
 export type { StatusScale } from './status.js';
@@ -33,15 +36,18 @@ export type { Marker, Solution } from './solve.js';
 export { solveMarker, binding, distanceEmitted } from './solve.js';
 
 export type { ReadingState, StateSource, SurfaceName } from './states.js';
-export { readingStates, readingForegrounds, SHIPPED } from './states.js';
+export { readingStates, readingForegrounds, SHIPPED, LIGHT_SHIPPED } from './states.js';
 
 export { flatten } from './flatten.js';
 
 export type { Check, CheckState } from './report.js';
 export { checks, failures, designTables, NEUTRAL_ROLE } from './report.js';
 
-export type { Palette, PreviewOptions } from './preview.js';
-export { buildPalette, PREVIEW_DEFAULTS } from './preview.js';
+export type { Palette, PreviewOptions, LightPreviewOptions, ColourScheme } from './preview.js';
+export {
+  buildPalette, PREVIEW_DEFAULTS, buildLightPalette, LIGHT_PREVIEW_DEFAULTS, lightPalette,
+  buildSchemePalette,
+} from './preview.js';
 
 export type { Rival, RivalResult, SurfaceOrder } from './rivals.js';
 export { RIVALS, SYNTAX_ROLES_COMPARED, contrastHex, measure, surfaceOrder } from './rivals.js';

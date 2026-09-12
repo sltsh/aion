@@ -13,6 +13,30 @@ contrastEmitted(fg.primary, bg.editor);  // 14.87
 flatten(semantic);         // { 'bg.editor': '#11151c', ... }
 ```
 
+## Light variant
+
+The Light scheme is independently authored rather than calculated by inverting the dark
+values. Consumers normally use `semanticLight` for fixed roles or `lightPalette` when
+they need the complete editor palette. `buildLightPalette()` powers the lab and returns
+the shipped Light palette when called with its defaults.
+
+```ts
+import {
+  buildLightPalette, lightPalette, semanticLight, statusLight,
+} from '@sltsh/aion-tokens';
+
+const preview = buildLightPalette();
+const keyword = preview.syntax.keyword;
+const shippedKeyword = lightPalette.syntax.keyword;
+const page = semanticLight.bg.page;
+const error = statusLight.error.text;
+```
+
+Light accents are solved against the darkest light control surface on which accent text
+appears. Decorations and reading states are measured after emitted-byte compositing, just
+like the dark scheme. See the repository's [Light variant guide](../../LIGHT.md) for the
+design rationale and availability by target.
+
 ## Two contrast functions, on purpose
 
 `contrast` reads the ideal OKLCH. `contrastEmitted` reads the rounded 8-bit hex that
@@ -27,9 +51,10 @@ uses the continuous form, because bisection needs one.
   colour is.
 - **Semantic** — `bg`, `fg`, `border`, `syntax`, `accent`, `status`, and the `*Light`
   counterparts. What the colour is for. Consumers use this layer.
-- **Preview** — `buildPalette(overrides)` recomputes the whole palette from six
-  parameters. With no overrides it equals the shipped palette exactly, and a test asserts
-  that.
+- **Preview** — `buildPalette(overrides)` and `buildLightPalette(overrides)` recompute the
+  complete dark or light palette from six parameters. `PREVIEW_DEFAULTS` and
+  `LIGHT_PREVIEW_DEFAULTS` reproduce their shipped palettes exactly; the light builder is
+  the source used by the generated Aion Light editor theme.
 
 ## The gate
 

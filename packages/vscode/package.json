@@ -1,7 +1,7 @@
 {
   "name": "aion-theme",
   "displayName": "Aion Theme",
-  "description": "A dark theme with a measured contrast floor. Familiar syntax, distinct chrome.",
+  "description": "Dark and light themes with a measured contrast floor. Familiar syntax, distinct chrome.",
   "version": "0.3.1",
   "private": true,
   "type": "module",
@@ -18,6 +18,7 @@
   "keywords": [
     "theme",
     "dark theme",
+    "light theme",
     "color theme",
     "contrast",
     "accessibility"
@@ -39,6 +40,11 @@
         "label": "Aion",
         "uiTheme": "vs-dark",
         "path": "./themes/aion.json"
+      },
+      {
+        "label": "Aion Light",
+        "uiTheme": "vs",
+        "path": "./themes/aion-light.json"
       }
     ]
   },

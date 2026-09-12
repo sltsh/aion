@@ -7,10 +7,13 @@ import {
   NON_TEXT_FLOOR, ONE_DARK_PRO_HUE, SYNTAX, TERMINAL_BACKGROUNDS, accentScale, ansi, comment,
   diff, diffWash, dimText, findMatch, neutral, overlay, terminalSelection,
 } from './palette.js';
-import { LIGHT_LIGHTNESS, lightAccentScale, lightNeutral } from './light.js';
+import {
+  LIGHT_LIGHTNESS, lightAccentScale, lightAnsi, lightDiff, lightDimText, lightEditorNeutral,
+  lightNeutral, lightTerminalSelection,
+} from './light.js';
 import { status, statusLight } from './status.js';
 import { BOUNDARY_PAIRS, BOUNDARY_PAIRS_LIGHT, bg, bgLight, border, borderLight } from './semantic.js';
-import { readingForegrounds, readingStates } from './states.js';
+import { LIGHT_SHIPPED, readingForegrounds, readingStates } from './states.js';
 import { RIVALS, contrastHex, measure, surfaceOrder } from './rivals.js';
 
 export type CheckState = 'pass' | 'fail' | 'exempt' | 'info';
@@ -103,6 +106,27 @@ export function checks(): Check[] {
     }
   }
 
+  // The native light theme has the same renderer states as dark, but its authored
+  // overlays and syntax budget are independent. Keep this in the gate so a light palette
+  // change cannot be mistaken for a CSS-only calculation.
+  for (const state of readingStates(LIGHT_SHIPPED)) {
+    for (const [role, colour] of Object.entries(readingForegrounds(LIGHT_SHIPPED))) {
+      rows.push(build('light', `light ${role}`, colour, state.name, state.background, CONTRAST_FLOOR));
+    }
+  }
+  for (const slot of ANSI_ORDER) {
+    rows.push(build('light', `light ansi.${slot}`, lightAnsi[slot], 'light panel', lightEditorNeutral.terminal,
+      CONTRAST_FLOOR));
+    rows.push(build('light', `light ansi.${slot} on selection`, lightAnsi[slot], 'light terminal selection',
+      lightTerminalSelection, CONTRAST_FLOOR));
+  }
+  // The light diff gutter strips carry only the inactive line number, so the marker itself
+  // is the surface that bounds this pair and the non-text floor applies on both sides.
+  for (const name of ['addedStrip', 'removedStrip'] as const) {
+    rows.push(build('light', 'light editorLineNumber.foreground', lightEditorNeutral.muted,
+      `light.diff.${name}`, lightDiff[name], NON_TEXT_FLOOR));
+  }
+
   // The find match replaces the syntax colour rather than tinting it, so the pair to
   // measure is the override against the match, not the syntax against the match.
   for (const [role, colour] of Object.entries(readingForegrounds())) {
@@ -181,6 +205,10 @@ export function checks(): Check[] {
     rows.push(build('light', `light.${name}`, colour, 'page', lightNeutral.page,
       isText ? CONTRAST_FLOOR : 0, name === 'page' ? 'info' : isText ? undefined : 'info'));
   }
+  for (const surface of ['editor', 'terminal', 'sidebar', 'widget'] as const) {
+    rows.push(build('light', 'light.dimText', lightDimText, `light.${surface}`,
+      lightEditorNeutral[surface], CONTRAST_FLOOR));
+  }
   for (const { edge, inside, outside } of BOUNDARY_PAIRS_LIGHT) {
     for (const side of [inside, outside]) {
       rows.push(build('light', `light.border.${edge}`, borderLight[edge], `light.${side}`,
@@ -191,12 +219,17 @@ export function checks(): Check[] {
     const scale = lightAccentScale(name);
     rows.push(build('light', `light.${name}.solid`, scale.solid, 'page', lightNeutral.page, CONTRAST_FLOOR));
     rows.push(build('light', `light.${name}.solid`, scale.solid, 'raised', lightNeutral.raised, CONTRAST_FLOOR));
+    rows.push(build('light', `light.${name}.solid`, scale.solid, 'input', lightNeutral.input, CONTRAST_FLOOR));
     rows.push(build('light', `light.${name}.solid`, scale.solid, `light.${name}.subtle`, scale.subtle, CONTRAST_FLOOR));
     rows.push(build('light', `light.${name}.border`, scale.border, 'raised', lightNeutral.raised, NON_TEXT_FLOOR));
     rows.push(build('light', `text on light.${name}.subtle`, lightNeutral.textPrimary, `light.${name}.subtle`, scale.subtle, CONTRAST_FLOOR));
   }
   for (const [name, scale] of Object.entries(statusLight)) {
     rows.push(build('light', `light.status.${name}.text`, scale.text, 'page', lightNeutral.page, CONTRAST_FLOOR));
+    rows.push(build('light', `light.status.${name}.text`, scale.text, `${name}.subtle`, scale.subtle, CONTRAST_FLOOR));
+    rows.push(build('light', `light.status.${name}.onSolid`, scale.onSolid, `${name}.solid`, scale.solid, CONTRAST_FLOOR));
+    rows.push(build('light', `light.status.${name}.border`, scale.border, 'page', lightNeutral.page, NON_TEXT_FLOOR));
+    rows.push(build('light', `light.status.${name}.border`, scale.border, 'input', lightNeutral.input, NON_TEXT_FLOOR));
   }
 
   return rows;

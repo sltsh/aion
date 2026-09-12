@@ -109,14 +109,13 @@ decoration first. Keep both patterns when adding a surface or an overlay.
 
 ## Repository
 
-`design/palette-exploration` carries the work and is the default branch on GitHub. No
-`main` exists yet. Create one before a release if you want the tag to sit on a stable
-branch; neither workflow names a branch, so neither needs an edit for that.
+`main` is the working and default GitHub branch. The package release workflow is tag-driven,
+while `pages.yml` deploys the public site from pushes to `main`.
 
 ```
 aion/
   package.json            # npm workspaces root
-  DESIGN.md  PLAN.md  README.md  LICENSE  CHANGELOG.md
+  DESIGN.md  LIGHT.md  PLAN.md  README.md  LICENSE  CHANGELOG.md
   AGENTS.md  CLAUDE.md    # git-ignored; CLAUDE.md imports AGENTS.md
   assets/                 # the icon sources and the derivation note in assets/README.md
   test/                   # bootstrap, release notes and workflow tests
@@ -151,10 +150,10 @@ has npm 11 and no pnpm.
 |---|---|
 | `oklch.ts` | conversion, gamut, `contrast`, `contrastEmitted`, `solveLightness` |
 | `palette.ts` | dark ramp, accents, syntax map, ANSI 16, `dimText`, the rules |
-| `light.ts` | light ramp, `lightAccent`, `lightAccentScale` |
+| `light.ts` | independent light ramp, native editor roles, overlays, diff, ANSI and `lightAccentScale` |
 | `semantic.ts` | 71 dark aliases, 37 light aliases |
 | `status.ts` | 4 statuses × 5 values, both schemes |
-| `preview.ts` | `buildPalette(overrides)` — the parameterised palette the lab drives |
+| `preview.ts` | `buildPalette(overrides)` and `buildLightPalette(overrides)` — parameterised scheme palettes |
 | `report.ts` | the build gate and the `DESIGN.md` tables |
 | `rivals.ts` | the four rival themes, so the README table is reproducible |
 | `flatten.ts` | dotted name → hex |
@@ -190,6 +189,12 @@ than being skipped.
 
 `themes/aion.json` is committed and is the snapshot: a test asserts it equals the
 generated theme, so a one-line palette change appears as a reviewable JSON diff.
+
+`themes/aion-light.json` is generated from the complete light palette through the same
+colour, TextMate and semantic-token factories. It contributes as `Aion Light` with
+`uiTheme: vs`; its colour keys, selectors and semantic-token names stay identical to the
+dark theme. The light palette is covered by the same emitted-colour and composite-state
+calculations. Native light-editor acceptance remains open after this palette change.
 
 `npx vsce package --no-dependencies` succeeds and carries the listing icon.
 
@@ -266,10 +271,11 @@ The full token inventory and authored tables remain in the technical documentati
 Vite multi-page, no framework, HTML pre-rendered at build time, so the page reads with
 JavaScript disabled. Navigation highlights the visible section on both pages.
 
-The light scheme is built and tested but not visible. `FLAGS.lightVisible` is `false`:
-there is no light VS Code theme, and §11 records that light gold is olive rather than gold.
-Every render function takes the flags as a parameter and the tests run both settings, so
-the hidden path is proven rather than merely written.
+The light scheme is built and tested but not visible on the public site. `FLAGS.lightVisible`
+is `false`; §11 records that light gold is olive rather than gold. The VS Code package
+does contribute `Aion Light` from the same independently tuned light palette. Every render
+function takes the site flags as a parameter and the tests run both settings, so the site's
+hidden path is proven rather than merely written.
 
 Read `apps/site/README.md` for the presentation scope and validation contract.
 
@@ -297,14 +303,16 @@ Checked in the applications themselves on 2026-09-05, not in a calculation:
   reverse video, in the VS Code panel and in Windows Terminal.
 - **A sustained working session** at the user's own brightness and scaling.
 
-A palette change makes this a calculation again. The gate covers the named set of reading
-states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
+A palette change makes this a calculation again, including the initial light theme. The
+gate covers the named set of reading states in §3.1 of `DESIGN.md`, not every state a
+renderer can produce.
 
 ## Definition of done for the whole plan
 
 - `npm run verify` exits 0. **Met.**
 - Every test passes, including the snapshots. **Met.**
-- The `.vsix` installs and renders correctly in VS Code. **Met.**
+- The `.vsix` installs and the dark theme renders correctly in VS Code. **Met.** Native
+  acceptance of the newly generated light theme remains open.
 - The Windows Terminal fragment installs and renders correctly. **Met.**
 - The lab renders all five surfaces from the same token module. **Met.**
 - `DESIGN.md` and the emitted values agree. **Met, and asserted by a test.**
