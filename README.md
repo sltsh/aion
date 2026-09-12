@@ -156,14 +156,14 @@ refresh the lockfile. The release workflow rebuilds and rechecks the repository,
 - creates the GitHub release with the VSIX and generated notes.
 
 The Windows Terminal fragment remains a repository and site download; it is not published
-to npm. See [RELEASING.md](RELEASING.md) for setup, dry-run and tag instructions.
+to npm. See [RELEASING.md](RELEASING.md) for prerequisites, dry-run and tag instructions.
 
 ## Documents
 
 - `DESIGN.md` — the specification. Every table in it is generated.
 - `LIGHT.md` — the Light variant's philosophy, implementation and availability.
 - `PLAN.md` — the order of work, what is done, and every defect the code found.
-- `RELEASING.md` — the secrets, the tag procedure and the dry run.
+- `RELEASING.md` — the release prerequisites, tag procedure and dry run.
 
 ## Rules
 

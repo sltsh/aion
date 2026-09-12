@@ -907,6 +907,12 @@ const palettePairs = (palette: Palette): PalettePairs => {
     exact.set(hexAlpha(overlay[name].color, overlay[name].alpha),
       hexAlpha(palette.overlay[name].color, palette.overlay[name].alpha));
   }
+  // The general translucent-border substitution becomes a pale reading-state wash on
+  // Light. A minimap slider carries no text, so keep it on the darker functional border
+  // and use the opacity ladder authored for the main scrollbar.
+  keyColours.set('minimapSlider.background', hexAlpha(palette.neutral.border, 0.28));
+  keyColours.set('minimapSlider.hoverBackground', hexAlpha(palette.neutral.border, 0.42));
+  keyColours.set('minimapSlider.activeBackground', hexAlpha(palette.neutral.border, 0.56));
   for (const name of Object.keys(findMatch) as (keyof typeof findMatch)[]) {
     add(hex(findMatch[name]), hex(palette.findMatch[name]));
   }

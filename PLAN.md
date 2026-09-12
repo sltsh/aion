@@ -194,7 +194,8 @@ generated theme, so a one-line palette change appears as a reviewable JSON diff.
 colour, TextMate and semantic-token factories. It contributes as `Aion Light` with
 `uiTheme: vs`; its colour keys, selectors and semantic-token names stay identical to the
 dark theme. The light palette is covered by the same emitted-colour and composite-state
-calculations. Native light-editor acceptance remains open after this palette change.
+calculations. Native light-editor rendering was checked and approved in VS Code on
+2026-09-12 after the final palette, diff and minimap adjustments.
 
 `npx vsce package --no-dependencies` succeeds and carries the listing icon.
 
@@ -303,16 +304,17 @@ Checked in the applications themselves on 2026-09-05, not in a calculation:
   reverse video, in the VS Code panel and in Windows Terminal.
 - **A sustained working session** at the user's own brightness and scaling.
 
-A palette change makes this a calculation again, including the initial light theme. The
-gate covers the named set of reading states in §3.1 of `DESIGN.md`, not every state a
-renderer can produce.
+The Aion Light theme was checked and approved in VS Code on 2026-09-12 after the final
+palette, diff and minimap adjustments. Any later palette change makes the affected native
+acceptance a calculation again. The gate covers the named set of reading states in §3.1
+of `DESIGN.md`, not every state a renderer can produce.
 
 ## Definition of done for the whole plan
 
 - `npm run verify` exits 0. **Met.**
 - Every test passes, including the snapshots. **Met.**
-- The `.vsix` installs and the dark theme renders correctly in VS Code. **Met.** Native
-  acceptance of the newly generated light theme remains open.
+- The `.vsix` installs and both themes render correctly in VS Code. **Met.** Aion was
+  checked on 2026-09-05 and Aion Light was checked on 2026-09-12.
 - The Windows Terminal fragment installs and renders correctly. **Met.**
 - The lab renders all five surfaces from the same token module. **Met.**
 - `DESIGN.md` and the emitted values agree. **Met, and asserted by a test.**

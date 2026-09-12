@@ -91,6 +91,34 @@ test('the light integrated terminal uses its light ANSI palette on both light su
   }
 });
 
+test('the light minimap slider stays visible and strengthens across interaction states', () => {
+  const background = hexToOklch(lightBuilt.colors['minimap.background']!);
+  const states = [
+    ['minimapSlider.background', 0.28],
+    ['minimapSlider.hoverBackground', 0.42],
+    ['minimapSlider.activeBackground', 0.56],
+  ] as const;
+  let previous = 1;
+  const ratios: number[] = [];
+
+  for (const [key, alpha] of states) {
+    const value = lightBuilt.colors[key]!;
+    expect(value).toBe(hexAlpha(lightEditorNeutral.border, alpha));
+    const composited = compositeEmitted(
+      hexToOklch(value.slice(0, 7)),
+      parseInt(value.slice(7), 16) / 255,
+      background,
+    );
+    const ratio = contrastEmitted(composited, background);
+    expect(ratio, `${key} = ${ratio.toFixed(2)}`).toBeGreaterThan(previous);
+    ratios.push(ratio);
+    previous = ratio;
+  }
+
+  expect(ratios[0]!).toBeGreaterThan(1.3);
+  expect(previous).toBeGreaterThan(1.9);
+});
+
 test('the light terminal keeps slot 0 as a foreground-only guarantee', () => {
   const black = hexToOklch(lightBuilt.colors['terminal.ansiBlack']!);
   expect(contrastEmitted(black, lightEditorNeutral.terminal)).toBeGreaterThanOrEqual(CONTRAST_FLOOR);

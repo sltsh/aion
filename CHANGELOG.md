@@ -5,12 +5,15 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.0.0
+
 ### Added
 
 - An independently tuned light palette with a complete preview builder and emitted-colour
   contrast checks for editor reading states and integrated-terminal ANSI slots.
 - A generated `Aion Light` VS Code theme using the same selectors and semantic-token names
-  as Aion. Native light-editor rendering remains open acceptance after this palette change.
+  as Aion, with native VS Code rendering approved after the final palette and decoration
+  adjustments.
 - Light variants of the Aion glyph and wordmark, with the lab selecting the light glyph
   automatically when its scheme changes.
 
@@ -28,6 +31,8 @@ the versions follow Semantic Versioning.
 
 - The lab contrast readout now includes light accent and status pairs on the input surface,
   which the first version omitted while reporting that some invalid adjustments were clear.
+- The Light minimap viewport now uses the darker functional border colour instead of the
+  near-white reading-state wash, with stronger hover and active states.
 
 ## 0.3.1
 
