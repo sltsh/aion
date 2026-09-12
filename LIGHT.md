@@ -94,10 +94,10 @@ npm run typecheck
 npm run sync:design
 ```
 
-Those checks validate the calculated and browser-previewed palette. Native acceptance of
-the refined Light theme in VS Code remains open after the palette change. It should be
-checked in a packaged extension before release, including dense syntax, selections,
-search, diffs, diagnostics, integrated terminal colours and a sustained working session.
+Those checks validate the calculated and browser-previewed palette. The packaged Light
+theme was checked and approved in VS Code on 2026-09-12 after the final palette, diff,
+minimap and inline Git blame adjustments. Any later palette change requires fresh native
+acceptance.
 
 See [RELEASING.md](RELEASING.md) for the tag-driven publication process and
 [DESIGN.md](DESIGN.md) for the complete colour and contrast specification.

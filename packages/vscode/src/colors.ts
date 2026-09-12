@@ -564,6 +564,7 @@ export const minimap = {
 };
 
 export const git = {
+  'git.blame.editorDecorationForeground': dim,
   'gitDecoration.addedResourceForeground': green,
   'gitDecoration.modifiedResourceForeground': copper,
   'gitDecoration.deletedResourceForeground': coral,
@@ -913,6 +914,9 @@ const palettePairs = (palette: Palette): PalettePairs => {
   keyColours.set('minimapSlider.background', hexAlpha(palette.neutral.border, 0.28));
   keyColours.set('minimapSlider.hoverBackground', hexAlpha(palette.neutral.border, 0.42));
   keyColours.set('minimapSlider.activeBackground', hexAlpha(palette.neutral.border, 0.56));
+  // Inline blame is persistent editor metadata, not incidental chrome. The dim role is
+  // too quiet on Light, so promote it to secondary text without competing with primary.
+  keyColours.set('git.blame.editorDecorationForeground', hex(palette.neutral.textSecondary));
   for (const name of Object.keys(findMatch) as (keyof typeof findMatch)[]) {
     add(hex(findMatch[name]), hex(palette.findMatch[name]));
   }

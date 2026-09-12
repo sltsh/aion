@@ -33,6 +33,8 @@ the versions follow Semantic Versioning.
   which the first version omitted while reporting that some invalid adjustments were clear.
 - The Light minimap viewport now uses the darker functional border colour instead of the
   near-white reading-state wash, with stronger hover and active states.
+- Inline Git blame annotations now have an explicit theme role, using the darker
+  secondary-text role in Aion Light.
 
 ## 0.3.1
 

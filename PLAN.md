@@ -195,7 +195,7 @@ colour, TextMate and semantic-token factories. It contributes as `Aion Light` wi
 `uiTheme: vs`; its colour keys, selectors and semantic-token names stay identical to the
 dark theme. The light palette is covered by the same emitted-colour and composite-state
 calculations. Native light-editor rendering was checked and approved in VS Code on
-2026-09-12 after the final palette, diff and minimap adjustments.
+2026-09-12 after the final palette, diff, minimap and inline Git blame adjustments.
 
 `npx vsce package --no-dependencies` succeeds and carries the listing icon.
 
@@ -245,10 +245,10 @@ generated file that drifts from its source fails the build.
 the commits since the previous tag, grouped by the verb that opens each subject line. It
 exits non-zero when the changelog has no section for the version.
 
-A `0.x` tag publishes with `--pre-release`; the first `1.0.0` publishes to the stable
-channel. The flag is baked into the `.vsix` at package time.
+A `0.x` tag publishes with `--pre-release`; versions `1.0.0` and later publish to the
+stable channel. The flag is baked into the `.vsix` at package time.
 
-Read `RELEASING.md` for the secrets, the one-time Open VSX namespace and the dry run.
+Read `RELEASING.md` for the release prerequisites, tag procedure and dry run.
 
 ## Task 8 — listing
 
@@ -305,16 +305,17 @@ Checked in the applications themselves on 2026-09-05, not in a calculation:
 - **A sustained working session** at the user's own brightness and scaling.
 
 The Aion Light theme was checked and approved in VS Code on 2026-09-12 after the final
-palette, diff and minimap adjustments. Any later palette change makes the affected native
-acceptance a calculation again. The gate covers the named set of reading states in §3.1
-of `DESIGN.md`, not every state a renderer can produce.
+palette, diff, minimap and inline Git blame adjustments. Any later palette change makes
+the affected native acceptance a calculation again. The gate covers the named set of
+reading states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
 
 ## Definition of done for the whole plan
 
 - `npm run verify` exits 0. **Met.**
 - Every test passes, including the snapshots. **Met.**
 - The `.vsix` installs and both themes render correctly in VS Code. **Met.** Aion was
-  checked on 2026-09-05 and Aion Light was checked on 2026-09-12.
+  checked on 2026-09-05; both themes and the final inline-blame adjustment were checked
+  on 2026-09-12.
 - The Windows Terminal fragment installs and renders correctly. **Met.**
 - The lab renders all five surfaces from the same token module. **Met.**
 - `DESIGN.md` and the emitted values agree. **Met, and asserted by a test.**

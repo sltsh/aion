@@ -119,6 +119,21 @@ test('the light minimap slider stays visible and strengthens across interaction 
   expect(previous).toBeGreaterThan(1.9);
 });
 
+test('light inline git blame uses the secondary reading role', () => {
+  const key = 'git.blame.editorDecorationForeground';
+  const value = lightBuilt.colors[key]!;
+  const background = hexToOklch(lightBuilt.colors['editor.background']!);
+  const blameRatio = contrastEmitted(hexToOklch(value), background);
+  const dimRatio = contrastEmitted(
+    hexToOklch(lightBuilt.colors['editorCodeLens.foreground']!),
+    background,
+  );
+
+  expect(value).toBe(hex(lightEditorNeutral.textSecondary));
+  expect(blameRatio).toBeGreaterThan(dimRatio);
+  expect(blameRatio).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+});
+
 test('the light terminal keeps slot 0 as a foreground-only guarantee', () => {
   const black = hexToOklch(lightBuilt.colors['terminal.ansiBlack']!);
   expect(contrastEmitted(black, lightEditorNeutral.terminal)).toBeGreaterThanOrEqual(CONTRAST_FLOOR);

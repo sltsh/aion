@@ -60,7 +60,7 @@ panel and its opaque terminal selection.
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |
 | Lowest ratio in a reading state | 4.50:1 |
-| Interface keys the theme sets | 622 |
+| Interface keys the theme sets | 623 |
 | TextMate rules | 64 |
 | Semantic tokens | 32 |
 
