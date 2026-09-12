@@ -1,6 +1,6 @@
 # Aion — design specification
 
-Aion is a dark theme and a colour system for editors, terminals and web interfaces.
+Aion is a dark and light theme system for editors, terminals and web interfaces.
 The name comes from the Ancient Greek αἰών: an age, an epoch, a span of existence.
 
 Every value in this document is produced by `packages/tokens` and verified by its test
@@ -49,16 +49,18 @@ gate composites each decoration the way the renderer composites it and measures 
 result. A state that is not in that table is not covered by the claim;
 `packages/tokens/src/states.ts` is the list the table is generated from, and the current
 line and a selection are deliberately not stacked, because VS Code renders the
-current-line background only while every selection is empty.
+current-line background only while every selection is empty. `LIGHT_SHIPPED` runs the same
+state set for Aion Light, and the light ANSI slots are measured separately on the light
+panel and its opaque terminal selection.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 611 |
+| Rows measured | 1057 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |
 | Lowest ratio in a reading state | 4.50:1 |
-| Interface keys the theme sets | 622 |
+| Interface keys the theme sets | 623 |
 | TextMate rules | 64 |
 | Semantic tokens | 32 |
 
@@ -421,44 +423,67 @@ draws.
 Windows Terminal ships two ways: a JSON fragment extension, and a `settings.json`
 snippet in the README.
 
-## 11. Light ramp — web only
+## 11. Light ramp — independent light scheme
 
 The light theme is **tuned separately, not mirrored.** A mirrored ramp does not work:
 the dark accents sit near lightness 0.80, which fails badly on a white page.
 
 Two constraints fight each other on light. The floor pushes lightness down; sRGB cannot
-hold the resulting chroma at that lightness. The generator walks chroma down until a
-colour satisfies both.
+hold the resulting chroma at that lightness. The generator first searches a modest
+lower-lightness window for an in-gamut colour at the authored chroma, then walks chroma
+down until a colour satisfies both.
 
-**The reference surface is `raised`, not `page`.** An accent solved against the lightest
-surface fails the moment it lands on a card or on its own subtle fill. Solving against
-`raised` gives 4.5:1 there and about 5.15:1 on the page. Accent text on the `hover`
-surface is outside this guarantee; hover rows use neutral text.
+**The reference surface is `input`, not `page`.** An accent solved against a light
+surface can fail the moment it lands on a native control. Solving against `input` gives
+at least 4.5:1 on the darkest editor surface and more on the page. Accent text on the
+`hover` surface is outside this guarantee; hover rows use neutral text.
 
 | Role | Hex | | Accent | Hex | Ratio |
 |---|---|---|---|---|---|
-| page | `#fafcfe` | | coral | `#c5353f` | 5.16 |
-| surface | `#f2f5fb` | | copper | `#ac5200` | 5.16 |
-| raised | `#eaedf2` | | gold | `#846800` | 5.15 |
-| input | `#e2e5ea` | | green | `#007d2e` | 5.14 |
-| hover | `#d8dbe0` | | teal | `#007876` | 5.17 |
-| hairline | `#ced1d6` | | blue | `#1f6bc2` | 5.18 |
-| divider | `#bec1c6` | | violet | `#8851bd` | 5.16 |
-| border | `#7f8287` | | | | |
-| muted | `#727479` | | | | |
-| secondary text | `#53555a` | | | | |
-| primary text | `#191b1e` | | | | |
+| page | `#f6f8fd` | | coral | `#af3c40` | 5.58 |
+| surface | `#eff2f7` | | copper | `#a14c00` | 5.57 |
+| raised | `#e7eaef` | | gold | `#7b6000` | 5.62 |
+| input | `#dee1e7` | | green | `#00742b` | 5.59 |
+| hover | `#d5d7dd` | | teal | `#00706e` | 5.58 |
+| hairline | `#cbced3` | | blue | `#2965ad` | 5.55 |
+| divider | `#bbbec3` | | violet | `#7951a3` | 5.62 |
+| border | `#7c7f84` | | | | |
+| muted | `#6f7276` | | | | |
+| secondary text | `#505357` | | | | |
+| primary text | `#16181c` | | | | |
 
-Light muted sits at lightness 0.560, lower than the dark ramp's tenth step, so the light
-layer needs no muted exemption. Light border sits at 0.650, which clears the 3:1 non-text
+Light muted sits at lightness 0.550, lower than the dark ramp's tenth step, so the light
+layer needs no muted exemption. Light border sits at 0.595, which clears the 3:1 non-text
 floor against the page.
 
-**Known consequence.** Light gold is `#846800`, which reads olive rather than gold. A
+**Known consequence.** Light gold reads olive rather than gold. A
 yellow hue cannot be both light and 4.5:1 against near-white. The light layer therefore
-does not carry Aion's signature the way the dark layer does. Light ships in the CSS
-layer only. There is no light VS Code theme in v1.
+does not carry Aion's signature the way the dark layer does. The same independently tuned
+palette now drives the CSS layer and the generated `Aion Light` VS Code theme. Its native
+editor rendering is still open acceptance after this palette change; the ratios above are
+calculation evidence, not a claim that an editor has been visually reviewed.
 
 The neutral tint tapers toward white, because sRGB cannot hold chroma next to white.
+
+Light keeps the reading roles separate: punctuation and secondary text use the secondary
+neutral, comments use their own quieter role, and dim chrome uses `lightDimText`. ANSI white
+and bright-black have dedicated terminal values as well, so a shared emitted neutral cannot
+silently decide which role wins.
+
+The light accent solver enforces the documented per-accent chroma ceilings and the 0.09
+floor. Teal is the one narrow exception: its high-lightness in-gamut branch cannot retain
+that floor at the input contrast target without becoming a near-black cyan, so its explicit
+light floor is recorded in the token source and tested separately.
+
+Light status success is authored lighter than error by at least the meaning-pair gap. The
+error solid is a dedicated status role; its subtle and border values still come from the
+coral scale, so all status pairings retain their own measured surfaces.
+
+The integrated light terminal reverses the dark slot-0 trade-off. Slot 0 is a dark
+foreground and is gated on both the light panel and the opaque terminal selection. The dark
+scheme's `ANSI_BLACK_TEXT` background guarantee does not carry over: the light white slots
+cannot clear 4.5:1 on both a near-white panel and a conventional dark slot-0 background.
+The light claim is therefore foreground-only for slot 0.
 
 ## 12. Naming
 
@@ -466,7 +491,7 @@ Two layers.
 
 - **Literal** — `aion.gold.solid`, `aion.neutral.7`. What the colour is.
 - **Semantic** — `bg.editor`, `fg.dim`, `border.focus`, `status.error.solid`. What the
-  colour is for. 71 dark aliases and 36 light ones.
+  colour is for. 71 dark aliases and 37 light ones.
 
 Consumers use the semantic layer. Changing what "keyword" means is one line.
 
@@ -475,8 +500,8 @@ Consumers use the semantic layer. Changing what "keyword" means is one line.
 **In.** Colour. VS Code, Windows Terminal, a CSS layer with custom properties and a
 Tailwind v4 `@theme inline` block, the lab, and the public site. §3 counts what the theme sets.
 
-**Out.** Typography, spacing, radius, elevation and motion as shipped tokens. A light VS
-Code theme. JetBrains and Neovim. Italic variants. More than six language overrides.
+**Out.** Typography, spacing, radius, elevation and motion as shipped tokens. JetBrains
+and Neovim. Italic variants. More than six language overrides.
 
 Type appears in this project only for the lab and the public site: **Archivo** for display and
 body, using its width axis for headlines, and **Monaspace Neon** for code.

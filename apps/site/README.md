@@ -39,9 +39,11 @@ The Vite plugin serves the generated terminal fragment in development and emits 
 bytes at `/downloads/aion.json` in production. Build the terminal package before building
 the site. Tests verify parity with the generated fragment.
 
-`released` stays off until the first release. VS Code always links to the Marketplace and shows its install command. The CSS card
-shows a local build command before release and an npm command afterward. `lightVisible` stays
-off until light is ready for presentation. Tests exercise both settings of both flags.
+`released` controls whether the site presents npm installation or a local build. It is
+currently off even though `0.3.1` has been published, so the site copy remains conservative
+until that deployment flag is deliberately updated. VS Code always links to the Marketplace
+and shows its install command. `lightVisible` stays off until Light is ready for public
+presentation. Tests exercise both settings of both flags.
 
 ## Validation
 

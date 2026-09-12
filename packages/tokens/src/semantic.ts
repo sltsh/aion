@@ -3,7 +3,7 @@ import type { AccentName, SyntaxRole } from './palette.js';
 import {
   ACCENTS, SYNTAX, accentScale, bracketPairs, comment, cursor, diff, dimText, neutral, overlay,
 } from './palette.js';
-import { lightAccentScale, lightNeutral } from './light.js';
+import { lightAccentScale, lightDimText, lightNeutral } from './light.js';
 import { mapValues } from './util.js';
 
 const syntaxColour = (role: SyntaxRole): Oklch => ACCENTS[SYNTAX[role]];
@@ -84,7 +84,7 @@ export const bgLight = {
 export const fgLight = {
   primary: lightNeutral.textPrimary,
   secondary: lightNeutral.textSecondary,
-  dim: lightNeutral.muted,
+  dim: lightDimText,
   muted: lightNeutral.muted,
   onAccent: lightNeutral.page,
   link: lightAccentScale('blue').solid,

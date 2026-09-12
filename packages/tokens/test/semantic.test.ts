@@ -2,7 +2,7 @@ import { test, expect } from 'vitest';
 import {
   bg, fg, border, syntax, accent, brackets, semantic, semanticLight, BOUNDARY_PAIRS,
   status, statusLight, flatten, contrastEmitted, neutral, CONTRAST_FLOOR, NON_TEXT_FLOOR,
-  CONTRAST_EXEMPT,
+  CONTRAST_EXEMPT, MEANING_PAIR_GAP,
 } from '../src/index.js';
 import { lightNeutral } from '../src/light.js';
 
@@ -62,8 +62,17 @@ test('every status scale is legible in both schemes', () => {
     expect(contrastEmitted(status[name].onSolid, status[name].solid), `${name} dark on solid`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
     expect(contrastEmitted(status[name].border, bg.editor), `${name} dark border`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
     expect(contrastEmitted(statusLight[name].text, lightNeutral.page), `${name} light text`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    expect(contrastEmitted(statusLight[name].text, statusLight[name].subtle), `${name} light text on subtle`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    expect(contrastEmitted(statusLight[name].onSolid, statusLight[name].solid), `${name} light on solid`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    expect(contrastEmitted(statusLight[name].border, lightNeutral.page), `${name} light border`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    expect(contrastEmitted(statusLight[name].border, lightNeutral.input), `${name} light border on input`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
     expect(contrastEmitted(lightNeutral.textPrimary, statusLight[name].subtle), `${name} light on subtle`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
+});
+
+test('light success stays lighter than error by the meaning gap', () => {
+  const gap = statusLight.success.solid[0] - statusLight.error.solid[0];
+  expect(gap, `light status gap ${gap.toFixed(3)}`).toBeGreaterThanOrEqual(MEANING_PAIR_GAP);
 });
 
 test('the light semantic layer clears the floor on the light page', () => {
@@ -73,6 +82,11 @@ test('the light semantic layer clears the floor on the light page', () => {
     const ratio = contrastEmitted(colour, semanticLight.bg.page);
     expect(ratio, `light fg.${name} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
+});
+
+test('light semantic dim uses the dedicated dim role', () => {
+  expect(semanticLight.fg.dim).not.toEqual(lightNeutral.textSecondary);
+  expect(contrastEmitted(semanticLight.fg.dim, lightNeutral.page)).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
 });
 
 test('bracket pairs are three distinct colours', () => {

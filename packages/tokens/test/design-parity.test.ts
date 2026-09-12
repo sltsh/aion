@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import {
   hex, hexAlpha, neutral, ACCENTS, ACCENT_NAMES, accentScale, comment, diff, ansi,
-  ANSI_ORDER, overlay, diffWash, dimText, findMatch, status,
+  ANSI_ORDER, overlay, diffWash, dimText, findMatch, status, flatten, semantic, semanticLight,
 } from '../src/index.js';
 import { lightNeutral, lightAccents, lightAccentScale } from '../src/light.js';
 import { readingStates } from '../src/states.js';
@@ -62,4 +62,12 @@ test.each(DOCUMENTS)('every hex quoted in %s is a value this package emits', (na
   const shipped = emitted();
   const stale = [...new Set(quoted)].filter((value) => !shipped.has(value));
   expect(stale, `stale in ${name}: ${stale.join(', ')}`).toEqual([]);
+});
+
+test('the semantic alias counts quoted in DESIGN.md match the emitter', () => {
+  const text = readFileSync(new URL('../../../DESIGN.md', import.meta.url), 'utf8');
+  const quoted = text.match(/(\d+) dark aliases and (\d+) light ones/);
+  expect(quoted).not.toBeNull();
+  expect(Number(quoted![1])).toBe(Object.keys(flatten(semantic)).length);
+  expect(Number(quoted![2])).toBe(Object.keys(flatten(semanticLight)).length);
 });

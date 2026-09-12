@@ -1,4 +1,5 @@
-import { syntaxHex as c } from './colors.js';
+import { syntaxHex as c, syntaxHexFor } from './colors.js';
+import type { Palette } from '@sltsh/aion-tokens';
 
 // A rule may only use a colour `readingForegrounds()` names. Four rules used `dimText`,
 // which is a chrome colour and not in that budget, so no overlay was ever solved against
@@ -14,7 +15,7 @@ export interface TokenRule {
 const rule = (name: string, foreground: string, scope: string[]): TokenRule =>
   ({ name, scope, settings: { foreground } });
 
-export const tokenColors: TokenRule[] = [
+export const buildTokenColors = (c: typeof import('./colors.js').syntaxHex): TokenRule[] => [
   rule('Comment', c.comment, [
     'comment', 'punctuation.definition.comment', 'string.comment',
   ]),
@@ -140,7 +141,9 @@ export const tokenColors: TokenRule[] = [
   rule('Diff header', c.gold, ['meta.diff.header', 'meta.diff.range']),
 ];
 
-export const semanticTokenColors: Record<string, string> = {
+export const tokenColors: TokenRule[] = buildTokenColors(c);
+
+export const buildSemanticTokenColors = (c: typeof import('./colors.js').syntaxHex): Record<string, string> => ({
   variable: c.variable,
   'variable.readonly': c.number,
   'variable.defaultLibrary': c.number,
@@ -173,4 +176,10 @@ export const semanticTokenColors: Record<string, string> = {
   label: c.gold,
   selfParameter: c.keyword,
   builtinConstant: c.number,
-};
+});
+
+export const semanticTokenColors: Record<string, string> = buildSemanticTokenColors(c);
+
+export const tokenColorsFor = (palette: Palette): TokenRule[] => buildTokenColors(syntaxHexFor(palette));
+export const semanticTokenColorsFor = (palette: Palette): Record<string, string> =>
+  buildSemanticTokenColors(syntaxHexFor(palette));

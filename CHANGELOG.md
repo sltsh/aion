@@ -5,6 +5,37 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.0.0
+
+### Added
+
+- An independently tuned light palette with a complete preview builder and emitted-colour
+  contrast checks for editor reading states and integrated-terminal ANSI slots.
+- A generated `Aion Light` VS Code theme using the same selectors and semantic-token names
+  as Aion, with native VS Code rendering approved after the final palette and decoration
+  adjustments.
+- Light variants of the Aion glyph and wordmark, with the lab selecting the light glyph
+  automatically when its scheme changes.
+
+### Changed
+
+- Refined the light palette from the lab: cooler neutral surfaces, stronger in-gamut
+  accents and a lighter comment role. Accent lightness remains solver-bound by the input
+  surface instead of accepting an adjustment that would fall below the text floor.
+- Replaced imperceptible pale diff fills with low-alpha accent washes that retain code
+  contrast and the selection cue.
+- Documented Aion Light's design philosophy, package coverage, current publication status
+  and tag-driven deployment process, and corrected stale pre-release repository copy.
+
+### Fixed
+
+- The lab contrast readout now includes light accent and status pairs on the input surface,
+  which the first version omitted while reporting that some invalid adjustments were clear.
+- The Light minimap viewport now uses the darker functional border colour instead of the
+  near-white reading-state wash, with stronger hover and active states.
+- Inline Git blame annotations now have an explicit theme role, using the darker
+  secondary-text role in Aion Light.
+
 ## 0.3.1
 
 ### Added

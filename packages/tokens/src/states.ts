@@ -2,6 +2,9 @@ import type { Oklch } from './oklch.js';
 import { compositeEmitted } from './oklch.js';
 import type { DiffWashName, NeutralName, Overlay, OverlayName, SyntaxRole } from './palette.js';
 import { ACCENTS, SYNTAX, comment, diffWash, findMatch, neutral, overlay } from './palette.js';
+import {
+  lightComment, lightDiffWash, lightEditorNeutral, lightFindMatch, lightOverlay, lightSyntax,
+} from './light.js';
 
 export interface ReadingState {
   readonly name: string;
@@ -25,6 +28,15 @@ export const SHIPPED: StateSource = {
   syntax: Object.fromEntries(
     (Object.keys(SYNTAX) as SyntaxRole[]).map((role) => [role, ACCENTS[SYNTAX[role]]]),
   ) as Record<SyntaxRole, Oklch>,
+};
+
+export const LIGHT_SHIPPED: StateSource = {
+  neutral: lightEditorNeutral,
+  overlay: lightOverlay,
+  diffWash: lightDiffWash,
+  findMatch: lightFindMatch,
+  comment: lightComment,
+  syntax: lightSyntax,
 };
 
 const surfaces = (source: StateSource) => ({

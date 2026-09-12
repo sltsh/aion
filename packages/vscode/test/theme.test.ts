@@ -1,12 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import {
-  ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, NON_TEXT_FLOOR, accentScale, ansi, compositeEmitted,
-  contrastEmitted, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, neutral, overlay,
-  readingForegrounds, readingStates,
+  ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, MEANING_PAIR_GAP, NON_TEXT_FLOOR, accentScale, ansi, compositeEmitted,
+  contrastEmitted, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, lightAnsi,
+  lightDiff, lightEditorNeutral, lightPalette, lightTerminalSelection, LIGHT_SHIPPED, neutral, overlay,
+  readingForegrounds, readingStates, statusLight,
 } from '@sltsh/aion-tokens';
 import type { Oklch } from '@sltsh/aion-tokens';
-import { theme } from '../src/theme.js';
+import { lightTheme, theme } from '../src/theme.js';
 import { colors } from '../src/colors.js';
 import { semanticTokenColors, tokenColors } from '../src/tokens.js';
 
@@ -17,6 +18,25 @@ const opaque = (value: string): boolean => value.length === 7;
 test('the committed theme file matches the generated theme', () => {
   const onDisk = JSON.parse(readFileSync(new URL('../themes/aion.json', import.meta.url), 'utf8'));
   expect(onDisk).toEqual(JSON.parse(JSON.stringify(built)));
+});
+
+const lightBuilt = lightTheme();
+
+test('the committed light theme matches the generated light theme', () => {
+  const onDisk = JSON.parse(readFileSync(new URL('../themes/aion-light.json', import.meta.url), 'utf8'));
+  expect(onDisk).toEqual(JSON.parse(JSON.stringify(lightBuilt)));
+});
+
+test('the light theme keeps the dark theme structure', () => {
+  expect(lightBuilt.name).toBe('Aion Light');
+  expect(lightBuilt.type).toBe('light');
+  expect(Object.keys(lightBuilt.colors).sort()).toEqual(Object.keys(built.colors).sort());
+  expect(lightBuilt.tokenColors.map((rule) => [rule.name, rule.scope])).toEqual(
+    built.tokenColors.map((rule) => [rule.name, rule.scope]),
+  );
+  expect(Object.keys(lightBuilt.semanticTokenColors).sort()).toEqual(
+    Object.keys(built.semanticTokenColors).sort(),
+  );
 });
 
 // VS Code reads the banner from the manifest rather than from the theme file, so a
@@ -60,6 +80,79 @@ test('the integrated terminal ships the sixteen ANSI slots unchanged', () => {
   }
 });
 
+test('the light integrated terminal uses its light ANSI palette on both light surfaces', () => {
+  for (const slot of ANSI_ORDER) {
+    const value = lightBuilt.colors[`terminal.ansi${slot.charAt(0).toUpperCase()}${slot.slice(1)}`]!;
+    expect(value, slot).toBe(hex(lightAnsi[slot]));
+    const panelRatio = contrastEmitted(hexToOklch(value), lightEditorNeutral.terminal);
+    const selectionRatio = contrastEmitted(hexToOklch(value), lightTerminalSelection);
+    expect(panelRatio, `${slot} on light panel`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    expect(selectionRatio, `${slot} on light terminal selection`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+});
+
+test('the light minimap slider stays visible and strengthens across interaction states', () => {
+  const background = hexToOklch(lightBuilt.colors['minimap.background']!);
+  const states = [
+    ['minimapSlider.background', 0.28],
+    ['minimapSlider.hoverBackground', 0.42],
+    ['minimapSlider.activeBackground', 0.56],
+  ] as const;
+  let previous = 1;
+  const ratios: number[] = [];
+
+  for (const [key, alpha] of states) {
+    const value = lightBuilt.colors[key]!;
+    expect(value).toBe(hexAlpha(lightEditorNeutral.border, alpha));
+    const composited = compositeEmitted(
+      hexToOklch(value.slice(0, 7)),
+      parseInt(value.slice(7), 16) / 255,
+      background,
+    );
+    const ratio = contrastEmitted(composited, background);
+    expect(ratio, `${key} = ${ratio.toFixed(2)}`).toBeGreaterThan(previous);
+    ratios.push(ratio);
+    previous = ratio;
+  }
+
+  expect(ratios[0]!).toBeGreaterThan(1.3);
+  expect(previous).toBeGreaterThan(1.9);
+});
+
+test('light inline git blame uses the secondary reading role', () => {
+  const key = 'git.blame.editorDecorationForeground';
+  const value = lightBuilt.colors[key]!;
+  const background = hexToOklch(lightBuilt.colors['editor.background']!);
+  const blameRatio = contrastEmitted(hexToOklch(value), background);
+  const dimRatio = contrastEmitted(
+    hexToOklch(lightBuilt.colors['editorCodeLens.foreground']!),
+    background,
+  );
+
+  expect(value).toBe(hex(lightEditorNeutral.textSecondary));
+  expect(blameRatio).toBeGreaterThan(dimRatio);
+  expect(blameRatio).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+});
+
+test('the light terminal keeps slot 0 as a foreground-only guarantee', () => {
+  const black = hexToOklch(lightBuilt.colors['terminal.ansiBlack']!);
+  expect(contrastEmitted(black, lightEditorNeutral.terminal)).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  expect(contrastEmitted(black, lightTerminalSelection)).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  for (const slot of ['white', 'brightWhite'] as const) {
+    const foreground = hexToOklch(lightBuilt.colors[`terminal.ansi${slot.charAt(0).toUpperCase()}${slot.slice(1)}`]!);
+    expect(contrastEmitted(foreground, black), `${slot} on light slot 0`).toBeLessThan(CONTRAST_FLOOR);
+  }
+});
+
+test('the light status mappings use the measured status roles', () => {
+  expect(lightBuilt.colors['editorError.foreground']).toBe(hex(statusLight.error.text));
+  expect(lightBuilt.colors['statusBarItem.errorBackground']).toBe(hex(statusLight.error.solid));
+  expect(lightBuilt.colors['statusBarItem.errorForeground']).toBe(hex(statusLight.error.onSolid));
+  expect(lightBuilt.colors['inputValidation.errorBackground']).toBe(hex(statusLight.error.subtle));
+  expect(lightBuilt.colors['inputValidation.errorBorder']).toBe(hex(statusLight.error.border));
+  expect(statusLight.success.solid[0] - statusLight.error.solid[0]).toBeGreaterThanOrEqual(MEANING_PAIR_GAP);
+});
+
 test('every token rule clears the contrast floor on the editor', () => {
   for (const rule of tokenColors) {
     const value = rule.settings.foreground;
@@ -73,6 +166,81 @@ test('every semantic token clears the contrast floor on the editor', () => {
   for (const [name, value] of Object.entries(semanticTokenColors)) {
     const ratio = contrastEmitted(hexToOklch(value), neutral.editor);
     expect(ratio, `${name} ${value} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+});
+
+test('the light reading budget clears the floor on every generated state', () => {
+  for (const state of readingStates(LIGHT_SHIPPED)) {
+    for (const [role, colour] of Object.entries(readingForegrounds(LIGHT_SHIPPED))) {
+      const ratio = contrastEmitted(colour, state.background);
+      expect(ratio, `${role} on ${state.name} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    }
+  }
+  expect(lightBuilt.colors['editor.selectionBackground']).toBe(
+    hexAlpha(lightPalette.overlay.selection.color, lightPalette.overlay.selection.alpha),
+  );
+  expect(lightBuilt.colors['editor.lineHighlightBackground']).toBe(
+    hexAlpha(lightPalette.overlay.lineHighlight.color, lightPalette.overlay.lineHighlight.alpha),
+  );
+  expect(lightBuilt.colors['diffEditor.insertedLineBackground']).toBe(
+    hexAlpha(lightPalette.diffWash.addedLine.color, lightPalette.diffWash.addedLine.alpha),
+  );
+  expect(lightBuilt.colors['diffEditor.removedTextBackground']).toBe(
+    hexAlpha(lightPalette.diffWash.removedWord.color, lightPalette.diffWash.removedWord.alpha),
+  );
+});
+
+test('light substitution preserves roles when dark literals collide', () => {
+  expect(lightBuilt.colors['terminal.selectionBackground']).toBe(hex(lightTerminalSelection));
+  expect(lightBuilt.colors['inputValidation.infoBackground']).toBe(hex(lightPalette.scales.blue.subtle));
+  expect(lightBuilt.colors['merge.incomingContentBackground']).toBe(hex(lightPalette.scales.blue.subtle));
+  expect(lightBuilt.colors['terminal.selectionBackground']).not.toBe(
+    lightBuilt.colors['inputValidation.infoBackground'],
+  );
+  expect(lightBuilt.colors['terminal.inactiveSelectionBackground']).toBe(
+    hexAlpha(lightTerminalSelection, 0.5),
+  );
+  expect(lightBuilt.colors['editorIndentGuide.background1']).toBe(hex(lightEditorNeutral.hover));
+  expect(lightBuilt.colors['editorWhitespace.foreground']).toBe(hex(lightEditorNeutral.hairline));
+  expect(lightBuilt.colors['editor.selectionBackground']).toBe(
+    hexAlpha(lightPalette.overlay.selection.color, lightPalette.overlay.selection.alpha),
+  );
+  expect(lightBuilt.colors['editor.lineHighlightBackground']).toBe(
+    hexAlpha(lightPalette.overlay.lineHighlight.color, lightPalette.overlay.lineHighlight.alpha),
+  );
+  expect(lightBuilt.colors['diffEditor.insertedLineBackground']).toBe(
+    hexAlpha(lightPalette.diffWash.addedLine.color, lightPalette.diffWash.addedLine.alpha),
+  );
+  expect(lightBuilt.colors['diffEditor.removedTextBackground']).toBe(
+    hexAlpha(lightPalette.diffWash.removedWord.color, lightPalette.diffWash.removedWord.alpha),
+  );
+});
+
+test('light diff gutter strips keep inactive line numbers above the non-text floor', () => {
+  const pairs = [
+    ['diffEditorGutter.insertedLineBackground', 'addedStrip'],
+    ['diffEditorGutter.removedLineBackground', 'removedStrip'],
+  ] as const;
+  const foreground = hexToOklch(lightBuilt.colors['editorLineNumber.foreground']!);
+  for (const [key, side] of pairs) {
+    expect(lightBuilt.colors[key]).toBe(hex(lightDiff[side]));
+    const ratio = contrastEmitted(foreground, hexToOklch(lightBuilt.colors[key]!));
+    expect(ratio, `${key} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+  }
+});
+
+test('light automatically paired foregrounds clear the floor on their own backgrounds', () => {
+  const pairs = Object.keys(lightBuilt.colors)
+    .filter((key) => key.endsWith('oreground'))
+    .map((key) => [key, key.replace(/[fF]oreground$/, (m) => (m === 'Foreground' ? 'Background' : 'background'))] as const)
+    .filter(([, background]) => lightBuilt.colors[background] !== undefined);
+  expect(pairs.length).toBeGreaterThan(15);
+  for (const [foreground, background] of pairs) {
+    const front = lightBuilt.colors[foreground]!;
+    const back = lightBuilt.colors[background]!;
+    if (front.length !== 7 || back.length !== 7) continue;
+    const ratio = contrastEmitted(hexToOklch(front), hexToOklch(back));
+    expect(ratio, `${foreground} on ${background} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
 });
 

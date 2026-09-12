@@ -22,6 +22,10 @@ utility or component layer overrides them.
 
 An explicit `data-theme` always wins over the system preference.
 
+The Light values are authored and contrast-checked independently; the browser does not
+derive them by filtering or inverting the dark variables. The current source palette and
+its release status are described in the [Light variant guide](../../LIGHT.md).
+
 ## Variables
 
 | Prefix | Example |

@@ -6,21 +6,23 @@ show a colour the extension does not ship.
 ```
 npm run dev -w ./apps/lab       # http://localhost:8421
 npm run build -w ./apps/lab     # static output in dist/
-npm test -w ./apps/lab          # 52 tests
+npm test -w ./apps/lab          # focused lab suite
 ```
 
 ## How it works
 
-`src/main.ts` writes the surfaces once, then never rebuilds them. A control change calls
-`buildPalette(options)` and sets the result as CSS custom properties on the document root.
-Every surface reads `var(--…)` only. That is what proves the surfaces read the tokens
-rather than a copy of them.
+`src/main.ts` writes the surfaces once, then never rebuilds them. A scheme switch or control
+change builds the active scheme palette and sets the result as CSS custom properties on the
+document root. Every surface reads `var(--…)` only. That is what proves the surfaces read
+the tokens rather than a copy of them. Light accent control values record the selected lab
+inputs; the emitted accents remain solver-bound by the input-surface contrast floor.
 
 | Module | Holds |
 |---|---|
 | `src/variables.ts` | palette → custom properties on the root |
-| `src/controls.ts` | six OKLCH sliders and a reset to the shipped values |
-| `src/readout.ts` | live contrast table over the reading states, ANSI slots and chrome |
+| `src/state.ts` | state controller managing dark and light explored values |
+| `src/controls.ts` | Dark/Light segmented switch, six OKLCH sliders and reset |
+| `src/readout.ts` | live contrast table over reading states, accents, statuses, ANSI slots and chrome |
 | `src/render/code.ts` | the tokenised code sample and its renderer |
 | `src/render/icons.ts` | inline SVG glyphs, never a Nerd Font web build |
 | `src/render/*.ts` | one module per surface |
@@ -37,7 +39,7 @@ build works under any `base`. GitHub Pages will need only the `base` option in
 | Surface | Shows |
 |---|---|
 | VS Code | raised sidebar, tabs, diff hunk, nested brackets, selection, word highlight, find match, hover card, terminal panel, status bar |
-| Windows Terminal | prompt with git status, coloured listing, an error, all sixteen ANSI slots |
+| Terminal | prompt with git status, coloured listing, an error, all sixteen ANSI slots. Dark previews the standalone Windows Terminal fragment; Light previews Aion Light's integrated-terminal palette (standalone Windows Terminal ships in dark only). |
 | Landing page | hero, feature cards, buttons, pull quote |
 | Admin dashboard | KPI cards, chart, alerts in all four statuses, table with status pills. Measurements are labelled as fixed shipped-palette results; slider changes are measured in the live Contrast readout. The two invented alerts say SAMPLE |
 | Documentation | prose, callouts, a code block on the editor surface, a reference table |
@@ -53,10 +55,10 @@ build works under any `base`. GitHub Pages will need only the `base` option in
 - **Violet is a syntax hue only.** The test asserts the violet accent scale never reaches
   the interface, and that `--s-keyword` does.
 - No source file and no stylesheet contains a hex literal.
-- The readout measures the palette the sliders build against `readingStates()`, the same
-  set the build gate uses, rather than a second list of its own. A test drops the comment
-  to lightness 0.600, which still clears 4.5:1 on the plain editor, and asserts the readout
-  reports the failure it has on a selected word inside an added diff line.
+- The readout measures the palette the sliders build against `readingStates()` and the
+  light scheme's input, accent-scale and status pairs. A test drops the comment to
+  lightness 0.600, which still clears 4.5:1 on the plain editor, and asserts the readout
+  reports the failure it has inside an added diff line.
 - Every number the dashboard prints is a row `checks()` produced.
 
 ## Still open

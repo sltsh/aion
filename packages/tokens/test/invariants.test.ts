@@ -7,7 +7,11 @@ import {
   findMatch, terminalBackground, CHROMA_CEILING, CHROMA_DEFAULT, HUE_DRIFT_LIMIT,
   CONTRAST_FLOOR, NON_TEXT_FLOOR, MEANING_PAIR_GAP, STATUS,
 } from '../src/palette.js';
-import { lightNeutral, lightAccent, lightAccentScale } from '../src/light.js';
+import {
+  lightAccent, lightAccentScale, lightAnsi, lightDiff, lightDiffWash, lightEditorNeutral,
+  lightAnsiBrightBlack, lightAnsiWhite, lightComment, lightDimText, lightNeutral, lightOverlay,
+  LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection,
+} from '../src/light.js';
 import { readingForegrounds, readingStates } from '../src/states.js';
 
 const syntaxColor = (role: SyntaxRole): Oklch => ACCENTS[SYNTAX[role]];
@@ -87,7 +91,10 @@ test('every colour is inside the sRGB gamut', () => {
   const all: Oklch[] = [
     ...Object.values(neutral), ...Object.values(ACCENTS), ...Object.values(ansi),
     comment, ...Object.values(diff), ...Object.values(diffWash).map((w) => w.color),
-    ...Object.values(lightNeutral),
+    ...Object.values(lightNeutral), ...Object.values(lightEditorNeutral),
+    ...Object.values(lightAnsi), ...Object.values(lightDiff),
+    ...Object.values(lightDiffWash).map((w) => w.color),
+    ...Object.values(lightOverlay).map((w) => w.color), lightTerminalSelection,
   ];
   for (const name of ACCENT_NAMES) {
     all.push(...Object.values(accentScale(name)), lightAccent(name), ...Object.values(lightAccentScale(name)));
@@ -167,25 +174,57 @@ test('accent borders clear the non-text floor', () => {
 
 test('the light ramp clears the floor on the light page', () => {
   for (const name of ACCENT_NAMES) {
-    const ratio = contrast(lightAccent(name), lightNeutral.page);
+    const ratio = contrastEmitted(lightAccent(name), lightNeutral.page);
     expect(ratio, `light ${name} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    const inputRatio = contrastEmitted(lightAccent(name), lightNeutral.input);
+    expect(inputRatio, `light ${name} on input = ${inputRatio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
   for (const text of ['textPrimary', 'textSecondary'] as const) {
-    const ratio = contrast(lightNeutral[text], lightNeutral.page);
+    const ratio = contrastEmitted(lightNeutral[text], lightNeutral.page);
     expect(ratio, `light ${text} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
 });
 
+test('light reading roles retain distinct emitted values', () => {
+  const roles = {
+    comment: lightComment,
+    punctuation: lightNeutral.textSecondary,
+    dim: lightDimText,
+    ansiWhite: lightAnsiWhite,
+    ansiBrightBlack: lightAnsiBrightBlack,
+  } as const;
+  expect(hex(roles.punctuation)).toBe(hex(lightNeutral.textSecondary));
+  expect(new Set(Object.values(roles).map(hex)).size).toBe(Object.keys(roles).length);
+  for (const [name, colour] of Object.entries(roles)) {
+    const ratio = contrastEmitted(colour, lightNeutral.raised);
+    expect(ratio, `${name} on raised = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+});
+
+test('light accent chroma honors its band, with only the documented teal exception', () => {
+  for (const name of ACCENT_NAMES) {
+    const chroma = lightAccent(name)[1];
+    const ceiling = CHROMA_CEILING[name] ?? CHROMA_DEFAULT[1];
+    const minimum = LIGHT_CHROMA_FLOOR_EXCEPTION[name] ?? CHROMA_DEFAULT[0];
+    expect(chroma, `${name} chroma ${chroma} above ceiling ${ceiling}`).toBeLessThanOrEqual(ceiling);
+    expect(chroma, `${name} chroma ${chroma} below floor ${minimum}`).toBeGreaterThanOrEqual(minimum);
+  }
+  expect(lightAccent('teal')[1]).toBeLessThan(CHROMA_DEFAULT[0]);
+  expect(Object.keys(LIGHT_CHROMA_FLOOR_EXCEPTION)).toEqual(['teal']);
+});
+
 test('light accent borders clear the non-text floor on the light page', () => {
   for (const name of ACCENT_NAMES) {
-    const ratio = contrast(lightAccentScale(name).border, lightNeutral.page);
+    const ratio = contrastEmitted(lightAccentScale(name).border, lightNeutral.page);
     expect(ratio, `light ${name} border = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    const inputRatio = contrastEmitted(lightAccentScale(name).border, lightNeutral.input);
+    expect(inputRatio, `light ${name} border on input = ${inputRatio.toFixed(2)}`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
   }
 });
 
 test('light subtle fills carry light primary text', () => {
   for (const name of ACCENT_NAMES) {
-    const ratio = contrast(lightNeutral.textPrimary, lightAccentScale(name).subtle);
+    const ratio = contrastEmitted(lightNeutral.textPrimary, lightAccentScale(name).subtle);
     expect(ratio, `light text on ${name} subtle = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
 });
@@ -206,5 +245,35 @@ test('a diff wash stays quiet against the editor and lets the selection through'
     const through = contrastEmitted(word(selected), word(neutral.editor));
     expect(through, `${side}: the selection reads ${through.toFixed(3)} through the wash`)
       .toBeGreaterThan(1 + (alone - 1) * 0.5);
+  }
+});
+
+test('the light diff wash is visible and keeps its selection cue', () => {
+  const selected = compositeEmitted(
+    lightOverlay.selection.color,
+    lightOverlay.selection.alpha,
+    lightNeutral.page,
+  );
+  const selectionShift = contrastEmitted(selected, lightNeutral.page);
+
+  for (const side of ['added', 'removed'] as const) {
+    const line = (base: Oklch): Oklch => compositeEmitted(
+      lightDiffWash[`${side}Line`].color,
+      lightDiffWash[`${side}Line`].alpha,
+      base,
+    );
+    const word = (base: Oklch): Oklch => compositeEmitted(
+      lightDiffWash[`${side}Word`].color,
+      lightDiffWash[`${side}Word`].alpha,
+      line(base),
+    );
+    const lineRatio = contrastEmitted(line(lightNeutral.page), lightNeutral.page);
+    const wordRatio = contrastEmitted(word(lightNeutral.page), lightNeutral.page);
+    expect(lineRatio, `${side} line wash`).toBeGreaterThan(1.07);
+    expect(wordRatio, `${side} word wash`).toBeGreaterThan(lineRatio);
+    expect(
+      contrastEmitted(word(selected), word(lightNeutral.page)),
+      `${side} selection through wash`,
+    ).toBeGreaterThan(1 + (selectionShift - 1) * 0.5);
   }
 });

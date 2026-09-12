@@ -12,6 +12,11 @@ export function variables(palette: Palette): Record<string, string> {
     out[`--a-${name}-border`] = hex(scale.border);
     out[`--a-${name}-subtle`] = hex(scale.subtle);
   }
+  for (const [name, scale] of Object.entries(palette.statuses)) {
+    out[`--status-${name}-text`] = hex(scale.text);
+    out[`--status-${name}-subtle`] = hex(scale.subtle);
+    out[`--status-${name}-border`] = hex(scale.border);
+  }
   for (const [role, colour] of Object.entries(palette.syntax)) out[`--s-${role}`] = hex(colour);
   out['--s-comment'] = hex(palette.comment);
   out['--s-punctuation'] = hex(palette.neutral.textSecondary);
