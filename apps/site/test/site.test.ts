@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dark, light } from '@sltsh/aion-css';
-import { checks, flatten, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted } from '@sltsh/aion-tokens';
+import { checks, flatten, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch } from '@sltsh/aion-tokens';
 import { FLAGS } from '../src/flags.js';
 import { escapeAttr, escapeHtml } from '../src/render/html.js';
 import { landing, palette } from '../src/render/index.js';
@@ -12,11 +12,12 @@ import { INSTALL, UNRELEASED_NOTE } from '../src/content.js';
 import { gateSummary } from '../src/gate.js';
 import { renderHero } from '../src/samples/hero.js';
 import { swatch } from '../src/render/swatch.js';
+import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_KEY, themeBootstrap } from '../src/theme.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
-it('ships the release and light flags off', () => {
-  expect(FLAGS).toEqual({ released: false, lightVisible: false });
+it('ships the release flag off', () => {
+  expect(FLAGS).toEqual({ released: false });
 });
 
 it('escapes text and copy attributes', () => {
@@ -63,8 +64,8 @@ describe('curated colours', () => {
       ['Blue', 'Links & functions', '--aion-blue-solid'],
       ['Violet', 'Keywords & emphasis', '--aion-violet-solid'],
     ]);
-    for (const row of rows) expect(landing(FLAGS)).toContain(swatch(row, FLAGS));
-    expect(palette(FLAGS)).not.toContain('id="essentials"');
+    for (const row of rows) expect(landing(FLAGS)).toContain(swatch(row));
+    expect(palette()).not.toContain('id="essentials"');
   });
 
   it('exposes the complete foundation roles needed for hierarchy and controls', () => {
@@ -127,7 +128,8 @@ describe('curated colours', () => {
     const terminal = groups().find((group) => group.id === 'terminal');
     expect(terminal?.swatches.map((row) => row.variable)).toEqual(ANSI_SLOTS.map((name) => `--aion-ansi-${name}`));
     expect(terminal?.swatches.map((row) => row.variable).sort()).toEqual(Object.keys(dark()).filter((name) => name.startsWith('--aion-ansi-')).sort());
-    expect(palette(FLAGS)).toContain('applications using it as foreground text may be hard to read');
+    expect(palette()).toContain('data-theme-value="dark">ANSI black (slot 0) is intended as a background');
+    expect(palette()).toContain('data-theme-value="light">In the light scheme, ANSI black (slot 0) is intended as foreground text');
   });
 
   it('copies the same named values it displays', () => {
@@ -136,7 +138,7 @@ describe('curated colours', () => {
         expect(colourBlock(group.swatches, scheme).split('\n')).toEqual(group.swatches.map((row) => `${row.label}: ${row[scheme]}`));
       }
       for (const row of group.swatches) {
-        const html = swatch(row, FLAGS);
+        const html = swatch(row);
         expect(html).toContain(`aria-label="Copy ${row.label}"`);
         expect(html).toContain(`data-dark="${row.dark}"`);
         expect(html).toContain('class="swatch-check"');
@@ -158,9 +160,11 @@ describe('curated colours', () => {
 
 describe('the presentation pages', () => {
   it('uses one hero lockup and a standalone header logo', () => {
-    expect(landing(FLAGS).match(/aion-lockup-horizontal/g)).toHaveLength(1);
+    expect(landing(FLAGS).match(/aion-lockup-horizontal/g)).toHaveLength(2);
     expect(landing(FLAGS).split('</header>')[0]).not.toContain('aion-wordmark');
     expect(landing(FLAGS)).toContain('src="/icon.png"');
+    expect(landing(FLAGS)).toContain('src="/icon-light.png"');
+    expect(landing(FLAGS)).toContain('data-theme-toggle');
   });
 
   it('replaces the manual inventory with essentials and a palette link', () => {
@@ -179,12 +183,12 @@ describe('the presentation pages', () => {
   });
 
   it('renders a role-first reference without repeating essentials or using engineering tables', () => {
-    const html = palette(FLAGS);
+    const html = palette();
     expect(html.match(/class="swatch"/g)).toHaveLength(groups().flatMap((group) => group.swatches).length);
     expect(html).not.toContain('<table');
     for (const group of groups()) {
       expect(html).toContain(escapeHtml(group.description));
-      for (const row of group.swatches) expect(html).toContain(swatch(row, FLAGS));
+      for (const row of group.swatches) expect(html).toContain(swatch(row));
     }
     expect(html).toContain('CSS &amp; token reference');
   });
@@ -196,8 +200,8 @@ describe('the presentation pages', () => {
   });
 
   it('provides active page and section navigation with matching targets', () => {
-    expect(palette(FLAGS)).toContain('href="#content" aria-current="page"');
-    for (const [html, ids] of [[landing(FLAGS), ['overview', 'essentials', 'install']], [palette(FLAGS), [...GROUP_IDS]]] as const) {
+    expect(palette()).toContain('href="#content" aria-current="page"');
+    for (const [html, ids] of [[landing(FLAGS), ['overview', 'essentials', 'install']], [palette(), [...GROUP_IDS]]] as const) {
       for (const id of ids) {
         expect(html).toContain(`data-section="${id}"`);
         expect(html).toContain(`id="${id}"`);
@@ -227,7 +231,7 @@ describe('the presentation pages', () => {
 describe('installation', () => {
   for (const released of [false, true]) {
     it(`copies usable commands with released=${released}`, () => {
-      const html = landing({ released, lightVisible: false });
+      const html = landing({ released });
       for (const entry of INSTALL) {
         const command = released || entry.id === 'vscode' ? entry.command : entry.localCommand;
         expect(html).toContain(escapeHtml(entry.label));
@@ -240,21 +244,83 @@ describe('installation', () => {
   }
 });
 
-describe('the hidden light scheme', () => {
-  it('excludes the light values when disabled', () => {
-    const html = palette(FLAGS);
-    const darkValues = new Set(Object.values(dark()));
-    expect(html).not.toContain('data-scheme-toggle');
-    for (const value of Object.values(light()).filter((value) => !darkValues.has(value))) expect(html).not.toContain(value);
+describe('the persistent site theme', () => {
+  it('keeps the switch hidden before initialization and changes themes immediately', () => {
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).toContain('.theme-toggle[hidden] { display: none; }');
+    expect(css).toContain('[data-theme-value] { display: none; }');
+    expect(css).not.toContain('transition:');
   });
 
-  it('includes matching copy targets and values for every curated colour when enabled', () => {
-    const html = palette({ released: false, lightVisible: true });
-    expect(html).toContain('data-scheme-toggle');
+  it('renders both emitted values for every swatch and copy payload', () => {
+    const html = palette();
     for (const group of groups()) {
-      for (const row of group.swatches) expect(html).toContain(`data-light="${row.light}"`);
+      for (const row of group.swatches) {
+        expect(html).toContain(`data-dark="${row.dark}"`);
+        expect(html).toContain(`data-light="${row.light}"`);
+        expect(html).toContain(`data-theme-value="dark">${row.dark}`);
+        expect(html).toContain(`data-theme-value="light">${row.light}`);
+      }
       expect(html).toContain(`data-light="${escapeAttr(colourBlock(group.swatches, 'light'))}"`);
     }
+  });
+
+  it('resolves saved choices before system preference and falls back safely', () => {
+    expect(resolveTheme('dark', true)).toBe('dark');
+    expect(resolveTheme('light', false)).toBe('light');
+    expect(resolveTheme(undefined, true)).toBe('light');
+    expect(resolveTheme(undefined, false)).toBe('dark');
+    expect(readTheme({ getItem: () => 'invalid' })).toBeUndefined();
+    expect(readTheme({ getItem: () => { throw new Error('blocked'); } })).toBeUndefined();
+    expect(themeBootstrap()).toContain(THEME_STORAGE_KEY);
+    expect(themeBootstrap()).toContain('data-theme-favicon');
+  });
+
+  it('keeps system changes until a user choice, then persists safely', () => {
+    const listeners = new Map<string, EventListener>();
+    const attributes: Record<string, string> = {};
+    const root = { dataset: {} } as HTMLElement;
+    const button = {
+      dataset: {}, hidden: true, title: '', setAttribute: (name: string, value: string) => { attributes[name] = value; },
+      addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback),
+      removeEventListener: () => undefined,
+    } as unknown as HTMLButtonElement;
+    const writes: string[] = [];
+    const media = {
+      matches: true,
+      addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback),
+      removeEventListener: () => undefined,
+    } as unknown as MediaQueryList;
+    const assets: string[] = [];
+    initializeTheme({ root, button, media, storage: { getItem: () => null, setItem: (_key, value) => writes.push(value) }, updateAssets: (theme) => assets.push(theme) });
+    expect(root.dataset.theme).toBe('light');
+    listeners.get('change')!({ matches: false } as MediaQueryListEvent);
+    expect(root.dataset.theme).toBe('dark');
+    listeners.get('click')!({} as Event);
+    expect(root.dataset.theme).toBe('light');
+    expect(writes).toEqual(['light']);
+    listeners.get('change')!({ matches: false } as MediaQueryListEvent);
+    expect(root.dataset.theme).toBe('light');
+    expect(button.hidden).toBe(false);
+    expect(attributes['aria-label']).toBe('Use dark theme');
+    expect(button.title).toBe('Use dark theme');
+    expect(button.dataset['destination']).toBe('dark');
+    expect(assets).toEqual(['light', 'dark', 'light']);
+  });
+
+  it('switches safely when persistence writes fail and synchronizes favicon media', () => {
+    const listeners = new Map<string, EventListener>();
+    const root = { dataset: {} } as HTMLElement;
+    const button = { dataset: {}, hidden: true, title: '', setAttribute: () => undefined, addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback), removeEventListener: () => undefined } as unknown as HTMLButtonElement;
+    const media = { matches: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as MediaQueryList;
+    initializeTheme({ root, button, media, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } }, updateAssets: () => undefined });
+    listeners.get('click')!({} as Event);
+    expect(root.dataset.theme).toBe('light');
+    expect(button.title).toBe('Use dark theme');
+    const dark = { dataset: { themeFavicon: 'dark' }, media: '' } as unknown as HTMLLinkElement;
+    const light = { dataset: { themeFavicon: 'light' }, media: '' } as unknown as HTMLLinkElement;
+    syncFavicons([dark, light], 'light');
+    expect([dark.media, light.media]).toEqual(['not all', 'all']);
   });
 });
 
@@ -277,13 +343,17 @@ describe('contrast and claims', () => {
       for (const surface of [neutral.editor, neutral.terminal, neutral.widget, accent.subtle]) {
         expect(contrastEmitted(accent.solid, surface), `${name} on website surface`).toBeGreaterThanOrEqual(4.5);
       }
+      for (const surface of ['--aion-bg-page', '--aion-bg-surface', '--aion-bg-raised'] as const) {
+        expect(contrastEmitted(hexToOklch(light()[`--aion-${name}-solid`]!), hexToOklch(light()[surface]!)), `${name} on light ${surface}`).toBeGreaterThanOrEqual(4.5);
+      }
+      expect(contrastEmitted(hexToOklch(light()[`--aion-${name}-solid`]!), hexToOklch(light()[`--aion-${name}-subtle`]!)), `${name} on light button fill`).toBeGreaterThanOrEqual(4.5);
     }
   });
 });
 
 it('builds complete HTML and ships the exact generated terminal download', () => {
   execFileSync('npx', ['vite', 'build'], { cwd: root, stdio: 'pipe' });
-  for (const [filename, html] of [['index', landing(FLAGS)], ['palette', palette(FLAGS)]]) {
+  for (const [filename, html] of [['index', landing(FLAGS)], ['palette', palette()]]) {
     const built = readFileSync(`${root}dist/${filename}.html`, 'utf8');
     expect(built).toContain(html);
     expect(built).not.toContain('@aion:');
@@ -335,9 +405,8 @@ describe('parity with the emitter', () => {
     );
     const pages = [
       landing(FLAGS),
-      landing({ released: true, lightVisible: false }),
-      palette(FLAGS),
-      palette({ released: false, lightVisible: true }),
+      landing({ released: true }),
+      palette(),
     ];
     let seen = 0;
     for (const page of pages) {

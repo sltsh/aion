@@ -1,6 +1,3 @@
-export const LIGHT_NOTE =
-  'Light is available in the CSS package only. There is no light VS Code theme yet; gold reads as olive on a light background.';
-
 export interface InstallEntry {
   readonly id: string;
   readonly label: string;
@@ -20,7 +17,7 @@ export const INSTALL: readonly InstallEntry[] = [
     action: 'Install from Marketplace', href: 'https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme',
   },
   {
-    id: 'terminal', label: 'Windows Terminal',
+    id: 'terminal', label: 'Windows Terminal (dark scheme)',
     command: '%LOCALAPPDATA%\\Microsoft\\Windows Terminal\\Fragments\\sltsh',
     localCommand: '%LOCALAPPDATA%\\Microsoft\\Windows Terminal\\Fragments\\sltsh',
     note: 'Save the file in this folder (create it if needed). Restart Terminal and choose Aion in Settings → Profiles → Appearance → Colour scheme.',
@@ -37,4 +34,4 @@ export const INSTALL: readonly InstallEntry[] = [
 export const UNRELEASED_NOTE =
   'The terminal download is ready. VS Code and npm packages await the first release. For the local CSS build, clone the repository and run npm install first.';
 
-export const PITCH = 'A dark theme for editors, terminals and the web.';
+export const PITCH = 'A theme for editors, terminals and the web.';

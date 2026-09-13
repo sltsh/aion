@@ -1,8 +1,8 @@
 # Aion site
 
 The public site at https://aion.slt.sh: a theme introduction and a curated palette.
-Both pages render at build time. JavaScript adds clipboard feedback, scheme switching,
-and section-aware navigation; content and anchor links work without it.
+Both pages render at build time. JavaScript adds clipboard feedback, a persistent light/dark
+theme switch, and section-aware navigation; content and anchor links work without it.
 
 ```bash
 npm run dev -w ./apps/site
@@ -23,12 +23,13 @@ design documentation, not the public palette.
 
 `src/groups.ts` defines the public selection; both pages and their copy buttons use
 it. Every value comes from its named `@sltsh/aion-css` token. Tests check those pairings,
-complete ANSI coverage, hidden light values, and the absence of handwritten hex values.
+complete ANSI coverage, both emitted values, and the absence of handwritten hex values.
 
-`src/render` owns the HTML; `src/content.ts` owns installation copy. `src/main.ts` tracks
-section positions to update navigation without changing browser history, and provides
-clipboard feedback for keyboard and pointer users. The palette navigation becomes a
-sticky horizontal bar on narrow screens.
+`src/render` owns the HTML; `src/content.ts` owns installation copy. `src/theme.ts` keeps
+the root `data-theme` state synchronized with a saved choice or the system preference.
+`src/main.ts` tracks section positions to update navigation without changing browser history,
+and provides clipboard feedback for keyboard and pointer users. The palette navigation becomes
+a sticky horizontal bar on narrow screens.
 
 ## Brand and downloads
 
@@ -42,8 +43,9 @@ the site. Tests verify parity with the generated fragment.
 `released` controls whether the site presents npm installation or a local build. It is
 currently off even though `0.3.1` has been published, so the site copy remains conservative
 until that deployment flag is deliberately updated. VS Code always links to the Marketplace
-and shows its install command. `lightVisible` stays off until Light is ready for public
-presentation. Tests exercise both settings of both flags.
+and shows its install command. The public site follows the system theme until a visitor
+chooses Light or Dark; that choice is stored locally and shared by both pages. The Windows
+Terminal download remains the dark Aion scheme. Tests exercise both emitted palettes.
 
 ## Validation
 

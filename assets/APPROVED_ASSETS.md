@@ -21,8 +21,11 @@ not be reused to create a different product mark.
 | Repository file | Plugin filename | Role | Status | Notes |
 |---|---|---|---|---|
 | `aion-logo.png` | `AION__logo.png` | Product glyph, construction | Approved | Standalone Aion product mark and primary product-specific glyph reference. |
+| `aion-logo-light.png` | `AION__logo-light.png` | Light-surface product glyph | Approved | Light-surface counterpart to the standalone Aion product mark. Use only on light backgrounds. |
 | `aion-wordmark.png` | `AION__wordmark.png` | Product typography | Approved | Approved Aion wordmark. |
+| `aion-wordmark-light.png` | `AION__wordmark-light.png` | Light-surface product typography | Approved | Light-surface counterpart to the Aion wordmark. Use only on light backgrounds. |
 | `aion-lockup-horizontal.png` | `AION__lockup-horizontal.png` | Product composition, presentation | Approved | Preferred horizontal lockup for wide placements. |
+| `aion-lockup-horizontal-light.png` | `AION__lockup-horizontal-light.png` | Light-surface product composition | Approved | Exact horizontal composition with its neutral artwork set to Aion's dark primary background for light-surface use. |
 | `aion-lockup-vertical.png` | `AION__lockup-vertical.png` | Product composition, presentation | Approved | Preferred lockup for square or vertically balanced placements. |
 
 Aion references apply only to Aion work unless the user explicitly requests

@@ -1,9 +1,29 @@
 import '@sltsh/aion-css/aion.css';
 import './styles.css';
+import { initializeTheme, syncFavicons } from './theme.js';
 
 const COPIED_MS = 2000;
 let statusTimer: ReturnType<typeof setTimeout> | undefined;
 const status = document.querySelector<HTMLElement>('.copy-status');
+
+const updateThemeAssets = (theme: 'dark' | 'light'): void =>
+  syncFavicons(document.querySelectorAll<HTMLLinkElement>('link[data-theme-favicon]'), theme);
+
+const themeStorage = (): Storage | null => {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+};
+
+initializeTheme({
+  root: document.documentElement,
+  button: document.querySelector<HTMLButtonElement>('[data-theme-toggle]'),
+  media: window.matchMedia('(prefers-color-scheme: light)'),
+  storage: themeStorage(),
+  updateAssets: updateThemeAssets,
+});
 
 const announce = (message: string, visible = true): void => {
   if (!status) return;
@@ -21,7 +41,7 @@ document.addEventListener('click', (event) => {
   if (!(target instanceof Element)) return;
   const source = target.closest<HTMLElement>('[data-copy]');
   if (source) {
-    const scheme = document.body.dataset['scheme'] === 'light' ? 'light' : 'dark';
+    const scheme = document.documentElement.dataset['theme'] === 'light' ? 'light' : 'dark';
     const value = source.dataset['text'] ?? source.dataset[scheme] ?? source.dataset['dark'];
     if (value === undefined) return;
     if (!navigator.clipboard) {
@@ -34,19 +54,6 @@ document.addEventListener('click', (event) => {
       setTimeout(() => { delete source.dataset['copied']; }, COPIED_MS);
     }).catch(() => { announce('Could not copy. Select and copy the text instead.'); });
     return;
-  }
-  const toggle = target.closest('[data-scheme-toggle]');
-  if (toggle) {
-    const next = document.body.dataset['scheme'] === 'light' ? 'dark' : 'light';
-    document.body.dataset['scheme'] = next;
-    document.documentElement.dataset['theme'] = next;
-    toggle.setAttribute('aria-pressed', String(next === 'light'));
-    toggle.textContent = next === 'light' ? 'Show dark palette' : 'Show light palette';
-    for (const node of document.querySelectorAll<HTMLElement>('.swatch')) {
-      const hexNode = node.querySelector('.swatch-hex');
-      const value = node.dataset[next];
-      if (hexNode && value !== undefined) hexNode.textContent = value;
-    }
   }
 });
 

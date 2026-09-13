@@ -3,10 +3,12 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { FLAGS } from './src/flags.js';
 import { landing, palette } from './src/render/index.js';
+import { themeBootstrap } from './src/theme.js';
 
 const MARKERS: Record<string, () => string> = {
   '<!--@aion:landing-->': () => landing(FLAGS),
-  '<!--@aion:palette-->': () => palette(FLAGS),
+  '<!--@aion:palette-->': palette,
+  '<!--@aion:theme-bootstrap-->': themeBootstrap,
 };
 
 export default defineConfig({

@@ -272,20 +272,120 @@ The full token inventory and authored tables remain in the technical documentati
 Vite multi-page, no framework, HTML pre-rendered at build time, so the page reads with
 JavaScript disabled. Navigation highlights the visible section on both pages.
 
-The light scheme is built and tested but not visible on the public site. `FLAGS.lightVisible`
-is `false`; §11 records that light gold is olive rather than gold. The VS Code package
-does contribute `Aion Light` from the same independently tuned light palette. Every render
-function takes the site flags as a parameter and the tests run both settings, so the site's
-hidden path is proven rather than merely written.
+The public site exposes both independently tuned schemes through a persistent header
+switch. A first visit follows the system preference until the visitor explicitly chooses
+a scheme; that choice then persists across both public pages. The VS Code package also
+contributes `Aion Light` from the same light palette.
 
 Read `apps/site/README.md` for the presentation scope and validation contract.
 
 Still open: the DNS `CNAME` from `aion.slt.sh` to `sltsh.github.io`, and GitHub Pages
 enabled for the repository with the custom domain. Neither lives in this repository.
 
+## Task 10 — site light/dark theme switch — done
+
+Added a persistent light/dark theme switch to the shared site header. The implementation
+exposes the independently tuned light palette that already ships through
+`@sltsh/aion-css`; it did not change either palette. Browser acceptance covered both
+pages and themes at 1280px, 760px and 375px, including persistence, system following,
+no-JavaScript rendering, active copy values, focus and responsive header behavior.
+
+### Approved product contract
+
+- On a first visit with no saved choice, follow `prefers-color-scheme`. Continue following
+  system changes until the visitor explicitly chooses light or dark.
+- A visitor's explicit choice persists across reloads and across the landing and palette
+  pages. The preference is local UI state, not part of the URL.
+- Put one binary theme button in the shared header, beside the GitHub action. Its icon,
+  accessible name and tooltip communicate the theme it will switch to.
+- Switch the whole site together: page chrome, controls, code preview, homepage essentials,
+  full palette, displayed colour values, copied colour values and brand artwork.
+- Keep the palette's groups, roles and ordering identical between schemes. Each scheme
+  reads only the values emitted for that scheme.
+- The light palette may show its ANSI slots. The Windows Terminal download remains the
+  existing dark Aion scheme and must be labelled accordingly; a light terminal release is
+  outside this task.
+- Use the approved `assets/aion-logo-light.png` and
+  `assets/aion-wordmark-light.png` on light surfaces. Produce the missing light horizontal
+  lockup from those approved assets and the approved horizontal composition, without
+  reinterpreting the mark. Switch the header mark, hero lockup, footer wordmark and favicon.
+- Ship the baseline with an immediate theme change. If motion is added during a later
+  visual pass, keep it to one brief user-triggered phase change in the control or brand:
+  precise, technical and recognizably Aion. Respect `prefers-reduced-motion` and avoid a
+  page-wide colour transition.
+
+### Visual contract
+
+Colour continues to come only from the active scheme's emitted CSS variables. Archivo
+remains the interface and display face; Monaspace Neon remains the code face. Preserve the
+current page layout and add a compact trailing action group to the header:
+
+```text
+wide:   [Aion mark]          [navigation]          [theme] [GitHub]
+narrow: [Aion mark] [navigation]                   [theme] [GitHub]
+```
+
+The switch should feel like part of the existing instrument-like chrome, not a generic
+settings control. The header remains legible and operable at the current narrowest
+breakpoint without hiding navigation or reducing the pointer target below the surrounding
+header actions.
+
+### Implementation sequence
+
+1. Prepare theme-specific public assets. Export optimized light variants for the header,
+   hero, footer and favicon; retain the approved source PNGs under `assets/` and record
+   the approved light logo and wordmark in `assets/APPROVED_ASSETS.md`. Generate the light
+   horizontal lockup from the approved parts, then obtain explicit visual approval before
+   recording or using it. Verify transparent edges and its spacing against the approved
+   dark composition.
+2. Establish one theme-state owner around `document.documentElement.dataset.theme`.
+   Resolve a saved choice before first paint, otherwise use the system scheme. Handle
+   unavailable storage without breaking rendering or interaction.
+3. Render the theme button from the shared header used by both pages. Initialize its state
+   from the effective scheme, persist explicit changes, and keep the action label and icon
+   synchronized.
+4. Make brand artwork resolve from the same effective scheme. The pre-rendered page must
+   show system-matched artwork when JavaScript is unavailable; expose the interactive
+   switch only when its behavior is ready.
+5. Replace the palette-only toggle path. Make homepage and palette swatches show and copy
+   the active scheme's emitted value, including after navigation, reload and a theme
+   change. Remove `lightVisible`; the site theme is no longer a build-time feature flag.
+6. Replace dark-only titles, descriptions, pitch and light-availability notes with
+   theme-neutral copy. Update `apps/site/README.md` and this task's status when the feature
+   is complete. Leave the unrelated `released` flag unchanged.
+7. Extend site tests for initial resolution, persistence, system changes before an
+   explicit choice, storage failure, accessible button state, theme-specific assets,
+   active swatch values and copy payloads. Measure the site's gold and teal uses on their
+   actual light surfaces with `contrastEmitted`, as well as the existing dark cases.
+8. Run `npm run verify`, `npm test` and `npm run typecheck`. `npm run sync:design` is needed
+   only if implementation unexpectedly changes the palette, which requires separate user
+   approval.
+
+### Browser acceptance
+
+- Check both pages in light and dark at desktop, the mobile breakpoint and the narrowest
+  supported width. There is no header overflow, wrapping, overlap or clipped focus ring.
+- With no saved preference, first paint, controls, artwork, swatches and copied values all
+  match the system scheme. There is no flash of the other theme.
+- An explicit choice survives reload, movement between both pages and a system-theme
+  change. Clearing it restores system behavior.
+- Keyboard focus is visible, the button's announced action is correct before and after a
+  switch, and reduced-motion behavior is immediate.
+- Header mark, hero lockup, footer wordmark and favicon use the intended variant in both
+  themes, load at their declared dimensions and remain sharp on high-density displays.
+- JavaScript-disabled rendering retains readable, system-matched content and artwork;
+  only the interactive switch and clipboard enhancement are absent.
+- The light and dark code previews and marketing controls use their emitted scheme values,
+  and every visible or copied palette value matches the active scheme.
+
+Native editor acceptance is not required because this task does not change palette values.
+Any palette adjustment discovered during site review stops this task for separate approval
+and makes the affected calculation and native acceptance current again.
+
 ## Order and parallelism
 
-Tasks 1 to 7 and Task 9 are done. Task 8 needs four screenshots from a real editor.
+Tasks 1 to 7, Task 9 and Task 10 are done. Task 8 needs four screenshots from a real
+editor.
 
 ## Native acceptance
 
