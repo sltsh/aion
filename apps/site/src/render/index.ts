@@ -17,17 +17,22 @@ const themedImage = (className: string, dark: string, light: string, label: stri
 const chrome = (current: Page): string => `<a class="skip-link" href="#content">Skip to content</a>
   <header class="site-head">
     <a class="mark" href="${current === 'home' ? '#overview' : '/#overview'}" aria-label="Aion home">${themedImage('mark-image', '/icon.png', '/icon-light.png', '', 44, 44)}</a>
-    <nav class="site-nav" aria-label="Main navigation">
-      <a href="${current === 'home' ? '#overview' : '/#overview'}"${current === 'home' ? ' data-section="overview" aria-current="location"' : ''}>Overview</a>
-      <a href="${current === 'home' ? '#essentials' : '/#essentials'}"${current === 'home' ? ' data-section="essentials"' : ''}>Colours</a>
-      <a href="${current === 'home' ? '#install' : '/#install'}"${current === 'home' ? ' data-section="install"' : ''}>Install</a>
-      <a href="${current === 'palette' ? '#content' : '/palette.html'}"${current === 'palette' ? ' aria-current="page"' : ''}>Palette</a>
-    </nav>
-    <fieldset class="theme-switch" data-theme-switch hidden><legend>Colour theme</legend>
-      <label><input type="radio" name="aion-theme" value="dark" data-theme-choice><span>Dark</span></label>
-      <label><input type="radio" name="aion-theme" value="light" data-theme-choice><span>Light</span></label>
-    </fieldset>
-    <a class="source-link" href="${REPO}" aria-label="Aion on GitHub" title="Aion on GitHub">${icon('github')}</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="Menu" data-menu-toggle>${icon('menu')}${icon('close')}</button>
+    <div class="site-menu" id="site-menu">
+      <nav class="site-nav" aria-label="Main navigation">
+        <a href="${current === 'home' ? '#overview' : '/#overview'}"${current === 'home' ? ' data-section="overview" aria-current="location"' : ''}>Overview</a>
+        <a href="${current === 'home' ? '#essentials' : '/#essentials'}"${current === 'home' ? ' data-section="essentials"' : ''}>Colours</a>
+        <a href="${current === 'home' ? '#install' : '/#install'}"${current === 'home' ? ' data-section="install"' : ''}>Install</a>
+        <a href="${current === 'palette' ? '#content' : '/palette.html'}"${current === 'palette' ? ' aria-current="page"' : ''}>Palette</a>
+      </nav>
+      <div class="site-controls">
+        <fieldset class="theme-switch" data-theme-switch hidden><legend>Colour theme</legend>
+          <label><input type="radio" name="aion-theme" value="dark" data-theme-choice><span>Dark</span></label>
+          <label><input type="radio" name="aion-theme" value="light" data-theme-choice><span>Light</span></label>
+        </fieldset>
+        <a class="source-link" href="${REPO}" aria-label="Aion on GitHub" title="Aion on GitHub">${icon('github')}</a>
+      </div>
+    </div>
   </header>`;
 
 const footer = (): string => `<footer class="site-foot">

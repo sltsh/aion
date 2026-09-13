@@ -40,6 +40,12 @@ into the array nests a second wrapper and Windows Terminal shows no new scheme.
 
 Then set `"colorScheme": "Aion"` on a profile.
 
+## Herdr
+
+`herdr/aion.toml` holds a `[theme]` and a `[theme.custom]` table for Herdr 0.9.0. Merge both
+into the matching sections of `~/.config/herdr/config.toml`. The build writes the file from
+the tokens, and a test fails when the committed copy differs.
+
 ## Slots
 
 | # | Slot | Hex | # | Slot | Hex |

@@ -57,7 +57,7 @@ the user switches themes.
 | VS Code terminal | Light ANSI palette included in Aion Light | Included with Aion Light |
 | Windows Terminal | Dark standalone scheme only | Dark standalone scheme only |
 | Lab | Dark and Light preview and tuning | Local development tool; not deployed |
-| Public site | Light data path is built and tested | Hidden while `lightVisible` is disabled |
+| Public site | Persistent Dark and Light switch | Live at https://aion.slt.sh |
 
 Tagged releases publish the Light palette to npm and both VS Code marketplaces. Published
 versions remain immutable, so corrections require a new release.

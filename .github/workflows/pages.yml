@@ -34,6 +34,15 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Contrast gate
+        run: npm run verify
+
+      - name: Test
+        run: npm test
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

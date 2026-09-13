@@ -26,6 +26,29 @@ initializeTheme({
   updateAssets: updateThemeAssets,
 });
 
+const siteHead = document.querySelector<HTMLElement>('.site-head');
+const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+if (siteHead && menuToggle) {
+  const setMenu = (open: boolean): void => {
+    siteHead.dataset['menu'] = open ? 'open' : 'closed';
+    menuToggle.setAttribute('aria-expanded', String(open));
+  };
+  setMenu(false);
+  menuToggle.addEventListener('click', () => { setMenu(siteHead.dataset['menu'] !== 'open'); });
+  siteHead.querySelector('.site-nav')?.addEventListener('click', (event) => {
+    if (event.target instanceof Element && event.target.closest('a')) setMenu(false);
+  });
+  document.addEventListener('click', (event) => {
+    if (event.target instanceof Node && !siteHead.contains(event.target)) setMenu(false);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || siteHead.dataset['menu'] !== 'open') return;
+    setMenu(false);
+    menuToggle.focus();
+  });
+  window.matchMedia('(max-width: 520px)').addEventListener('change', () => { setMenu(false); });
+}
+
 const announce = (message: string, visible = true): void => {
   if (!status) return;
   clearTimeout(statusTimer);

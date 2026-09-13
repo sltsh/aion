@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 const release = readFileSync('.github/workflows/release.yml', 'utf8');
 const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
+const pages = readFileSync('.github/workflows/pages.yml', 'utf8');
 
 const indentOf = (line: string): number => line.length - line.trimStart().length;
 
@@ -65,6 +66,15 @@ describe('both workflows', () => {
     for (const workflow of [ci, release]) {
       expect(order(workflow, 'Build', 'Typecheck')).toBe(true);
       expect(order(workflow, 'Build', 'Test')).toBe(true);
+    }
+  });
+});
+
+describe('site deployment', () => {
+  it('deploys only after the gates', () => {
+    for (const gate of ['Typecheck', 'Contrast gate', 'Test']) {
+      expect(order(pages, 'Build', gate)).toBe(true);
+      expect(pages.indexOf(`- name: ${gate}`)).toBeLessThan(pages.indexOf('actions/deploy-pages'));
     }
   });
 });

@@ -119,7 +119,7 @@ the OKLCH source in `packages/tokens`; generated colours should never be edited 
 | ------------------- | ---------------------------------------------------------------------------------- |
 | `packages/tokens`   | `@sltsh/aion-tokens` — both scheme palettes, OKLCH definitions and the build gate  |
 | `packages/vscode`   | the VS Code extension: Aion, Aion Light, their gates and scope fixtures            |
-| `packages/terminal` | the dark Windows Terminal fragment and settings snippet                            |
+| `packages/terminal` | the dark Windows Terminal fragment, settings snippet and Herdr theme               |
 | `packages/css`      | both schemes as custom properties and a Tailwind v4 `@theme` block                 |
 | `apps/lab`          | the surface gallery: five surfaces, one palette, six live sliders                  |
 | `apps/site`         | the public site at https://aion.slt.sh: the landing page and the palette reference |
@@ -142,8 +142,7 @@ fails when a build or a `sync:design` changes a tracked file. A `v*.*.*` tag pub
 
 ## Release and deployment
 
-Pushes to `main` run CI and deploy `apps/site` to GitHub Pages. The lab remains local,
-and the site's Light palette stays hidden until its `lightVisible` flag is enabled.
+Pushes to `main` run CI and deploy `apps/site` to GitHub Pages. The lab remains local.
 
 A version tag is the package release trigger. Before tagging, move the changelog section,
 set the same version in all four package manifests, update the CSS token dependency and
@@ -161,6 +160,7 @@ to npm. See [RELEASING.md](RELEASING.md) for prerequisites, dry-run and tag inst
 
 - `DESIGN.md` — the specification. Every table in it is generated.
 - `LIGHT.md` — the Light variant's philosophy, implementation and availability.
+- `APP-THEMING.md` — the portable colour mapping for apps without a package.
 - `PLAN.md` — the order of work, what is done, and every defect the code found.
 - `RELEASING.md` — the release prerequisites, tag procedure and dry run.
 

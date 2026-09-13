@@ -26,6 +26,8 @@ not be reused to create a different product mark.
 | `aion-wordmark-light.png` | `AION__wordmark-light.png` | Light-surface product typography | Approved | Light-surface counterpart to the Aion wordmark. Use only on light backgrounds. |
 | `aion-lockup-horizontal.png` | `AION__lockup-horizontal.png` | Product composition, presentation | Approved | Preferred horizontal lockup for wide placements. |
 | `aion-lockup-horizontal-light.png` | `AION__lockup-horizontal-light.png` | Light-surface product composition | Approved | Exact horizontal composition with its neutral artwork set to Aion's dark primary background for light-surface use. |
+| `aion-lockup-horizontal-on-dark.png` | `AION__lockup-horizontal-on-dark.png` | Product composition on a dark field | Approved | Horizontal lockup with its own dark background, for placements whose surface Aion does not control, such as the Marketplace README. |
+| `aion-lockup-horizontal-on-light.png` | `AION__lockup-horizontal-on-light.png` | Product composition on a light field | Approved | Horizontal lockup with its own light background, for placements whose surface Aion does not control. |
 | `aion-lockup-vertical.png` | `AION__lockup-vertical.png` | Product composition, presentation | Approved | Preferred lockup for square or vertically balanced placements. |
 
 Aion references apply only to Aion work unless the user explicitly requests

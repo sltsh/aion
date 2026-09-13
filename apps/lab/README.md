@@ -60,7 +60,3 @@ build works under any `base`. GitHub Pages will need only the `base` option in
   lightness 0.600, which still clears 4.5:1 on the plain editor, and asserts the readout
   reports the failure it has inside an added diff line.
 - Every number the dashboard prints is a row `checks()` produced.
-
-## Still open
-
-GitHub Pages. The build is static and needs only a `base` and a workflow.

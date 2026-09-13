@@ -5,6 +5,8 @@ const PATHS = {
   copy: 'M9 9h11v11H9zM15 9V4H4v11h5',
   check: 'M5 12l4 4L19 6',
   download: 'M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5',
+  menu: 'M4 7h16M4 12h16M4 17h16',
+  close: 'M6 6l12 12M18 6 6 18',
 } as const;
 
 export const icon = (name: keyof typeof PATHS): string =>

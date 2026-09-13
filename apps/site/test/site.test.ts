@@ -17,7 +17,7 @@ import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_K
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 it('ships the release flag off', () => {
-  expect(FLAGS).toEqual({ released: false });
+  expect(FLAGS).toEqual({ released: true });
 });
 
 it('escapes text and copy attributes', () => {

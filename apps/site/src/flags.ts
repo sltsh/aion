@@ -2,4 +2,4 @@ export interface SiteFlags {
   readonly released: boolean;
 }
 
-export const FLAGS: SiteFlags = { released: false };
+export const FLAGS: SiteFlags = { released: true };

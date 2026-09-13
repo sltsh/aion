@@ -1,6 +1,6 @@
 # Aion site
 
-The `1.0.0` public site at https://aion.slt.sh: a theme introduction and a curated palette.
+The public site at https://aion.slt.sh: a theme introduction and a curated palette.
 Both pages render at build time. JavaScript adds clipboard feedback, a persistent light/dark
 theme switch with explicit Dark and Light choices, and section-aware navigation; content
 and anchor links work without it.
@@ -41,9 +41,7 @@ The Vite plugin serves the generated terminal fragment in development and emits 
 bytes at `/downloads/aion.json` in production. Build the terminal package before building
 the site. Tests verify parity with the generated fragment.
 
-`released` controls whether the site presents npm installation or a local build. It is
-currently off even though `0.3.1` has been published, so the site copy remains conservative
-until that deployment flag is deliberately updated. VS Code always links to the Marketplace
+`released` controls whether the site presents npm installation or a local build. It is on, because the packages are published. VS Code always links to the Marketplace
 and shows its install command. The public site follows the system theme until a visitor
 chooses Light or Dark; that choice is stored locally and shared by both pages. The Windows
 Terminal download remains the dark Aion scheme. Tests exercise both emitted palettes.
