@@ -5,6 +5,12 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.0.1
+
+### Added
+
+- Lockup variants with background
+
 ## 1.0.0
 
 ### Added
