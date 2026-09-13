@@ -16,6 +16,8 @@ the versions follow Semantic Versioning.
   adjustments.
 - Light variants of the Aion glyph and wordmark, with the lab selecting the light glyph
   automatically when its scheme changes.
+- A `1.0.0` public site with persistent, system-aware Dark and Light themes, explicit
+  radio-style theme selection, and matching brand artwork, favicons and palette values.
 
 ### Changed
 

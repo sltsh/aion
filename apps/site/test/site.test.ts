@@ -164,7 +164,9 @@ describe('the presentation pages', () => {
     expect(landing(FLAGS).split('</header>')[0]).not.toContain('aion-wordmark');
     expect(landing(FLAGS)).toContain('src="/icon.png"');
     expect(landing(FLAGS)).toContain('src="/icon-light.png"');
-    expect(landing(FLAGS)).toContain('data-theme-toggle');
+    expect(landing(FLAGS)).toContain('data-theme-switch');
+    expect(landing(FLAGS)).toContain('type="radio" name="aion-theme" value="dark"');
+    expect(landing(FLAGS)).toContain('type="radio" name="aion-theme" value="light"');
   });
 
   it('replaces the manual inventory with essentials and a palette link', () => {
@@ -247,7 +249,8 @@ describe('installation', () => {
 describe('the persistent site theme', () => {
   it('keeps the switch hidden before initialization and changes themes immediately', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-    expect(css).toContain('.theme-toggle[hidden] { display: none; }');
+    expect(css).toContain('.theme-switch[hidden] { display: none; }');
+    expect(css).toContain('.theme-switch input:focus-visible + span');
     expect(css).toContain('[data-theme-value] { display: none; }');
     expect(css).not.toContain('transition:');
   });
@@ -278,13 +281,10 @@ describe('the persistent site theme', () => {
 
   it('keeps system changes until a user choice, then persists safely', () => {
     const listeners = new Map<string, EventListener>();
-    const attributes: Record<string, string> = {};
     const root = { dataset: {} } as HTMLElement;
-    const button = {
-      dataset: {}, hidden: true, title: '', setAttribute: (name: string, value: string) => { attributes[name] = value; },
-      addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback),
-      removeEventListener: () => undefined,
-    } as unknown as HTMLButtonElement;
+    const control = { hidden: true } as HTMLFieldSetElement;
+    const darkInput = { value: 'dark', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('dark', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
+    const lightInput = { value: 'light', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('light', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
     const writes: string[] = [];
     const media = {
       matches: true,
@@ -292,31 +292,35 @@ describe('the persistent site theme', () => {
       removeEventListener: () => undefined,
     } as unknown as MediaQueryList;
     const assets: string[] = [];
-    initializeTheme({ root, button, media, storage: { getItem: () => null, setItem: (_key, value) => writes.push(value) }, updateAssets: (theme) => assets.push(theme) });
+    initializeTheme({ root, control, inputs: [darkInput, lightInput], media, storage: { getItem: () => null, setItem: (_key, value) => writes.push(value) }, updateAssets: (theme) => assets.push(theme) });
     expect(root.dataset.theme).toBe('light');
+    expect([darkInput.checked, lightInput.checked]).toEqual([false, true]);
     listeners.get('change')!({ matches: false } as MediaQueryListEvent);
     expect(root.dataset.theme).toBe('dark');
-    listeners.get('click')!({} as Event);
+    expect([darkInput.checked, lightInput.checked]).toEqual([true, false]);
+    listeners.get('change')!({ matches: true } as MediaQueryListEvent);
+    expect(root.dataset.theme).toBe('light');
+    listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
     expect(root.dataset.theme).toBe('light');
     expect(writes).toEqual(['light']);
     listeners.get('change')!({ matches: false } as MediaQueryListEvent);
     expect(root.dataset.theme).toBe('light');
-    expect(button.hidden).toBe(false);
-    expect(attributes['aria-label']).toBe('Use dark theme');
-    expect(button.title).toBe('Use dark theme');
-    expect(button.dataset['destination']).toBe('dark');
-    expect(assets).toEqual(['light', 'dark', 'light']);
+    expect(control.hidden).toBe(false);
+    expect([darkInput.checked, lightInput.checked]).toEqual([false, true]);
+    expect(assets).toEqual(['light', 'dark', 'light', 'light']);
   });
 
   it('switches safely when persistence writes fail and synchronizes favicon media', () => {
     const listeners = new Map<string, EventListener>();
     const root = { dataset: {} } as HTMLElement;
-    const button = { dataset: {}, hidden: true, title: '', setAttribute: () => undefined, addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback), removeEventListener: () => undefined } as unknown as HTMLButtonElement;
+    const control = { hidden: true } as HTMLFieldSetElement;
+    const darkInput = { value: 'dark', checked: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as HTMLInputElement;
+    const lightInput = { value: 'light', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('light', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
     const media = { matches: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as MediaQueryList;
-    initializeTheme({ root, button, media, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } }, updateAssets: () => undefined });
-    listeners.get('click')!({} as Event);
+    initializeTheme({ root, control, inputs: [darkInput, lightInput], media, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } }, updateAssets: () => undefined });
+    listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
     expect(root.dataset.theme).toBe('light');
-    expect(button.title).toBe('Use dark theme');
+    expect([darkInput.checked, lightInput.checked]).toEqual([false, true]);
     const dark = { dataset: { themeFavicon: 'dark' }, media: '' } as unknown as HTMLLinkElement;
     const light = { dataset: { themeFavicon: 'light' }, media: '' } as unknown as HTMLLinkElement;
     syncFavicons([dark, light], 'light');

@@ -296,8 +296,8 @@ no-JavaScript rendering, active copy values, focus and responsive header behavio
   system changes until the visitor explicitly chooses light or dark.
 - A visitor's explicit choice persists across reloads and across the landing and palette
   pages. The preference is local UI state, not part of the URL.
-- Put one binary theme button in the shared header, beside the GitHub action. Its icon,
-  accessible name and tooltip communicate the theme it will switch to.
+- Put one compact two-option theme switch in the shared header, beside the GitHub action.
+  Native radio inputs labelled Dark and Light expose the selected scheme directly.
 - Switch the whole site together: page chrome, controls, code preview, homepage essentials,
   full palette, displayed colour values, copied colour values and brand artwork.
 - Keep the palette's groups, roles and ordering identical between schemes. Each scheme
@@ -321,8 +321,9 @@ remains the interface and display face; Monaspace Neon remains the code face. Pr
 current page layout and add a compact trailing action group to the header:
 
 ```text
-wide:   [Aion mark]          [navigation]          [theme] [GitHub]
-narrow: [Aion mark] [navigation]                   [theme] [GitHub]
+wide:   [Aion mark]          [navigation]          [Dark | Light] [GitHub]
+narrow: [Aion mark]                         [Dark | Light] [GitHub]
+        [navigation]
 ```
 
 The switch should feel like part of the existing instrument-like chrome, not a generic
@@ -341,9 +342,8 @@ header actions.
 2. Establish one theme-state owner around `document.documentElement.dataset.theme`.
    Resolve a saved choice before first paint, otherwise use the system scheme. Handle
    unavailable storage without breaking rendering or interaction.
-3. Render the theme button from the shared header used by both pages. Initialize its state
-   from the effective scheme, persist explicit changes, and keep the action label and icon
-   synchronized.
+3. Render the Dark/Light radio-style switch from the shared header used by both pages.
+   Initialize its selected option from the effective scheme and persist explicit changes.
 4. Make brand artwork resolve from the same effective scheme. The pre-rendered page must
    show system-matched artwork when JavaScript is unavailable; expose the interactive
    switch only when its behavior is ready.
@@ -354,7 +354,7 @@ header actions.
    theme-neutral copy. Update `apps/site/README.md` and this task's status when the feature
    is complete. Leave the unrelated `released` flag unchanged.
 7. Extend site tests for initial resolution, persistence, system changes before an
-   explicit choice, storage failure, accessible button state, theme-specific assets,
+   explicit choice, storage failure, accessible radio state, theme-specific assets,
    active swatch values and copy payloads. Measure the site's gold and teal uses on their
    actual light surfaces with `contrastEmitted`, as well as the existing dark cases.
 8. Run `npm run verify`, `npm test` and `npm run typecheck`. `npm run sync:design` is needed
@@ -369,8 +369,8 @@ header actions.
   match the system scheme. There is no flash of the other theme.
 - An explicit choice survives reload, movement between both pages and a system-theme
   change. Clearing it restores system behavior.
-- Keyboard focus is visible, the button's announced action is correct before and after a
-  switch, and reduced-motion behavior is immediate.
+- Keyboard focus is visible, the selected Dark or Light option is announced correctly,
+  and reduced-motion behavior is immediate.
 - Header mark, hero lockup, footer wordmark and favicon use the intended variant in both
   themes, load at their declared dimensions and remain sharp on high-density displays.
 - JavaScript-disabled rendering retains readable, system-matched content and artwork;

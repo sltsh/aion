@@ -12,12 +12,12 @@ and creates the GitHub release.
 | `@sltsh/aion-css` | npm | Dark and Light custom properties |
 | VS Code extension | Visual Studio Marketplace, Open VSX and the GitHub release | Aion and Aion Light in one VSIX |
 | Windows Terminal fragment | Repository and public-site download | Dark standalone scheme only |
-| Public site | GitHub Pages on pushes to `main` | Light remains hidden while `lightVisible` is disabled |
+| Public site | GitHub Pages on pushes to `main` | Persistent Dark and Light switch using both emitted palettes |
 | Lab | None | Local development tool only |
 
 The release workflow publishes package artefacts only from a version tag. A push to
 `main` deploys the public site separately through `pages.yml`; it does not publish npm or
-marketplace packages.
+marketplace packages. The private site workspace is independently versioned at `1.0.0`.
 
 ## Prerequisites
 

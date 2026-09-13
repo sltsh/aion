@@ -1,8 +1,9 @@
 # Aion site
 
-The public site at https://aion.slt.sh: a theme introduction and a curated palette.
+The `1.0.0` public site at https://aion.slt.sh: a theme introduction and a curated palette.
 Both pages render at build time. JavaScript adds clipboard feedback, a persistent light/dark
-theme switch, and section-aware navigation; content and anchor links work without it.
+theme switch with explicit Dark and Light choices, and section-aware navigation; content
+and anchor links work without it.
 
 ```bash
 npm run dev -w ./apps/site

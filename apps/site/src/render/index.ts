@@ -23,7 +23,10 @@ const chrome = (current: Page): string => `<a class="skip-link" href="#content">
       <a href="${current === 'home' ? '#install' : '/#install'}"${current === 'home' ? ' data-section="install"' : ''}>Install</a>
       <a href="${current === 'palette' ? '#content' : '/palette.html'}"${current === 'palette' ? ' aria-current="page"' : ''}>Palette</a>
     </nav>
-    <button type="button" class="theme-toggle" data-theme-toggle hidden aria-label="Use light theme" title="Use light theme"><span data-theme-icon="light">${icon('sun')}</span><span data-theme-icon="dark">${icon('moon')}</span></button>
+    <fieldset class="theme-switch" data-theme-switch hidden><legend>Colour theme</legend>
+      <label><input type="radio" name="aion-theme" value="dark" data-theme-choice><span>Dark</span></label>
+      <label><input type="radio" name="aion-theme" value="light" data-theme-choice><span>Light</span></label>
+    </fieldset>
     <a class="source-link" href="${REPO}" aria-label="Aion on GitHub" title="Aion on GitHub">${icon('github')}</a>
   </header>`;
 

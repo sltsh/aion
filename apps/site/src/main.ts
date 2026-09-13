@@ -19,7 +19,8 @@ const themeStorage = (): Storage | null => {
 
 initializeTheme({
   root: document.documentElement,
-  button: document.querySelector<HTMLButtonElement>('[data-theme-toggle]'),
+  control: document.querySelector<HTMLFieldSetElement>('[data-theme-switch]'),
+  inputs: document.querySelectorAll<HTMLInputElement>('[data-theme-choice]'),
   media: window.matchMedia('(prefers-color-scheme: light)'),
   storage: themeStorage(),
   updateAssets: updateThemeAssets,

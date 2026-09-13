@@ -4,7 +4,8 @@ export type Theme = 'dark' | 'light';
 
 export interface ThemeEnvironment {
   readonly root: HTMLElement;
-  readonly button: HTMLButtonElement | null;
+  readonly control: HTMLFieldSetElement | null;
+  readonly inputs: Iterable<HTMLInputElement>;
   readonly media: MediaQueryList;
   readonly storage: Pick<Storage, 'getItem' | 'setItem'> | null;
   readonly updateAssets: (theme: Theme) => void;
@@ -28,30 +29,23 @@ export const readTheme = (storage: Pick<Storage, 'getItem'> | null): Theme | und
 export const resolveTheme = (saved: Theme | undefined, systemIsLight: boolean): Theme =>
   saved ?? (systemIsLight ? 'light' : 'dark');
 
-const destination = (theme: Theme): Theme => theme === 'dark' ? 'light' : 'dark';
-
-const labelFor = (theme: Theme): string => `Use ${destination(theme)} theme`;
-
 export const themeBootstrap = (): string => `<script>(function(){function set(theme){document.documentElement.dataset.theme=theme;document.querySelectorAll('link[data-theme-favicon]').forEach(function(link){link.media=link.getAttribute('data-theme-favicon')===theme?'all':'not all'})}try{var key='${THEME_STORAGE_KEY}',saved;try{saved=localStorage.getItem(key)}catch(e){}set(saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'))}catch(e){set(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}})();</script>`;
 
 export function initializeTheme(environment: ThemeEnvironment): () => void {
   let explicit = readTheme(environment.storage);
+  const inputs = [...environment.inputs];
 
   const apply = (theme: Theme): void => {
     environment.root.dataset.theme = theme;
     environment.updateAssets(theme);
-    const button = environment.button;
-    if (button) {
-      const label = labelFor(theme);
-      button.setAttribute('aria-label', label);
-      button.title = label;
-      button.dataset['destination'] = destination(theme);
-      button.hidden = false;
-    }
+    for (const input of inputs) input.checked = input.value === theme;
+    if (environment.control) environment.control.hidden = false;
   };
 
-  const setExplicitTheme = (): void => {
-    const next = destination(environment.root.dataset.theme === 'light' ? 'light' : 'dark');
+  const setExplicitTheme = (event: Event): void => {
+    const input = event.currentTarget as HTMLInputElement | null;
+    if (!input || !isTheme(input.value)) return;
+    const next = input.value;
     explicit = next;
     try {
       environment.storage?.setItem(THEME_STORAGE_KEY, next);
@@ -66,11 +60,11 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
   };
 
   apply(resolveTheme(explicit, environment.media.matches));
-  environment.button?.addEventListener('click', setExplicitTheme);
+  for (const input of inputs) input.addEventListener('click', setExplicitTheme);
   environment.media.addEventListener('change', onSystemChange);
 
   return () => {
-    environment.button?.removeEventListener('click', setExplicitTheme);
+    for (const input of inputs) input.removeEventListener('click', setExplicitTheme);
     environment.media.removeEventListener('change', onSystemChange);
   };
 }
