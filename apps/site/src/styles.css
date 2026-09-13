@@ -44,22 +44,25 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme]) .theme-image [data-theme-asset="dark"] { display: block; } }
 @media (prefers-color-scheme: light) { :root:not([data-theme]) .theme-image [data-theme-asset="light"] { display: block; } }
 .mark-image img { width: 2.75rem; height: 2.75rem; }
-.site-nav { display: flex; gap: 0.25rem; margin: auto; padding: 0.3rem; border: 1px solid var(--aion-border-hairline); border-radius: 999px; }
-.site-nav a { padding: 0.45rem 1rem; color: var(--aion-fg-secondary); text-decoration: none; font-size: 0.85rem; border-radius: 999px; }
+.site-nav, .theme-switch { border: 1px solid var(--aion-border-hairline); border-radius: 999px; }
+.site-nav { display: flex; gap: 0.25rem; margin: auto; padding: 0.3rem; }
+.site-nav a, .theme-switch span { color: var(--aion-fg-secondary); font-size: 0.85rem; border-radius: 999px; }
+.site-nav a { padding: 0.45rem 1rem; text-decoration: none; }
 .site-nav a:hover { color: var(--aion-fg-primary); background: var(--aion-bg-raised); }
 .site-nav a[aria-current] { color: var(--aion-gold-solid); background: var(--aion-gold-subtle); }
 .source-link { display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; flex: none; border-radius: 50%; }
 .source-link .icon { width: 1.3rem; height: 1.3rem; }
 .source-link:hover { color: var(--aion-gold-solid); }
-.theme-switch { display: grid; grid-template-columns: repeat(2, 1fr); min-inline-size: 0; height: 2.875rem; flex: none; margin: 0; padding: 0; overflow: hidden; border: 1px solid var(--aion-border-ui); border-radius: 6px; background: var(--aion-bg-page); }
+.theme-switch { display: grid; grid-template-columns: repeat(2, 1fr); min-inline-size: 0; height: 2.875rem; flex: none; margin: 0; padding: 0; overflow: hidden; }
 .theme-switch[hidden] { display: none; }
 .theme-switch legend { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.theme-switch label { position: relative; display: flex; min-width: 3.25rem; height: 100%; cursor: pointer; }
-.theme-switch label + label { border-left: 1px solid var(--aion-border-hairline); }
+.theme-switch label { position: relative; display: flex; min-width: 4rem; height: 100%; cursor: pointer; }
 .theme-switch input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
-.theme-switch span { display: flex; width: 100%; align-items: center; justify-content: center; padding: 0.35rem 0.65rem; color: var(--aion-fg-secondary); font-size: 0.75rem; line-height: 1; }
+.theme-switch span { display: flex; flex: 1; align-items: center; justify-content: center; margin: 0.3rem 0.125rem; padding: 0 0.65rem; line-height: 1; }
+.theme-switch label:first-of-type span { margin-left: 0.3rem; }
+.theme-switch label:last-of-type span { margin-right: 0.3rem; }
 .theme-switch input:hover + span { color: var(--aion-fg-primary); background: var(--aion-bg-raised); }
-.theme-switch input:checked + span { color: var(--aion-gold-solid); background: var(--aion-gold-subtle); box-shadow: inset 0 0 0 1px var(--aion-gold-border); }
+.theme-switch input:checked + span { color: var(--aion-gold-solid); background: var(--aion-gold-subtle); }
 .theme-switch input:focus-visible + span { outline: 2px solid var(--aion-border-focus); outline-offset: -3px; }
 .hero { text-align: center; padding: 3.5rem 0 3rem; }
 .hero-brand { display: block; width: min(100%, 52rem); height: auto; margin: 0 auto 1.5rem; }
@@ -184,7 +187,8 @@ code { font-family: 'Monaspace Neon', monospace; }
   :root { --site-header: 4.5rem; }
   .site-head { gap: 0.6rem; }
   .site-nav { margin: 0 0 0 auto; gap: 0; padding: 0.2rem; }
-  .site-nav a { padding: 0.45rem 0.4rem; font-size: 0.75rem; }
+  .site-nav a { padding: 0.45rem 0.4rem; }
+  .site-nav a, .theme-switch span { font-size: 0.75rem; }
   .source-link { width: 2.75rem; height: 2.75rem; }
   .mark-image img { width: 2rem; height: 2rem; }
   .hero { padding-top: 2rem; }

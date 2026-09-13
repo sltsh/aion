@@ -250,6 +250,9 @@ describe('the persistent site theme', () => {
   it('keeps the switch hidden before initialization and changes themes immediately', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     expect(css).toContain('.theme-switch[hidden] { display: none; }');
+    expect(css).toContain('.site-nav, .theme-switch { border: 1px solid var(--aion-border-hairline); border-radius: 999px; }');
+    expect(css).toContain('.site-nav a, .theme-switch span { color: var(--aion-fg-secondary); font-size: 0.85rem; border-radius: 999px; }');
+    expect(css).toContain('.site-nav a, .theme-switch span { font-size: 0.75rem; }');
     expect(css).toContain('.theme-switch input:focus-visible + span');
     expect(css).toContain('[data-theme-value] { display: none; }');
     expect(css).not.toContain('transition:');
