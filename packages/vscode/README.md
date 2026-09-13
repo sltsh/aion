@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/sltsh/aion/main/assets/aion-lockup-horizontal.png" alt="Aion" width="720"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/sltsh/aion/main/assets/aion-lockup-horizontal-on-dark.png" alt="Aion" width="720"></p>
 
 # Aion
 

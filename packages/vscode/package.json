@@ -2,7 +2,7 @@
   "name": "aion-theme",
   "displayName": "Aion Theme",
   "description": "Dark and light themes with a measured contrast floor. Familiar syntax, distinct chrome.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "publisher": "sltsh",
@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/sltsh/aion/issues"
   },
-  "homepage": "https://github.com/sltsh/aion#readme",
+  "homepage": "https://aion.slt.sh",
   "contributes": {
     "themes": [
       {

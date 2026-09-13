@@ -1,6 +1,6 @@
 {
   "name": "@sltsh/aion-css",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Aion as CSS custom properties and a Tailwind v4 @theme block.",
   "license": "MIT",
   "type": "module",
@@ -23,7 +23,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@sltsh/aion-tokens": "1.0.0"
+    "@sltsh/aion-tokens": "1.0.1"
   },
   "repository": {
     "type": "git",

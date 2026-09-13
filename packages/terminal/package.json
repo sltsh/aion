@@ -1,6 +1,6 @@
 {
   "name": "@sltsh/aion-terminal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "The Aion colour scheme for Windows Terminal, as a fragment extension and a settings snippet.",
   "license": "MIT",
   "type": "module",
