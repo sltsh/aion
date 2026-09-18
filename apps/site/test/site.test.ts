@@ -25,6 +25,32 @@ it('escapes text and copy attributes', () => {
   expect(escapeAttr('a "b"\nc')).toBe('a &quot;b&quot;&#10;c');
 });
 
+describe('search and sharing metadata', () => {
+  const pages = [
+    { file: 'index.html', url: 'https://aion.slt.sh/' },
+    { file: 'palette.html', url: 'https://aion.slt.sh/palette.html' },
+  ] as const;
+
+  for (const page of pages) {
+    it(`identifies ${page.file} with canonical and social metadata`, () => {
+      const html = readFileSync(join(root, page.file), 'utf8');
+      expect(html).toContain(`<link rel="canonical" href="${page.url}" />`);
+      expect(html).toContain(`<meta property="og:url" content="${page.url}" />`);
+      expect(html).toContain('<meta property="og:image" content="https://aion.slt.sh/aion-lockup-horizontal-light.webp" />');
+      expect(html).toContain('<meta name="twitter:card" content="summary_large_image" />');
+      expect(html).not.toMatch(/noindex/i);
+    });
+  }
+
+  it('publishes the canonical pages through robots.txt and the sitemap', () => {
+    const robots = readFileSync(join(root, 'public/robots.txt'), 'utf8');
+    const sitemap = readFileSync(join(root, 'public/sitemap.xml'), 'utf8');
+    expect(robots).toContain('User-agent: *\nAllow: /');
+    expect(robots).toContain('Sitemap: https://aion.slt.sh/sitemap.xml');
+    for (const page of pages) expect(sitemap).toContain(`<loc>${page.url}</loc>`);
+  });
+});
+
 describe('curated colours', () => {
   it('organizes colours into foundations, accents, interface roles, syntax, and terminal', () => {
     expect(groups().map((group) => group.id)).toEqual([...GROUP_IDS]);
