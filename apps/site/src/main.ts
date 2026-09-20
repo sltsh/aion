@@ -1,4 +1,5 @@
 import '@sltsh/aion-css/aion.css';
+import '@sltsh/site-mark/register';
 import './styles.css';
 import { initializeTheme, syncFavicons } from './theme.js';
 

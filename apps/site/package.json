@@ -13,6 +13,7 @@
   "dependencies": {
     "@sltsh/aion-css": "*",
     "@sltsh/aion-lab": "*",
-    "@sltsh/aion-tokens": "*"
+    "@sltsh/aion-tokens": "*",
+    "@sltsh/site-mark": "file:../../../site-mark-pack/sltsh-site-mark-0.1.0.tgz"
   }
 }

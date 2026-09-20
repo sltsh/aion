@@ -1,0 +1,2276 @@
+[
+  {
+    "browser": "chromium",
+    "version": "153.0.8010.12"
+  },
+  {
+    "browser": "chromium",
+    "name": "home-dark-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.453125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.453125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.46875,
+      "width": 1120,
+      "height": 370.984375
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.46875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.46875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.46875,
+        "width": 373.34375,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-dark-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 948.421875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 948.421875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 632.96875,
+      "width": 706.5625,
+      "height": 391.453125
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 762.96875,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 762.96875,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 762.96875,
+        "width": 235.515625,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-dark-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.421875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.421875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.640625,
+      "width": 350,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.390625,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 477.453125,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 576.515625,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-dark-320x568",
+    "mark": {
+      "x": 20,
+      "y": 492.1875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 492.1875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -56.59375,
+      "width": 280,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 103.15625,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 201.21875,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 300.28125,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-light-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.453125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.453125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.46875,
+      "width": 1120,
+      "height": 370.984375
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.46875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.46875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.46875,
+        "width": 373.34375,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-light-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 948.421875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 948.421875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 632.96875,
+      "width": 706.5625,
+      "height": 391.453125
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 762.96875,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 762.96875,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 762.96875,
+        "width": 235.515625,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-light-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.421875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.421875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.640625,
+      "width": 350,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.390625,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 477.453125,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 576.515625,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-light-320x568",
+    "mark": {
+      "x": 20,
+      "y": 492.1875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 492.1875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -56.59375,
+      "width": 280,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 103.15625,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 201.21875,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 300.28125,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "home-no-js-390x844",
+    "slotHeight": 44,
+    "markWidth": 0,
+    "markHeight": 0,
+    "footerHeight": 624.78125,
+    "links": 3
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-dark-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.40625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.40625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.421875,
+      "width": 1120,
+      "height": 370.984375
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.421875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.421875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.421875,
+        "width": 373.34375,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-dark-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 948.046875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 948.046875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 632.59375,
+      "width": 706.5625,
+      "height": 391.453125
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 762.59375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 762.59375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 762.59375,
+        "width": 235.515625,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-dark-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.484375,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.484375,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.703125,
+      "width": 350,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.453125,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 477.515625,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 576.578125,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-dark-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.578125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.578125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.203125,
+      "width": 280,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.546875,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 200.609375,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 299.671875,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-light-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.40625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.40625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.421875,
+      "width": 1120,
+      "height": 370.984375
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.421875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.421875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.421875,
+        "width": 373.34375,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-light-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 948.046875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 948.046875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 632.59375,
+      "width": 706.5625,
+      "height": 391.453125
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 762.59375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 762.59375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 762.59375,
+        "width": 235.515625,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-light-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.484375,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.484375,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.703125,
+      "width": 350,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.453125,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 477.515625,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 576.578125,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-light-320x568",
+    "mark": {
+      "x": 20,
+      "y": 492.390625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 492.390625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -56.390625,
+      "width": 280,
+      "height": 624.78125
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 103.359375,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 201.421875,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 300.484375,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "chromium",
+    "name": "palette-no-js-390x844",
+    "slotHeight": 44,
+    "markWidth": 0,
+    "markHeight": 0,
+    "footerHeight": 624.78125,
+    "links": 3
+  },
+  {
+    "browser": "firefox",
+    "version": "155.0"
+  },
+  {
+    "browser": "firefox",
+    "name": "home-dark-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 823.75,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 823.75,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 528.7333374023438,
+      "width": 1120,
+      "height": 371.01666259765625
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 658.7333374023438,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 533.3333129882812,
+        "y": 658.7333374023438,
+        "width": 373.3333435058594,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 906.6666870117188,
+        "y": 658.7333374023438,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-dark-768x1024",
+    "mark": {
+      "x": 30.716659545898438,
+      "y": 948.4000244140625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.716659545898438,
+      "y": 948.4000244140625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.716659545898438,
+      "y": 632.9000244140625,
+      "width": 706.566650390625,
+      "height": 391.5
+    },
+    "footerLinks": [
+      {
+        "x": 30.716659545898438,
+        "y": 762.9000244140625,
+        "width": 235.5166778564453,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 266.23333740234375,
+        "y": 762.9000244140625,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 501.75,
+        "y": 762.9000244140625,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-dark-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.36669921875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.36669921875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.5,
+      "width": 350,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.25,
+        "width": 350,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 477.33331298828125,
+        "width": 350,
+        "height": 99.08334350585938
+      },
+      {
+        "x": 20,
+        "y": 576.4166870117188,
+        "width": 350,
+        "height": 99.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-dark-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.5333251953125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.5333251953125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.33332824707031,
+      "width": 280,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.41667175292969,
+        "width": 280,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 200.5,
+        "width": 280,
+        "height": 99.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 299.58331298828125,
+        "width": 280,
+        "height": 99.08334350585938
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-light-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 823.75,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 823.75,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 528.7333374023438,
+      "width": 1120,
+      "height": 371.01666259765625
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 658.7333374023438,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 533.3333129882812,
+        "y": 658.7333374023438,
+        "width": 373.3333435058594,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 906.6666870117188,
+        "y": 658.7333374023438,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-light-768x1024",
+    "mark": {
+      "x": 30.716659545898438,
+      "y": 948.4000244140625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.716659545898438,
+      "y": 948.4000244140625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.716659545898438,
+      "y": 632.9000244140625,
+      "width": 706.566650390625,
+      "height": 391.5
+    },
+    "footerLinks": [
+      {
+        "x": 30.716659545898438,
+        "y": 762.9000244140625,
+        "width": 235.5166778564453,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 266.23333740234375,
+        "y": 762.9000244140625,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 501.75,
+        "y": 762.9000244140625,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-light-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.36669921875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.36669921875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.5,
+      "width": 350,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.25,
+        "width": 350,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 477.33331298828125,
+        "width": 350,
+        "height": 99.08334350585938
+      },
+      {
+        "x": 20,
+        "y": 576.4166870117188,
+        "width": 350,
+        "height": 99.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-light-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.5333251953125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.5333251953125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.33332824707031,
+      "width": 280,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.41667175292969,
+        "width": 280,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 200.5,
+        "width": 280,
+        "height": 99.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 299.58331298828125,
+        "width": 280,
+        "height": 99.08334350585938
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "home-no-js-390x844",
+    "slotHeight": 44,
+    "markWidth": 0,
+    "markHeight": 0,
+    "footerHeight": 624.86669921875,
+    "links": 3
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-dark-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.0999755859375,
+      "width": 1120,
+      "height": 371.01666259765625
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.0999755859375,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 533.3333129882812,
+        "y": 659.0999755859375,
+        "width": 373.3333435058594,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 906.6666870117188,
+        "y": 659.0999755859375,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-dark-768x1024",
+    "mark": {
+      "x": 30.716659545898438,
+      "y": 948.2000122070312,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.716659545898438,
+      "y": 948.2000122070312,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.716659545898438,
+      "y": 632.7000122070312,
+      "width": 706.566650390625,
+      "height": 391.5
+    },
+    "footerLinks": [
+      {
+        "x": 30.716659545898438,
+        "y": 762.7000122070312,
+        "width": 235.5166778564453,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 266.23333740234375,
+        "y": 762.7000122070312,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 501.75,
+        "y": 762.7000122070312,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-dark-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.25,
+      "width": 350,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379,
+        "width": 350,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 477.08331298828125,
+        "width": 350,
+        "height": 99.08334350585938
+      },
+      {
+        "x": 20,
+        "y": 576.1666870117188,
+        "width": 350,
+        "height": 99.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-dark-320x568",
+    "mark": {
+      "x": 20,
+      "y": 492.16668701171875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 492.16668701171875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -56.69999694824219,
+      "width": 280,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 103.05000305175781,
+        "width": 280,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 201.13333129882812,
+        "width": 280,
+        "height": 99.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 300.2166748046875,
+        "width": 280,
+        "height": 99.08334350585938
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-light-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.0999755859375,
+      "width": 1120,
+      "height": 371.01666259765625
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.0999755859375,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 533.3333129882812,
+        "y": 659.0999755859375,
+        "width": 373.3333435058594,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 906.6666870117188,
+        "y": 659.0999755859375,
+        "width": 373.33331298828125,
+        "height": 98.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-light-768x1024",
+    "mark": {
+      "x": 30.716659545898438,
+      "y": 948.2000122070312,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.716659545898438,
+      "y": 948.2000122070312,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.716659545898438,
+      "y": 632.7000122070312,
+      "width": 706.566650390625,
+      "height": 391.5
+    },
+    "footerLinks": [
+      {
+        "x": 30.716659545898438,
+        "y": 762.7000122070312,
+        "width": 235.5166778564453,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 266.23333740234375,
+        "y": 762.7000122070312,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      },
+      {
+        "x": 501.75,
+        "y": 762.7000122070312,
+        "width": 235.51666259765625,
+        "height": 118.56666564941406
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-light-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.11669921875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.25,
+      "width": 350,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379,
+        "width": 350,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 477.08331298828125,
+        "width": 350,
+        "height": 99.08334350585938
+      },
+      {
+        "x": 20,
+        "y": 576.1666870117188,
+        "width": 350,
+        "height": 99.08332824707031
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-light-320x568",
+    "mark": {
+      "x": 20,
+      "y": 492.16668701171875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 492.16668701171875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -56.69999694824219,
+      "width": 280,
+      "height": 624.86669921875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 103.05000305175781,
+        "width": 280,
+        "height": 98.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 201.13333129882812,
+        "width": 280,
+        "height": 99.08332824707031
+      },
+      {
+        "x": 20,
+        "y": 300.2166748046875,
+        "width": 280,
+        "height": 99.08334350585938
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "firefox",
+    "name": "palette-no-js-390x844",
+    "slotHeight": 44,
+    "markWidth": 0,
+    "markHeight": 0,
+    "footerHeight": 624.86669921875,
+    "links": 3
+  },
+  {
+    "browser": "webkit",
+    "version": "26.6"
+  },
+  {
+    "browser": "webkit",
+    "name": "home-dark-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.25,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.25,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.296875,
+      "width": 1120,
+      "height": 370.953125
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.296875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.296875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.296875,
+        "width": 373.328125,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-dark-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 947.53125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 947.53125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 632.109375,
+      "width": 706.5625,
+      "height": 391.421875
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 762.109375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 762.109375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 762.109375,
+        "width": 235.53125,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-dark-390x844",
+    "mark": {
+      "x": 20,
+      "y": 767.5625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 767.5625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 218.84375,
+      "width": 350,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 378.59375,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 476.65625,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 575.71875,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-dark-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.546875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.546875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.171875,
+      "width": 280,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.578125,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 200.640625,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 299.703125,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-light-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.25,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.25,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.296875,
+      "width": 1120,
+      "height": 370.953125
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.296875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.296875,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.296875,
+        "width": 373.328125,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-light-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 947.53125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 947.53125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 632.109375,
+      "width": 706.5625,
+      "height": 391.421875
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 762.109375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 762.109375,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 762.109375,
+        "width": 235.53125,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-light-390x844",
+    "mark": {
+      "x": 20,
+      "y": 767.5625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 767.5625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 218.84375,
+      "width": 350,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 378.59375,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 476.65625,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 575.71875,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-light-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.546875,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.546875,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.171875,
+      "width": 280,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.578125,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 200.640625,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 299.703125,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "home-no-js-390x844",
+    "slotHeight": 44,
+    "markWidth": 0,
+    "markHeight": 0,
+    "footerHeight": 624.71875,
+    "links": 3
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-dark-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.03125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.03125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.078125,
+      "width": 1120,
+      "height": 370.953125
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.078125,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.078125,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.078125,
+        "width": 373.328125,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-dark-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 948.484375,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 948.484375,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 633.0625,
+      "width": 706.5625,
+      "height": 391.421875
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 763.0625,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 763.0625,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 763.0625,
+        "width": 235.53125,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-dark-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.265625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.265625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.546875,
+      "width": 350,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.296875,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 477.359375,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 576.421875,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-dark-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.09375,
+      "width": 280,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.65625,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 200.71875,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 299.78125,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "dark",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-light-1440x900",
+    "mark": {
+      "x": 160,
+      "y": 824.03125,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 160,
+      "y": 824.03125,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 160,
+      "y": 529.078125,
+      "width": 1120,
+      "height": 370.953125
+    },
+    "footerLinks": [
+      {
+        "x": 160,
+        "y": 659.078125,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 533.328125,
+        "y": 659.078125,
+        "width": 373.328125,
+        "height": 98.0625
+      },
+      {
+        "x": 906.65625,
+        "y": 659.078125,
+        "width": 373.328125,
+        "height": 98.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-light-768x1024",
+    "mark": {
+      "x": 30.71875,
+      "y": 948.484375,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 30.71875,
+      "y": 948.484375,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 30.71875,
+      "y": 633.0625,
+      "width": 706.5625,
+      "height": 391.421875
+    },
+    "footerLinks": [
+      {
+        "x": 30.71875,
+        "y": 763.0625,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 266.234375,
+        "y": 763.0625,
+        "width": 235.515625,
+        "height": 118.53125
+      },
+      {
+        "x": 501.75,
+        "y": 763.0625,
+        "width": 235.53125,
+        "height": 118.53125
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-light-390x844",
+    "mark": {
+      "x": 20,
+      "y": 768.265625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 768.265625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": 219.546875,
+      "width": 350,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 379.296875,
+        "width": 350,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 477.359375,
+        "width": 350,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 576.421875,
+        "width": 350,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-light-320x568",
+    "mark": {
+      "x": 20,
+      "y": 491.625,
+      "width": 120,
+      "height": 44
+    },
+    "slot": {
+      "x": 20,
+      "y": 491.625,
+      "width": 120,
+      "height": 44
+    },
+    "footer": {
+      "x": 20,
+      "y": -57.09375,
+      "width": 280,
+      "height": 624.71875
+    },
+    "footerLinks": [
+      {
+        "x": 20,
+        "y": 102.65625,
+        "width": 280,
+        "height": 98.0625
+      },
+      {
+        "x": 20,
+        "y": 200.71875,
+        "width": 280,
+        "height": 99.0625
+      },
+      {
+        "x": 20,
+        "y": 299.78125,
+        "width": 280,
+        "height": 99.0625
+      }
+    ],
+    "overflow": 0,
+    "theme": "light",
+    "accessibleName": "An SLT project — visit slt.sh",
+    "collidesWithFooterLink": false
+  },
+  {
+    "browser": "webkit",
+    "name": "palette-no-js-390x844",
+    "slotHeight": 44,
+    "markWidth": 0,
+    "markHeight": 0,
+    "footerHeight": 624.71875,
+    "links": 3
+  }
+]

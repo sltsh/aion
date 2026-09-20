@@ -178,6 +178,7 @@ code { font-family: 'Monaspace Neon', monospace; }
 .footer-links .icon { color: var(--aion-gold-solid); }
 .footer-links a:hover { color: var(--aion-gold-solid); }
 .footer-meta { display: flex; justify-content: space-between; gap: 1.5rem; padding-top: 1.5rem; font-size: 0.7rem; color: var(--aion-fg-secondary); }
+.footer-site-mark { width: 120px; height: 44px; margin-top: 1.5rem; }
 @media (max-width: 1000px) {
   .essentials-colours .swatch-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .palette-layout { gap: 2rem; grid-template-columns: 8.5rem minmax(0, 1fr); }

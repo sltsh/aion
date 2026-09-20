@@ -42,7 +42,8 @@ const footer = (): string => `<footer class="site-foot">
     <a href="${REPO}"><span>GitHub<small>Source & contributions</small></span>${icon('external')}</a>
     <a href="${REPO}/blob/main/DESIGN.md"><span>Design notes<small>The thinking behind the theme</small></span>${icon('external')}</a>
   </nav>
-  <div class="footer-meta"><span>Open source. MIT licensed.</span><span>Archivo & Monaspace Neon · SIL Open Font License 1.1</span></div>
+  <div class="footer-meta"><span>Aion source: MIT licensed.</span><span>Archivo & Monaspace Neon · SIL Open Font License 1.1</span></div>
+  <div class="footer-site-mark"><slt-site-mark placement="inline"></slt-site-mark></div>
 </footer>`;
 
 const link = (href: string, text: string): string =>

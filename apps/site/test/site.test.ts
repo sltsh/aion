@@ -14,6 +14,15 @@ import { renderHero } from '../src/samples/hero.js';
 import { swatch } from '../src/render/swatch.js';
 import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_KEY, themeBootstrap } from '../src/theme.js';
 
+it('renders the optional SLT provenance mark in both footers', () => {
+  for (const html of [landing(FLAGS), palette()]) {
+    expect(html).toContain('<slt-site-mark placement="inline"></slt-site-mark>');
+  }
+  const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+  expect(css).toContain('.footer-site-mark { width: 120px; height: 44px;');
+  expect(readFileSync(join(root, 'src/main.ts'), 'utf8')).toContain("import '@sltsh/site-mark/register';");
+});
+
 const root = fileURLToPath(new URL('..', import.meta.url));
 
 it('ships the release flag off', () => {
