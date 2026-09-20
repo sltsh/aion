@@ -81,4 +81,5 @@ evidence above.
 The temporary file dependency in this branch must be replaced with the
 published version after the release gate approves the package metadata,
 licensing, and publication. Do not merge or deploy this consumer branch with
-the temporary tarball path.
+the temporary tarball path. The test tarball was removed after the packed
+consumer proof, so a fresh install requires that replacement.
