@@ -1,9 +1,9 @@
 # SLT site mark adoption proof
 
 Date: 2026-09-20. This is a local feature-branch integration of the **unpublished**
-`@sltsh/site-mark` version `0.1.0`, packed from local package commit `c559720`.
+`@sltsh/site-mark` version `0.1.0`, packed from local package commit `407773f`.
 The installed tarball's SHA-512 integrity is
-`sha512-L9ClPM/HwuPtfYX7YWfPMccMdTf8yCdMNOjJVmpw22A5t/03XN7AnoARFVj0xHe24o/c3KGQJybue5LE6eoiFA==`.
+`sha512-wKr/myI0Buo0HRPRk3tEWLtgG1rQ+8l70F2fyibBXSc4uoquaB9iKJkwLo6/EG10f5ciAjjLkVJsEG/qTiy9JA==`.
 It was installed as a tarball, not from a source path. The package is not
 published and this branch is not a production deployment.
 
@@ -49,6 +49,13 @@ the 2px gold outline with a 3px offset and a 2px dark outer ring. The resting
 matrix above remains valid because this correction changes only the focused
 state.
 
+Forced-colors rendering of the final packed artifact was checked on Aion's
+light page in Chromium, Firefox, and WebKit. Each used a white `Canvas` field
+and black `CanvasText`, a 21:1 text pair, and retained a visible focused
+outline: [Chromium](site-mark-evidence/chromium/home-forced-colors-focus-390x844.png),
+[Firefox](site-mark-evidence/firefox/home-forced-colors-focus-390x844.png), and
+[WebKit](site-mark-evidence/webkit/home-forced-colors-focus-390x844.png).
+
 Edge and physical touch devices were unavailable. These Playwright builds do
 not certify native Safari rendering. The package review records fixed
 placement, safe-area emulation, motion, focus, forced-colors, and busy-surface
@@ -63,9 +70,13 @@ evidence separately.
 - `npm test`: passed across the root and all workspaces (296 tests).
 - `npm run verify`: passed; 1,024 contrast rows passed, none failed,
   five documented exemptions, and 28 informational rows.
-- After installing the corrected tarball, the site build and site typecheck
+- After installing the final tarball, the site build and site typecheck
   passed again, as did all 37 focused site tests. The installed `register.js`
   matched the package's built file byte for byte.
+
+The final tarball change affects only the component's forced-colors styling;
+the unchanged Aion token and package logic retains the root test and contrast
+evidence above.
 
 The temporary file dependency in this branch must be replaced with the
 published version after the release gate approves the package metadata,
