@@ -1,9 +1,9 @@
 # SLT site mark adoption proof
 
 Date: 2026-09-20. This is a local feature-branch integration of the **unpublished**
-`@sltsh/site-mark` version `0.1.0`, packed from local package commit `d1fe26e`.
+`@sltsh/site-mark` version `0.1.0`, packed from local package commit `c559720`.
 The installed tarball's SHA-512 integrity is
-`sha512-Q+cB9Owu6hW1Ac37cMs56hLa39/7QrDWMAickUjO72bWBeQpMnDrVRxUA9xPBsiwOUaAgO2H9/JaE5fihP3JRg==`.
+`sha512-L9ClPM/HwuPtfYX7YWfPMccMdTf8yCdMNOjJVmpw22A5t/03XN7AnoARFVj0xHe24o/c3KGQJybue5LE6eoiFA==`.
 It was installed as a tarball, not from a source path. The package is not
 published and this branch is not a production deployment.
 
@@ -41,6 +41,14 @@ empty element measured `0×0`, had no link or hit target, and the three footer
 links remained present. The visual review found the mark readable on Aion's
 light and dark surfaces and subordinate to Aion's own brand.
 
+The focus-only contrast correction in the final tarball was checked on Aion's
+light theme in [Chromium](site-mark-evidence/chromium/home-light-focus-390x844.png),
+[Firefox](site-mark-evidence/firefox/home-light-focus-390x844.png), and
+[WebKit](site-mark-evidence/webkit/home-light-focus-390x844.png). Each rendered
+the 2px gold outline with a 3px offset and a 2px dark outer ring. The resting
+matrix above remains valid because this correction changes only the focused
+state.
+
 Edge and physical touch devices were unavailable. These Playwright builds do
 not certify native Safari rendering. The package review records fixed
 placement, safe-area emulation, motion, focus, forced-colors, and busy-surface
@@ -55,6 +63,9 @@ evidence separately.
 - `npm test`: passed across the root and all workspaces (296 tests).
 - `npm run verify`: passed; 1,024 contrast rows passed, none failed,
   five documented exemptions, and 28 informational rows.
+- After installing the corrected tarball, the site build and site typecheck
+  passed again, as did all 37 focused site tests. The installed `register.js`
+  matched the package's built file byte for byte.
 
 The temporary file dependency in this branch must be replaced with the
 published version after the release gate approves the package metadata,
