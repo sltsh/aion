@@ -55,10 +55,10 @@ this record; this file records Aion decisions rather than reproducing it.
 Copy controls are disabled in prerendered HTML and enabled during client
 initialization. If Clipboard API access is unavailable or fails, the site
 announces an explicit selectable-text fallback. Each control owns and replaces
-its own confirmation timer. Meaningful theme-specific images have one parent
-accessible label with empty-alt variants, so a failed resource does not expose
-both theme images to assistive technology. Functional control edges use the UI
-border role and controls retain 44px reachability.
+its own confirmation timer. Each meaningful theme-specific image carries the
+same concise alternative text on both variants; only the active variant is
+rendered, and its label remains available if the resource fails. Functional
+control edges use the UI border role and controls retain 44px reachability.
 
 The focused site test, typecheck, and production build cover rendered
 structure, exact token values, no-JS copy semantics, status roles, anchors,

@@ -14,7 +14,7 @@ type Page = 'home' | 'palette';
 const SITE_MARK = '<slt-site-mark></slt-site-mark>';
 
 const themedImage = (className: string, dark: string, light: string, label: string, width: number, height: number): string =>
-  `<span class="theme-image ${className}"${label ? ` role="img" aria-label="${escapeAttr(label)}" data-image-label="${escapeAttr(label)}"` : ''}><img data-theme-asset="dark" src="${dark}" alt="" width="${width}" height="${height}"><img data-theme-asset="light" src="${light}" alt="" width="${width}" height="${height}"></span>`;
+  `<span class="theme-image ${className}"><img data-theme-asset="dark" src="${dark}" alt="${escapeAttr(label)}" width="${width}" height="${height}"><img data-theme-asset="light" src="${light}" alt="${escapeAttr(label)}" width="${width}" height="${height}"></span>`;
 
 const chrome = (current: Page): string => `<a class="skip-link" href="#content">Skip to content</a>
   <header class="site-head">

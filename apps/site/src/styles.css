@@ -134,7 +134,7 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .release-note .text-link { margin-left: 0.5rem; }
 .install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--aion-border-divider); border-bottom: 1px solid var(--aion-border-divider); }
 .install-card { min-width: 0; display: flex; flex-direction: column; padding: 1.5rem 1.5rem 1.5rem 0; }
-.install-card + .install-card { border-left: 1px solid var(--aion-border-divider); }
+.install-card + .install-card { padding-left: 1.5rem; border-left: 1px solid var(--aion-border-divider); }
 .install-card > p { font-size: 0.85rem; margin: 1rem 0 1.5rem; }
 .command-block { margin-top: auto; background: var(--aion-bg-raised); border: 1px solid var(--aion-border-ui); overflow: hidden; }
 .command-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.65rem; border-bottom: 1px solid var(--aion-border-divider); font-size: 0.7rem; color: var(--aion-fg-secondary); }
@@ -154,7 +154,7 @@ code { font-family: 'Monaspace Neon', monospace; }
 .page-head .button { margin-top: 1.5rem; }
 .palette-layout { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 3.5rem; align-items: start; }
 .jump { position: sticky; top: calc(var(--site-header) + 2rem); display: grid; gap: 0.3rem; }
-.jump a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.65rem 0.8rem; border-left: 2px solid transparent; color: var(--aion-fg-secondary); font-size: 0.9rem; text-decoration: none; }
+.jump a { display: flex; justify-content: space-between; align-items: center; min-height: 2.75rem; gap: 1rem; padding: 0.65rem 0.8rem; border-left: 2px solid transparent; color: var(--aion-fg-secondary); font-size: 0.9rem; text-decoration: none; }
 .jump a:hover { background: var(--aion-bg-raised); }
 .jump a[aria-current] { border-color: var(--aion-gold-solid); color: var(--aion-gold-solid); background: var(--aion-gold-subtle); }
 .nav-count { font-size: 0.7rem; }
@@ -218,7 +218,7 @@ code { font-family: 'Monaspace Neon', monospace; }
   .page-head { display: block; padding: 3rem 0; }
   .palette-layout { display: block; }
   .jump { display: flex; gap: 0.3rem; top: var(--site-header); z-index: 8; padding: 0.75rem 0; background: var(--aion-bg-surface); margin-bottom: 1.5rem; }
-  .jump a { flex: 1; gap: 0.25rem; padding: 0.6rem 0.3rem; border-left: 0; border-bottom: 2px solid transparent; font-size: 0.7rem; border-radius: 5px 5px 0 0; }
+  .jump a { flex: 1; gap: 0.25rem; padding: 0.6rem 0.3rem; border-left: 0; border-bottom: 2px solid transparent; font-size: 0.7rem; }
   .jump .nav-count { display: none; }
   .palette-group { scroll-margin-top: 4rem; }
   .palette-group:not(#accents) .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

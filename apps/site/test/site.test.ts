@@ -264,14 +264,14 @@ describe('the presentation pages', () => {
     expect(html).not.toContain('npm run pack:dev');
   });
 
-  it('keeps presentation links textual and meaningful images labelled once', () => {
+  it('keeps presentation links textual and gives each themed image a visible fallback label', () => {
     const html = landing(FLAGS);
     expect(html).not.toContain('M5 12h14');
-    expect(html).toContain('role="img" aria-label="Aion" data-image-label="Aion"');
+    expect(html).not.toContain('data-image-label');
     expect(html).toContain('data-theme-asset="dark"');
     expect(html).toContain('data-theme-asset="light"');
-    expect(html).toMatch(/data-theme-asset="dark"[^>]+alt=""/);
-    expect(html).toMatch(/data-theme-asset="light"[^>]+alt=""/);
+    expect(html).toMatch(/data-theme-asset="dark"[^>]+alt="Aion"/);
+    expect(html).toMatch(/data-theme-asset="light"[^>]+alt="Aion"/);
   });
 
   it('makes copy controls honest until client enhancement runs', () => {
@@ -340,7 +340,9 @@ describe('the continuity hero', () => {
   it('uses a flat header rail without pill silhouettes', () => {
     expect(css).not.toContain('999px');
     expect(css).not.toContain('border-radius: 50%');
+    expect(css).not.toContain('border-radius: 5px');
     expect(rule('.site-nav a')).toContain('min-height: 2.75rem');
+    expect(rule('.jump a')).toContain('min-height: 2.75rem');
     expect(rule('.site-nav a[aria-current]')).toContain('border-bottom-color: var(--aion-gold-solid)');
     expect(css).toMatch(/\.theme-switch \{ display: grid;[^}]*height: 2\.875rem/);
     expect(rule('.theme-switch input:checked + span')).toContain('border-bottom-color: var(--aion-gold-solid)');
