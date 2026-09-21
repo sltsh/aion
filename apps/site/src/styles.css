@@ -96,7 +96,7 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .swatch-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem 1rem; }
 .essentials-foundations { margin-bottom: 1.75rem; }
 .essentials-colours .swatch-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.swatch { display: block; min-width: 0; padding: 0; background: none; border: none; color: inherit; text-align: left; cursor: pointer; }
+.swatch { display: block; align-self: start; min-width: 0; padding: 0; background: none; border: none; color: inherit; text-align: left; cursor: pointer; }
 .swatch-chip { display: flex; align-items: flex-end; justify-content: flex-end; height: 7rem; padding: 0.6rem; border: 1px solid var(--aion-border-ui); background: var(--site-swatch); }
 .swatch-copy { display: flex; padding: 0.3rem; background: var(--aion-bg-page); color: var(--aion-fg-primary); opacity: 0; }
 .swatch:hover .swatch-copy, .swatch:focus-visible .swatch-copy { opacity: 1; }
@@ -114,6 +114,8 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .swatch-role { display: block; font-size: 0.75rem; color: var(--aion-fg-secondary); margin-top: 0.15rem; }
 .copy-button { display: inline-flex; justify-content: center; align-items: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.45rem 0.75rem; background: var(--aion-bg-raised); color: var(--aion-fg-primary); border: 1px solid var(--aion-border-ui); font-size: 0.75rem; cursor: pointer; }
 .copy-button:disabled, .swatch:disabled { cursor: default; }
+.copy-button:disabled { color: var(--aion-fg-dim); border-color: var(--aion-border-divider); }
+.swatch:disabled .swatch-copy { display: none; }
 .copy-button:hover { color: var(--aion-gold-solid); }
 .copy-indicator { display: inline-flex; align-items: center; justify-content: center; width: 1.1rem; height: 1.1rem; }
 .copy-icon, .copy-check { display: inline-flex; }
@@ -234,7 +236,8 @@ code { font-family: 'Monaspace Neon', monospace; }
   .copy-status[data-visible] { bottom: calc(16px + env(safe-area-inset-bottom) + 44px + 12px); }
 }
 @media (max-width: 340px) {
-  .page-head { padding-bottom: 1.25rem; }
+  .page-head { padding-bottom: 0; }
+  .jump a { min-width: 0; justify-content: center; padding-inline: 0.1rem; text-align: center; overflow-wrap: anywhere; line-height: 1.2; }
 }
 @media (max-width: 520px) {
   :root:has(.site-head:not([data-menu])) { --site-header: 7rem; }

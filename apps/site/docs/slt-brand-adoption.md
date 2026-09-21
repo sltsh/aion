@@ -62,6 +62,9 @@ control edges use the UI border role and controls retain 44px reachability.
 
 The focused site test, typecheck, and production build cover rendered
 structure, exact token values, no-JS copy semantics, status roles, anchors,
-and generated output. Coordinator-owned browser evidence remains pending for
-the accepted desktop/mobile matrix, and final owner visual approval is still
-required for this composition. This record does not claim either approval.
+and generated output. Browser acceptance covered Chromium 153.0.8010.12,
+Firefox 155.0, and WebKit 26.6 on both pages and themes at 1440x900, 768x1024,
+390x844, and 320x568, including the production no-JS build and reduced motion.
+The earlier owner approval in the project adoption note covers the fixed site
+mark only. Final owner visual approval is still required for this composition;
+this record does not claim it.

@@ -276,8 +276,13 @@ describe('the presentation pages', () => {
 
   it('makes copy controls honest until client enhancement runs', () => {
     const html = landing(FLAGS);
+    expect(html).toContain('Hex values remain selectable. Copy when controls are available.');
+    expect(palette()).toContain('Hex values remain selectable. Copy when controls are available.');
     expect(html.match(/data-copy/g)?.length).toBeGreaterThan(0);
     expect(html.match(/data-copy[^>]* disabled/g)?.length).toBe(html.match(/data-copy/g)?.length);
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).toContain('.copy-button:disabled { color: var(--aion-fg-dim); border-color: var(--aion-border-divider); }');
+    expect(css).toContain('.swatch:disabled .swatch-copy { display: none; }');
     const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
     expect(client).toContain("document.querySelectorAll<HTMLButtonElement>('[data-copy]')");
     expect(client).toContain('source.disabled = false');
@@ -288,6 +293,8 @@ describe('the presentation pages', () => {
   it('records the site-owned adoption decisions and keeps presentation structure open', () => {
     const record = readFileSync(join(root, 'docs/slt-brand-adoption.md'), 'utf8');
     expect(record).toMatch(/owner visual approval is still\s+required/);
+    expect(record).toContain('Chromium 153.0.8010.12');
+    expect(record).toContain('production no-JS build and reduced motion');
     expect(record).toContain('lossless WebP exports');
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     expect(css).toContain('.install-list { display: grid;');

@@ -55,7 +55,7 @@ function renderEssentials(): string {
   return `<section class="essentials section" id="essentials" aria-labelledby="essentials-title">
     <span id="manual" class="anchor-alias" aria-hidden="true"></span>
     <div class="section-heading"><div><h2 id="essentials-title">Make it yours.</h2>
-      <p>The essentials for bringing Aion to another app.<br>Click a colour to copy its hex, or take the whole set.</p></div>
+      <p>The essentials for bringing Aion to another app.<br>Hex values remain selectable. Copy when controls are available.</p></div>
       ${copyColours(rows)}</div>
     <div class="essentials-foundations">${swatchGrid(rows.slice(0, 4))}</div>
     <div class="essentials-colours">${swatchGrid(rows.slice(4))}</div>
@@ -126,7 +126,7 @@ export function palette(): string {
       ${link('/#install', 'Get the Windows Terminal dark theme')}` : swatchGrid(group.swatches)}
   </section>`).join('');
   return `${chrome('palette')}<article class="palette" id="content">
-    <header class="page-head"><h1>A palette to make<br>your own.</h1><p class="lede">The colours that make Aion, with names that tell you where they belong.<br>Click any swatch to copy its hex.</p></header>
+    <header class="page-head"><h1>A palette to make<br>your own.</h1><p class="lede">The colours that make Aion, with names that tell you where they belong.<br>Hex values remain selectable. Copy when controls are available.</p></header>
     <div class="palette-layout"><nav class="jump" aria-label="Palette sections">${all.map((group, index) => `<a href="#${group.id}" data-section="${group.id}"${index === 0 ? ' aria-current="location"' : ''}><span>${group.title}</span><span class="nav-count">${group.swatches.length}</span></a>`).join('')}</nav>
     <div class="palette-sections">${sections}
       <aside class="developer-note"><h2>Building something deeper?</h2><p>Component states, selections, diff overlays, and the full neutral ramp live in the technical reference. They’re specific to how an interface renders.</p>${link(`${REPO}/tree/main/packages/css`, 'CSS & token reference')}${link(`${REPO}/blob/main/DESIGN.md`, 'Colour specification')}</aside>
