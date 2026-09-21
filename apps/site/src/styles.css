@@ -222,6 +222,12 @@ code { font-family: 'Monaspace Neon', monospace; }
   .footer-links a + a { padding-left: 0; border-left: 0; border-top: 1px solid var(--aion-border-hairline); }
   .footer-meta { flex-direction: column; gap: 0.5rem; }
 }
+@media (max-width: 599px) {
+  .copy-status[data-visible] { bottom: calc(16px + env(safe-area-inset-bottom) + 44px + 12px); }
+}
+@media (max-width: 340px) {
+  .page-head { padding-bottom: 1.25rem; }
+}
 @media (max-width: 520px) {
   :root:has(.site-head:not([data-menu])) { --site-header: 7rem; }
   .site-head:not([data-menu]) { display: grid; grid-template-columns: auto 1fr auto auto; grid-template-rows: 2.875rem 2.5rem; align-content: center; column-gap: 0.6rem; row-gap: 0.35rem; }

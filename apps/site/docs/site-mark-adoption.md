@@ -44,11 +44,12 @@ had horizontal overflow. Keyboard focus reached the mark and showed a 2px
 gold outline with a 3px offset, inside the viewport. With the mobile menu
 open at 390px and 320px, the menu did not overlap the mark.
 
-At 390px and 320px on the palette page, the fixed mark overlaps scrolling
-content at some scroll positions. At 320×568 and scroll position zero, it
-covers the palette tab links "Interface roles", "Syntax", and "Terminal". The
-copy confirmation toast also partly overlaps the mark on those widths. Both
-overlaps are transient, and Aion does not override the package placement.
+The host resolves its two fixed-placement collisions without styling the mark.
+At widths up to 340px, the palette introduction uses less bottom padding so
+the jump navigation clears the mark at the top of the page. At widths up to
+599px, the copy confirmation toast sits above the mark and the safe-area inset.
+The fixed mark can overlay ordinary scrolling content, but it does not obscure
+the palette navigation, mobile menu, or copy fallback guidance.
 
 ## Inline-placement browser evidence (superseded)
 
