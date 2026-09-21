@@ -22,11 +22,13 @@ interaction, so Aion has no wrapper, slot, or CSS for the mark. The verified
 private SLT brand snapshot is v1.0.0. The footer's MIT statement still names
 **Aion source** so it does not imply a license for the SLT name or glyph.
 
-The 0.1.1 spacing patch is not yet installed from the registry. `package.json`
-and `package-lock.json` still name `@sltsh/site-mark@0.1.0`. Installing the
-published 0.1.1 release is a coordinator step that follows publication. Until
-then, the fixed markup was validated against the reviewed local 0.1.1 tarball
-with no file dependency or lockfile change.
+Spacing release update (2026-09-21): Aion installs the exact public registry
+version `@sltsh/site-mark@0.1.1`, released from tagged package commit `c67901b`.
+The lockfile records the published artifact integrity
+`sha512-OwJnpiZaHesWzCURmYuTbfvZ4MqpzzqUmHzidkb7qvUTZynqGErjo+rXuqbbcnrXWYDi6x2QIULpD4+YJxl4Jw==`.
+The installed package manifest and `register.js` match the reviewed local
+0.1.1 preview byte for byte. The release adds one monospace-character space
+between `slt.sh:/` and the cursor while preserving the fixed placement.
 
 The canonical family authorities are the [SLT brand guide](https://github.com/sltsh/slt.sh/blob/main/slt-brand-design.md)
 and [SLT motion guide](https://github.com/sltsh/slt.sh/blob/main/slt-family-motion.md).
