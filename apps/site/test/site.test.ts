@@ -308,7 +308,7 @@ describe('the continuity hero', () => {
     expect(css).not.toContain('border-radius: 50%');
     expect(rule('.site-nav a')).toContain('min-height: 2.75rem');
     expect(rule('.site-nav a[aria-current]')).toContain('border-bottom-color: var(--aion-gold-solid)');
-    expect(css).toMatch(/\.theme-switch \{ display: grid;[^}]*height: 2\.75rem/);
+    expect(css).toMatch(/\.theme-switch \{ display: grid;[^}]*height: 2\.875rem/);
     expect(rule('.theme-switch input:checked + span')).toContain('border-bottom-color: var(--aion-gold-solid)');
     expect(html).toContain('aria-expanded="false" aria-controls="site-menu"');
   });
@@ -350,7 +350,7 @@ describe('the persistent site theme', () => {
   it('keeps the switch hidden before initialization and changes themes immediately', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     expect(css).toContain('.theme-switch[hidden] { display: none; }');
-    expect(css).toContain('.theme-switch { border: 1px solid var(--aion-border-hairline); }');
+    expect(css).toContain('.theme-switch { border: 1px solid var(--aion-border-ui); }');
     expect(css).toContain('.site-nav a, .theme-switch span { color: var(--aion-fg-secondary); font-size: 0.85rem; }');
     expect(css).toContain('.site-nav a, .theme-switch span { font-size: 0.75rem; }');
     expect(css).toContain('.theme-switch input:focus-visible + span');
