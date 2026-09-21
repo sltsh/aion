@@ -6,29 +6,54 @@ That proof artifact's SHA-512 integrity was
 `sha512-wKr/myI0Buo0HRPRk3tEWLtgG1rQ+8l70F2fyibBXSc4uoquaB9iKJkwLo6/EG10f5ciAjjLkVJsEG/qTiy9JA==`.
 It was installed as a tarball rather than a source path.
 
-Release update (2026-09-21): Aion now installs the exact public registry
+Release update (2026-09-21): Aion installs the exact public registry
 version `@sltsh/site-mark@0.1.0`, released from tagged package commit `03d4e60`.
 The lockfile records the published artifact integrity
 `sha512-OQbSkT3E2Rc37IrmxqMfWUp7/LM2aouMNYjI7N2DN3Cg3cs72RF/EkmRFXsBJMw/DQYeF5dzYE/oohvDDd/rrw==`.
 The installed `register.js` matches the release build byte for byte. This
 integration is committed source work, not a production deployment.
 
-The mark uses `placement="inline"` in the shared footer of the homepage and
-palette page. The footer provides a `120px` by `44px` slot, so custom-element
-upgrade does not move content. No fixed offset or stacking override is needed.
-This placement keeps the mark away from the mobile navigation, copy feedback,
-footer links, and page content. The package owns the glyph, label, link, and
-styles; Aion supplies no mark-specific colors or markup copies. The footer's
-MIT statement names **Aion source** so it does not imply a license for the SLT
-name or glyph.
+Placement update (2026-09-21): the earlier inline decision is
+replaced by the approved fixed placement. Aion renders one bare
+`<slt-site-mark></slt-site-mark>` at the top level of the homepage and palette
+page, outside the footer and without a `placement` attribute. The package owns
+the fixed bottom-right offsets, safe-area handling, stacking, styling, and
+interaction, so Aion has no wrapper, slot, or CSS for the mark. The verified
+private SLT brand snapshot is v1.0.0. The footer's MIT statement still names
+**Aion source** so it does not imply a license for the SLT name or glyph.
+
+The 0.1.1 spacing patch is not yet installed from the registry. `package.json`
+and `package-lock.json` still name `@sltsh/site-mark@0.1.0`. Installing the
+published 0.1.1 release is a coordinator step that follows publication. Until
+then, the fixed markup was validated against the reviewed local 0.1.1 tarball
+with no file dependency or lockfile change.
 
 The canonical family authorities are the [SLT brand guide](https://github.com/sltsh/slt.sh/blob/main/slt-brand-design.md)
 and [SLT motion guide](https://github.com/sltsh/slt.sh/blob/main/slt-family-motion.md).
 This note records only Aion's adoption choices and evidence.
 
-## Browser evidence
+## Fixed placement evidence
 
-The [measurement file](site-mark-evidence/measurements.json) and screenshots
+Validated on 2026-09-21 in Chromium with the local 0.1.1 tarball, on both pages
+in dark and light themes at 1440×900, 390×844, and 320×568 (12 rows). Every
+row had exactly one mark, outside the footer, with `position: fixed`, and a
+44px high link about 127px wide (127.4px). The mark stayed at the same
+viewport position at the top, middle, and bottom of the scroll range, at 20px
+from the right and bottom edges at 1440px and 16px at 390px and 320px. No row
+had horizontal overflow. Keyboard focus reached the mark and showed a 2px
+gold outline with a 3px offset, inside the viewport. With the mobile menu
+open at 390px and 320px, the menu did not overlap the mark.
+
+At 390px and 320px on the palette page, the fixed mark overlaps scrolling
+content at some scroll positions. At 320×568 and scroll position zero, it
+covers the palette tab links "Interface roles", "Syntax", and "Terminal". The
+copy confirmation toast also partly overlaps the mark on those widths. Both
+overlaps are transient, and Aion does not override the package placement.
+
+## Inline-placement browser evidence (superseded)
+
+The evidence below documents the superseded inline placement and remains as
+historical record. The screenshot links stay valid. The [measurement file](site-mark-evidence/measurements.json) and screenshots
 cover both pages, dark and light themes, and 1440×900, 768×1024, 390×844, and
 320×568 viewports in each browser. Every row has a full viewport screenshot
 and a `-mark.png` crop with the same filename stem.
@@ -67,7 +92,7 @@ not certify native Safari rendering. The package review records fixed
 placement, safe-area emulation, motion, focus, forced-colors, and busy-surface
 evidence separately.
 
-## Local checks
+## Local checks (0.1.0 release, superseded inline placement)
 
 - `npm run build`: passed, including the public site build with the packed module.
 - `npm test -w @sltsh/aion-site`: 37/37 passed. The first sandboxed run hit
@@ -85,5 +110,4 @@ evidence separately.
   five documented exemptions, and 28 informational rows.
 
 The package code installed from the registry is byte-identical to the reviewed
-release build, so the existing rendered evidence remains current. The release
-added license and brand terms without changing runtime code.
+release build. The release added license and brand terms without changing runtime code.

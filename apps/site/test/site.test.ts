@@ -14,12 +14,18 @@ import { renderHero } from '../src/samples/hero.js';
 import { swatch } from '../src/render/swatch.js';
 import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_KEY, themeBootstrap } from '../src/theme.js';
 
-it('renders the optional SLT provenance mark in both footers', () => {
+it('renders one fixed SLT site mark outside the footer on both pages', () => {
   for (const html of [landing(FLAGS), palette()]) {
-    expect(html).toContain('<slt-site-mark placement="inline"></slt-site-mark>');
+    expect(html.match(/<slt-site-mark/g)).toHaveLength(1);
+    expect(html).toContain('<slt-site-mark></slt-site-mark>');
+    expect(html).not.toContain('placement=');
+    const footer = html.slice(html.indexOf('<footer'), html.indexOf('</footer>'));
+    expect(footer).not.toContain('slt-site-mark');
+    expect(footer).not.toContain('footer-site-mark');
+    expect(html).not.toContain('footer-site-mark');
   }
   const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-  expect(css).toContain('.footer-site-mark { width: 120px; height: 44px;');
+  expect(css).not.toContain('site-mark');
   expect(readFileSync(join(root, 'src/main.ts'), 'utf8')).toContain("import '@sltsh/site-mark/register';");
 });
 

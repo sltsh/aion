@@ -11,6 +11,8 @@ const REPO = 'https://github.com/sltsh/aion';
 
 type Page = 'home' | 'palette';
 
+const SITE_MARK = '<slt-site-mark></slt-site-mark>';
+
 const themedImage = (className: string, dark: string, light: string, label: string, width: number, height: number): string =>
   `<span class="theme-image ${className}"${label ? ` role="img" aria-label="${escapeAttr(label)}"` : ''}><img data-theme-asset="dark" src="${dark}" alt="" width="${width}" height="${height}"><img data-theme-asset="light" src="${light}" alt="" width="${width}" height="${height}"></span>`;
 
@@ -43,7 +45,6 @@ const footer = (): string => `<footer class="site-foot">
     <a href="${REPO}/blob/main/DESIGN.md"><span>Design notes<small>The thinking behind the theme</small></span>${icon('external')}</a>
   </nav>
   <div class="footer-meta"><span>Aion source: MIT licensed.</span><span>Archivo & Monaspace Neon · SIL Open Font License 1.1</span></div>
-  <div class="footer-site-mark"><slt-site-mark placement="inline"></slt-site-mark></div>
 </footer>`;
 
 const link = (href: string, text: string): string =>
@@ -110,7 +111,7 @@ export function landing(flags: SiteFlags): string {
       ${link(`${REPO}/blob/main/DESIGN.md`, 'Read the design notes')}</div>
       <dl class="figures"><div><dt>${summary.rowsMeasured}</dt><dd>pairings measured</dd></div><div><dt>${summary.lowestDecorated}:1</dt><dd>lowest contrast in the covered reading states</dd></div></dl>
     </section>
-  </article>${footer()}<p class="copy-status" role="status" aria-live="polite"></p>`;
+  </article>${footer()}${SITE_MARK}<p class="copy-status" role="status" aria-live="polite"></p>`;
 }
 
 export function palette(): string {
@@ -127,5 +128,5 @@ export function palette(): string {
     <div class="palette-sections">${sections}
       <aside class="developer-note"><h2>Building something deeper?</h2><p>Component states, selections, diff overlays, and the full neutral ramp live in the technical reference. They’re specific to how an interface renders.</p>${link(`${REPO}/tree/main/packages/css`, 'CSS & token reference')}${link(`${REPO}/blob/main/DESIGN.md`, 'Colour specification')}</aside>
     </div></div>
-  </article>${footer()}<p class="copy-status" role="status" aria-live="polite"></p>`;
+  </article>${footer()}${SITE_MARK}<p class="copy-status" role="status" aria-live="polite"></p>`;
 }
