@@ -4,8 +4,11 @@ import { describe, expect, it } from 'vitest';
 const root = JSON.parse(readFileSync('package.json', 'utf8')) as {
   scripts: Record<string, string>;
 };
+const site = JSON.parse(readFileSync('apps/site/package.json', 'utf8')) as {
+  scripts: Record<string, string>;
+};
 
-const CONSUMERS = ['packages/css', 'packages/terminal', 'packages/vscode', 'apps/lab'];
+const CONSUMERS = ['packages/css', 'packages/terminal', 'packages/vscode', 'apps/lab', 'apps/site'];
 
 // `npm run <script> --workspaces` walks the workspaces in declaration order, which starts
 // with the CSS package. A clean checkout has no `packages/tokens/dist`, so every consumer
@@ -20,6 +23,12 @@ describe('a clean checkout', () => {
 
   it('builds the token package after an install, so a bare typecheck resolves', () => {
     expect(root.scripts['prepare']).toBe('npm run build:tokens');
+  });
+
+  it('prepares generated entries before an isolated site build or typecheck', () => {
+    const prepare = 'npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css';
+    expect(site.scripts['prebuild']).toBe(prepare);
+    expect(site.scripts['pretypecheck']).toBe(prepare);
   });
 
   it('declares the token package as a dependency of every consumer', () => {
