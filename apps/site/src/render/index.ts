@@ -14,7 +14,7 @@ type Page = 'home' | 'palette';
 const SITE_MARK = '<slt-site-mark></slt-site-mark>';
 
 const themedImage = (className: string, dark: string, light: string, label: string, width: number, height: number): string =>
-  `<span class="theme-image ${className}"${label ? ` role="img" aria-label="${escapeAttr(label)}"` : ''}><img data-theme-asset="dark" src="${dark}" alt="" width="${width}" height="${height}"><img data-theme-asset="light" src="${light}" alt="" width="${width}" height="${height}"></span>`;
+  `<span class="theme-image ${className}"${label ? ` role="img" aria-label="${escapeAttr(label)}" data-image-label="${escapeAttr(label)}"` : ''}><img data-theme-asset="dark" src="${dark}" alt="" width="${width}" height="${height}"><img data-theme-asset="light" src="${light}" alt="" width="${width}" height="${height}"></span>`;
 
 const chrome = (current: Page): string => `<a class="skip-link" href="#content">Skip to content</a>
   <header class="site-head">
@@ -40,7 +40,7 @@ const chrome = (current: Page): string => `<a class="skip-link" href="#content">
 const footer = (): string => `<footer class="site-foot">
   <div class="footer-intro">${themedImage('footer-wordmark', '/aion-wordmark.webp', '/aion-wordmark-light.webp', 'Aion', 144, 48)}<span>Gold, teal, and room to focus.</span></div>
   <nav class="footer-links" aria-label="Footer navigation">
-    <a href="/palette.html"><span>Explore the palette<small>Find your colours</small></span>${icon('arrow')}</a>
+    <a href="/palette.html"><span>Explore the palette<small>Find your colours</small></span></a>
     <a href="${REPO}"><span>GitHub<small>Source & contributions</small></span>${icon('external')}</a>
     <a href="${REPO}/blob/main/DESIGN.md"><span>Design notes<small>The thinking behind the theme</small></span>${icon('external')}</a>
   </nav>
@@ -48,7 +48,7 @@ const footer = (): string => `<footer class="site-foot">
 </footer>`;
 
 const link = (href: string, text: string): string =>
-  `<a class="text-link" href="${href}">${escapeHtml(text)}${icon('arrow')}</a>`;
+  `<a class="text-link" href="${href}">${escapeHtml(text)}</a>`;
 
 function renderEssentials(): string {
   const rows = essentials();
@@ -59,7 +59,7 @@ function renderEssentials(): string {
       ${copyColours(rows)}</div>
     <div class="essentials-foundations">${swatchGrid(rows.slice(0, 4))}</div>
     <div class="essentials-colours">${swatchGrid(rows.slice(4))}</div>
-    <a class="palette-link" href="/palette.html"><span><strong>Explore the palette</strong><span>Colour roles, terminal colours, and everything you need to get started.</span></span>${icon('arrow')}</a>
+    <a class="palette-link" href="/palette.html"><span><strong>Explore the palette</strong><span>Colour roles, terminal colours, and everything you need to get started.</span></span></a>
   </section>`;
 }
 
@@ -76,9 +76,9 @@ function install(flags: SiteFlags): string {
     return `<li class="install-card">
       <h3>${escapeHtml(entry.label)}</h3><p>${escapeHtml(note)}</p>
       <div class="command-block"><div class="command-head"><span>${terminal ? 'Destination folder' : useInstallCommand ? 'Install command' : 'Run from the repository'}</span>
-        <button type="button" class="copy-button" data-copy data-text="${escapeAttr(command)}" aria-label="Copy ${escapeAttr(entry.label)} ${terminal ? 'folder' : 'command'}">${copyIndicator()}Copy</button></div>
+        <button type="button" class="copy-button" data-copy data-text="${escapeAttr(command)}" disabled aria-label="Copy ${escapeAttr(entry.label)} ${terminal ? 'folder' : 'command'}">${copyIndicator()}Copy</button></div>
         <pre><code>${escapeHtml(command)}</code></pre></div>
-      <div class="install-action"><a class="${terminal ? 'button' : 'text-link'}" href="${entry.href}"${terminal ? ' download="aion.json"' : ''}>${escapeHtml(entry.action)}${icon(terminal ? 'download' : 'arrow')}</a></div>
+      <div class="install-action"><a class="${terminal ? 'button' : 'text-link'}" href="${entry.href}"${terminal ? ' download="aion.json"' : ''}>${escapeHtml(entry.action)}${terminal ? icon('download') : ''}</a></div>
     </li>`;
   }).join('');
   return `<section class="install section" id="install" aria-labelledby="install-title">

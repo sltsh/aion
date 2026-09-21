@@ -27,6 +27,12 @@ initializeTheme({
   updateAssets: updateThemeAssets,
 });
 
+// Copy controls are disabled in the server-rendered document so a missing
+// script never presents an action that cannot work.
+document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((source) => {
+  source.disabled = false;
+});
+
 const siteHead = document.querySelector<HTMLElement>('.site-head');
 const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 if (siteHead && menuToggle) {
@@ -58,7 +64,22 @@ const announce = (message: string, visible = true): void => {
   statusTimer = setTimeout(() => {
     status.textContent = '';
     status.removeAttribute('data-visible');
+    status.removeAttribute('data-status');
   }, COPIED_MS);
+};
+
+const copiedTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+const confirmCopy = (source: HTMLElement): void => {
+  const previous = copiedTimers.get(source);
+  if (previous !== undefined) clearTimeout(previous);
+  source.dataset['copied'] = 'true';
+  copiedTimers.set(source, setTimeout(() => {
+    delete source.dataset['copied'];
+    copiedTimers.delete(source);
+  }, COPIED_MS));
+};
+const setStatusKind = (kind: 'success' | 'error'): void => {
+  status?.setAttribute('data-status', kind);
 };
 
 document.addEventListener('click', (event) => {
@@ -71,13 +92,17 @@ document.addEventListener('click', (event) => {
     if (value === undefined) return;
     if (!navigator.clipboard) {
       announce('Copy is unavailable. Select and copy the text instead.');
+      setStatusKind('error');
       return;
     }
     void navigator.clipboard.writeText(value).then(() => {
-      source.dataset['copied'] = 'true';
+      confirmCopy(source);
       announce('Copied to clipboard', false);
-      setTimeout(() => { delete source.dataset['copied']; }, COPIED_MS);
-    }).catch(() => { announce('Could not copy. Select and copy the text instead.'); });
+      setStatusKind('success');
+    }).catch(() => {
+      announce('Could not copy. Select and copy the text instead.');
+      setStatusKind('error');
+    });
     return;
   }
 });

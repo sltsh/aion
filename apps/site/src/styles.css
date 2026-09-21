@@ -75,7 +75,7 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .button:hover { background: var(--aion-fg-primary); }
 .open-link { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--aion-fg-primary); font-size: 0.9rem; font-weight: 500; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.4em; }
 .open-link:hover { color: var(--aion-gold-solid); }
-.text-link { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--aion-gold-solid); text-underline-offset: 0.3em; text-decoration-color: transparent; font-weight: 500; }
+.text-link { display: inline-flex; align-items: center; gap: 0.7rem; min-height: 2.75rem; color: var(--aion-gold-solid); text-underline-offset: 0.3em; text-decoration-color: transparent; font-weight: 500; }
 .text-link:hover { text-decoration-color: currentColor; }
 .editor { grid-area: artifact; min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--aion-border-divider); background: var(--aion-bg-page); }
 .stage-seam { grid-area: seam; display: flex; align-items: stretch; height: 0.5rem; margin-top: 3rem; }
@@ -97,8 +97,8 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .essentials-foundations { margin-bottom: 1.75rem; }
 .essentials-colours .swatch-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .swatch { display: block; min-width: 0; padding: 0; background: none; border: none; color: inherit; text-align: left; cursor: pointer; }
-.swatch-chip { display: flex; align-items: flex-end; justify-content: flex-end; height: 7rem; padding: 0.6rem; border: 1px solid var(--aion-border-hairline); border-radius: 8px; background: var(--site-swatch); }
-.swatch-copy { display: flex; padding: 0.3rem; background: var(--aion-bg-page); color: var(--aion-fg-primary); border-radius: 4px; opacity: 0; }
+.swatch-chip { display: flex; align-items: flex-end; justify-content: flex-end; height: 7rem; padding: 0.6rem; border: 1px solid var(--aion-border-ui); background: var(--site-swatch); }
+.swatch-copy { display: flex; padding: 0.3rem; background: var(--aion-bg-page); color: var(--aion-fg-primary); opacity: 0; }
 .swatch:hover .swatch-copy, .swatch:focus-visible .swatch-copy { opacity: 1; }
 .swatch-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.2rem 0.6rem; margin-top: 0.7rem; }
 .swatch-name { font-size: 0.95rem; font-weight: 550; }
@@ -112,7 +112,8 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .swatch[data-copied] .swatch-check { display: inline-flex; }
 .swatch-check .icon { width: 0.9rem; height: 0.9rem; }
 .swatch-role { display: block; font-size: 0.75rem; color: var(--aion-fg-secondary); margin-top: 0.15rem; }
-.copy-button { display: inline-flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 0.45rem 0.75rem; background: var(--aion-bg-raised); color: var(--aion-fg-primary); border: 1px solid var(--aion-border-ui); border-radius: 6px; font-size: 0.75rem; cursor: pointer; }
+.copy-button { display: inline-flex; justify-content: center; align-items: center; gap: 0.5rem; min-height: 2.75rem; padding: 0.45rem 0.75rem; background: var(--aion-bg-raised); color: var(--aion-fg-primary); border: 1px solid var(--aion-border-ui); font-size: 0.75rem; cursor: pointer; }
+.copy-button:disabled, .swatch:disabled { cursor: default; }
 .copy-button:hover { color: var(--aion-gold-solid); }
 .copy-indicator { display: inline-flex; align-items: center; justify-content: center; width: 1.1rem; height: 1.1rem; }
 .copy-icon, .copy-check { display: inline-flex; }
@@ -120,7 +121,9 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .copy-button[data-copied] .copy-icon { display: none; }
 .copy-button[data-copied] .copy-check { display: inline-flex; }
 .copy-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.copy-status[data-visible] { position: fixed; z-index: 20; bottom: 1.5rem; left: 50%; width: auto; height: auto; transform: translateX(-50%); max-width: calc(100vw - 2rem); margin: 0; padding: 0.65rem 1.1rem; overflow: visible; clip: auto; white-space: normal; border: 1px solid var(--aion-teal-border); border-radius: 8px; background: var(--aion-bg-page); color: var(--aion-fg-primary); font-size: 0.85rem; }
+.copy-status[data-visible] { position: fixed; z-index: 20; bottom: 1.5rem; left: 50%; width: auto; height: auto; transform: translateX(-50%); max-width: calc(100vw - 2rem); margin: 0; padding: 0.65rem 1.1rem; overflow: visible; clip: auto; white-space: normal; border: 1px solid var(--aion-status-info-solid); background: var(--aion-bg-page); color: var(--aion-fg-primary); font-size: 0.85rem; }
+.copy-status[data-status="success"] { border-color: var(--aion-status-success-solid); }
+.copy-status[data-status="error"] { border-color: var(--aion-status-error-solid); }
 .copy-status:empty { display: none; }
 .palette-link { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2.5rem; padding: 1.5rem 0; color: var(--aion-gold-solid); text-decoration: none; border-top: 1px solid var(--aion-gold-border); }
 .palette-link strong { display: block; font-size: 1.15rem; font-weight: 550; }
@@ -129,11 +132,11 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .palette-link:hover { border-top-color: var(--aion-gold-solid); }
 .release-note { max-width: none; padding: 1rem 1.25rem; border-left: 2px solid var(--aion-gold-solid); background: var(--aion-bg-page); margin-bottom: 1.5rem; font-size: 0.9rem; }
 .release-note .text-link { margin-left: 0.5rem; }
-.install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border: 1px solid var(--aion-border-divider); border-radius: 12px; overflow: hidden; }
-.install-card { min-width: 0; display: flex; flex-direction: column; padding: 1.5rem; background: var(--aion-bg-page); }
+.install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--aion-border-divider); border-bottom: 1px solid var(--aion-border-divider); }
+.install-card { min-width: 0; display: flex; flex-direction: column; padding: 1.5rem 1.5rem 1.5rem 0; }
 .install-card + .install-card { border-left: 1px solid var(--aion-border-divider); }
 .install-card > p { font-size: 0.85rem; margin: 1rem 0 1.5rem; }
-.command-block { margin-top: auto; background: var(--aion-bg-raised); border: 1px solid var(--aion-border-hairline); border-radius: 6px; overflow: hidden; }
+.command-block { margin-top: auto; background: var(--aion-bg-raised); border: 1px solid var(--aion-border-ui); overflow: hidden; }
 .command-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.65rem; border-bottom: 1px solid var(--aion-border-divider); font-size: 0.7rem; color: var(--aion-fg-secondary); }
 .command-head .copy-button { padding: 0.25rem 0.4rem; }
 .command-block pre { margin: 0; padding: 0.85rem; min-height: 6.5rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.75rem; }
@@ -145,12 +148,13 @@ code { font-family: 'Monaspace Neon', monospace; }
 .figures { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 0; align-content: center; }
 .figures dt { font-size: 2.5rem; line-height: 1.2; color: var(--aion-gold-solid); }
 .figures dd { margin: 0.5rem 0 0; color: var(--aion-fg-secondary); font-size: 0.85rem; }
-.page-head { padding: 4rem 0; }
+.page-head { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 3.5rem; padding: 4rem 0; }
+.page-head > * { grid-column: 2; }
 .page-head .lede { margin: 1.5rem 0 0; font-size: 1.1rem; }
 .page-head .button { margin-top: 1.5rem; }
 .palette-layout { display: grid; grid-template-columns: 10rem minmax(0, 1fr); gap: 3.5rem; align-items: start; }
 .jump { position: sticky; top: calc(var(--site-header) + 2rem); display: grid; gap: 0.3rem; }
-.jump a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.65rem 0.8rem; border-left: 2px solid transparent; border-radius: 0 5px 5px 0; color: var(--aion-fg-secondary); font-size: 0.9rem; text-decoration: none; }
+.jump a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.65rem 0.8rem; border-left: 2px solid transparent; color: var(--aion-fg-secondary); font-size: 0.9rem; text-decoration: none; }
 .jump a:hover { background: var(--aion-bg-raised); }
 .jump a[aria-current] { border-color: var(--aion-gold-solid); color: var(--aion-gold-solid); background: var(--aion-gold-subtle); }
 .nav-count { font-size: 0.7rem; }
@@ -166,7 +170,7 @@ code { font-family: 'Monaspace Neon', monospace; }
 .set-label span { margin-left: 0.5rem; font-size: 0.8rem; color: var(--aion-fg-secondary); font-weight: 400; }
 .set-label:not(:first-child) { margin-top: 2rem; }
 .terminal-note { margin: 2rem 0 1rem; font-size: 0.85rem; }
-.developer-note { padding: 2rem; border: 1px solid var(--aion-border-hairline); border-radius: 8px; background: var(--aion-bg-page); }
+.developer-note { padding: 2rem 0 0; border-top: 1px solid var(--aion-border-divider); }
 .developer-note h2 { font-size: 1.3rem; letter-spacing: -0.02em; }
 .developer-note p { margin: 1rem 0; font-size: 0.9rem; }
 .developer-note .text-link { margin: 0.5rem 1.5rem 0 0; font-size: 0.9rem; }
@@ -183,6 +187,7 @@ code { font-family: 'Monaspace Neon', monospace; }
 .footer-meta { display: flex; justify-content: space-between; gap: 1.5rem; padding-top: 1.5rem; font-size: 0.7rem; color: var(--aion-fg-secondary); }
 @media (max-width: 1000px) {
   .essentials-colours .swatch-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .page-head { grid-template-columns: 8.5rem minmax(0, 1fr); gap: 2rem; }
   .palette-layout { gap: 2rem; grid-template-columns: 8.5rem minmax(0, 1fr); }
   .palette-group .swatch-grid, #interface .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .install-card { padding: 1rem; }
@@ -210,7 +215,7 @@ code { font-family: 'Monaspace Neon', monospace; }
   .command-head { flex-wrap: nowrap; }
   .command-block pre { min-height: 0; }
   .gate { grid-template-columns: 1fr; gap: 2rem; }
-  .page-head { padding: 3rem 0; }
+  .page-head { display: block; padding: 3rem 0; }
   .palette-layout { display: block; }
   .jump { display: flex; gap: 0.3rem; top: var(--site-header); z-index: 8; padding: 0.75rem 0; background: var(--aion-bg-surface); margin-bottom: 1.5rem; }
   .jump a { flex: 1; gap: 0.25rem; padding: 0.6rem 0.3rem; border-left: 0; border-bottom: 2px solid transparent; font-size: 0.7rem; border-radius: 5px 5px 0 0; }
@@ -219,7 +224,7 @@ code { font-family: 'Monaspace Neon', monospace; }
   .palette-group:not(#accents) .swatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   #accents .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .palette-group + .palette-group { padding-top: 2rem; }
-  .developer-note { padding: 1.5rem; }
+  .developer-note { padding: 1.5rem 0 0; }
   .footer-intro { align-items: flex-start; flex-direction: column; gap: 0.5rem; }
   .footer-links { grid-template-columns: 1fr; }
   .footer-links a + a { padding-left: 0; border-left: 0; border-top: 1px solid var(--aion-border-hairline); }

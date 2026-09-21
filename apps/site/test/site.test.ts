@@ -149,7 +149,7 @@ describe('curated colours', () => {
     expect(vars).toContain('--aion-fg-link');
     // Marketing site preserves gold links
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-    expect(css).toContain('.text-link { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--aion-gold-solid);');
+    expect(css).toContain('.text-link { display: inline-flex; align-items: center; gap: 0.7rem; min-height: 2.75rem; color: var(--aion-gold-solid);');
   });
 
   it('includes core syntax roles plus comment and punctuation', () => {
@@ -262,6 +262,40 @@ describe('the presentation pages', () => {
     expect(html).toContain('aria-label="Aion on GitHub"');
     expect(html).toContain('https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme');
     expect(html).not.toContain('npm run pack:dev');
+  });
+
+  it('keeps presentation links textual and meaningful images labelled once', () => {
+    const html = landing(FLAGS);
+    expect(html).not.toContain('M5 12h14');
+    expect(html).toContain('role="img" aria-label="Aion" data-image-label="Aion"');
+    expect(html).toContain('data-theme-asset="dark"');
+    expect(html).toContain('data-theme-asset="light"');
+    expect(html).toMatch(/data-theme-asset="dark"[^>]+alt=""/);
+    expect(html).toMatch(/data-theme-asset="light"[^>]+alt=""/);
+  });
+
+  it('makes copy controls honest until client enhancement runs', () => {
+    const html = landing(FLAGS);
+    expect(html.match(/data-copy/g)?.length).toBeGreaterThan(0);
+    expect(html.match(/data-copy[^>]* disabled/g)?.length).toBe(html.match(/data-copy/g)?.length);
+    const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
+    expect(client).toContain("document.querySelectorAll<HTMLButtonElement>('[data-copy]')");
+    expect(client).toContain('source.disabled = false');
+    expect(client).toContain('const copiedTimers = new WeakMap');
+    expect(client).toContain('clearTimeout(previous)');
+  });
+
+  it('records the site-owned adoption decisions and keeps presentation structure open', () => {
+    const record = readFileSync(join(root, 'docs/slt-brand-adoption.md'), 'utf8');
+    expect(record).toMatch(/owner visual approval is still\s+required/);
+    expect(record).toContain('lossless WebP exports');
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).toContain('.install-list { display: grid;');
+    expect(css).not.toContain('.install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border:');
+    expect(css).toContain('.page-head { display: grid; grid-template-columns: 10rem minmax(0, 1fr);');
+    expect(css).toContain('.developer-note { padding: 2rem 0 0; border-top: 1px solid var(--aion-border-divider); }');
+    expect(css).toContain('.copy-status[data-status="success"] { border-color: var(--aion-status-success-solid); }');
+    expect(css).toContain('.copy-status[data-status="error"] { border-color: var(--aion-status-error-solid); }');
   });
 
   it('retains the code preview and excludes rivals and overlays', () => {
