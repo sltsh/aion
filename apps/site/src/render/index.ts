@@ -92,17 +92,20 @@ function install(flags: SiteFlags): string {
 export function landing(flags: SiteFlags): string {
   const summary = gateSummary();
   return `${chrome('home')}<article class="landing" id="content">
-    <section class="hero" id="overview">
-      <h1>${themedImage('hero-brand', '/aion-lockup-horizontal.webp', '/aion-lockup-horizontal-light.webp', 'Aion', 1440, 480)}</h1>
-      <p class="hero-pitch">${escapeHtml(PITCH)}</p>
-      <p class="hero-detail">Gold accents. Cool surfaces. Familiar syntax. No italics.</p>
-      <div class="actions"><a class="button" href="#install">Get Aion ${icon('download')}</a><a class="button secondary" href="#essentials">Find your colours ${icon('arrow')}</a></div>
-    </section>
-    <figure class="editor" id="sample">
-      <figcaption class="editor-bar"><span class="editor-tab">gate.ts</span><span>TypeScript <span class="editor-badge">Aion</span></span></figcaption>
-      <div class="editor-body">${renderHero()}</div>
-      <div class="editor-foot"><span>Familiar syntax. No italics.</span><span>One palette, every surface.</span></div>
-    </figure>
+    <div class="stage">
+      <section class="hero" id="overview">
+        <h1>${themedImage('hero-brand', '/aion-lockup-horizontal.webp', '/aion-lockup-horizontal-light.webp', 'Aion', 1440, 480)}</h1>
+        <p class="hero-pitch">${escapeHtml(PITCH)}</p>
+        <p class="hero-detail">Gold accents. Cool surfaces. Familiar syntax. No italics.</p>
+        <div class="actions"><a class="button" href="#install">Get Aion ${icon('download')}</a><a class="open-link" href="#essentials">Find your colours</a></div>
+      </section>
+      <figure class="editor" id="sample">
+        <figcaption class="editor-bar"><span class="editor-tab">gate.ts</span><span>TypeScript <span class="editor-badge">Aion</span></span></figcaption>
+        <div class="editor-body" role="region" aria-label="gate.ts code sample" tabindex="0">${renderHero()}</div>
+        <div class="editor-foot"><span>Familiar syntax. No italics.</span><span>One palette, every surface.</span></div>
+      </figure>
+      <span class="stage-seam" aria-hidden="true"><span class="stage-terminal"></span></span>
+    </div>
     ${renderEssentials()}
     ${install(flags)}
     <section class="gate section" id="design">

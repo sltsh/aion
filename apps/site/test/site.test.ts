@@ -271,6 +271,65 @@ describe('the presentation pages', () => {
   });
 });
 
+describe('the continuity hero', () => {
+  const html = landing(FLAGS);
+  const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+  const rule = (selector: string): string => css.match(new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '';
+
+  it('stages copy before the code artifact in one two-column grid', () => {
+    const stage = html.slice(html.indexOf('<div class="stage">'), html.indexOf('id="essentials"'));
+    expect(html.match(/class="stage"/g)).toHaveLength(1);
+    expect(stage.indexOf('class="hero"')).toBeGreaterThan(-1);
+    expect(stage.indexOf('class="hero"')).toBeLessThan(stage.indexOf('class="editor"'));
+    expect(stage.indexOf('class="editor"')).toBeLessThan(stage.indexOf('class="stage-seam"'));
+    expect(rule('.stage')).toContain('grid-template-columns: minmax(0, 5fr) minmax(0, 7fr)');
+    expect(css).toContain('grid-template-areas: "copy" "seam" "artifact"');
+    expect(rule('.hero-brand')).not.toMatch(/margin: [^;]*auto/);
+    for (const selector of ['.stage', '.hero', '.hero-pitch', '.actions']) expect(rule(selector)).not.toMatch(/text-align: center|justify-content: center/);
+  });
+
+  it('draws one decorative seam keyed gold with a teal terminal', () => {
+    expect(html.match(/class="stage-seam"/g)).toHaveLength(1);
+    expect(html).toContain('<span class="stage-seam" aria-hidden="true"><span class="stage-terminal"></span></span>');
+    expect(rule('.stage-seam::before')).toContain('background: var(--aion-gold-solid)');
+    expect(rule('.stage-terminal')).toContain('background: var(--aion-teal-solid)');
+    expect(css.match(/clip-path/g)).toHaveLength(1);
+    expect(css).not.toMatch(/gradient|box-shadow|text-shadow/);
+  });
+
+  it('keeps the scrollable code contained and reachable by keyboard', () => {
+    expect(rule('.editor')).toContain('min-width: 0');
+    expect(rule('.editor-body')).toContain('overflow-x: auto');
+    expect(html).toContain('class="editor-body" role="region" aria-label="gate.ts code sample" tabindex="0"');
+  });
+
+  it('uses a flat header rail without pill silhouettes', () => {
+    expect(css).not.toContain('999px');
+    expect(css).not.toContain('border-radius: 50%');
+    expect(rule('.site-nav a')).toContain('min-height: 2.75rem');
+    expect(rule('.site-nav a[aria-current]')).toContain('border-bottom-color: var(--aion-gold-solid)');
+    expect(css).toMatch(/\.theme-switch \{ display: grid;[^}]*height: 2\.75rem/);
+    expect(rule('.theme-switch input:checked + span')).toContain('border-bottom-color: var(--aion-gold-solid)');
+    expect(html).toContain('aria-expanded="false" aria-controls="site-menu"');
+  });
+
+  it('keeps gold as the only filled action and marks the subordinate link by underline', () => {
+    const hero = html.slice(html.indexOf('<div class="actions">'), html.indexOf('</section>'));
+    expect(hero.match(/class="button"/g)).toHaveLength(1);
+    expect(hero).toContain('<a class="open-link" href="#essentials">Find your colours</a>');
+    expect(hero).not.toContain('button secondary');
+    expect(hero).not.toContain('class="icon"><path d="M5 12h14');
+    expect(css).not.toContain('.button.secondary');
+    expect(rule('.button')).toContain('background: var(--aion-gold-solid)');
+    expect(rule('.open-link')).toContain('text-decoration: underline');
+  });
+
+  it('adds no motion beyond the reduced-motion smooth scroll', () => {
+    expect(css).not.toMatch(/transition|@keyframes|animation/);
+    expect(css).toContain('@media (prefers-reduced-motion: no-preference) {\n  html { scroll-behavior: smooth; }');
+  });
+});
+
 describe('installation', () => {
   for (const released of [false, true]) {
     it(`copies usable commands with released=${released}`, () => {
@@ -291,8 +350,8 @@ describe('the persistent site theme', () => {
   it('keeps the switch hidden before initialization and changes themes immediately', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     expect(css).toContain('.theme-switch[hidden] { display: none; }');
-    expect(css).toContain('.site-nav, .theme-switch { border: 1px solid var(--aion-border-hairline); border-radius: 999px; }');
-    expect(css).toContain('.site-nav a, .theme-switch span { color: var(--aion-fg-secondary); font-size: 0.85rem; border-radius: 999px; }');
+    expect(css).toContain('.theme-switch { border: 1px solid var(--aion-border-hairline); }');
+    expect(css).toContain('.site-nav a, .theme-switch span { color: var(--aion-fg-secondary); font-size: 0.85rem; }');
     expect(css).toContain('.site-nav a, .theme-switch span { font-size: 0.75rem; }');
     expect(css).toContain('.theme-switch input:focus-visible + span');
     expect(css).toContain('[data-theme-value] { display: none; }');
