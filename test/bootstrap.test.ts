@@ -7,6 +7,10 @@ const root = JSON.parse(readFileSync('package.json', 'utf8')) as {
 const site = JSON.parse(readFileSync('apps/site/package.json', 'utf8')) as {
   scripts: Record<string, string>;
 };
+const lab = JSON.parse(readFileSync('apps/lab/package.json', 'utf8')) as {
+  exports: Record<string, { types: string; default: string }>;
+  scripts: Record<string, string>;
+};
 
 const CONSUMERS = ['packages/css', 'packages/terminal', 'packages/vscode', 'apps/lab', 'apps/site'];
 
@@ -26,9 +30,17 @@ describe('a clean checkout', () => {
   });
 
   it('prepares generated entries before an isolated site build or typecheck', () => {
-    const prepare = 'npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css';
+    const prepare = 'npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab';
     expect(site.scripts['prebuild']).toBe(prepare);
     expect(site.scripts['pretypecheck']).toBe(prepare);
+  });
+
+  it('loads the shared renderer from generated JavaScript rather than TypeScript source', () => {
+    expect(lab.scripts['build:render']).toBe('tsc -p tsconfig.render.json');
+    expect(lab.exports['./render/code']).toEqual({
+      types: './dist/render/code.d.ts',
+      default: './dist/render/code.js',
+    });
   });
 
   it('declares the token package as a dependency of every consumer', () => {

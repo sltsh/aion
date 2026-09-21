@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css",
+    "prebuild": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "pretypecheck": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css",
+    "pretypecheck": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

@@ -4,11 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./render/code": "./src/render/code.ts"
+    "./render/code": {
+      "types": "./dist/render/code.d.ts",
+      "default": "./dist/render/code.js"
+    }
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run build:render",
+    "build:render": "tsc -p tsconfig.render.json",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
