@@ -1,11 +1,17 @@
-# SLT site mark adoption proof
+# SLT site mark adoption
 
-Date: 2026-09-20. This is a local feature-branch integration of the **unpublished**
-`@sltsh/site-mark` version `0.1.0`, packed from local package commit `407773f`.
-The installed tarball's SHA-512 integrity is
+Initial proof (2026-09-20): this feature branch installed the then-unpublished
+`@sltsh/site-mark` version `0.1.0` as a tarball from package commit `407773f`.
+That proof artifact's SHA-512 integrity was
 `sha512-wKr/myI0Buo0HRPRk3tEWLtgG1rQ+8l70F2fyibBXSc4uoquaB9iKJkwLo6/EG10f5ciAjjLkVJsEG/qTiy9JA==`.
-It was installed as a tarball, not from a source path. The package is not
-published and this branch is not a production deployment.
+It was installed as a tarball rather than a source path.
+
+Release update (2026-09-21): Aion now installs the exact public registry
+version `@sltsh/site-mark@0.1.0`, released from tagged package commit `03d4e60`.
+The lockfile records the published artifact integrity
+`sha512-OQbSkT3E2Rc37IrmxqMfWUp7/LM2aouMNYjI7N2DN3Cg3cs72RF/EkmRFXsBJMw/DQYeF5dzYE/oohvDDd/rrw==`.
+The installed `register.js` matches the release build byte for byte. This
+integration is committed source work, not a production deployment.
 
 The mark uses `placement="inline"` in the shared footer of the homepage and
 palette page. The footer provides a `120px` by `44px` slot, so custom-element
@@ -73,13 +79,11 @@ evidence separately.
 - After installing the final tarball, the site build and site typecheck
   passed again, as did all 37 focused site tests. The installed `register.js`
   matched the package's built file byte for byte.
+- After replacing the tarball with the published exact version, a fresh
+  `npm ci` passed. Root build and typecheck passed, all 296 tests passed, and
+  `npm run verify` again reported 1,024 passing contrast rows, no failures,
+  five documented exemptions, and 28 informational rows.
 
-The final tarball change affects only the component's forced-colors styling;
-the unchanged Aion token and package logic retains the root test and contrast
-evidence above.
-
-The temporary file dependency in this branch must be replaced with the
-published version after the release gate approves the package metadata,
-licensing, and publication. Do not merge or deploy this consumer branch with
-the temporary tarball path. The test tarball was removed after the packed
-consumer proof, so a fresh install requires that replacement.
+The package code installed from the registry is byte-identical to the reviewed
+release build, so the existing rendered evidence remains current. The release
+added license and brand terms without changing runtime code.
