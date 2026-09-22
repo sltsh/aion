@@ -45,6 +45,18 @@ the public site's build. Missing browser engines are recorded as unavailable.
 
 ## Browser evidence and limits
 
+Final validation passes: `npm run verify` (1024 passing checks, zero failures,
+five exemptions and 28 informational tokens), `npm test` (320 tests, including
+59 site tests), `npm run typecheck`, the production site build, snapshot
+integrity and `git diff --check`. No palette change requires design regeneration.
+
+The production browser matrix passed 117 cases. After interruption repairs,
+33 affected interaction checks passed across all three engines with no page
+errors. Static captures remain valid because those repairs changed only
+interaction handling. Independent rendered review accepted the repaired result.
+Evidence is retained in `/tmp/aion-motion-final` and
+`/tmp/aion-motion-repaired`; the latter includes native Firefox window captures.
+
 Production captures cover both pages and themes at 1440x900, 768x1024,
 390x844, 320x568, 599x844 and 600x844 in Chromium 153.0.8010.12,
 Firefox 155.0 and WebKit 26.6. All three execute the 720 ms scene. Firefox
@@ -63,7 +75,5 @@ copy control while scrolling. That placement is unchanged; this motion pass
 does not claim collision-free fixed-mark layout. Changing the approved fixed
 placement or reserving a new content column is a separate layout decision.
 
-The review's reported malformed hero frames were not reproducible when the
-coordinator opened the original PNGs; source and prepared-bundle hashes match.
-The retained frames show complete copy, artwork and code while only the
+The retained hero frames show complete copy, artwork and code while only the
 aria-hidden seam and terminal change.
