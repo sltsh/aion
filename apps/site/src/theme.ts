@@ -337,6 +337,7 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     // Captured root content is excluded from hit-testing by the View Transition
     // API. Route a real click at a visible radio back to that same control.
     const input = inputs.find((choice) => {
+      if (choice.disabled || environment.control?.disabled || choice.closest('[inert]')) return false;
       const box = choice.getBoundingClientRect();
       return box.width > 0 && box.height > 0 && event.clientX >= box.left
         && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
