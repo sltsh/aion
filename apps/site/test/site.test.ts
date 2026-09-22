@@ -194,11 +194,11 @@ describe('curated colours', () => {
   it('confirms successful copies in place and reserves the toast for errors', () => {
     const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-    expect(client).toContain("announce('Copied to clipboard', false)");
-    expect(client).toContain("announce('Could not copy. Select and copy the text instead.')");
+    expect(client).toContain("success ? 'Copied to clipboard'");
+    expect(client).toContain("'Could not copy. Select and copy the text instead.'");
     expect(css).toContain('.copy-button[data-copied] .copy-check { display: inline-flex; }');
     expect(css).toContain('.swatch[data-copied] .swatch-check { display: inline-flex; }');
-    expect(css).toContain('.copy-check { display: none; color: var(--aion-green-solid); }');
+    expect(css).toContain('.copy-check { display: none; color: var(--aion-status-success-solid); }');
     expect(css).toContain('.copy-status[data-visible]');
   });
 });
@@ -238,7 +238,7 @@ describe('the presentation pages', () => {
     expect(css).toMatch(/\.palette-link \{[^}]*padding: 1\.5rem 1rem/);
     // Pointer-only hover movement is gated behind hover capability; keyboard focus keeps the same feedback unconditionally.
     expect(css).toContain('.palette-link:focus-visible > span { transform: translateX(0.4rem); }');
-    expect(css).toMatch(/@media \(hover: hover\) \{\s*\.palette-link:hover > span \{ transform: translateX\(0\.4rem\); \}\s*\}/);
+    expect(css).toMatch(/@media \(hover: hover\) \{\s*\.palette-link:hover::before \{ transform: scaleX\(1\); \}\s*\.palette-link:hover > span \{ transform: translateX\(0\.4rem\); \}\s*\}/);
   });
 
   it('gives the header logo non-dimming feedback that keeps identity and focus visible', () => {
@@ -308,7 +308,7 @@ describe('the presentation pages', () => {
     const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
     expect(client).toContain("document.querySelectorAll<HTMLButtonElement>('[data-copy]')");
     expect(client).toContain('source.disabled = false');
-    expect(client).toContain('const copiedTimers = new WeakMap');
+    expect(client).toContain('const copiedTimers = new Map');
     expect(client).toContain('clearTimeout(previous)');
   });
 
@@ -356,7 +356,8 @@ describe('the continuity hero', () => {
     expect(html).toContain('<span class="stage-seam" aria-hidden="true"><span class="stage-terminal"></span></span>');
     expect(rule('.stage-seam::before')).toContain('background: var(--aion-gold-solid)');
     expect(rule('.stage-terminal')).toContain('background: var(--aion-teal-solid)');
-    expect(css.match(/clip-path/g)).toHaveLength(1);
+    expect(css.match(/clip-path/g)).toHaveLength(2);
+    expect(css).toContain('::view-transition-new(root) { z-index: 1; clip-path: none; }');
     expect(css).not.toMatch(/gradient|box-shadow|text-shadow/);
   });
 
@@ -389,9 +390,9 @@ describe('the continuity hero', () => {
     expect(rule('.open-link')).toContain('text-decoration: underline');
   });
 
-  it('bounds motion to one decorative hero scene plus local Register feedback', () => {
+  it('keeps ordinary content complete around the bounded decorative scene', () => {
     expect(css).toContain('@media (prefers-reduced-motion: no-preference) {\n  html { scroll-behavior: smooth; }');
-    expect(css.match(/@keyframes/g)).toHaveLength(1);
+    expect(css.match(/@keyframes/g)).toHaveLength(2);
     expect(css).not.toMatch(/animation-iteration-count|infinite/);
     // The scene lives only on the decorative, aria-hidden seam, gated behind reduced motion so it never grants access to ordinary content.
     for (const selector of ['h1', 'h2', 'p', 'body', '#app', '.hero', '.hero-pitch', '.editor', '.editor-body']) {
@@ -408,16 +409,14 @@ describe('the continuity hero', () => {
     expect(css).toContain('.stage-seam[data-scene="play"]::before { animation: seam-draw var(--slt-motion-scene, 720ms)');
     expect(css).not.toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*stage-seam/);
     const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
-    const seamBlock = client.slice(client.indexOf("querySelector<HTMLElement>('.stage-seam')"), client.indexOf('const siteHead'));
-    expect(seamBlock).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
-    expect(seamBlock).toContain("delete seam.dataset['scene']");
-    expect(seamBlock).toContain("addEventListener('animationend', settle)");
-    expect(seamBlock).toContain("addEventListener('animationcancel', settle)");
-    expect(seamBlock).toMatch(/if \(reducedMotion\.matches\) settle\(\);\s*else seam\.dataset\['scene'\] = 'play';/);
-    // The live 'change' listener only ever settles; it never sets data-scene = 'play' again, so allowed motion never replays a reduced or interrupted scene.
-    const changeHandler = seamBlock.slice(seamBlock.indexOf("addEventListener('change'"));
-    expect(changeHandler).not.toContain("dataset['scene'] = 'play'");
-    expect(changeHandler).toContain('if (event.matches) settle();');
+    expect(client).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
+    expect(client).toContain("delete seam.dataset['scene']");
+    expect(client).toContain("addEventListener('animationend', settleSeam");
+    expect(client).toContain("addEventListener('animationcancel', settleSeam");
+    expect(client.match(/seam.dataset\['scene'\] = 'play'/g)).toHaveLength(1);
+    expect(client).toContain('if (event.matches) settleMotion();');
+    expect(client).toContain("window.addEventListener('pagehide'");
+    expect(client).toContain('effect.cancel()');
   });
 });
 
@@ -435,6 +434,34 @@ describe('installation', () => {
       expect(html).toContain('href="/downloads/aion.json" download="aion.json"');
     });
   }
+});
+
+describe('the family motion surfaces', () => {
+  const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+  const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
+
+  it('keeps the incoming root wipe isolated from default snapshot animations', () => {
+    for (const pseudo of ['group', 'image-pair', 'old', 'new']) {
+      expect(css).toContain(`html[data-theme-transition]::view-transition-${pseudo}(root)`);
+    }
+    expect(css).toContain('animation: none;\n  mix-blend-mode: normal;');
+    expect(css).toContain('::view-transition-old(root) { z-index: 0; opacity: 1; }');
+    expect(css).toContain('::view-transition { pointer-events: none; }');
+  });
+
+  it('uses the shared disclosure duration and removes temporary containment', () => {
+    expect(client).toContain("duration('--slt-motion-disclosure', 360)");
+    expect(client).toContain("menuToggle.setAttribute('aria-expanded', String(open))");
+    expect(client).toContain("menu?.removeAttribute('data-disclosing')");
+    expect(css).toContain('.site-menu[data-disclosing] { overflow: hidden; overflow-anchor: none; }');
+  });
+
+  it('keeps icon replacement out of the swatch value layout', () => {
+    const html = landing(FLAGS);
+    expect(html).toMatch(/class="swatch-copy"[\s\S]*class="swatch-check"[\s\S]*class="swatch-meta"/);
+    const meta = html.slice(html.indexOf('class="swatch-meta"')).split('</button>')[0];
+    expect(meta).not.toContain('swatch-check');
+  });
 });
 
 describe('the persistent site theme', () => {
@@ -622,7 +649,7 @@ describe('the source guards', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     const emitted = new Set(Object.keys(dark()));
     const declared = new Set(css.match(/--site-[a-z0-9-]+/g) ?? []);
-    const sharedMotion = new Set(['--slt-motion-feedback', '--slt-motion-scene', '--slt-ease-out']);
+    const sharedMotion = new Set(['--slt-motion-feedback', '--slt-motion-disclosure', '--slt-motion-scene', '--slt-ease-out']);
     const read = css.match(/var\((--[a-z0-9-]+)/g) ?? [];
     expect(read.length).toBeGreaterThan(0);
     for (const entry of read) {

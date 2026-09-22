@@ -259,7 +259,7 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
       return;
     }
     scene.animation = animation;
-    watchPromise(animation.finished, () => finishScene(scene), () => {
+    watchPromise(animation.finished, () => {}, () => {
       safeSkip(scene.transition);
       finishScene(scene);
     });
@@ -332,6 +332,21 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     beginScene(next);
   };
 
+  const onSnapshotClick: EventListener = (event) => {
+    if (!activeScene || event.target !== environment.root || !(event instanceof MouseEvent)) return;
+    // Captured root content is excluded from hit-testing by the View Transition
+    // API. Route a real click at a visible radio back to that same control.
+    const input = inputs.find((choice) => {
+      const box = choice.getBoundingClientRect();
+      return box.width > 0 && box.height > 0 && event.clientX >= box.left
+        && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
+    });
+    if (input) {
+      input.focus({ preventScroll: true });
+      input.click();
+    }
+  };
+
   const onSystemChange = (event: MediaQueryListEvent): void => {
     if (disposed || explicit !== undefined) return;
     requestedTheme = event.matches ? 'light' : 'dark';
@@ -357,6 +372,16 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
 
   const onPageShow: EventListener = (event) => {
     if (disposed || !(event as PageTransitionEvent).persisted) return;
+    try {
+      if (environment.storage) {
+        const saved = environment.storage.getItem(THEME_STORAGE_KEY);
+        explicit = isTheme(saved) ? saved : undefined;
+      }
+    } catch {
+      // Keep this document's local choice when storage is blocked on restoration.
+    }
+    pendingStoredTheme = undefined;
+    requestedTheme = resolveTheme(explicit, environment.media.matches);
     settleLatest();
   };
 
@@ -366,6 +391,7 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
   environment.media.addEventListener('change', onSystemChange);
   addMediaListener(reducedMotion, onReducedMotionChange);
   addListener(ownerDocument, 'visibilitychange', onVisibilityChange);
+  addListener(ownerDocument, 'click', onSnapshotClick);
   addListener(ownerWindow, 'pagehide', onPageHide);
   addListener(ownerWindow, 'pageshow', onPageShow);
 
@@ -377,6 +403,7 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     environment.media.removeEventListener('change', onSystemChange);
     removeMediaListener(reducedMotion, onReducedMotionChange);
     removeListener(ownerDocument, 'visibilitychange', onVisibilityChange);
+    removeListener(ownerDocument, 'click', onSnapshotClick);
     removeListener(ownerWindow, 'pagehide', onPageHide);
     removeListener(ownerWindow, 'pageshow', onPageShow);
     cancelSuppressionRelease?.();

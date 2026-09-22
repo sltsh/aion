@@ -123,6 +123,7 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     startViewTransition,
     animate,
     writes,
+    stored,
     assets,
     click,
   };
@@ -153,6 +154,8 @@ describe('explicit theme Replace scenes', () => {
     ], { duration: 720, easing: 'linear', pseudoElement: '::view-transition-new(root)' });
     expect(h.root.dataset.theme).toBe('light');
     h.animationCompletions[0]!.resolve();
+    await flush();
+    expect(h.root.dataset['themeTransition']).toBe('');
     h.transitions[0]!.finished.resolve();
     await flush();
     expect(h.root.dataset['themeTransition']).toBeUndefined();
@@ -250,12 +253,17 @@ describe('explicit theme Replace scenes', () => {
     expect(h.root.dataset.theme).toBe('light');
     expect(h.root.dataset['themeTransition']).toBeUndefined();
 
+    h.reduced.matches = false;
+    h.reduced.dispatch('change', { matches: false } as unknown as Event);
     h.click('dark');
+    expect(h.root.dataset['themeTransition']).toBe('');
     h.documentLike.visibilityState = 'hidden';
     h.documentLike.dispatch('visibilitychange', new Event('visibilitychange'));
     expect(h.root.dataset.theme).toBe('dark');
 
+    h.documentLike.visibilityState = 'visible';
     h.click('light');
+    expect(h.root.dataset['themeTransition']).toBe('');
     h.page.dispatch('pagehide', new Event('pagehide'));
     expect(h.root.dataset.theme).toBe('light');
     h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
@@ -268,4 +276,19 @@ describe('explicit theme Replace scenes', () => {
     h.system.dispatch('change', { matches: true } as unknown as Event);
     expect(h.root.dataset.theme).toBe('dark');
   });
+  it('restores the latest stored choice and system following without replay', () => {
+    const h = harness({ scene: true });
+    initializeTheme(h.environment);
+    h.stored.set('aion-site-theme', 'light');
+    h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
+    expect(h.root.dataset.theme).toBe('light');
+    expect(h.light.checked).toBe(true);
+    expect(h.startViewTransition).not.toHaveBeenCalled();
+    h.stored.delete('aion-site-theme');
+    h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
+    expect(h.root.dataset.theme).toBe('dark');
+    h.system.dispatch('change', { matches: true } as unknown as Event);
+    expect(h.root.dataset.theme).toBe('light');
+  });
+
 });

@@ -34,33 +34,32 @@ this record; this file records Aion decisions rather than reproducing it.
   with proportional Lanczos resizing. Light derivatives preserve geometry and
   use the emitted dark editor base for light surfaces. No asset was modified
   in this adoption.
-- **Motion boundary:** one bounded site-local scene, a single-run gold-rail
-  draw on the decorative, `aria-hidden` hero seam, using the shared
-  `--slt-motion-scene` and `--slt-ease-out` tokens with their canonical
-  fallbacks. `main.ts` owns the scene's lifecycle rather than a bare
-  `prefers-reduced-motion` media query: it plays the seam at most once on
-  initial load when motion is allowed, leaves it settled when reduced motion
-  is already active at load, and synchronously settles it if reduced motion
-  becomes active mid-scene. A live preference change back to allowed motion
-  never replays a skipped or interrupted scene, because the change listener
-  only ever settles. Local Register transitions on the header, buttons,
-  swatches, copy controls, the jump rail, the footer, and the palette link's
-  inner content use `--slt-motion-feedback` and `--slt-ease-out` for short,
-  local hover and focus feedback. The palette link's directional movement
-  is gated behind `(hover: hover)` for pointer hover, while keyboard focus
-  keeps the same feedback unconditionally; its border and background stay
-  aligned with the section because only the inner content span translates.
-  The header logo's feedback is a background fill, not an opacity reduction,
-  so identity stays fully visible. None of these retime the page-wide theme
-  swap: `theme.ts` sets a `data-theme-swap` marker synchronously while it
-  applies a new theme, which forces every transition to commit in the same
-  frame via `[data-theme-swap] * { transition: none !important; }`, then
-  clears the marker after the change has painted so ordinary hover/focus
-  feedback keeps easing again. No entrance, ambient loop, or scroll-triggered
-  effect is added. Native same-page smooth scrolling under `no-preference`
-  and package-owned site-mark Register feedback remain part of the motion
-  surface. Reduced motion removes every local transition and leaves settled
-  content and controls, including after a live preference change.
+- **Motion boundary:** the shared explicit-theme Replace scene is adopted from
+  verified brand v1.1.0. The incoming root reveals diagonally over
+  `--slt-motion-scene` with the family linear exception. `theme.ts` owns
+  latest-choice interruption, synchronous fallback settlement, and cleanup;
+  the control, preference, favicon, artwork and displayed values commit as
+  one incoming state. Initial/system/restored themes never play the wipe.
+- **Local operations:** mobile navigation uses `--slt-motion-disclosure` to
+  reveal its vertical structure, commits `aria-expanded` immediately, and
+  restores intrinsic layout after settlement. Copy controls commit the result
+  and accessible status before `--slt-motion-feedback` replaces the copy/check
+  indicator and briefly keys the edge with the relevant status role. A newer
+  request supersedes old asynchronous feedback. Buttons and direct links use
+  a local two-pixel Register press; section links commit `aria-current` before
+  their rail settles. Scrolling remains native. The palette link retains its
+  inner-content shift and draws its top rail without moving the boundary.
+- **Product scene:** the hero's decorative gold seam hands off to the teal
+  terminal within one `--slt-motion-scene`, using `--slt-ease-out`. All ordinary
+  copy, artwork and code are complete in the first frame. The scene runs once;
+  reduced motion, hiding and restoration settle it without replay.
+- **Lifecycle and timing:** `main.ts` settles local animation work on live
+  reduced motion and page hiding, clears stale copy work, and removes its
+  listeners on teardown while preserving history-restored interaction. The
+  two-second copy confirmation dwell is a product status lifetime, not an
+  animation duration. Shared feedback, disclosure and scene timings retain
+  their canonical fallbacks. There are no ambient loops, typing effects,
+  scroll-triggered reading entrances, or page-wide route fades.
 - **Responsive site mark:** the package has no phone-width collision rule of
   its own, so the host page hides `<slt-site-mark>` below the package's own
   600px phone boundary with a single `@media (max-width: 599px) { display:
@@ -99,3 +98,10 @@ Firefox 155.0, and WebKit 26.6 on both pages and themes at 1440x900, 768x1024,
 The earlier owner approval in the project adoption note covers the fixed site
 mark only. Final owner visual approval is still required for this composition;
 this record does not claim it.
+
+## Motion next pass
+
+The 2026-09-22 motion implementation adopts the shared theme scene without
+changing palette values, packages, or approved artwork. Current rendered
+acceptance and reproducible commands are recorded in `motion-validation.md`;
+older browser evidence above describes the earlier composition review.
