@@ -35,24 +35,40 @@ this record; this file records Aion decisions rather than reproducing it.
   use the emitted dark editor base for light surfaces. No asset was modified
   in this adoption.
 - **Motion boundary:** one bounded site-local scene, a single-run gold-rail
-  draw on the decorative, `aria-hidden` hero seam, gated under
-  `prefers-reduced-motion: no-preference` and using the shared `--slt-motion-scene`
-  and `--slt-ease-out` tokens with their canonical fallbacks. Local Register
-  transitions on the header, buttons, swatches, copy controls, the jump rail,
-  and the footer use `--slt-motion-feedback` and `--slt-ease-out` for short,
-  local hover and focus feedback; none of them retime the page-wide theme
-  swap, which still commits immediately. No entrance, ambient loop, or
-  scroll-triggered effect is added. Native same-page smooth scrolling under
-  `no-preference` and package-owned site-mark Register feedback remain part of
-  the motion surface. Reduced motion removes the scene and every local
-  transition and leaves settled content and controls, including after a live
-  preference change.
+  draw on the decorative, `aria-hidden` hero seam, using the shared
+  `--slt-motion-scene` and `--slt-ease-out` tokens with their canonical
+  fallbacks. `main.ts` owns the scene's lifecycle rather than a bare
+  `prefers-reduced-motion` media query: it plays the seam at most once on
+  initial load when motion is allowed, leaves it settled when reduced motion
+  is already active at load, and synchronously settles it if reduced motion
+  becomes active mid-scene. A live preference change back to allowed motion
+  never replays a skipped or interrupted scene, because the change listener
+  only ever settles. Local Register transitions on the header, buttons,
+  swatches, copy controls, the jump rail, the footer, and the palette link's
+  inner content use `--slt-motion-feedback` and `--slt-ease-out` for short,
+  local hover and focus feedback. The palette link's directional movement
+  is gated behind `(hover: hover)` for pointer hover, while keyboard focus
+  keeps the same feedback unconditionally; its border and background stay
+  aligned with the section because only the inner content span translates.
+  The header logo's feedback is a background fill, not an opacity reduction,
+  so identity stays fully visible. None of these retime the page-wide theme
+  swap: `theme.ts` sets a `data-theme-swap` marker synchronously while it
+  applies a new theme, which forces every transition to commit in the same
+  frame via `[data-theme-swap] * { transition: none !important; }`, then
+  clears the marker after the change has painted so ordinary hover/focus
+  feedback keeps easing again. No entrance, ambient loop, or scroll-triggered
+  effect is added. Native same-page smooth scrolling under `no-preference`
+  and package-owned site-mark Register feedback remain part of the motion
+  surface. Reduced motion removes every local transition and leaves settled
+  content and controls, including after a live preference change.
 - **Responsive site mark:** the package has no phone-width collision rule of
   its own, so the host page hides `<slt-site-mark>` below the package's own
-  600px phone boundary with a plain `display: none` rule on the host element,
-  restoring `display: block` at and above 600px. This changes no package
-  internals or registration; the mark stays in the prerendered document on
-  both pages at every width.
+  600px phone boundary with a single `@media (max-width: 599px) { display:
+  none; }` rule scoped to that host element. At and above 600px the host adds
+  no display rule, so the package's own `:host` display and any future
+  standard attribute (such as `hidden`) govern the element unopposed. This
+  changes no package internals or registration; the mark stays in the
+  prerendered document on both pages at every width.
 - **Prohibited-default decisions:** no generic arrow presentation icons,
   repeated chamfers or rails, gradients, shadows, soft card silhouettes, or
   pseudo-editor ornament. The editor chrome is retained only as an approved

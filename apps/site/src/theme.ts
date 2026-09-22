@@ -31,15 +31,33 @@ export const resolveTheme = (saved: Theme | undefined, systemIsLight: boolean): 
 
 export const themeBootstrap = (): string => `<script>(function(){function set(theme){document.documentElement.dataset.theme=theme;document.querySelectorAll('link[data-theme-favicon]').forEach(function(link){link.media=link.getAttribute('data-theme-favicon')===theme?'all':'not all'})}try{var key='${THEME_STORAGE_KEY}',saved;try{saved=localStorage.getItem(key)}catch(e){}set(saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'))}catch(e){set(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}})();</script>`;
 
+const scheduleFrame = (callback: () => void): (() => void) => {
+  if (typeof requestAnimationFrame === 'function' && typeof cancelAnimationFrame === 'function') {
+    const handle = requestAnimationFrame(callback);
+    return () => cancelAnimationFrame(handle);
+  }
+  const handle = setTimeout(callback, 0);
+  return () => clearTimeout(handle);
+};
+
 export function initializeTheme(environment: ThemeEnvironment): () => void {
   let explicit = readTheme(environment.storage);
   const inputs = [...environment.inputs];
+  let cancelSuppressionRelease: (() => void) | undefined;
+
+  const releaseSuppression = (): void => {
+    cancelSuppressionRelease = undefined;
+    delete environment.root.dataset['themeSwap'];
+  };
 
   const apply = (theme: Theme): void => {
+    cancelSuppressionRelease?.();
+    environment.root.dataset['themeSwap'] = '';
     environment.root.dataset.theme = theme;
     environment.updateAssets(theme);
     for (const input of inputs) input.checked = input.value === theme;
     if (environment.control) environment.control.hidden = false;
+    cancelSuppressionRelease = scheduleFrame(releaseSuppression);
   };
 
   const setExplicitTheme = (event: Event): void => {
@@ -66,5 +84,7 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
   return () => {
     for (const input of inputs) input.removeEventListener('click', setExplicitTheme);
     environment.media.removeEventListener('change', onSystemChange);
+    cancelSuppressionRelease?.();
+    releaseSuppression();
   };
 }

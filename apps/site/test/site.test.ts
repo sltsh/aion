@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -25,8 +25,11 @@ it('renders one fixed SLT site mark outside the footer on both pages, hidden bel
     expect(html).not.toContain('footer-site-mark');
   }
   const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-  expect(css).toContain('slt-site-mark { display: none; }');
-  expect(css).toMatch(/@media \(min-width: 600px\) \{\s*slt-site-mark \{ display: block; \}\s*\}/);
+  expect(css).toMatch(/@media \(max-width: 599px\) \{\s*slt-site-mark \{ display: none; \}\s*\}/);
+  expect(css).not.toContain('slt-site-mark { display: block; }');
+  expect(css).not.toMatch(/@media \(min-width: 600px\)[\s\S]*slt-site-mark/);
+  // The mark is hidden below the phone boundary, so the toast no longer reserves space for it there.
+  expect(css).not.toContain('44px + 12px');
   expect(readFileSync(join(root, 'src/main.ts'), 'utf8')).toContain("import '@sltsh/site-mark/register';");
 });
 
@@ -226,6 +229,24 @@ describe('the presentation pages', () => {
     expect(css).not.toMatch(/\.palette-link \{[^}]*border-bottom/);
   });
 
+  it('keeps the palette-link border and fill aligned with the section and moves only its inner content', () => {
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    // The link itself never translates; only its inner content span may, so the border-top/background stay put.
+    expect(css).not.toMatch(/\.palette-link \{[^}]*transform/);
+    expect(css).not.toMatch(/\.palette-link:hover, \.palette-link:focus-visible \{[^}]*transform/);
+    // Horizontal padding gives the hover/focus fill breathing room around the text.
+    expect(css).toMatch(/\.palette-link \{[^}]*padding: 1\.5rem 1rem/);
+    // Pointer-only hover movement is gated behind hover capability; keyboard focus keeps the same feedback unconditionally.
+    expect(css).toContain('.palette-link:focus-visible > span { transform: translateX(0.4rem); }');
+    expect(css).toMatch(/@media \(hover: hover\) \{\s*\.palette-link:hover > span \{ transform: translateX\(0\.4rem\); \}\s*\}/);
+  });
+
+  it('gives the header logo non-dimming feedback that keeps identity and focus visible', () => {
+    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+    expect(css).not.toMatch(/\.mark:hover, \.mark:focus-visible \{[^}]*opacity/);
+    expect(css).toContain('.mark:hover, .mark:focus-visible { background: var(--aion-bg-raised); }');
+  });
+
   it('renders a role-first reference without repeating essentials or using engineering tables', () => {
     const html = palette();
     expect(html.match(/class="swatch"/g)).toHaveLength(groups().flatMap((group) => group.swatches).length);
@@ -371,7 +392,6 @@ describe('the continuity hero', () => {
   it('bounds motion to one decorative hero scene plus local Register feedback', () => {
     expect(css).toContain('@media (prefers-reduced-motion: no-preference) {\n  html { scroll-behavior: smooth; }');
     expect(css.match(/@keyframes/g)).toHaveLength(1);
-    expect(css).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*\.stage-seam::before \{ animation: seam-draw var\(--slt-motion-scene, 720ms\)[\s\S]*?\}/);
     expect(css).not.toMatch(/animation-iteration-count|infinite/);
     // The scene lives only on the decorative, aria-hidden seam, gated behind reduced motion so it never grants access to ordinary content.
     for (const selector of ['h1', 'h2', 'p', 'body', '#app', '.hero', '.hero-pitch', '.editor', '.editor-body']) {
@@ -380,6 +400,24 @@ describe('the continuity hero', () => {
     const reducedMotionBlock = css.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
     expect(reducedMotionBlock).toContain('transition: none;');
     expect(reducedMotionBlock).not.toContain('.stage-seam');
+  });
+
+  it('owns the seam scene lifecycle in JavaScript so a live reduced-motion change never replays it', () => {
+    // Settled by default: only a JS-set data-scene="play" attribute starts the draw.
+    expect(rule('.stage-seam::before')).toContain('transform: scaleX(1)');
+    expect(css).toContain('.stage-seam[data-scene="play"]::before { animation: seam-draw var(--slt-motion-scene, 720ms)');
+    expect(css).not.toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*stage-seam/);
+    const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
+    const seamBlock = client.slice(client.indexOf("querySelector<HTMLElement>('.stage-seam')"), client.indexOf('const siteHead'));
+    expect(seamBlock).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
+    expect(seamBlock).toContain("delete seam.dataset['scene']");
+    expect(seamBlock).toContain("addEventListener('animationend', settle)");
+    expect(seamBlock).toContain("addEventListener('animationcancel', settle)");
+    expect(seamBlock).toMatch(/if \(reducedMotion\.matches\) settle\(\);\s*else seam\.dataset\['scene'\] = 'play';/);
+    // The live 'change' listener only ever settles; it never sets data-scene = 'play' again, so allowed motion never replays a reduced or interrupted scene.
+    const changeHandler = seamBlock.slice(seamBlock.indexOf("addEventListener('change'"));
+    expect(changeHandler).not.toContain("dataset['scene'] = 'play'");
+    expect(changeHandler).toContain('if (event.matches) settle();');
   });
 });
 
@@ -411,6 +449,43 @@ describe('the persistent site theme', () => {
     // Theme changes commit immediately: no selector that swaps a theme surface, asset, or value cross-fades.
     for (const selector of ['body', '.theme-image img', '[data-theme-value]', ':root[data-theme="dark"] .theme-image [data-theme-asset="dark"], :root[data-theme="light"] .theme-image [data-theme-asset="light"]']) {
       expect(css.match(new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '').not.toContain('transition');
+    }
+    // A transitioned nav/control (e.g. .site-nav a[aria-current], .theme-switch input:checked + span) still eases
+    // on ordinary hover/focus, but theme.ts suppresses every transition for the swap's duration via this rule.
+    expect(css).toContain('.site-nav a { display: flex; align-items: center; min-height: 2.75rem; padding: 0 1rem; border-bottom: 2px solid transparent; text-decoration: none; transition:');
+    expect(css).toContain('.theme-switch input:checked + span { color: var(--aion-gold-solid); background: var(--aion-gold-subtle); border-bottom-color: var(--aion-gold-solid); }');
+    expect(css).toMatch(/\[data-theme-swap\] \*\s*\{\s*transition: none !important;\s*\}/);
+  });
+
+  it('suppresses transitions synchronously during a theme swap, then releases the marker after it paints', () => {
+    vi.useFakeTimers();
+    try {
+      const listeners = new Map<string, EventListener>();
+      const root = { dataset: {} } as HTMLElement;
+      const control = { hidden: true } as HTMLFieldSetElement;
+      const lightInput = { value: 'light', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('light', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
+      const darkInput = { value: 'dark', checked: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as HTMLInputElement;
+      const media = { matches: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as MediaQueryList;
+      initializeTheme({ root, control, inputs: [darkInput, lightInput], media, storage: null, updateAssets: () => undefined });
+      expect(root.dataset['themeSwap']).toBe('');
+      vi.runAllTimers();
+      expect(root.dataset['themeSwap']).toBeUndefined();
+
+      listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
+      // The new theme, assets, and control state commit in the same tick the marker is set.
+      expect(root.dataset.theme).toBe('light');
+      expect(root.dataset['themeSwap']).toBe('');
+      vi.advanceTimersByTime(0);
+      expect(root.dataset['themeSwap']).toBeUndefined();
+
+      listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
+      listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
+      // A second swap before the first one's marker is released does not leave the earlier timer stranded.
+      expect(root.dataset['themeSwap']).toBe('');
+      vi.runAllTimers();
+      expect(root.dataset['themeSwap']).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
     }
   });
 

@@ -33,6 +33,25 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((source) => 
   source.disabled = false;
 });
 
+const seam = document.querySelector<HTMLElement>('.stage-seam');
+if (seam) {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const settle = (): void => {
+    delete seam.dataset['scene'];
+  };
+  seam.addEventListener('animationend', settle);
+  seam.addEventListener('animationcancel', settle);
+
+  // Runs once on initial load only. The 'change' listener below only ever settles
+  // the seam, so a later switch back to 'no-preference' never replays the scene.
+  if (reducedMotion.matches) settle();
+  else seam.dataset['scene'] = 'play';
+
+  reducedMotion.addEventListener('change', (event) => {
+    if (event.matches) settle();
+  });
+}
+
 const siteHead = document.querySelector<HTMLElement>('.site-head');
 const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 if (siteHead && menuToggle) {

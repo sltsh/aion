@@ -18,9 +18,20 @@ replaced by the approved fixed placement. Aion renders one bare
 `<slt-site-mark></slt-site-mark>` at the top level of the homepage and palette
 page, outside the footer and without a `placement` attribute. The package owns
 the fixed bottom-right offsets, safe-area handling, stacking, styling, and
-interaction, so Aion has no wrapper, slot, or CSS for the mark. The verified
-private SLT brand snapshot is v1.0.0. The footer's MIT statement still names
-**Aion source** so it does not imply a license for the SLT name or glyph.
+interaction, so Aion has no wrapper or slot for the mark, and above the
+package's own 600px phone boundary it adds no display rule of any kind. The
+verified private SLT brand snapshot is v1.0.0. The footer's MIT statement
+still names **Aion source** so it does not imply a license for the SLT name or
+glyph.
+
+Phone-collision update (2026-09-22): the package has no phone-width collision
+rule of its own, so the host page adds exactly one rule, scoped to its own
+600px boundary: `@media (max-width: 599px) { slt-site-mark { display: none;
+} }`. This is Aion's only CSS for the mark; it changes no package internals,
+offsets, or registration, and the mark stays in the prerendered document at
+every width. Because the mark is hidden below 600px, there is no longer a
+phone-width collision between the mark and the copy-confirmation toast to
+resolve, and the toast no longer reserves bottom offset space for it.
 
 Spacing release update (2026-09-21): Aion installs the exact public registry
 version `@sltsh/site-mark@0.1.1`, released from tagged package commit `c67901b`.
@@ -37,21 +48,27 @@ This note records only Aion's adoption choices and evidence.
 ## Fixed placement evidence
 
 Validated on 2026-09-21 in Chromium with the local 0.1.1 tarball, on both pages
-in dark and light themes at 1440×900, 390×844, and 320×568 (12 rows). Every
-row had exactly one mark, outside the footer, with `position: fixed`, and a
-44px high link about 127px wide (127.4px). The mark stayed at the same
-viewport position at the top, middle, and bottom of the scroll range, at 20px
-from the right and bottom edges at 1440px and 16px at 390px and 320px. No row
-had horizontal overflow. Keyboard focus reached the mark and showed a 2px
-gold outline with a 3px offset, inside the viewport. With the mobile menu
-open at 390px and 320px, the menu did not overlap the mark.
+in dark and light themes at 1440×900, 390×844, and 320×568 (12 rows), before
+the 2026-09-22 phone-collision update above hid the mark below 600px. The
+1440×900 rows remain current: every row had exactly one mark, outside the
+footer, with `position: fixed`, and a 44px high link about 127px wide
+(127.4px), at 20px from the right and bottom edges, with no horizontal
+overflow. Keyboard focus reached the mark and showed a 2px gold outline with
+a 3px offset, inside the viewport.
 
-The host resolves its two fixed-placement collisions without styling the mark.
-At widths up to 340px, the palette introduction uses less bottom padding so
-the jump navigation clears the mark at the top of the page. At widths up to
-599px, the copy confirmation toast sits above the mark and the safe-area inset.
-The fixed mark can overlay ordinary scrolling content, but it does not obscure
-the palette navigation, mobile menu, or copy fallback guidance.
+**Historical (superseded by the phone-collision update):** the 390×844 and
+320×568 rows below, and this paragraph, describe the mark as visible on
+phone-width viewports. That is no longer current behavior: the mark is
+`display: none` below 600px, so it no longer overlays phone-width content, the
+mobile menu, the palette introduction, or the copy confirmation toast, and the
+collision-avoidance measures described below no longer apply.
+
+The host resolved its two fixed-placement collisions without styling the mark.
+At widths up to 340px, the palette introduction used less bottom padding so
+the jump navigation cleared the mark at the top of the page. At widths up to
+599px, the copy confirmation toast sat above the mark and the safe-area inset.
+The fixed mark could overlay ordinary scrolling content, but it did not
+obscure the palette navigation, mobile menu, or copy fallback guidance.
 
 ## Inline-placement browser evidence (superseded)
 

@@ -22,10 +22,9 @@
 html { scroll-padding-top: calc(var(--site-header) + 2rem); }
 body { margin: 0; background: var(--aion-bg-surface); color: var(--aion-fg-primary); font-family: 'Archivo', system-ui, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 #app { max-width: var(--site-page); margin: auto; padding: 0 var(--site-gutter); }
-/* The package mark has no phone-width collision rule of its own; the host page owns that decision at its own 600px boundary. */
-slt-site-mark { display: none; }
-@media (min-width: 600px) {
-  slt-site-mark { display: block; }
+/* The package owns its own display above 600px; the host only adds its own phone-width collision rule. */
+@media (max-width: 599px) {
+  slt-site-mark { display: none; }
 }
 a { color: inherit; }
 button { font: inherit; }
@@ -42,8 +41,8 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .skip-link { position: fixed; left: 1rem; top: -5rem; z-index: 20; padding: 0.75rem; background: var(--aion-bg-raised); }
 .skip-link:focus { top: 0.5rem; }
 .site-head { height: var(--site-header); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 2rem; background: var(--aion-bg-surface); border-bottom: 1px solid var(--aion-border-hairline); }
-.mark { display: flex; align-items: center; flex: none; transition: opacity var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
-.mark:hover, .mark:focus-visible { opacity: 0.75; }
+.mark { display: flex; align-items: center; flex: none; padding: 0.25rem; margin: -0.25rem; transition: background var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
+.mark:hover, .mark:focus-visible { background: var(--aion-bg-raised); }
 .theme-image { display: inline-block; }
 .theme-image img { display: none; }
 :root[data-theme="dark"] .theme-image [data-theme-asset="dark"], :root[data-theme="light"] .theme-image [data-theme-asset="light"] { display: block; }
@@ -86,7 +85,12 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .text-link:hover { text-decoration-color: currentColor; }
 .editor { grid-area: artifact; min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--aion-border-divider); background: var(--aion-bg-page); }
 .stage-seam { grid-area: seam; display: flex; align-items: stretch; height: 0.1875rem; margin-top: 3rem; }
-.stage-seam::before { content: ''; flex: 1; background: var(--aion-gold-solid); transform-origin: left; }
+.stage-seam::before { content: ''; flex: 1; background: var(--aion-gold-solid); transform-origin: left; transform: scaleX(1); }
+.stage-seam[data-scene="play"]::before { animation: seam-draw var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)) both; }
+@keyframes seam-draw {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
 .stage-terminal { width: 1.75rem; background: var(--aion-teal-solid); clip-path: polygon(0 0, 100% 0, calc(100% - 0.1875rem) 100%, 0 100%); }
 .editor-bar { display: flex; align-items: center; justify-content: space-between; background: var(--aion-bg-raised); color: var(--aion-fg-secondary); padding: 0 1.25rem; font-size: 0.8rem; }
 .editor-tab { padding: 0.8rem 0; border-top: 2px solid var(--aion-gold-solid); color: var(--aion-fg-primary); }
@@ -134,11 +138,16 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .copy-status[data-status="success"] { border-color: var(--aion-status-success-solid); }
 .copy-status[data-status="error"] { border-color: var(--aion-status-error-solid); }
 .copy-status:empty { display: none; }
-.palette-link { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2.5rem; padding: 1.5rem 0; color: var(--aion-gold-solid); text-decoration: none; border-top: 1px solid var(--aion-gold-border); transition: background var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)), border-top-color var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)), transform var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
+.palette-link { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: 2.5rem; padding: 1.5rem 1rem; color: var(--aion-gold-solid); text-decoration: none; border-top: 1px solid var(--aion-gold-border); transition: background var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)), border-top-color var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
+.palette-link > span { display: block; transition: transform var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
 .palette-link strong { display: block; font-size: 1.15rem; font-weight: 550; }
 .palette-link span span { display: block; color: var(--aion-fg-secondary); font-size: 0.9rem; margin-top: 0.3rem; }
 .palette-link > .icon { width: 1.5rem; height: 1.5rem; }
-.palette-link:hover, .palette-link:focus-visible { border-top-color: var(--aion-gold-solid); background: var(--aion-bg-raised); transform: translateX(0.4rem); }
+.palette-link:hover, .palette-link:focus-visible { border-top-color: var(--aion-gold-solid); background: var(--aion-bg-raised); }
+.palette-link:focus-visible > span { transform: translateX(0.4rem); }
+@media (hover: hover) {
+  .palette-link:hover > span { transform: translateX(0.4rem); }
+}
 .release-note { max-width: none; padding: 1rem 1.25rem; border-left: 2px solid var(--aion-gold-solid); background: var(--aion-bg-page); margin-bottom: 1.5rem; font-size: 0.9rem; }
 .release-note .text-link { margin-left: 0.5rem; }
 .install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--aion-border-divider); border-bottom: 1px solid var(--aion-border-divider); }
@@ -239,9 +248,6 @@ code { font-family: 'Monaspace Neon', monospace; }
   .footer-links a + a { padding-left: 0; border-left: 0; border-top: 1px solid var(--aion-border-hairline); }
   .footer-meta { flex-direction: column; gap: 0.5rem; }
 }
-@media (max-width: 599px) {
-  .copy-status[data-visible] { bottom: calc(16px + env(safe-area-inset-bottom) + 44px + 12px); }
-}
 @media (max-width: 340px) {
   .page-head { padding-bottom: 0; }
   .jump a { min-width: 0; justify-content: center; padding-inline: 0.1rem; text-align: center; overflow-wrap: anywhere; line-height: 1.2; }
@@ -268,16 +274,15 @@ code { font-family: 'Monaspace Neon', monospace; }
 }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
-  .stage-seam::before { animation: seam-draw var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)) both; }
-  @keyframes seam-draw {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
-  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .mark, .menu-toggle, .site-nav a, .source-link, .theme-switch span, .button, .open-link, .text-link, .swatch-copy, .copy-button, .palette-link, .jump a, .footer-links a {
+  .mark, .menu-toggle, .site-nav a, .source-link, .theme-switch span, .button, .open-link, .text-link, .swatch-copy, .copy-button, .palette-link, .palette-link > span, .jump a, .footer-links a {
     transition: none;
   }
+}
+/* Suppressed synchronously by theme.ts while an explicit or system theme swap applies, then released after the change has painted so ordinary Register feedback keeps easing. */
+[data-theme-swap] * {
+  transition: none !important;
 }
 .code { font-family: 'Monaspace Neon', ui-monospace, monospace; font-size: 0.85rem; line-height: 1.75; }
 .code-row { display: flex; }
