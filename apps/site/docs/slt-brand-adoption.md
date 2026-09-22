@@ -34,10 +34,25 @@ this record; this file records Aion decisions rather than reproducing it.
   with proportional Lanczos resizing. Light derivatives preserve geometry and
   use the emitted dark editor base for light surfaces. No asset was modified
   in this adoption.
-- **Motion boundary:** no site-local scenes, entrances, ambient loops, or
-  transitions. Native same-page smooth scrolling under `no-preference` and
-  package-owned site-mark Register feedback are the complete motion surface.
-  Reduced motion leaves settled content and controls.
+- **Motion boundary:** one bounded site-local scene, a single-run gold-rail
+  draw on the decorative, `aria-hidden` hero seam, gated under
+  `prefers-reduced-motion: no-preference` and using the shared `--slt-motion-scene`
+  and `--slt-ease-out` tokens with their canonical fallbacks. Local Register
+  transitions on the header, buttons, swatches, copy controls, the jump rail,
+  and the footer use `--slt-motion-feedback` and `--slt-ease-out` for short,
+  local hover and focus feedback; none of them retime the page-wide theme
+  swap, which still commits immediately. No entrance, ambient loop, or
+  scroll-triggered effect is added. Native same-page smooth scrolling under
+  `no-preference` and package-owned site-mark Register feedback remain part of
+  the motion surface. Reduced motion removes the scene and every local
+  transition and leaves settled content and controls, including after a live
+  preference change.
+- **Responsive site mark:** the package has no phone-width collision rule of
+  its own, so the host page hides `<slt-site-mark>` below the package's own
+  600px phone boundary with a plain `display: none` rule on the host element,
+  restoring `display: block` at and above 600px. This changes no package
+  internals or registration; the mark stays in the prerendered document on
+  both pages at every width.
 - **Prohibited-default decisions:** no generic arrow presentation icons,
   repeated chamfers or rails, gradients, shadows, soft card silhouettes, or
   pseudo-editor ornament. The editor chrome is retained only as an approved

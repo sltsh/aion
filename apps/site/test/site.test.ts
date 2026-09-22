@@ -14,7 +14,7 @@ import { renderHero } from '../src/samples/hero.js';
 import { swatch } from '../src/render/swatch.js';
 import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_KEY, themeBootstrap } from '../src/theme.js';
 
-it('renders one fixed SLT site mark outside the footer on both pages', () => {
+it('renders one fixed SLT site mark outside the footer on both pages, hidden below the phone boundary', () => {
   for (const html of [landing(FLAGS), palette()]) {
     expect(html.match(/<slt-site-mark/g)).toHaveLength(1);
     expect(html).toContain('<slt-site-mark></slt-site-mark>');
@@ -25,7 +25,8 @@ it('renders one fixed SLT site mark outside the footer on both pages', () => {
     expect(html).not.toContain('footer-site-mark');
   }
   const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-  expect(css).not.toContain('site-mark');
+  expect(css).toContain('slt-site-mark { display: none; }');
+  expect(css).toMatch(/@media \(min-width: 600px\) \{\s*slt-site-mark \{ display: block; \}\s*\}/);
   expect(readFileSync(join(root, 'src/main.ts'), 'utf8')).toContain("import '@sltsh/site-mark/register';");
 });
 
@@ -367,9 +368,18 @@ describe('the continuity hero', () => {
     expect(rule('.open-link')).toContain('text-decoration: underline');
   });
 
-  it('adds no motion beyond the reduced-motion smooth scroll', () => {
-    expect(css).not.toMatch(/transition|@keyframes|animation/);
+  it('bounds motion to one decorative hero scene plus local Register feedback', () => {
     expect(css).toContain('@media (prefers-reduced-motion: no-preference) {\n  html { scroll-behavior: smooth; }');
+    expect(css.match(/@keyframes/g)).toHaveLength(1);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*\.stage-seam::before \{ animation: seam-draw var\(--slt-motion-scene, 720ms\)[\s\S]*?\}/);
+    expect(css).not.toMatch(/animation-iteration-count|infinite/);
+    // The scene lives only on the decorative, aria-hidden seam, gated behind reduced motion so it never grants access to ordinary content.
+    for (const selector of ['h1', 'h2', 'p', 'body', '#app', '.hero', '.hero-pitch', '.editor', '.editor-body']) {
+      expect(rule(selector)).not.toMatch(/opacity: 0|visibility: hidden|clip:|transform:/);
+    }
+    const reducedMotionBlock = css.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
+    expect(reducedMotionBlock).toContain('transition: none;');
+    expect(reducedMotionBlock).not.toContain('.stage-seam');
   });
 });
 
@@ -398,7 +408,10 @@ describe('the persistent site theme', () => {
     expect(css).toContain('.site-nav a, .theme-switch span { font-size: 0.75rem; }');
     expect(css).toContain('.theme-switch input:focus-visible + span');
     expect(css).toContain('[data-theme-value] { display: none; }');
-    expect(css).not.toContain('transition:');
+    // Theme changes commit immediately: no selector that swaps a theme surface, asset, or value cross-fades.
+    for (const selector of ['body', '.theme-image img', '[data-theme-value]', ':root[data-theme="dark"] .theme-image [data-theme-asset="dark"], :root[data-theme="light"] .theme-image [data-theme-asset="light"]']) {
+      expect(css.match(new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '').not.toContain('transition');
+    }
   });
 
   it('renders both emitted values for every swatch and copy payload', () => {
@@ -530,15 +543,16 @@ describe('the source guards', () => {
     }
   });
 
-  it('reads only variables the CSS package emits or the site declares', () => {
+  it('reads only variables the CSS package emits, the site declares, or the shared motion contract names', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     const emitted = new Set(Object.keys(dark()));
     const declared = new Set(css.match(/--site-[a-z0-9-]+/g) ?? []);
+    const sharedMotion = new Set(['--slt-motion-feedback', '--slt-motion-scene', '--slt-ease-out']);
     const read = css.match(/var\((--[a-z0-9-]+)/g) ?? [];
     expect(read.length).toBeGreaterThan(0);
     for (const entry of read) {
       const name = entry.slice(4);
-      expect(emitted.has(name) || declared.has(name), name).toBe(true);
+      expect(emitted.has(name) || declared.has(name) || sharedMotion.has(name), name).toBe(true);
     }
   });
 });
