@@ -24,7 +24,7 @@ case and its selection foreground.
 | 8. Marketplace listing | **done** | `packages/vscode/README.md`, the listing icon |
 | 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 | 10. Site light/dark theme switch | **done** | `apps/site/src/theme.ts`, `apps/site/test` |
-| 11. Obsidian community theme, Dark and Light | **source complete; native review pending** | `manifest.json`, `theme.css`, `packages/obsidian` |
+| 11. Obsidian community theme, Dark and Light | **source complete; desktop review in progress** | `manifest.json`, `theme.css`, `packages/obsidian` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -291,7 +291,7 @@ persistence, system following, no-JavaScript rendering, copied values, focus and
 responsive header. The task changed no palette value, so native editor acceptance was not
 reopened.
 
-## Task 11 — Obsidian community theme — native review pending
+## Task 11 — Obsidian community theme — desktop review in progress
 
 `packages/obsidian` generates the repository-root `theme.css` from the existing CSS and
 token emitters. The root `manifest.json` names one theme with Dark and Light variants.
@@ -299,21 +299,25 @@ The stylesheet maps Obsidian's surface, text, control, Markdown, code, navigatio
 dialog variables, and ships without scripts, fonts, images or remote imports. The release
 workflow attaches both root files, and `scripts/check-version.mjs` gates their version.
 
-Current local evidence: full build, 1024 contrast checks passed with no failures, the full
+Current local evidence: full build and contrast gate passed, the full
 root and workspace suites, typecheck and `sync:design` passed. Focused Obsidian tests
 check generated parity and reading, selection, search and focus contrast for both modes.
 An independent source review found two missing code roles; both were mapped and the
-generated sheet and focused checks passed again. This is calculation and source review,
-not native Obsidian acceptance.
+generated sheet and focused checks passed again. In Obsidian 1.13.7 on Linux, an isolated
+vault displayed both modes in reading view, live preview and source mode. Dark in-note
+search highlighted both matches visibly.
+The native accent picker exposed a hard-coded gold mapping; the theme now supplies HSL
+defaults derived from the emitted gold and lets Obsidian apply a chosen accent. Native
+checks confirmed both default gold values and a custom blue. Direct 512×288 native
+captures for both modes are in `screenshots/`.
 
-Next objective: install the root files in Obsidian and review both modes in reading, live
-preview, source mode, search, navigation, menus, dialogs and mobile layout. Capture a
-current app screenshot for the community listing. Only then prepare a versioned GitHub
-release and submit the theme through the Obsidian community directory.
+Next objective: review navigation, menus, dialogs and mobile layout in Obsidian. Then
+prepare a versioned GitHub release and submit the theme through the Obsidian community
+directory with owner authorization.
 
 ## Order and parallelism
 
-Tasks 1 to 10 are done. Task 11 awaits native review and the community release.
+Tasks 1 to 10 are done. Task 11 awaits the remaining native review and community release.
 
 ## Native acceptance
 

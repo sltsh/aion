@@ -10,10 +10,29 @@ const value = (colors: Variables, name: string): string => {
   return color;
 };
 
+const hslChannels = (color: string): [string, string, string] => {
+  const channels = [1, 3, 5].map((start) => Number.parseInt(color.slice(start, start + 2), 16) / 255);
+  const [red, green, blue] = channels as [number, number, number];
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const delta = max - min;
+  const lightness = (max + min) / 2;
+  const saturation = delta === 0 ? 0 : delta / (1 - Math.abs(2 * lightness - 1));
+  let hue = 0;
+  if (delta !== 0) {
+    if (max === red) hue = ((green - blue) / delta) % 6;
+    else if (max === green) hue = (blue - red) / delta + 2;
+    else hue = (red - green) / delta + 4;
+    hue = (hue * 60 + 360) % 360;
+  }
+  return [hue.toFixed(4), `${(saturation * 100).toFixed(4)}%`, `${(lightness * 100).toFixed(4)}%`];
+};
+
 export const obsidianColors = (scheme: Scheme): Record<string, string> => {
   const colors = scheme === 'dark' ? dark() : light();
   const c = (name: string): string => value(colors, name);
   const sidebar = scheme === 'dark' ? hex(neutral.sidebar) : hex(lightNeutral.surface);
+  const [accentHue, accentSaturation, accentLightness] = hslChannels(c('gold-solid'));
 
   return {
     '--color-base-00': c('bg-page'),
@@ -28,9 +47,9 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--color-base-60': c('fg-dim'),
     '--color-base-70': c('fg-secondary'),
     '--color-base-100': c('fg-primary'),
-    '--color-accent': c('gold-solid'),
-    '--color-accent-1': c('gold-solid'),
-    '--color-accent-2': c('gold-solid'),
+    '--accent-h': accentHue,
+    '--accent-s': accentSaturation,
+    '--accent-l': accentLightness,
     '--color-red': c('coral-solid'),
     '--color-orange': c('copper-solid'),
     '--color-yellow': c('gold-solid'),
@@ -57,15 +76,15 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
 
     '--interactive-normal': c('bg-input'),
     '--interactive-hover': c('bg-hover'),
-    '--interactive-accent': c('gold-solid'),
-    '--interactive-accent-hover': c('gold-solid'),
+    '--interactive-accent': 'var(--color-accent)',
+    '--interactive-accent-hover': 'var(--color-accent-1)',
     '--text-normal': c('fg-primary'),
     '--text-muted': c('fg-secondary'),
     '--text-faint': c('fg-dim'),
     '--text-on-accent': c('fg-on-accent'),
     '--text-on-accent-inverted': c('fg-on-accent'),
-    '--text-accent': c('gold-solid'),
-    '--text-accent-hover': c('gold-solid'),
+    '--text-accent': 'var(--color-accent)',
+    '--text-accent-hover': 'var(--color-accent-1)',
     '--text-success': c('status-success-text'),
     '--text-warning': c('status-warning-text'),
     '--text-error': c('status-error-text'),
@@ -103,12 +122,12 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--code-tag': c('syntax-type'),
     '--tag-color': c('gold-solid'),
     '--tag-background': c('gold-subtle'),
-    '--checkbox-color': c('gold-solid'),
-    '--checkbox-color-hover': c('gold-solid'),
+    '--checkbox-color': 'var(--interactive-accent)',
+    '--checkbox-color-hover': 'var(--interactive-accent-hover)',
     '--checkbox-border-color': c('border-ui'),
 
     '--nav-item-background-active': c('gold-subtle'),
-    '--nav-item-color-active': c('gold-solid'),
+    '--nav-item-color-active': 'var(--text-accent)',
     '--nav-item-color-hover': c('fg-primary'),
     '--tab-container-background': sidebar,
     '--tab-background-active': c('bg-page'),

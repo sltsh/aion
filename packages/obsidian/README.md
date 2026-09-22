@@ -5,6 +5,9 @@ One community theme with **Dark** and **Light** modes. The repository-root
 Obsidian loads; this package generates the CSS from Aion's emitted palette. Do not edit
 colors in the generated sheet. Change `packages/tokens/src` and rebuild.
 
+![Aion Dark in Obsidian](../../screenshots/obsidian-dark.png)
+![Aion Light in Obsidian](../../screenshots/obsidian-light.png)
+
 ## Try it locally
 
 1. In your vault, create `.obsidian/themes/Aion/`.
@@ -25,7 +28,9 @@ the same keys, and selected reading and focus pairs clear their contrast floors.
 
 The repository-root manifest and stylesheet are prepared for an Obsidian community
 release. A release tag must match the manifest version; the release workflow attaches
-both files. A real Obsidian screenshot and native review of reading, live preview,
-source mode, menus, dialogs and mobile layout are still required before submission.
+both files. The screenshots above were captured directly from Obsidian 1.13.7 with an
+isolated local vault. Desktop reading, live preview, and source mode were checked in both
+modes; Dark in-note search was also checked. Desktop menus, dialogs, and mobile layout
+still need native review before submission.
 The [Obsidian submission guide](https://docs.obsidian.md/themes/app-themes/submit-theme)
 also requires a community listing submission after the GitHub release.

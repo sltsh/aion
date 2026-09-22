@@ -1,9 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
+import { formatHex } from 'culori';
 import {
   CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hex, hexAlpha,
   hexToOklch, lightFindMatch, lightOverlay,
 } from '@sltsh/aion-tokens';
+import { dark, light } from '@sltsh/aion-css';
 import { obsidianColors, themeCss } from '../src/theme.js';
 
 const css = readFileSync(new URL('../../../theme.css', import.meta.url), 'utf8');
@@ -14,6 +16,15 @@ const colors = [obsidianColors('dark'), obsidianColors('light')];
 const ratio = (foreground: string, background: string): number =>
   contrastEmitted(hexToOklch(foreground), hexToOklch(background));
 
+const resolved = (scheme: 'dark' | 'light', name: string): string => {
+  const variables = obsidianColors(scheme);
+  const gold = (scheme === 'dark' ? dark() : light())['--aion-gold-solid']!;
+  if (name === '--color-accent') return gold;
+  const value = variables[name]!;
+  const reference = /^var\((--[a-z0-9-]+)\)$/.exec(value);
+  return reference ? resolved(scheme, reference[1]!) : value;
+};
+
 test('the installable sheet is generated from both Aion variants', () => {
   expect(css).toBe(themeCss());
   expect(css).toContain('.theme-dark {');
@@ -23,10 +34,30 @@ test('the installable sheet is generated from both Aion variants', () => {
   expect(css).not.toMatch(/!important/);
   for (const scheme of colors) {
     for (const [name, value] of Object.entries(scheme)) {
-      expect(value, name).toMatch(/^#[0-9a-f]{6}([0-9a-f]{2})?$/);
+      if (name === '--accent-h') expect(value, name).toMatch(/^\d+(\.\d+)?$/);
+      else if (name === '--accent-s' || name === '--accent-l') expect(value, name).toMatch(/^\d+(\.\d+)?%$/);
+      else expect(value, name).toMatch(/^(#[0-9a-f]{6}([0-9a-f]{2})?|var\(--[a-z0-9-]+\))$/);
       expect(css).toContain(`${name}: ${value};`);
     }
   }
+});
+
+test.each(['dark', 'light'] as const)('%s lets Obsidian derive the chosen accent', (scheme) => {
+  const c = obsidianColors(scheme);
+  const gold = (scheme === 'dark' ? dark() : light())['--aion-gold-solid']!;
+  expect(formatHex({
+    mode: 'hsl',
+    h: Number(c['--accent-h']),
+    s: Number.parseFloat(c['--accent-s']!) / 100,
+    l: Number.parseFloat(c['--accent-l']!) / 100,
+  })).toBe(gold);
+  for (const name of ['--color-accent', '--color-accent-1', '--color-accent-2']) {
+    expect(c).not.toHaveProperty(name);
+  }
+  expect(c['--interactive-accent']).toBe('var(--color-accent)');
+  expect(c['--interactive-accent-hover']).toBe('var(--color-accent-1)');
+  expect(c['--text-accent']).toBe('var(--color-accent)');
+  expect(c['--checkbox-color']).toBe('var(--interactive-accent)');
 });
 
 test('the manifest describes a community theme release', () => {
@@ -58,7 +89,7 @@ test.each(['dark', 'light'] as const)('%s reading pairs clear the emitted contra
     ['--code-tag', '--code-background'],
   ] as const;
   for (const [foreground, background] of pairs) {
-    const measured = ratio(c[foreground]!, c[background]!);
+    const measured = ratio(resolved(scheme, foreground), resolved(scheme, background));
     expect(measured, `${scheme} ${foreground} on ${background}: ${measured.toFixed(2)}`)
       .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
