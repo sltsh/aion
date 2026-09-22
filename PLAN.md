@@ -305,15 +305,24 @@ check generated parity and reading, selection, search and focus contrast for bot
 An independent source review found two missing code roles; both were mapped and the
 generated sheet and focused checks passed again. In Obsidian 1.13.7 on Linux, an isolated
 vault displayed both modes in reading view, live preview and source mode. Dark in-note
-search highlighted both matches visibly.
+search highlighted both matches visibly. File menus and the command dialog rendered in
+both modes; keyboard selection moved visibly in the Light command dialog.
 The native accent picker exposed a hard-coded gold mapping; the theme now supplies HSL
 defaults derived from the emitted gold and lets Obsidian apply a chosen accent. Native
 checks confirmed both default gold values and a custom blue. Direct 512×288 native
-captures for both modes are in `screenshots/`.
+captures for both modes are in `screenshots/`, with the Dark store image also at the
+repository root as `screenshot.png`.
 
-Next objective: review navigation, menus, dialogs and mobile layout in Obsidian. Then
-prepare a versioned GitHub release and submit the theme through the Obsidian community
-directory with owner authorization.
+A 390px desktop-renderer smoke check with both sidebars collapsed showed the note and
+controls reflowing without clipping. This does not establish native mobile acceptance.
+Release preparation uses `1.0.2` because `v1.0.1` already exists; the manifest, package
+versions, exact dependencies, lockfile and changelog agree. No tag or remote release has
+been created. The repository's tag workflow also publishes the npm and VS Code packages,
+so that coupled release needs owner approval.
+
+Next objective: review mobile layout in Obsidian, perform the release package/install
+check, then tag and submit the theme through the Obsidian community directory with owner
+authorization.
 
 ## Order and parallelism
 

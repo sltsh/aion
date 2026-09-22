@@ -30,7 +30,7 @@ The repository-root manifest and stylesheet are prepared for an Obsidian communi
 release. A release tag must match the manifest version; the release workflow attaches
 both files. The screenshots above were captured directly from Obsidian 1.13.7 with an
 isolated local vault. Desktop reading, live preview, and source mode were checked in both
-modes; Dark in-note search was also checked. Desktop menus, dialogs, and mobile layout
-still need native review before submission.
+modes; Dark in-note search, file menus, and the command dialog were also checked. Mobile
+layout still needs native review before submission.
 The [Obsidian submission guide](https://docs.obsidian.md/themes/app-themes/submit-theme)
 also requires a community listing submission after the GitHub release.

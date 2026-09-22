@@ -47,6 +47,9 @@ scheme palettes.
 | Obsidian         | [Install the local theme files](packages/obsidian/README.md) to use Dark and Light while native review and community submission are pending. |
 | Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
+The Obsidian theme shares Aion's palette in both modes. Preview [Dark](screenshot.png) and
+[Light](screenshots/obsidian-light.png) as captured in Obsidian 1.13.7.
+
 For Windows Terminal, save `aion.json` in
 `%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\sltsh` (create the folder if needed).
 Restart Terminal, then select **Aion** under **Settings → Profiles → Appearance → Colour
