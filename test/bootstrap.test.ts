@@ -12,7 +12,7 @@ const lab = JSON.parse(readFileSync('apps/lab/package.json', 'utf8')) as {
   scripts: Record<string, string>;
 };
 
-const CONSUMERS = ['packages/css', 'packages/terminal', 'packages/vscode', 'apps/lab', 'apps/site'];
+const CONSUMERS = ['packages/css', 'packages/obsidian', 'packages/terminal', 'packages/vscode', 'apps/lab', 'apps/site'];
 
 // `npm run <script> --workspaces` walks the workspaces in declaration order, which starts
 // with the CSS package. A clean checkout has no `packages/tokens/dist`, so every consumer

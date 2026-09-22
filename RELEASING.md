@@ -2,7 +2,7 @@
 
 The tag is the trigger. `.github/workflows/release.yml` runs every gate again, packages the
 extension, publishes tokens and CSS to npm, publishes the extension to both marketplaces
-and creates the GitHub release.
+and creates the GitHub release with the Obsidian theme files.
 
 ## What deploys where
 
@@ -11,6 +11,7 @@ and creates the GitHub release.
 | `@sltsh/aion-tokens` | npm | Dark and Light exports |
 | `@sltsh/aion-css` | npm | Dark and Light custom properties |
 | VS Code extension | Visual Studio Marketplace, Open VSX and the GitHub release | Aion and Aion Light in one VSIX |
+| Obsidian theme | GitHub release files; community directory after separate submission | Dark and Light in one stylesheet |
 | Windows Terminal fragment | Repository and public-site download | Dark standalone scheme only |
 | Public site | GitHub Pages on pushes to `main` | Persistent Dark and Light switch using both emitted palettes |
 | Lab | None | Local development tool only |
@@ -38,15 +39,21 @@ publication. Published versions are immutable: corrections need a new version.
 
 1. Move the `## Unreleased` heading in `CHANGELOG.md` to the new version number and add a
    fresh `## Unreleased` above it. The release fails without a section for the version.
-2. Set the same version in all four `packages/*/package.json` files and in CSS's exact
-   `@sltsh/aion-tokens` dependency. Run `npm install --package-lock-only --ignore-scripts`
+2. Set the same version in all five `packages/*/package.json` files, the root Obsidian
+   `manifest.json`, CSS's exact `@sltsh/aion-tokens` dependency, and Obsidian's exact
+   CSS and token dependencies. Run `npm install --package-lock-only --ignore-scripts`
    to refresh the lockfile.
 3. For a release containing Aion Light, package and install the VSIX once before tagging.
    Confirm that **Aion Light** appears as a theme and record the native checks in
    `PLAN.md`; the calculation and lab preview do not replace this step.
-4. Commit the release preparation, tag that commit as `vX.Y.Z`, then push the tag.
+4. For a release containing the Obsidian theme, install the generated root `theme.css`
+   and `manifest.json` in Obsidian, check both base color schemes in reading, live preview,
+   source mode, menus, dialogs and mobile, and capture a current screenshot for the
+   community listing. Record native results in `PLAN.md`.
+5. Commit the release preparation, tag that commit as `vX.Y.Z`, then push the tag.
 
-`scripts/check-version.mjs` compares the tag against every package. `scripts/release-notes.mjs`
+`scripts/check-version.mjs` compares the tag against every package and the Obsidian manifest.
+`scripts/release-notes.mjs`
 takes the changelog section and appends the commits since the previous tag, grouped by the
 verb that opens each subject line.
 
@@ -64,6 +71,9 @@ it was built. Do not add `--pre-release` to a publish command.
 
 Run the workflow by hand from the Actions tab with `dry_run` left on. It runs every gate,
 packages the extension, checks both npm packages with `npm publish --dry-run`, and writes
-the notes. It skips all publishing and GitHub release creation, then uploads the VSIX
-and notes as an artifact. Use a new tag whose checkout includes this workflow; rerunning
+the notes. It skips all publishing and GitHub release creation, then uploads the VSIX,
+Obsidian files and notes as an artifact. Use a new tag whose checkout includes this workflow; rerunning
 an old tag uses the old workflow and source.
+
+Obsidian's community directory needs an owner-submitted listing after the GitHub release;
+tag publication alone does not make the theme installable from within Obsidian.

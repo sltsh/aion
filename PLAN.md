@@ -24,6 +24,7 @@ case and its selection foreground.
 | 8. Marketplace listing | **done** | `packages/vscode/README.md`, the listing icon |
 | 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 | 10. Site light/dark theme switch | **done** | `apps/site/src/theme.ts`, `apps/site/test` |
+| 11. Obsidian community theme, Dark and Light | **source complete; native review pending** | `manifest.json`, `theme.css`, `packages/obsidian` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -243,7 +244,8 @@ the GitHub release.
 Both workflows assert that a build and a `sync:design` change nothing in the tree. A
 generated file that drifts from its source fails the build.
 
-`scripts/check-version.mjs` compares the tag against every package under `packages/`.
+`scripts/check-version.mjs` compares the tag against every package under `packages/` and
+the root Obsidian manifest.
 `scripts/release-notes.mjs` takes the `CHANGELOG.md` section for the version and appends
 the commits since the previous tag, grouped by the verb that opens each subject line. It
 exits non-zero when the changelog has no section for the version.
@@ -289,9 +291,29 @@ persistence, system following, no-JavaScript rendering, copied values, focus and
 responsive header. The task changed no palette value, so native editor acceptance was not
 reopened.
 
+## Task 11 — Obsidian community theme — native review pending
+
+`packages/obsidian` generates the repository-root `theme.css` from the existing CSS and
+token emitters. The root `manifest.json` names one theme with Dark and Light variants.
+The stylesheet maps Obsidian's surface, text, control, Markdown, code, navigation, tab and
+dialog variables, and ships without scripts, fonts, images or remote imports. The release
+workflow attaches both root files, and `scripts/check-version.mjs` gates their version.
+
+Current local evidence: full build, 1024 contrast checks passed with no failures, the full
+root and workspace suites, typecheck and `sync:design` passed. Focused Obsidian tests
+check generated parity and reading, selection, search and focus contrast for both modes.
+An independent source review found two missing code roles; both were mapped and the
+generated sheet and focused checks passed again. This is calculation and source review,
+not native Obsidian acceptance.
+
+Next objective: install the root files in Obsidian and review both modes in reading, live
+preview, source mode, search, navigation, menus, dialogs and mobile layout. Capture a
+current app screenshot for the community listing. Only then prepare a versioned GitHub
+release and submit the theme through the Obsidian community directory.
+
 ## Order and parallelism
 
-Tasks 1 to 10 are done.
+Tasks 1 to 10 are done. Task 11 awaits native review and the community release.
 
 ## Native acceptance
 

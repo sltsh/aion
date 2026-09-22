@@ -5,6 +5,11 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- An Obsidian community theme stylesheet with Dark and Light modes generated from the
+  Aion palette, plus a root manifest and GitHub release attachments.
+
 ## 1.0.1
 
 ### Added

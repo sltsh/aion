@@ -1,0 +1,17 @@
+{
+  "name": "@sltsh/aion-obsidian",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Generated Aion Dark and Light community theme for Obsidian.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node dist/build.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@sltsh/aion-css": "1.0.1",
+    "@sltsh/aion-tokens": "1.0.1"
+  }
+}

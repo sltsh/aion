@@ -70,6 +70,16 @@ describe('both workflows', () => {
   });
 });
 
+describe('Obsidian release assets', () => {
+  it('attaches the theme files only after generated-file validation', () => {
+    const publish = step(release, 'Create the GitHub release');
+    expect(publish).toContain('if: ${{ !inputs.dry_run }}');
+    expect(order(release, 'Generated files match the tag', 'Create the GitHub release')).toBe(true);
+    expect(publish).toContain('manifest.json theme.css');
+    expect(release).toContain('            manifest.json\n            theme.css');
+  });
+});
+
 describe('site deployment', () => {
   it('deploys only after the gates', () => {
     for (const gate of ['Typecheck', 'Contrast gate', 'Test']) {

@@ -44,6 +44,7 @@ scheme palettes.
 | VS Code          | Run `code --install-extension sltsh.aion-theme`, then choose **Aion** or **Aion Light** with **Preferences: Color Theme**. |
 | Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
 | CSS / Tailwind   | Run `npm install @sltsh/aion-css`; see the [CSS package](packages/css/README.md) for Dark and Light usage. |
+| Obsidian         | [Install the local theme files](packages/obsidian/README.md) to use Dark and Light while native review and community submission are pending. |
 | Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
 For Windows Terminal, save `aion.json` in
@@ -121,6 +122,7 @@ the OKLCH source in `packages/tokens`; generated colours should never be edited 
 | `packages/vscode`   | the VS Code extension: Aion, Aion Light, their gates and scope fixtures            |
 | `packages/terminal` | the dark Windows Terminal fragment, settings snippet and Herdr theme               |
 | `packages/css`      | both schemes as custom properties and a Tailwind v4 `@theme` block                 |
+| `packages/obsidian` | generates the Dark and Light Obsidian community theme stylesheet                  |
 | `apps/lab`          | the surface gallery: five surfaces, one palette, six live sliders                  |
 | `apps/site`         | the public site at https://aion.slt.sh: the landing page and the palette reference |
 
