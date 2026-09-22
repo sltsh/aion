@@ -356,7 +356,7 @@ describe('the continuity hero', () => {
     expect(html).toContain('<span class="stage-seam" aria-hidden="true"><span class="stage-terminal"></span></span>');
     expect(rule('.stage-seam::before')).toContain('background: var(--aion-gold-solid)');
     expect(rule('.stage-terminal')).toContain('background: var(--aion-teal-solid)');
-    expect(css.match(/clip-path/g)).toHaveLength(2);
+    expect(css.match(/clip-path/g)).toHaveLength(4);
     expect(css).toContain('::view-transition-new(root) { z-index: 1; clip-path: none; }');
     expect(css).not.toMatch(/gradient|box-shadow|text-shadow/);
   });
@@ -392,7 +392,7 @@ describe('the continuity hero', () => {
 
   it('keeps ordinary content complete around the bounded decorative scene', () => {
     expect(css).toContain('@media (prefers-reduced-motion: no-preference) {\n  html { scroll-behavior: smooth; }');
-    expect(css.match(/@keyframes/g)).toHaveLength(2);
+    expect(css.match(/@keyframes/g)).toHaveLength(3);
     expect(css).not.toMatch(/animation-iteration-count|infinite/);
     // The scene lives only on the decorative, aria-hidden seam, gated behind reduced motion so it never grants access to ordinary content.
     for (const selector of ['h1', 'h2', 'p', 'body', '#app', '.hero', '.hero-pitch', '.editor', '.editor-body']) {

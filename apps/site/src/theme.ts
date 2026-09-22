@@ -207,6 +207,9 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
 
   const clearSceneMarker = (): void => {
     delete environment.root.dataset['themeTransition'];
+    delete environment.root.dataset['themeCssScene'];
+    environment.root.style?.removeProperty('--site-theme-width');
+    environment.root.style?.removeProperty('--site-theme-height');
   };
 
   const invalidateScene = (): void => {
@@ -256,6 +259,16 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     if (!animation) {
       safeSkip(scene.transition);
       settleLatest();
+      return;
+    }
+    // Firefox can accept the pseudoElement option without painting its clip.
+    // The same scene expressed in CSS keeps the native snapshot transition.
+    if (ownerWindow?.getComputedStyle(environment.root, '::view-transition-new(root)').clipPath === 'none') {
+      void animation.finished?.catch(() => {});
+      safeCancel(animation);
+      environment.root.style.setProperty('--site-theme-width', `${width}px`);
+      environment.root.style.setProperty('--site-theme-height', `${height}px`);
+      environment.root.dataset['themeCssScene'] = '';
       return;
     }
     scene.animation = animation;
@@ -343,6 +356,8 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
         && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
     });
     if (input) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
       input.focus({ preventScroll: true });
       input.click();
     }

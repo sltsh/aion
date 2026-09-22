@@ -109,6 +109,12 @@ document.addEventListener('keydown', (event) => {
 phone.addEventListener('change', () => setMenu(false, false), { signal });
 window.addEventListener('resize', settleMenu, { signal });
 
+document.addEventListener('click', (event) => {
+  if (!(event.target instanceof Element)) return;
+  const control = event.target.closest<HTMLElement>('.button, .open-link, .text-link, .source-link, .menu-toggle, .footer-links a');
+  if (control) animate(control, [{ transform: 'translateY(2px)' }, { transform: 'translateY(0)' }]);
+}, { signal });
+
 const status = document.querySelector<HTMLElement>('.copy-status');
 let statusTimer: ReturnType<typeof setTimeout> | undefined;
 const copiedTimers = new Map<HTMLElement, ReturnType<typeof setTimeout>>();
@@ -209,7 +215,7 @@ const settleMotion = (): void => {
   for (const effect of effects.values()) effect.cancel();
   effects.clear();
   // CSS transitions are owned here too, so a live preference change settles now.
-  for (const effect of document.getAnimations()) effect.cancel();
+  for (const effect of document.getAnimations?.() ?? []) effect.cancel();
 };
 const settlePage = (): void => {
   settleMotion();

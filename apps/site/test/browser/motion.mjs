@@ -69,15 +69,16 @@ for (const [name, engine] of Object.entries({chromium,firefox,webkit})) {
    await page.locator(`[data-theme-choice][value=${theme}]`).click();
    if(supported) {
     await page.waitForFunction(()=>window.motionRecords.some(r=>r.options?.pseudoElement==='::view-transition-new(root)'));
-    const scene=await page.evaluate(()=>{const r=window.motionRecords.filter(r=>r.options?.pseudoElement).at(-1); r.animation.pause(); r.animation.currentTime=360; return {frames:r.frames,options:r.options,old:{animation:getComputedStyle(document.documentElement,'::view-transition-old(root)').animationName,blend:getComputedStyle(document.documentElement,'::view-transition-old(root)').mixBlendMode,opacity:getComputedStyle(document.documentElement,'::view-transition-old(root)').opacity},group:getComputedStyle(document.documentElement,'::view-transition-group(root)').animationName,scroll:scrollY,focus:document.activeElement?.value};});
-    assert.equal(scene.options.duration,720); assert.equal(scene.options.easing,'linear'); assert.deepEqual(scene.old,{animation:'none',blend:'normal',opacity:'1'}); assert.equal(scene.group,'none'); assert.equal(scene.focus,theme); assert.equal(scene.scroll,0);
+    const scene=await page.evaluate(()=>{const r=window.motionRecords.filter(r=>r.options?.pseudoElement).at(-1); const animation=document.getAnimations().find(a=>a.animationName==='theme-reveal') ?? r.animation; window.sceneAnimation=animation; animation.pause(); animation.currentTime=360; return {frames:r.frames,options:r.options,clip:getComputedStyle(document.documentElement,'::view-transition-new(root)').clipPath,old:{animation:getComputedStyle(document.documentElement,'::view-transition-old(root)').animationName,blend:getComputedStyle(document.documentElement,'::view-transition-old(root)').mixBlendMode,opacity:getComputedStyle(document.documentElement,'::view-transition-old(root)').opacity},group:getComputedStyle(document.documentElement,'::view-transition-group(root)').animationName,scroll:scrollY,focus:document.activeElement?.value};});
+    assert.ok(scene.clip.includes('270px'), scene.clip); assert.equal(scene.options.duration,720); assert.equal(scene.options.easing,'linear'); assert.deepEqual(scene.old,{animation:'none',blend:'normal',opacity:'1'}); assert.equal(scene.group,'none'); assert.equal(scene.focus,theme); assert.equal(scene.scroll,0);
     assert.deepEqual(scene.frames,[{clipPath:'polygon(-900px 0, -900px 0, 0 100%, 0 100%)'},{clipPath:'polygon(-900px 0, 1440px 0, 2340px 100%, 0 100%)'}]);
     await record(page,`${name}-wipe-${theme}`,{browser:name,state:'mid-scene',measurements:scene});
-    await page.evaluate(()=>window.motionRecords.filter(r=>r.options?.pseudoElement).at(-1).animation.play());
+    await page.evaluate(()=>window.sceneAnimation.play());
    }
    await settled(page); await state(page,theme); await page.evaluate(()=>{window.motionRecords=[];});
   }
   rows.push({id:`${name}-theme-api`,browser:name,version,passed:true,state:supported?'motion-pass':'immediate-fallback-pass'});
+  await page.waitForTimeout(30);
   // Native radio keyboard path and rapid input during snapshot ownership.
   await page.locator('[data-theme-choice][value=dark]').focus(); await page.keyboard.press('ArrowRight'); await settled(page); await state(page,'light');
   await page.evaluate(()=>{document.querySelector('[value=dark][data-theme-choice]').click();document.querySelector('[value=light][data-theme-choice]').click();document.querySelector('[value=dark][data-theme-choice]').click();}); await settled(page); await state(page,'dark');
@@ -96,6 +97,9 @@ for (const [name, engine] of Object.entries({chromium,firefox,webkit})) {
    await page.evaluate(()=>{delete document.hidden;delete document.visibilityState;document.dispatchEvent(new Event('visibilitychange'));});
   }
   await page.reload(); await settled(page); await state(page,'dark');
+  await page.locator('.open-link').focus(); await page.keyboard.press('Enter');
+  assert.ok(await page.evaluate(()=>window.motionRecords.some(r=>r.target==='open-link' && r.options.duration===160)));
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
   // A copied result is accessible before its local 160ms visual settle; old promises cannot win.
   await page.evaluate(()=>{window.copyResolvers=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:text=>new Promise((resolve,reject)=>window.copyResolvers.push({text,resolve,reject}))}});});
   const copy=page.locator('.copy-button').first(); await copy.click(); await copy.click();
@@ -114,15 +118,46 @@ for (const [name, engine] of Object.entries({chromium,firefox,webkit})) {
   await menu.click(); await page.waitForTimeout(60); await motionPreference(page,true);
   assert.equal(await page.locator('.site-menu').isVisible(),false); assert.equal(await page.locator('.site-menu').getAttribute('style'),null);
   await motionPreference(page,false); await menu.click(); await page.keyboard.press('Escape'); await page.waitForTimeout(400); assert.ok(await menu.evaluate(e=>e===document.activeElement));
+  await menu.click(); await page.waitForTimeout(400);
+  await page.locator('[value=light][data-theme-choice]').click(); await page.waitForTimeout(100);
+  const radioBox=await page.locator('[value=dark][data-theme-choice]').boundingBox();
+  await page.mouse.click(radioBox.x+radioBox.width/2,radioBox.y+radioBox.height/2);
+  await settled(page); await state(page,'dark');
+  assert.equal(await menu.getAttribute('aria-expanded'),'true');
+  assert.ok(await page.locator('[value=dark][data-theme-choice]').evaluate(e=>document.activeElement===e));
+  for(const width of [599,600]) {
+    await page.setViewportSize({width,height:844});
+    const samples=[];
+    for(const section of ['.hero','.essentials','.install','.site-foot']) {
+      await page.locator(section).scrollIntoViewIfNeeded();
+      samples.push(await page.evaluate(() => {
+        const host=document.querySelector('slt-site-mark');
+        const link=host.shadowRoot.querySelector('a');
+        const box=link.getBoundingClientRect();
+        const visible=getComputedStyle(host).display!=='none';
+        const overlaps=visible ? [...document.querySelectorAll('h1,h2,h3,p,button,a')].filter(e=>{
+          const b=e.getBoundingClientRect();
+          return b.width && b.height && b.left<box.right && b.right>box.left && b.top<box.bottom && b.bottom>box.top && getComputedStyle(e).visibility!=='hidden';
+        }).map(e=>({tag:e.tagName,label:e.textContent.trim().slice(0,70)})) : [];
+        return {visible,rect:box.toJSON(),overlaps};
+      }));
+    }
+    assert.ok(samples.every(s=>s.visible===(width>=600)));
+    rows.push({id:`${name}-mark-collision-${width}`,browser:name,passed:true,state:'existing-placement-measurement',viewport:`${width}x844`,measurements:{samples,limitation:'Existing fixed mark can overlap scrolling content at 600px; placement unchanged.'}});
+    await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{}}}));
+    await copy.click(); await page.waitForFunction(()=>document.querySelector('.copy-button').hasAttribute('data-copied'));
+  }
   rows.push({id:`${name}-interruption-feedback`,browser:name,passed:true}); await page.close();
-  for(const mode of ['no-api','blocked-storage','reduce','system']) {
+  for(const mode of ['no-api','no-animation','blocked-storage','reduce','system']) {
    const p=await browser.newPage({viewport:{width:1440,height:900},colorScheme:'dark',reducedMotion:mode==='reduce'?'reduce':'no-preference'});
    p.on('pageerror',e=>errors.push(`${name}: ${e.message}`)); await p.addInitScript(spy);
+   if(mode==='no-animation')await p.addInitScript(()=>{Element.prototype.animate=undefined;Document.prototype.getAnimations=undefined;});
    if(mode==='no-api')await p.addInitScript(()=>{document.startViewTransition=undefined;});
    if(mode==='blocked-storage')await p.addInitScript(()=>{Object.defineProperty(window,'localStorage',{get(){throw Error('blocked')}});});
    await p.goto(base+'/'); await settled(p);
    if(mode==='system'){await p.emulateMedia({colorScheme:'light'});await p.waitForFunction(()=>document.documentElement.dataset.theme==='light');await state(p,'light',false);assert.equal(await p.locator('[data-theme-transition]').count(),0);}
    else {await p.locator('[value=light][data-theme-choice]').click();await settled(p);await state(p,'light',mode!=='blocked-storage');if(mode!=='blocked-storage')assert.equal(await p.evaluate(()=>window.motionRecords.filter(r=>r.options?.pseudoElement).length),0);}
+   if(mode==='no-animation') {await p.evaluate(()=>{window.dispatchEvent(new PageTransitionEvent('pagehide',{persisted:true}));window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true}));});await state(p,'light');}
    rows.push({id:`${name}-${mode}`,browser:name,passed:true}); await p.close();
   }
  } finally { await browser.close(); await writeFile(`${output}/results.json`,JSON.stringify({rows,errors},null,2)); }

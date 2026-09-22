@@ -42,3 +42,28 @@ node apps/site/test/browser/motion.mjs
 `BROWSER=chromium|firefox|webkit` narrows an engine; `SKIP_CAPTURES=1` reruns only
 interaction cases. Captures and machine-readable `results.json` remain outside
 the public site's build. Missing browser engines are recorded as unavailable.
+
+## Browser evidence and limits
+
+Production captures cover both pages and themes at 1440x900, 768x1024,
+390x844, 320x568, 599x844 and 600x844 in Chromium 153.0.8010.12,
+Firefox 155.0 and WebKit 26.6. All three execute the 720 ms scene. Firefox
+accepts a Web Animations pseudo target without exposing its animated clip
+through computed style, so the identical native scene is expressed in CSS
+when that clip is absent. Actual clipped progress is asserted, not only the
+requested keyframes. Playwright's Firefox page screenshot omits the transition
+layer; headed Xvfb window captures establish the diagonal wipe in both
+directions. Other mid-scene captures use the normal viewport, not a full-page
+capture that changes snapshot geometry.
+
+The 599/600 boundary test measures the package's actual shadow-link bounds
+against visible content at representative scroll positions. The host is hidden
+at 599px. At 600px, its existing fixed placement can cover a swatch or install
+copy control while scrolling. That placement is unchanged; this motion pass
+does not claim collision-free fixed-mark layout. Changing the approved fixed
+placement or reserving a new content column is a separate layout decision.
+
+The review's reported malformed hero frames were not reproducible when the
+coordinator opened the original PNGs; source and prepared-bundle hashes match.
+The retained frames show complete copy, artwork and code while only the
+aria-hidden seam and terminal change.

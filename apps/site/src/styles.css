@@ -314,6 +314,11 @@ html[data-theme-transition]::view-transition-new(root) {
 }
 html[data-theme-transition]::view-transition-old(root) { z-index: 0; opacity: 1; }
 html[data-theme-transition]::view-transition-new(root) { z-index: 1; clip-path: none; }
+html[data-theme-css-scene]::view-transition-new(root) { animation: theme-reveal var(--slt-motion-scene, 720ms) linear both; }
+@keyframes theme-reveal {
+  from { clip-path: polygon(calc(-1 * var(--site-theme-height)) 0, calc(-1 * var(--site-theme-height)) 0, 0 100%, 0 100%); }
+  to { clip-path: polygon(calc(-1 * var(--site-theme-height)) 0, var(--site-theme-width) 0, calc(var(--site-theme-width) + var(--site-theme-height)) 100%, 0 100%); }
+}
 .code { font-family: 'Monaspace Neon', ui-monospace, monospace; font-size: 0.85rem; line-height: 1.75; }
 .code-row { display: flex; }
 
