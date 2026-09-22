@@ -35,7 +35,7 @@ const spy = () => {
   Element.prototype.animate=function(frames,options){const a=original.call(this,frames,options); window.motionRecords.push({frames,options,target:this.className,animation:a}); return a;};
   if(document.startViewTransition){ const start=document.startViewTransition.bind(document); document.startViewTransition=(...args)=>{ const transition=start(...args); window.lastThemeTransition=transition; return transition; }; }
 };
-const record = async (page, id, info={}) => { const artifact=`${id}.png`; await page.screenshot({path:`${output}/${artifact}`,fullPage:true}); rows.push({id,passed:true,artifacts:[artifact],...info}); };
+const record = async (page, id, info={}) => { const artifact=`${id}.png`; await page.screenshot({path:`${output}/${artifact}`,fullPage:info.state!=='mid-scene' && info.state!=='scene-frame'}); rows.push({id,passed:true,artifacts:[artifact],...info}); };
 for (const [name, engine] of Object.entries({chromium,firefox,webkit})) {
  if(process.env.BROWSER && process.env.BROWSER!==name) continue;
  let browser;
