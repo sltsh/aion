@@ -41,7 +41,7 @@ const section = (end === -1 ? rest : rest.slice(0, end)).join('\n').trim();
 
 let previous = null;
 try {
-  previous = git('describe', '--tags', '--abbrev=0', `${tag}^`);
+  previous = git('describe', '--tags', '--match', 'v[0-9]*.[0-9]*.[0-9]*', '--abbrev=0', `${tag}^`);
 } catch {
   previous = null;
 }

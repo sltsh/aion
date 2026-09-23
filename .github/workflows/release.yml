@@ -136,6 +136,18 @@ jobs:
             --notes-file release-notes.md \
             ${{ steps.channel.outputs.flag == '--pre-release' && '--prerelease' || '' }}
 
+      - name: Create the Obsidian release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${TAG#v}"
+          gh release create "$version" manifest.json theme.css \
+            --target "$(git rev-parse HEAD)" \
+            --title "Aion for Obsidian $version" \
+            --notes "Aion Dark and Light for Obsidian." \
+            ${{ steps.channel.outputs.flag == '--pre-release' && '--prerelease' || '' }}
+
       - uses: actions/upload-artifact@v4
         with:
           name: aion-${{ env.TAG }}

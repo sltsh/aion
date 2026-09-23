@@ -71,11 +71,14 @@ describe('both workflows', () => {
 });
 
 describe('Obsidian release assets', () => {
-  it('attaches the theme files only after generated-file validation', () => {
-    const publish = step(release, 'Create the GitHub release');
+  it('publishes an exact-version theme release after generated-file validation', () => {
+    const publish = step(release, 'Create the Obsidian release');
     expect(publish).toContain('if: ${{ !inputs.dry_run }}');
-    expect(order(release, 'Generated files match the tag', 'Create the GitHub release')).toBe(true);
-    expect(publish).toContain('manifest.json theme.css');
+    expect(order(release, 'Generated files match the tag', 'Create the Obsidian release')).toBe(true);
+    expect(order(release, 'Create the GitHub release', 'Create the Obsidian release')).toBe(true);
+    expect(publish).toContain('version="${TAG#v}"');
+    expect(publish).toContain('gh release create "$version" manifest.json theme.css');
+    expect(publish).toContain('--target "$(git rev-parse HEAD)"');
     expect(release).toContain('            manifest.json\n            theme.css');
   });
 });
