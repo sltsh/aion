@@ -345,7 +345,8 @@ token definitions with visible separation and emitted contrast checks.
 `npm run typecheck` passed. A scratch native Obsidian 1.13.7 vault rendered the
 updated Dark and Light reading notes; captures are local at
 `/tmp/aion-obsidian-check/`. Native mobile and cross-platform acceptance remain
-open. This branch is not merged or released.
+open. This native acceptance carries forward while the checked theme contents remain
+unchanged; the latest feature updates are recorded below.
 
 Astra's read-only review found three follow-ups, now repaired on the same branch:
 Canvas light/dark label polarity is explicit, ordinary field edges use the UI

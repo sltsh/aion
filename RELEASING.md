@@ -44,13 +44,15 @@ publication. Published versions are immutable: corrections need a new version.
    `manifest.json`, CSS's exact `@sltsh/aion-tokens` dependency, and Obsidian's exact
    CSS and token dependencies. Run `npm install --package-lock-only --ignore-scripts`
    to refresh the lockfile.
-3. For a release containing Aion Light, package and install the VSIX once before tagging.
-   Confirm that **Aion Light** appears as a theme and record the native checks in
-   `PLAN.md`; the calculation and lab preview do not replace this step.
-4. For a release containing the Obsidian theme, install the generated root `theme.css`
-   and `manifest.json` in Obsidian, check both base color schemes in reading, live preview,
-   source mode, menus, dialogs and mobile, and capture a current screenshot for the
-   community listing. Record native results in `PLAN.md`.
+3. Reuse the VS Code native acceptance in `PLAN.md` while the packaged theme contents
+   remain unchanged. If they change, package and install the VSIX, confirm that **Aion
+   Light** appears as a theme, and record the native results in `PLAN.md`.
+4. Reuse the Obsidian native acceptance in `PLAN.md` while the stylesheet and theme
+   behavior remain unchanged; a version-field change alone does not invalidate it. If the
+   theme changes, install the generated files in Obsidian, check both base color schemes
+   in reading, live preview, source mode, menus, dialogs and mobile, and record the results
+   in `PLAN.md`. Capture a new community screenshot when a visual change affects the
+   listing image.
 5. Commit the release preparation, tag that commit as `vX.Y.Z`, then push the tag. The
    workflow creates the matching `X.Y.Z` release for Obsidian from that same commit.
 
