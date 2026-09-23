@@ -383,10 +383,14 @@ expand the calculated contrast gate.
 
 `feature/obsidian-highlight-code-folder-fit` removes the backing highlight when a tag
 is its only child, raises inline and fenced code together, and fits the active file row
-to its title. The generated sheet passed sync, verify, root tests and typecheck. In a
-scratch vault, Obsidian 1.13.7 on Linux showed the Dark reading-view tag pill without
-the protruding highlight, both code surfaces raised, and the active row ending at its
-title. Light and other native views still need acceptance for this revision.
+to its title. The generated sheet passed sync, verify, root tests and typecheck. For the
+1.1.1 release, Obsidian 1.13.7 on Linux showed the tag pill without the protruding
+highlight, separate plain-text highlights, matching inline and fenced code surfaces,
+and an active file fill shorter than its row in Dark and Light reading view. Live Preview
+and Source kept highlighted text and raised inline code in both schemes. Native context
+menus and Settings dialogs rendered in both schemes; Obsidian's built-in phone emulator
+showed the updated tag and code at 390px. The four `screenshots/` captures and the root
+community image use this built sheet. Physical phones and other platforms remain unchecked.
 
 ## Order and parallelism
 

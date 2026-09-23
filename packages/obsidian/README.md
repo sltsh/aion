@@ -25,7 +25,7 @@ both variants.
 ## Install manually
 
 1. In your vault, create `.obsidian/themes/Aion/`.
-2. Download `manifest.json` and `theme.css` from the [1.0.2 Obsidian release](https://github.com/sltsh/aion/releases/tag/1.0.2) into that folder.
+2. Download `manifest.json` and `theme.css` from the [1.1.1 Obsidian release](https://github.com/sltsh/aion/releases/tag/1.1.1) into that folder.
 3. In Obsidian, open **Settings → Appearance → Themes** and select **Aion**.
 4. Switch **Base color scheme** between **Dark** and **Light** to see both variants.
 
@@ -59,10 +59,9 @@ token and CSS packages. The normal `npm run build` handles dependency order. The
 test suite checks that the committed CSS matches its generator, both variants contain
 the same keys, and selected reading and focus pairs clear their contrast floors.
 
-The repository-root manifest and stylesheet were published in the 1.0.2 Obsidian release.
-The screenshots above show the unreleased colour and spacing changes, captured from the
-built sheet in an isolated Obsidian 1.13.7 vault. Desktop reading, Live Preview and Source
-mode were checked in both variants; the built-in phone emulator showed blue tags and
-property pills at 390px. Android and iOS hardware remain unchecked.
+The repository-root manifest and stylesheet are included in the 1.1.1 Obsidian release.
+The screenshots above were captured from the built sheet in an isolated Obsidian 1.13.7
+vault. Desktop reading, Live Preview and Source mode were checked in both variants;
+the built-in phone emulator was checked at 390px. Android and iOS hardware remain unchecked.
 The [Obsidian submission guide](https://docs.obsidian.md/themes/app-themes/submit-theme)
 also requires a community listing submission after the GitHub release.

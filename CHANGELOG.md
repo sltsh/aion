@@ -5,6 +5,15 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.1
+
+### Fixed
+
+- Obsidian: a tag inside a highlight keeps its blue pill without a rectangular highlight
+  extending beyond it.
+- Obsidian: inline and fenced code use a more distinct surface while code comments remain
+  readable, and the active file highlight fits the filename instead of filling the row.
+
 ## 1.1.0
 
 ### Changed
