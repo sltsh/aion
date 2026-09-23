@@ -21,16 +21,17 @@
 - No `!important`, `@import` or `url(` in the sheet (existing test).
 - Font size, line height and line width stay the user's. Heading spacing is reading view only.
 - Open spec decisions are taken at the proposal's defaults: bold coral **and** italic green; rainbow folder order `coral → copper → gold → green → teal → blue`; headings and chrome marks do **not** follow the accent picker.
+- The contrast gate names its reading states: the page, the selection, and one callout of each colour. A callout nested in another is **outside** it: each 10% fill stacks, and in Light every accent (H1–H4, bold, italic) measures below 4.5:1 two levels deep (minimum 4.15, copper H3 in a quote callout inside a quote callout; primary text still passes). Dark stays above 4.5 (minimum 4.60). This is a spec-level limit, not the executor's to fix; the README and PLAN.md entries must state it, and no colour may change to hide it.
 - Work on `feature/obsidian-review-fixes` (or a branch cut from it), never `main`. Imperative commit messages.
 - `npm run build`, `npm run verify`, `npm test`, `npm run typecheck` and `npm run sync:design` are calculations. Native acceptance in Obsidian is recorded separately and a palette change makes it a calculation again.
 
 ## Review Focus
 
-1. **Emphasis and H3/H4 inside callouts and under selection.** Coral bold inside a gold question callout, or copper H3 under the Light selection, must still clear 4.5:1 — the spec only measured accents on the bare page. Pinned in Task 1 (every content accent against the page, the selection, and all eight callout tints).
+1. **Emphasis and H3/H4 inside callouts and under selection.** Coral bold inside a gold question callout, or copper H3 under the Light selection, must still clear 4.5:1 — the spec only measured accents on the bare page. Pinned in Task 1 (every content accent against the page, the selection, and all eight single callout tints). Nested callouts are the documented exception in Global Constraints.
 2. **Tags on a phone.** Obsidian's `.is-mobile.theme-dark { --tag-background: … }` outranks `.theme-dark`; a user on mobile would get Obsidian's accent mix. Pinned in Task 2 (the `.is-mobile` blocks exist with all four tag variables in both schemes).
 3. **Root files between folders, and an 8th folder.** A root-level file must not shift the cycle and the 7th folder must wrap to coral. Pinned in Task 3 (every cycle selector is `.nav-files-container > div > .nav-folder:nth-child(6n+k of .nav-folder)`, k = 1…6); the real vault check is in Task 7.
-4. **Dragging a coloured folder with a custom accent.** The first draft drew coral on the gold drag fill at 1.00:1. Pinned in Task 3 (folder rules never set `color`, and the chevron variable is withheld from `.is-selected`, `.is-being-dragged` and `.is-being-dragged-over`); the pointer drag with a custom accent is in Task 7.
-5. **A nested callout ending its parent in Live Preview.** Obsidian's `.markdown-source-view.mod-cm6 .callout-content .callout` outranks the generic reset, so the outer callout would keep 28px. Pinned in Task 5 (the extra selector is emitted); measured natively in Task 7.
+4. **Dragging a coloured folder with a custom accent, and tapping one on a phone.** The first draft drew coral on the gold drag fill at 1.00:1. Pinned in Task 3 (folder rules never set `color`, and the chevron variable is withheld from `.is-selected`, `.is-being-dragged` and `.is-being-dragged-over`; the chevron is measured on the desktop hover row and on Obsidian's mobile tap row, which `.is-mobile.theme-dark` repaints as 15% white over the sidebar); the pointer drag with a custom accent is in Task 7.
+5. **A nested callout starting or ending its parent in Live Preview.** Obsidian's `.markdown-source-view.mod-cm6 .callout-content .callout { margin: 1em 0 }` (specificity 0,4,0) outranks both generic rules, so the outer callout would keep 28px at the bottom and 1em, not 8px, at the top. Pinned in Task 5 (a `.mod-cm6` selector is emitted for each end); measured natively in Task 7.
 
 ---
 
@@ -127,8 +128,8 @@ test.each(['dark', 'light'] as const)('%s highlight owns the foreground of empha
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `npm test -w @sltsh/aion-obsidian`
-Expected: FAIL — TypeScript/Vitest reports `themeRules` is not exported (every test in the file errors at import).
+Run: `npm test -w @sltsh/aion-obsidian; npm run typecheck -w @sltsh/aion-obsidian`
+Expected: Vitest does not validate local exports, so the import succeeds with `themeRules` undefined. `content accents…` FAILS on the `--h3-color` assertion, `highlight owns…` FAILS inside `toContain` on `undefined`, and `consumer pairs` FAILS on `--callout-question`. Typecheck FAILS with TS2305, `Module '"../src/theme.js"' has no exported member 'themeRules'`.
 
 - [ ] **Step 3: Implement**
 
@@ -306,6 +307,10 @@ Change the import to `import { FOLDER_CYCLE, obsidianColors, themeCss, themeRule
 test.each(['dark', 'light'] as const)('%s folder accents read on the sidebar and the hover row', (scheme) => {
   const c = obsidianColors(scheme);
   const palette = scheme === 'dark' ? dark() : light();
+  const sidebar = hexToOklch(resolved(scheme, '--background-secondary'));
+  // Obsidian's .is-mobile.theme-dark paints the tap row as 15% --mono-100 (white) over the sidebar.
+  const tapRow = scheme === 'dark' ? compositeEmitted([1, 0, 0], 0.15, sidebar) : null;
+  expect(FOLDER_CYCLE.length).toBe(6);
   for (const accent of FOLDER_CYCLE) {
     const folder = c[`--aion-obsidian-folder-${accent}`]!;
     expect(folder).toBe(palette[`--aion-${accent}-solid`]);
@@ -316,18 +321,21 @@ test.each(['dark', 'light'] as const)('%s folder accents read on the sidebar and
     const chevron = ratio(folder, resolved(scheme, '--background-modifier-hover'));
     expect(chevron, `${scheme} ${accent} chevron on the hover row: ${chevron.toFixed(2)}`)
       .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    if (tapRow) {
+      const tapped = contrastEmitted(hexToOklch(folder), tapRow);
+      expect(tapped, `${scheme} ${accent} chevron on the mobile tap row: ${tapped.toFixed(2)}`)
+        .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    }
   }
 });
 
 test('the folder cycle is anchored, violet-free and colours through Obsidian variables', () => {
-  expect([...FOLDER_CYCLE]).toEqual(['coral', 'copper', 'gold', 'green', 'teal', 'blue']);
-  const cycle = [...themeCss().matchAll(/^(.+):nth-child\((\d+)n\+(\d+) of \.nav-folder\) \{$/gm)];
-  expect(cycle.map((match) => match[3])).toEqual(['1', '2', '3', '4', '5', '6']);
-  for (const match of cycle) {
-    expect(match[1]).toBe('.nav-files-container > div > .nav-folder');
-    expect(match[2]).toBe('6');
-  }
+  const order = ['coral', 'copper', 'gold', 'green', 'teal', 'blue'];
+  const cycle = themeRules.filter((rule) => rule.includes(':nth-child('));
+  expect(cycle).toEqual(order.map((accent, index) =>
+    `.nav-files-container > div > .nav-folder:nth-child(6n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`));
   const rules = themeRules.filter((rule) => rule.includes('.nav-files-container'));
+  expect(rules).toHaveLength(9);
   for (const rule of rules) {
     expect(rule).not.toMatch(/(?<![-\w])color\s*:/);
     expect(rule).not.toMatch(/violet|purple|accent/);
@@ -342,8 +350,8 @@ test('the folder cycle is anchored, violet-free and colours through Obsidian var
 
 - [ ] **Step 2: Run the tests to verify they fail**
 
-Run: `npm test -w @sltsh/aion-obsidian -- -t "folder"`
-Expected: FAIL — `FOLDER_CYCLE` is not exported.
+Run: `npm test -w @sltsh/aion-obsidian -- -t "folder"; npm run typecheck -w @sltsh/aion-obsidian`
+Expected: both folder tests FAIL. `FOLDER_CYCLE` imports as `undefined`, so the first throws `TypeError: FOLDER_CYCLE is not iterable` and the second fails `expected [] to deeply equal [ … ]`. Typecheck FAILS with TS2305 for `FOLDER_CYCLE`.
 
 - [ ] **Step 3: Implement**
 
@@ -416,9 +424,11 @@ test.each(['dark', 'light'] as const)('%s chrome marks clear the non-text floor 
 test('chrome marks are fixed gold and teal, never violet or the picked accent', () => {
   const chrome = themeRules.filter((rule) =>
     /workspace-tab|side-dock-ribbon|metadata-property-icon|status-bar/.test(rule));
+  expect(chrome).toHaveLength(5);
   expect(chrome).toEqual([
-    '.workspace-tabs.mod-top .workspace-tab-header.is-active {\n  box-shadow: inset 0 2px 0 var(--color-yellow);\n}',
-    '.workspace-tab-header.is-active .workspace-tab-header-inner-icon,\n.side-dock-ribbon-action:hover {\n  color: var(--color-yellow);\n}',
+    '.workspace-split.mod-root .workspace-tab-header-container .workspace-tab-header.is-active {\n  box-shadow: inset 0 2px 0 var(--color-yellow), 0 0 0 var(--tab-outline-width) var(--tab-outline-color);\n}',
+    '.workspace-split:is(.mod-left-split, .mod-right-split) .workspace-tab-header.is-active {\n  --icon-color-focused: var(--color-yellow);\n  --tab-text-color-focused-active-current: var(--color-yellow);\n}',
+    '.side-dock-ribbon-action:hover {\n  color: var(--color-yellow);\n}',
     '.metadata-property-icon {\n  color: var(--color-cyan);\n}',
     '.status-bar {\n  color: var(--text-muted);\n  border-top: 1px solid var(--background-modifier-border);\n}',
   ]);
@@ -426,18 +436,23 @@ test('chrome marks are fixed gold and teal, never violet or the picked accent', 
 });
 ```
 
+Why these selectors, from Obsidian 1.13.7's `app.css`, so do not simplify them:
+- The active tab's own rule, `.workspace-tab-header-container .workspace-tab-header.is-active`, draws its outline with `box-shadow: 0 0 0 var(--tab-outline-width) var(--tab-outline-color)`. A plain `box-shadow` would replace that outline, so the gold edge is prepended to it, and `.workspace-split.mod-root` scopes the edge to main-area tabs (sidebar tab groups are also `.mod-top`).
+- A side-panel icon is coloured by `.mod-left-split .workspace-tab-header-container .workspace-tab-header.is-active .workspace-tab-header-inner-icon { color: var(--icon-color-focused) }` (0,5,0) and, in the focused group, by `body.is-focused .mod-active … .workspace-tab-header-inner-icon { color: var(--tab-text-color-focused-active-current) }`. Both outrank any short selector, so the theme sets those two variables on the active side tab header and lets Obsidian's rules read them. The active side tab's fill is `--background-modifier-hover`, which the calculated test measures.
+
 - [ ] **Step 2: Run the tests to verify they fail**
 
 Run: `npm test -w @sltsh/aion-obsidian -- -t "chrome marks"`
-Expected: the calculated test PASSES already (it measures existing variables); `chrome marks are fixed gold…` FAILS with `expected [] to deeply equal [ … ]`.
+Expected: the calculated test PASSES already (it measures existing variables); `chrome marks are fixed gold…` FAILS with `expected [] to have a length of 5 but got +0`.
 
 - [ ] **Step 3: Implement**
 
 Append to `themeRules`:
 
 ```ts
-  '.workspace-tabs.mod-top .workspace-tab-header.is-active {\n  box-shadow: inset 0 2px 0 var(--color-yellow);\n}',
-  '.workspace-tab-header.is-active .workspace-tab-header-inner-icon,\n.side-dock-ribbon-action:hover {\n  color: var(--color-yellow);\n}',
+  '.workspace-split.mod-root .workspace-tab-header-container .workspace-tab-header.is-active {\n  box-shadow: inset 0 2px 0 var(--color-yellow), 0 0 0 var(--tab-outline-width) var(--tab-outline-color);\n}',
+  '.workspace-split:is(.mod-left-split, .mod-right-split) .workspace-tab-header.is-active {\n  --icon-color-focused: var(--color-yellow);\n  --tab-text-color-focused-active-current: var(--color-yellow);\n}',
+  '.side-dock-ribbon-action:hover {\n  color: var(--color-yellow);\n}',
   '.metadata-property-icon {\n  color: var(--color-cyan);\n}',
   '.status-bar {\n  color: var(--text-muted);\n  border-top: 1px solid var(--background-modifier-border);\n}',
 ```
@@ -475,7 +490,7 @@ test('reading space is graded and callouts are balanced and aligned', () => {
     '.markdown-rendered :is(p, pre, table, ul, ol) + h3,\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > h3 {\n  margin-top: calc(var(--heading-spacing) * 0.8);\n}',
     '.markdown-rendered :is(p, pre, table, ul, ol) + :is(h4, h5, h6),\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > :is(h4, h5, h6) {\n  margin-top: calc(var(--heading-spacing) * 0.6);\n}',
     '.callout-content > :last-child,\n.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {\n  margin-bottom: 0;\n}',
-    '.callout-title + .callout-content > :first-child {\n  margin-top: var(--size-4-2);\n}',
+    '.callout-title + .callout-content > :first-child,\n.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {\n  margin-top: var(--size-4-2);\n}',
     '@supports (text-box: trim-both cap alphabetic) {\n  .callout-title-inner {\n    text-box: trim-both cap alphabetic;\n  }\n  .callout-icon .svg-icon,\n  .callout-fold .svg-icon {\n    translate: 0 calc(0.5cap - 0.5lh);\n  }\n}',
   ]) expect(themeRules).toContain(rule);
   const sheet = themeCss();
@@ -497,9 +512,9 @@ Append to `themeRules`:
 ```ts
   '.markdown-rendered :is(p, pre, table, ul, ol) + h3,\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > h3 {\n  margin-top: calc(var(--heading-spacing) * 0.8);\n}',
   '.markdown-rendered :is(p, pre, table, ul, ol) + :is(h4, h5, h6),\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > :is(h4, h5, h6) {\n  margin-top: calc(var(--heading-spacing) * 0.6);\n}',
-  '/* Live Preview\'s .mod-cm6 .callout-content .callout margin outranks the generic reset for a nested callout. */',
+  '/* Live Preview\'s .mod-cm6 .callout-content .callout margin outranks both generic rules for a nested callout. */',
   '.callout-content > :last-child,\n.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {\n  margin-bottom: 0;\n}',
-  '.callout-title + .callout-content > :first-child {\n  margin-top: var(--size-4-2);\n}',
+  '.callout-title + .callout-content > :first-child,\n.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {\n  margin-top: var(--size-4-2);\n}',
   '@supports (text-box: trim-both cap alphabetic) {\n  .callout-title-inner {\n    text-box: trim-both cap alphabetic;\n  }\n  .callout-icon .svg-icon,\n  .callout-fold .svg-icon {\n    translate: 0 calc(0.5cap - 0.5lh);\n  }\n}',
 ```
 
@@ -530,9 +545,14 @@ Replace the paragraph at `packages/obsidian/README.md:36-38` (it still says head
 Headings run gold, teal, copper and violet from H1 to H4; H5 and H6 stay secondary text.
 Bold is coral and italic green, except inside a highlight, which keeps primary text in
 every mode. Tags are blue pills. In the file explorer each top-level folder takes the next
-of coral, copper, gold, green, teal and blue, and everything inside it inherits that
-colour; the cycle follows Obsidian's sort, so renaming or reordering a folder can change
-its colour. Reading view grades the space above H3 and H4–H6 and balances callout padding.
+of coral, copper, gold, green, teal and blue; the folders nested inside it, their
+chevrons and the indentation guide inherit it, and files stay neutral. The cycle follows
+Obsidian's sort, so renaming or reordering a folder can change its colour. Reading view
+grades the space above H3 and H4–H6 and balances callout padding.
+
+Heading and emphasis colours are checked on the page, under the selection and inside one
+callout of each colour. A callout nested inside another stacks two tints, and in Light
+the coloured text there falls below 4.5:1.
 
 Obsidian's accent picker changes control accents such as buttons, checkboxes and accent
 text. Aion's headings, tags, folder colours, the gold tab and ribbon marks, the active
@@ -563,7 +583,7 @@ Under `## Unreleased` in `CHANGELOG.md`:
 
 - [ ] **Step 3: Mark the spec implemented**
 
-Replace `docs/superpowers/specs/2026-09-23-obsidian-colour-design.md` lines 3–4 (`Status: **proposal, revised after …** Nothing here has changed …`) with:
+Replace `docs/superpowers/specs/2026-09-23-obsidian-colour-design.md` lines 3–5 — from `Status: **proposal, revised after` through `reading view) rendering the current` — with the three lines below, so that the unchanged line 6 (`` `theme.css` plus a prototype CSS snippet generated from `@sltsh/aion-css`. They are native ``) continues the sentence:
 
 ```markdown
 Status: **implemented** on `feature/obsidian-review-fixes` from the
@@ -571,7 +591,7 @@ Status: **implemented** on `feature/obsidian-review-fixes` from the
 Open decisions were taken at the proposal's defaults. The captures below are Obsidian 1.13.7 on Linux (Xvfb, 1024×800, reading view) rendering the pre-implementation
 ```
 
-and make sure the sentence continues grammatically into the existing text (`\`theme.css\` plus a prototype CSS snippet…`). Leave the rest of the spec unchanged.
+Leave the rest of the spec unchanged.
 
 - [ ] **Step 4: Run the full gate**
 
@@ -599,7 +619,8 @@ The Obsidian colour proposal (`docs/superpowers/specs/2026-09-23-obsidian-colour
 is generated from `packages/obsidian/src/theme.ts` at the proposal's defaults. Focused
 tests measure every content accent on the page, the selection and all eight callout tints,
 folder accents on the sidebar and their chevrons on the hover row, tags and tag hover,
-the gold chrome marks and primary text on the highlight. `npm run verify` (N pass),
+the gold chrome marks and primary text on the highlight. A callout nested in another is
+outside the gate: in Light its coloured text measures below 4.5:1. `npm run verify` (N pass),
 `npm test` (N pass) and `npm run typecheck` passed. This is a calculation; native
 acceptance is below or still open.
 ```
@@ -633,7 +654,7 @@ Copy the repository-root `theme.css` and `manifest.json` to `<vault>/.obsidian/t
 - [ ] Folder hover, selection, rename (while focused and after), and nested folders three levels deep inherit the top-level accent; a vault with at least 8 top-level folders and a root file between two folders wraps the 7th and 8th to coral and copper.
 - [ ] `==**b**==`, `**==b==**`, `==*i*==`, `*==i==*`, `==***b***==` compute to primary text in reading view, Live Preview and Source mode.
 - [ ] A note tag and a property tag pill are blue on blue subtle, and primary on blue subtle under a real pointer hover.
-- [ ] Wrapped (300px line width), collapsible, title-only, list-ending and nested callouts in reading view and Live Preview: icon and fold chevron stay on line one; bottom padding is 12px for paragraph-, list- and nested-ending callouts.
+- [ ] Wrapped (300px line width), collapsible, title-only, list-ending and nested callouts in reading view and Live Preview: icon and fold chevron stay on line one; bottom padding is 12px for paragraph-, list- and nested-ending callouts; in Live Preview a callout whose first block is a nested callout computes `margin-top: 8px` on that inner callout.
 - [ ] The phone emulator (`app.emulateMobile(true)`, 390px): the tag fill is Aion's blue subtle, not Obsidian's accent mix.
 - [ ] The active tab has a 2px gold top edge; the active side-panel icon and a hovered ribbon icon are gold; property icons are teal; the status bar has a hairline.
 
