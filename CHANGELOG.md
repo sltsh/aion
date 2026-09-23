@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.0
+
 ### Changed
 
 - Obsidian: H3 is copper and H4 violet; bold is coral and italic green, and highlighted
