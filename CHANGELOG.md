@@ -5,6 +5,19 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Obsidian: H3 is copper and H4 violet; bold is coral and italic green, and highlighted
+  text stays primary in reading view, Live Preview and Source mode. Tags are blue pills,
+  on mobile as well, and the question callout is gold so it no longer matches warning.
+- Obsidian: each top-level folder in the file explorer takes one of six accents, carried
+  by its subtree and its indentation guide. The active tab, the active side-panel icon
+  and a hovered ribbon icon carry a gold mark, property icons are teal and the status bar
+  has a hairline.
+- Obsidian: reading view grades the space above H3 and H4–H6, callouts lose the extra
+  space after their last block, and callout icons centre on the title's capitals where
+  the browser supports `text-box`.
+
 ## 1.0.2
 
 ### Added

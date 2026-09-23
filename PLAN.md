@@ -353,6 +353,33 @@ border without changing decorative dividers, and hovered buttons use a neutral
 edge solved against their hover fill. Focused tests measure the emitted pairs;
 Obsidian 1.13.7 computed styles confirmed both modes in a scratch vault.
 
+### 2026-09-23 colour and spacing
+
+The Obsidian colour proposal (`docs/superpowers/specs/2026-09-23-obsidian-colour-design.md`)
+is generated from `packages/obsidian/src/theme.ts` at the proposal's defaults. Focused
+tests measure every content accent on the page, the selection and all eight single
+callout tints. Light heading and emphasis colours inside callouts are an accepted
+exception to the 4.5:1 floor, including a single callout; Dark single callouts remain
+gated. The current Light single-callout minimum is 4.78:1 (copper H3 in a quote
+callout). Nested callouts stack tints and remain outside the gate. Tests also cover folder
+accents on the sidebar and their chevrons on the hover row, tags and tag hover, gold
+chrome marks and primary text on the highlight. `npm run build`, `npm run sync:design`,
+`npm run verify` (1,024 pass), `npm test` (343 pass), and `npm run typecheck` passed.
+
+Obsidian 1.13.7 on Linux rendered the built sheet in an isolated vault with the proposal
+snippets disabled. Computed styles confirmed content colours, tags, highlights in reading
+view, Live Preview and Source mode, folder states, the gold tab edge and status border in
+Dark and Light. A real pointer drag gave Obsidian's own dragged-row text and chevron under
+the default accent and custom blue set through Obsidian's accent API; the picker control
+itself was not clicked. Eight top-level folders with root files wrapped the seventh and
+eighth to coral and copper. Wrapped, collapsible, list-ending, title-only and nested
+callouts kept their icons on the first line, 12px bottom padding and an 8px first-block
+margin in reading view and Live Preview, including a nested-first callout. The phone
+emulator at 390px showed blue tag and property-pill fills in both schemes. The four
+screenshots in `screenshots/` are captures of this built sheet. A real phone, other
+platforms, and the picker interaction remain unchecked; these native checks do not
+expand the calculated contrast gate.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.

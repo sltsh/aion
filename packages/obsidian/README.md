@@ -33,9 +33,23 @@ The theme maps Obsidian's documented variables for surfaces, controls, text, Mar
 code, navigation, tabs and dialogs. It does not ship fonts, images, scripts or remote
 imports. Your existing font and density settings remain in control.
 
+Headings run gold, teal, copper and violet from H1 to H4; H5 and H6 stay secondary text.
+Bold is coral and italic green, except inside a highlight, which keeps primary text in
+every mode. Tags are blue pills. In the file explorer each top-level folder takes the next
+of coral, copper, gold, green, teal and blue; the folders nested inside it, their
+chevrons and the indentation guide inherit it, and files stay neutral. The cycle follows
+Obsidian's sort, so renaming or reordering a folder can change its colour. Reading view
+grades the space above H3 and H4–H6 and balances callout padding.
+
+Heading and emphasis colours are checked on the page and under the selection. In Dark,
+they also clear 4.5:1 inside one callout of each colour. In Light, heading and emphasis
+colours inside a callout may fall below 4.5:1. Nested callouts stack tints and are outside
+the contrast gate in both modes.
+
 Obsidian's accent picker changes control accents such as buttons, checkboxes and accent
-text. Aion's headings, tags, active file background, caret, focus ring and highlights
-retain their authored palette roles when a custom accent is selected.
+text. Aion's headings, tags, folder colours, the gold tab and ribbon marks, the active
+file background, caret, focus ring and highlights keep their palette roles when a custom
+accent is selected.
 Custom accent colours are supplied by Obsidian and are outside Aion's contrast gate.
 
 ## Build and release
@@ -46,11 +60,9 @@ test suite checks that the committed CSS matches its generator, both variants co
 the same keys, and selected reading and focus pairs clear their contrast floors.
 
 The repository-root manifest and stylesheet were published in the 1.0.2 Obsidian release.
-The screenshots above were captured directly from Obsidian 1.13.7 with an
-isolated local vault. Desktop reading, live preview, and source mode were checked in both
-modes; Dark in-note search, file menus, and the command dialog were also checked. The
-built-in phone emulator showed both variants in reading and Source mode, Dark Live Preview
-and note menu, Light navigation, and Appearance settings in both variants. Android and iOS
-hardware remain unchecked.
+The screenshots above show the unreleased colour and spacing changes, captured from the
+built sheet in an isolated Obsidian 1.13.7 vault. Desktop reading, Live Preview and Source
+mode were checked in both variants; the built-in phone emulator showed blue tags and
+property pills at 390px. Android and iOS hardware remain unchecked.
 The [Obsidian submission guide](https://docs.obsidian.md/themes/app-themes/submit-theme)
 also requires a community listing submission after the GitHub release.

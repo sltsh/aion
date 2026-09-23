@@ -1,8 +1,8 @@
 # Obsidian: more colour, same Aion — design proposal
 
-Status: **proposal, revised after [review](2026-09-23-obsidian-colour-design-review.md).**
-Nothing here has changed `packages/obsidian` or the shipped `theme.css`. The captures
-below are Obsidian 1.13.7 on Linux (Xvfb, 1024×800, reading view) rendering the current
+Status: **implemented** on `feature/obsidian-review-fixes` from the
+[plan](../plans/2026-09-23-obsidian-colour.md), after [review](2026-09-23-obsidian-colour-design-review.md).
+The captures below are Obsidian 1.13.7 on Linux (Xvfb, 1024×800, reading view) rendering the pre-implementation
 `theme.css` plus a prototype CSS snippet generated from `@sltsh/aion-css`. They are native
 renders of a prototype, not of a shipped build. The captures predate the review
 revisions, which change states and edge cases that a static capture does not show: hover,
@@ -266,6 +266,10 @@ the user's font and density settings stay in control.
 
 Calculated with `contrastEmitted` on the emitted hex. Callout titles are composited with
 `compositeEmitted` at Obsidian's 10% fill. These are calculations, not native acceptance.
+The implementation accepts heading and emphasis colours below 4.5:1 inside a Light
+callout, including a single callout. The page and selection remain gated at 4.5:1;
+Dark single callouts remain gated too. Nested callouts stack tints and are outside the
+contrast gate in both modes.
 
 | Pair | Dark (min) | Light (min) |
 |---|---|---|
@@ -331,14 +335,11 @@ All of this lives in `packages/obsidian/src/theme.ts`; no token changes and no n
   and nested callouts at a narrow width in reading view and Live Preview; the phone
   emulator for the mobile tag block.
 - Then `npm run build`, `npm run verify`, `npm test`, `npm run typecheck`,
-  `npm run sync:design`, re-capture `screenshots/obsidian-*.png`. Update the Obsidian
-  README, which currently says headings and tags keep "authored palette roles", and add a
-  CHANGELOG entry.
+  `npm run sync:design`, re-capture `screenshots/obsidian-*.png`, and update the Obsidian
+  README and CHANGELOG.
 
-## Open for your review
+## Implementation decisions
 
-1. Bold coral + italic green, or bold only?
-2. Explorer cycle order: rainbow (proposed) or maximum-contrast neighbours
-   (e.g. coral, teal, gold, blue, copper, green)?
-3. Should the Obsidian accent picker also recolour the heading ladder and the new gold
-   chrome marks, or should both stay fixed palette roles like today's headings?
+1. Bold is coral and italic is green.
+2. The explorer cycle is coral, copper, gold, green, teal, blue.
+3. Headings and gold chrome marks keep fixed palette roles when the accent picker changes.

@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-23-obsidian-colour-design.md` (review: `docs/superpowers/specs/2026-09-23-obsidian-colour-design-review.md`). The measured prototype the spec's native verification ran against is `/tmp/aion-colour-proposal/vault/.obsidian/snippets/aion-proposal.css` and `aion-spacing.css`; every selector below is copied from it.
 
+**Implementation decision:** Heading and emphasis colours in Light callouts may fall below 4.5:1, including in a single callout. The Task 1 test sketch and Task 6 README wording below predate this decision. Keep their page and selection contrast checks, and keep the Dark single-callout check; measure and report Light single-callout ratios without failing them at 4.5:1.
+
 ## Global Constraints
 
 - Never type a hex value. Every colour comes from `@sltsh/aion-css` via `c('<name>')`, or from a `var(--…)` reference to a variable the theme already sets.
@@ -21,13 +23,13 @@
 - No `!important`, `@import` or `url(` in the sheet (existing test).
 - Font size, line height and line width stay the user's. Heading spacing is reading view only.
 - Open spec decisions are taken at the proposal's defaults: bold coral **and** italic green; rainbow folder order `coral → copper → gold → green → teal → blue`; headings and chrome marks do **not** follow the accent picker.
-- The contrast gate names its reading states: the page, the selection, and one callout of each colour. A callout nested in another is **outside** it: each 10% fill stacks, and in Light every accent (H1–H4, bold, italic) measures below 4.5:1 two levels deep (minimum 4.15, copper H3 in a quote callout inside a quote callout; primary text still passes). Dark stays above 4.5 (minimum 4.60). This is a spec-level limit, not the executor's to fix; the README and PLAN.md entries must state it, and no colour may change to hide it.
+- The contrast gate names its reading states: the page, the selection, and one callout of each colour in Dark. Light callout heading and emphasis colours are measured but exempt from the 4.5:1 floor. A callout nested in another is **outside** it: each 10% fill stacks, and in Light every accent (H1–H4, bold, italic) measures below 4.5:1 two levels deep (minimum 4.15, copper H3 in a quote callout inside a quote callout; primary text still passes). Dark stays above 4.5 (minimum 4.60). This is a spec-level limit, not the executor's to fix; the README and PLAN.md entries must state it, and no colour may change to hide it.
 - Work on `feature/obsidian-review-fixes` (or a branch cut from it), never `main`. Imperative commit messages.
 - `npm run build`, `npm run verify`, `npm test`, `npm run typecheck` and `npm run sync:design` are calculations. Native acceptance in Obsidian is recorded separately and a palette change makes it a calculation again.
 
 ## Review Focus
 
-1. **Emphasis and H3/H4 inside callouts and under selection.** Coral bold inside a gold question callout, or copper H3 under the Light selection, must still clear 4.5:1 — the spec only measured accents on the bare page. Pinned in Task 1 (every content accent against the page, the selection, and all eight single callout tints). Nested callouts are the documented exception in Global Constraints.
+1. **Emphasis and H3/H4 inside callouts and under selection.** Copper H3 under the Light selection must clear 4.5:1. Task 1 measures every content accent against the page, the selection, and all eight single callout tints; the Light callout ratios are reported under the implementation decision above. Nested callouts are the documented exception in Global Constraints.
 2. **Tags on a phone.** Obsidian's `.is-mobile.theme-dark { --tag-background: … }` outranks `.theme-dark`; a user on mobile would get Obsidian's accent mix. Pinned in Task 2 (the `.is-mobile` blocks exist with all four tag variables in both schemes).
 3. **Root files between folders, and an 8th folder.** A root-level file must not shift the cycle and the 7th folder must wrap to coral. Pinned in Task 3 (every cycle selector is `.nav-files-container > div > .nav-folder:nth-child(6n+k of .nav-folder)`, k = 1…6); the real vault check is in Task 7.
 4. **Dragging a coloured folder with a custom accent, and tapping one on a phone.** The first draft drew coral on the gold drag fill at 1.00:1. Pinned in Task 3 (folder rules never set `color`, and the chevron variable is withheld from `.is-selected`, `.is-being-dragged` and `.is-being-dragged-over`; the chevron is measured on the desktop hover row and on Obsidian's mobile tap row, which `.is-mobile.theme-dark` repaints as 15% white over the sidebar); the pointer drag with a custom accent is in Task 7.
