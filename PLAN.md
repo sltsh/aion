@@ -24,7 +24,7 @@ case and its selection foreground.
 | 8. Marketplace listing | **done** | `packages/vscode/README.md`, the listing icon |
 | 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 | 10. Site light/dark theme switch | **done** | `apps/site/src/theme.ts`, `apps/site/test` |
-| 11. Obsidian community theme, Dark and Light | **source complete; desktop review in progress** | `manifest.json`, `theme.css`, `packages/obsidian` |
+| 11. Obsidian community theme, Dark and Light | **v1.0.2 released; community listing pending** | `manifest.json`, `theme.css`, `packages/obsidian` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -291,7 +291,7 @@ persistence, system following, no-JavaScript rendering, copied values, focus and
 responsive header. The task changed no palette value, so native editor acceptance was not
 reopened.
 
-## Task 11 — Obsidian community theme — desktop review in progress
+## Task 11 — Obsidian community theme — v1.0.2 released
 
 `packages/obsidian` generates the repository-root `theme.css` from the existing CSS and
 token emitters. The root `manifest.json` names one theme with Dark and Light variants.
@@ -318,20 +318,22 @@ Light reading and Source mode, Dark Live Preview and note menu, Light navigation
 and Appearance settings in both variants. Captures are in `screenshots/` and clearly
 marked as emulated. Android and iOS hardware were not checked; the emulator is evidence
 for mobile layout, not platform-specific rendering or touch behavior.
-Release preparation uses `1.0.2` because `v1.0.1` already exists; the manifest, package
-versions, exact dependencies, lockfile and changelog agree. No tag or remote release has
-been created. The repository's tag workflow also publishes the npm and VS Code packages,
-so that coupled release needs owner approval. The `1.0.2` VSIX packaged locally with
-both themes and installed in an isolated portable VS Code profile. The native workbench
-applied `Aion Light` and rendered its emitted editor background.
+The owner approved the coupled `v1.0.2` release after reviewing the desktop and emulated
+phone captures. The feature branch merged into `main` as `059d8f4`; the tag workflow
+passed and published both npm packages, the VS Code extension to both marketplaces, and
+the GitHub release with `manifest.json` and `theme.css`. The downloaded Obsidian assets
+match the tagged source byte for byte. The `1.0.2` VSIX also installed in an isolated
+portable VS Code profile; the native workbench applied `Aion Light` and rendered its
+emitted editor background.
 
-Next objective: obtain owner visual and publication approval, then tag and submit the
-theme through the Obsidian community directory. Physical Android and iOS checks remain
-optional follow-up evidence for platform-specific behavior.
+Next objective: submit the released theme through the Obsidian Community directory.
+That form requires an Obsidian account linked to the repository owner's GitHub account.
+Physical Android and iOS checks remain optional follow-up evidence for platform-specific
+behavior.
 
 ## Order and parallelism
 
-Tasks 1 to 10 are done. Task 11 awaits the remaining native review and community release.
+Tasks 1 to 10 are done. Task 11 awaits the community listing.
 
 ## Native acceptance
 
