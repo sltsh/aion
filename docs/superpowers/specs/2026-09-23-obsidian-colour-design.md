@@ -79,6 +79,23 @@ Aion hues (see the "Current" captures). The only defect is that **question** and
 **warning** both resolve to copper. Proposed: `--callout-question` → **gold**. Everything
 else stays as Obsidian maps it (example is already violet today).
 
+**Icon alignment.** Obsidian centres the callout icon on the title's line box, not on its
+letters. Where the letters sit inside that box depends on each font's ascent and descent,
+so the icon drifts off the text by a different amount per font: about 1.4px against the
+capitals with the fonts measured here, and more with fonts that carry a tall ascent. The
+fix trims the title's box to the cap height and baseline, so centring lands on the
+letters whatever the font:
+
+```css
+.callout-title { align-items: center; }
+.callout-title-inner { text-box: trim-both cap alphabetic; }
+```
+
+Measured in Obsidian 1.13.7 across DejaVu Sans, Liberation Sans, FreeSans, Monaspace
+and Droid Sans: the offset falls from up to 1.4px to 0–0.5px. It reads the font's own
+metrics, so it tunes for no particular font. The title line gets about 3px shorter. A title
+that wraps keeps its icon beside the first line.
+
 ### 5. File explorer: per-folder accent
 
 Top-level folders cycle **coral → copper → gold → green → teal → blue**, then repeat.
@@ -163,7 +180,7 @@ All of this lives in `packages/obsidian/src/theme.ts`; no token changes and no n
     property that the title, chevron and indentation guide read
   - hover fallback to `--nav-item-color-hover`
   - active tab edge, ribbon and side-panel icon colour, property icon, status bar
-  - heading spacing and callout balance
+  - heading spacing, callout balance and callout icon alignment
 - **Tests** in `packages/obsidian/test/theme.test.ts`, each pairing a foreground with the
   background it lands on: heading colours and bold/italic on the page, bold/italic on the
   composited highlight, folder accents on the sidebar, tag on tag fill, question title on
