@@ -44,7 +44,7 @@ scheme palettes.
 | VS Code          | Run `code --install-extension sltsh.aion-theme`, then choose **Aion** or **Aion Light** with **Preferences: Color Theme**. |
 | Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
 | CSS / Tailwind   | Run `npm install @sltsh/aion-css`; see the [CSS package](packages/css/README.md) for Dark and Light usage. |
-| Obsidian         | [Install the 1.0.2 theme files](packages/obsidian/README.md) to use Dark and Light while community review is pending. |
+| Obsidian         | [Install Aion from the community directory](https://community.obsidian.md/themes/aion), or follow the [manual steps](packages/obsidian/README.md). |
 | Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
 The Obsidian theme shares Aion's palette in both modes. Preview [Dark](screenshot.png) and

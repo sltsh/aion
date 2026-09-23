@@ -16,7 +16,13 @@ at a 390px viewport. They are not screenshots from an Android or iOS device.
 ![Aion Dark in Obsidian's phone emulator](../../screenshots/obsidian-phone-emulated-dark.png)
 ![Aion Light in Obsidian's phone emulator](../../screenshots/obsidian-phone-emulated-light.png)
 
-## Try it locally
+## Install from Obsidian
+
+Open **Settings → Appearance → Themes → Manage**, search for **Aion**, and select
+**Install and use**. Switch **Base color scheme** between **Dark** and **Light** to use
+both variants.
+
+## Install manually
 
 1. In your vault, create `.obsidian/themes/Aion/`.
 2. Download `manifest.json` and `theme.css` from the [1.0.2 Obsidian release](https://github.com/sltsh/aion/releases/tag/1.0.2) into that folder.

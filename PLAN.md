@@ -24,7 +24,7 @@ case and its selection foreground.
 | 8. Marketplace listing | **done** | `packages/vscode/README.md`, the listing icon |
 | 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 | 10. Site light/dark theme switch | **done** | `apps/site/src/theme.ts`, `apps/site/test` |
-| 11. Obsidian community theme, Dark and Light | **v1.0.2 released; community review pending** | `manifest.json`, `theme.css`, `packages/obsidian` |
+| 11. Obsidian community theme, Dark and Light | **done** | `manifest.json`, `theme.css`, `packages/obsidian` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -291,7 +291,7 @@ persistence, system following, no-JavaScript rendering, copied values, focus and
 responsive header. The task changed no palette value, so native editor acceptance was not
 reopened.
 
-## Task 11 — Obsidian community theme — v1.0.2 released
+## Task 11 — Obsidian community theme — done
 
 `packages/obsidian` generates the repository-root `theme.css` from the existing CSS and
 token emitters. The root `manifest.json` names one theme with Dark and Light variants.
@@ -329,15 +329,14 @@ emitted editor background.
 The owner submitted the community listing. Its first review reported that `v1.0.2`
 did not match the manifest's exact version `1.0.2`. A second GitHub release at tag
 `1.0.2` now contains the same manifest and stylesheet, from the same commit. The release
-workflow now creates both tags' releases on future versions.
-
-Next objective: recheck the community entry and resolve any remaining review errors.
-Physical Android and iOS checks remain optional follow-up evidence for platform-specific
-behavior.
+workflow now creates both tags' releases on future versions. The directory review passed,
+and [Aion is live in the community directory](https://community.obsidian.md/themes/aion)
+at version `1.0.2`. Physical Android and iOS checks remain optional follow-up evidence
+for platform-specific behavior.
 
 ## Order and parallelism
 
-Tasks 1 to 10 are done. Task 11 awaits community review.
+Tasks 1 to 11 are done.
 
 ## Native acceptance
 
