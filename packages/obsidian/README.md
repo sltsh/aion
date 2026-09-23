@@ -19,7 +19,7 @@ at a 390px viewport. They are not screenshots from an Android or iOS device.
 ## Try it locally
 
 1. In your vault, create `.obsidian/themes/Aion/`.
-2. Copy the repository-root `manifest.json` and `theme.css` into that folder.
+2. Download `manifest.json` and `theme.css` from the [v1.0.2 release](https://github.com/sltsh/aion/releases/tag/v1.0.2) into that folder.
 3. In Obsidian, open **Settings → Appearance → Themes** and select **Aion**.
 4. Switch **Base color scheme** between **Dark** and **Light** to see both variants.
 
@@ -34,9 +34,8 @@ token and CSS packages. The normal `npm run build` handles dependency order. The
 test suite checks that the committed CSS matches its generator, both variants contain
 the same keys, and selected reading and focus pairs clear their contrast floors.
 
-The repository-root manifest and stylesheet are prepared for an Obsidian community
-release. A release tag must match the manifest version; the release workflow attaches
-both files. The screenshots above were captured directly from Obsidian 1.13.7 with an
+The repository-root manifest and stylesheet were published in the v1.0.2 GitHub release.
+The screenshots above were captured directly from Obsidian 1.13.7 with an
 isolated local vault. Desktop reading, live preview, and source mode were checked in both
 modes; Dark in-note search, file menus, and the command dialog were also checked. The
 built-in phone emulator showed both variants in reading and Source mode, Dark Live Preview
