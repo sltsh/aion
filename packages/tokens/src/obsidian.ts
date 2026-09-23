@@ -1,8 +1,9 @@
 import type { Oklch } from './oklch.js';
-import { CONTRAST_FLOOR } from './palette.js';
+import { BASE_CHROMA, BASE_HUE, CONTRAST_FLOOR, NON_TEXT_FLOOR, neutral } from './palette.js';
 import { lightAccentScale, lightComment, lightNeutral, lightSyntax } from './light.js';
 import { fgLight } from './semantic.js';
 import { solveMarker } from './solve.js';
+import { solveLightness } from './oklch.js';
 
 // Obsidian's page and code selection must remain visible while its comment text stays readable.
 export const obsidianLightSelection: Oklch = solveMarker({
@@ -30,4 +31,10 @@ export const obsidianLightActiveRow: Oklch = solveMarker({
 export const obsidianPink = {
   dark: [0.750, 0.145, 345],
   light: [0.540, 0.170, 345],
+} as const satisfies Record<'dark' | 'light', Oklch>;
+
+// Button hover fills are stronger than input fills, so their edge needs its own step.
+export const obsidianHoverEdge = {
+  dark: [solveLightness(BASE_CHROMA, BASE_HUE, neutral.hover, NON_TEXT_FLOOR + 0.1, 'up'), BASE_CHROMA, BASE_HUE],
+  light: [solveLightness(BASE_CHROMA, BASE_HUE, lightNeutral.hover, NON_TEXT_FLOOR + 0.1, 'down'), BASE_CHROMA, BASE_HUE],
 } as const satisfies Record<'dark' | 'light', Oklch>;

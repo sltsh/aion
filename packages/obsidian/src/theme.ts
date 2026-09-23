@@ -1,8 +1,8 @@
 import { dark, light } from '@sltsh/aion-css';
 import type { Variables } from '@sltsh/aion-css';
 import {
-  hex, lightNeutral, neutral, obsidianLightActiveRow, obsidianLightHighlight,
-  obsidianLightSelection, obsidianPink,
+  hex, lightNeutral, neutral, obsidianHoverEdge, obsidianLightActiveRow,
+  obsidianLightHighlight, obsidianLightSelection, obsidianPink,
 } from '@sltsh/aion-tokens';
 
 type Scheme = 'dark' | 'light';
@@ -82,13 +82,16 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--interactive-hover': c('bg-hover'),
     '--interactive-accent': 'var(--color-accent)',
     '--interactive-accent-hover': 'var(--color-accent-1)',
+    '--aion-obsidian-hover-edge': hex(obsidianHoverEdge[scheme]),
     '--input-shadow': 'inset 0 0 0 1px var(--background-modifier-border-hover)',
-    '--input-shadow-hover': 'inset 0 0 0 1px var(--background-modifier-border-hover)',
+    '--input-shadow-hover': 'inset 0 0 0 1px var(--aion-obsidian-hover-edge)',
     '--text-normal': c('fg-primary'),
     '--text-muted': c('fg-secondary'),
     '--text-faint': c('fg-secondary'),
     '--text-on-accent': c('fg-on-accent'),
     '--text-on-accent-inverted': c('fg-primary'),
+    '--aion-obsidian-canvas-label-light': scheme === 'dark' ? c('fg-primary') : c('fg-on-accent'),
+    '--aion-obsidian-canvas-label-dark': scheme === 'dark' ? c('fg-on-accent') : c('fg-primary'),
     '--text-accent': 'var(--color-accent)',
     '--text-accent-hover': 'var(--color-accent-1)',
     '--text-success': c('status-success-text'),
@@ -163,4 +166,8 @@ export const themeCss = (): string => [
   '/* Aion for Obsidian. Generated from @sltsh/aion-tokens; do not edit emitted colors. */',
   block('.theme-dark', 'dark'),
   block('.theme-light', 'light'),
+  '/* Obsidian uses its decorative border for text fields; the functional edge needs the UI border. */',
+  '.theme-dark :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active),\n.theme-light :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active) {\n  border-color: var(--background-modifier-border-hover);\n}',
+  '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-light {\n  color: var(--aion-obsidian-canvas-label-light);\n}',
+  '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-dark {\n  color: var(--aion-obsidian-canvas-label-dark);\n}',
 ].join('\n\n') + '\n';

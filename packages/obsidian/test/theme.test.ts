@@ -53,7 +53,8 @@ test('the installable sheet is generated from both Aion variants', () => {
       else if (name === '--accent-s' || name === '--accent-l') expect(value, name).toMatch(/^\d+(\.\d+)?%$/);
       else if (name === '--link-unresolved-opacity') expect(value).toBe('1');
       else if (name === '--link-unresolved-decoration-style') expect(value).toBe('dashed');
-      else if (name.startsWith('--input-shadow')) expect(value).toBe('inset 0 0 0 1px var(--background-modifier-border-hover)');
+      else if (name === '--input-shadow') expect(value).toBe('inset 0 0 0 1px var(--background-modifier-border-hover)');
+      else if (name === '--input-shadow-hover') expect(value).toBe('inset 0 0 0 1px var(--aion-obsidian-hover-edge)');
       else expect(value, name).toMatch(/^(#[0-9a-f]{6}([0-9a-f]{2})?|var\(--[a-z0-9-]+\))$/);
       expect(css).toContain(`${name}: ${value};`);
     }
@@ -172,12 +173,27 @@ test.each(['dark', 'light'] as const)('%s Obsidian 1.13.7 consumer pairs and def
     '--input-shadow', '--input-shadow-hover', '--prompt-background',
   ]) expect(c).toHaveProperty(name);
   expect(c['--background-modifier-active-hover']).not.toBe(c['--background-modifier-hover']);
-  expect(c['--text-on-accent-inverted']).not.toBe(c['--text-on-accent']);
+  const canvasLight = resolved(scheme, '--aion-obsidian-canvas-label-light');
+  const canvasDark = resolved(scheme, '--aion-obsidian-canvas-label-dark');
+  expect(hexToOklch(canvasLight)[0]).toBeGreaterThan(hexToOklch(canvasDark)[0]);
+  expect(ratio(scheme === 'dark' ? canvasDark : canvasLight, c['--color-yellow']!))
+    .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  expect(css).toContain('mod-foreground-light {\n  color: var(--aion-obsidian-canvas-label-light);');
+  expect(css).toContain('mod-foreground-dark {\n  color: var(--aion-obsidian-canvas-label-dark);');
   expect(c['--color-pink']).not.toBe(c['--color-red']);
   expect(c['--prompt-background']).toBe(c['--modal-background']);
-  const edge = c['--background-modifier-border-hover']!;
+  const fieldEdge = c['--background-modifier-border-hover']!;
+  expect(css).toContain('input[type="text"], input[type="search"]');
+  expect(css).toContain('):not(:hover):not(:focus):not(:active)');
+  expect(css).toContain('border-color: var(--background-modifier-border-hover);');
   for (const surface of ['--background-modifier-form-field', '--background-primary', '--modal-background']) {
-    expect(ratio(edge, c[surface]!)).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    expect(ratio(fieldEdge, c[surface]!), `${scheme} field edge on ${surface}`)
+      .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+  }
+  const hoverEdge = c['--aion-obsidian-hover-edge']!;
+  for (const surface of ['--interactive-hover', '--modal-background']) {
+    expect(ratio(hoverEdge, c[surface]!), `${scheme} button hover edge on ${surface}`)
+      .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
   }
 });
 

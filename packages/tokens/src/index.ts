@@ -26,7 +26,7 @@ export {
 
 export type { StatusScale } from './status.js';
 export { status, statusLight } from './status.js';
-export { obsidianLightSelection, obsidianLightHighlight, obsidianLightActiveRow, obsidianPink } from './obsidian.js';
+export { obsidianLightSelection, obsidianLightHighlight, obsidianLightActiveRow, obsidianPink, obsidianHoverEdge } from './obsidian.js';
 
 export {
   bg, fg, border, syntax, accent, brackets, semantic, BOUNDARY_PAIRS,

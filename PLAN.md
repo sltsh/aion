@@ -347,6 +347,12 @@ updated Dark and Light reading notes; captures are local at
 `/tmp/aion-obsidian-check/`. Native mobile and cross-platform acceptance remain
 open. This branch is not merged or released.
 
+Astra's read-only review found three follow-ups, now repaired on the same branch:
+Canvas light/dark label polarity is explicit, ordinary field edges use the UI
+border without changing decorative dividers, and hovered buttons use a neutral
+edge solved against their hover fill. Focused tests measure the emitted pairs;
+Obsidian 1.13.7 computed styles confirmed both modes in a scratch vault.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.
