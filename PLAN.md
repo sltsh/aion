@@ -322,11 +322,12 @@ Release preparation uses `1.0.2` because `v1.0.1` already exists; the manifest, 
 versions, exact dependencies, lockfile and changelog agree. No tag or remote release has
 been created. The repository's tag workflow also publishes the npm and VS Code packages,
 so that coupled release needs owner approval. The `1.0.2` VSIX packaged locally with
-both themes; installation remains unchecked in this environment.
+both themes and installed in an isolated portable VS Code profile. The native workbench
+applied `Aion Light` and rendered its emitted editor background.
 
-Next objective: obtain owner visual approval, complete the VSIX install check on a native
-VS Code instance, then tag and submit the theme through the Obsidian community directory
-with owner authorization.
+Next objective: obtain owner visual and publication approval, then tag and submit the
+theme through the Obsidian community directory. Physical Android and iOS checks remain
+optional follow-up evidence for platform-specific behavior.
 
 ## Order and parallelism
 
