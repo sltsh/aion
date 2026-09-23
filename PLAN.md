@@ -381,6 +381,13 @@ screenshots in `screenshots/` are captures of this built sheet. A real phone, ot
 platforms, and the picker interaction remain unchecked; these native checks do not
 expand the calculated contrast gate.
 
+`feature/obsidian-highlight-code-folder-fit` removes the backing highlight when a tag
+is its only child, raises inline and fenced code together, and fits the active file row
+to its title. The generated sheet passed sync, verify, root tests and typecheck. In a
+scratch vault, Obsidian 1.13.7 on Linux showed the Dark reading-view tag pill without
+the protruding highlight, both code surfaces raised, and the active row ending at its
+title. Light and other native views still need acceptance for this revision.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.

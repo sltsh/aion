@@ -1,7 +1,7 @@
 import { dark, light } from '@sltsh/aion-css';
 import type { Variables } from '@sltsh/aion-css';
 import {
-  hex, lightNeutral, neutral, obsidianHoverEdge, obsidianLightActiveRow,
+  hex, lightNeutral, neutral, obsidianCodeBackground, obsidianHoverEdge, obsidianLightActiveRow,
   obsidianLightHighlight, obsidianLightSelection, obsidianPink,
 } from '@sltsh/aion-tokens';
 
@@ -129,7 +129,7 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--italic-color': c('green-solid'),
     '--blockquote-border-color': c('teal-border'),
     '--hr-color': c('border-divider'),
-    '--code-background': c('bg-raised'),
+    '--code-background': hex(obsidianCodeBackground[scheme]),
     '--code-normal': c('fg-primary'),
     '--code-comment': c('syntax-comment'),
     '--code-function': c('syntax-function'),
@@ -187,9 +187,11 @@ export const themeRules: string[] = [
   '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-dark {\n  color: var(--aion-obsidian-canvas-label-dark);\n}',
   '/* The editor\'s .cm-highlight already outranks .cm-strong and .cm-em; reading view needs the same. */',
   '.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}',
+  '.markdown-rendered mark:has(> .tag:only-child) {\n  background-color: transparent;\n}',
   ...FOLDER_CYCLE.map((accent, index) =>
     `.nav-files-container > div > .nav-folder:nth-child(${FOLDER_CYCLE.length}n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`),
   '.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}',
+  '.nav-files-container .nav-file-title.is-active {\n  width: fit-content;\n  max-width: 100%;\n}',
   '/* Selected, dragged and drag-target rows keep Obsidian\'s own chevron over the accent fill. */',
   '.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}',
   '.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}',

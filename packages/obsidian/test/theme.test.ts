@@ -3,7 +3,7 @@ import { expect, test } from 'vitest';
 import { formatHex } from 'culori';
 import {
   CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hex,
-  distanceEmitted, hexToOklch, lightNeutral, obsidianLightActiveRow,
+  distanceEmitted, hexToOklch, lightNeutral, obsidianCodeBackground, obsidianLightActiveRow,
   obsidianLightHighlight, obsidianLightSelection,
 } from '@sltsh/aion-tokens';
 import { dark, light } from '@sltsh/aion-css';
@@ -212,6 +212,12 @@ test('Light selection, highlight and Dark code retain visible surface separation
   }
   expect(distanceEmitted(hexToOklch(dark['--code-background']!), hexToOklch(dark['--background-primary']!)))
     .toBeGreaterThanOrEqual(0.05);
+  for (const scheme of ['dark', 'light'] as const) {
+    const c = obsidianColors(scheme);
+    expect(c['--code-background']).toBe(hex(obsidianCodeBackground[scheme]));
+    expect(distanceEmitted(hexToOklch(c['--code-background']!), hexToOklch(c['--background-primary']!)))
+      .toBeGreaterThanOrEqual(scheme === 'dark' ? 0.06 : 0.045);
+  }
   expect(light['--text-highlight-bg']).not.toBe(light['--tag-background']);
   expect(light['--nav-item-background-active']).toBe(hex(obsidianLightActiveRow));
   expect(light['--nav-item-background-active']).not.toBe(light['--tag-background']);
@@ -257,6 +263,7 @@ test.each(['dark', 'light'] as const)('%s content accents read on every specifie
 
 test.each(['dark', 'light'] as const)('%s highlight owns the foreground of emphasis', (scheme) => {
   expect(themeRules).toContain('.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}');
+  expect(themeRules).toContain('.markdown-rendered mark:has(> .tag:only-child) {\n  background-color: transparent;\n}');
   const measured = ratio(resolved(scheme, '--text-normal'), resolved(scheme, '--text-highlight-bg'));
   expect(measured, `${scheme} primary on the highlight: ${measured.toFixed(2)}`)
     .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
@@ -313,12 +320,13 @@ test('the folder cycle is anchored, violet-free and colours through Obsidian var
   expect(cycle).toEqual(order.map((accent, index) =>
     `.nav-files-container > div > .nav-folder:nth-child(6n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`));
   const rules = themeRules.filter((rule) => rule.includes('.nav-files-container'));
-  expect(rules).toHaveLength(9);
+  expect(rules).toHaveLength(10);
   for (const rule of rules) {
     expect(rule).not.toMatch(/(?<![-\w])color\s*:/);
     expect(rule).not.toMatch(/violet|purple|accent/);
   }
   expect(rules).toContain('.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}');
+  expect(rules).toContain('.nav-files-container .nav-file-title.is-active {\n  width: fit-content;\n  max-width: 100%;\n}');
   expect(rules).toContain('.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}');
   expect(rules).toContain('.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}');
 });

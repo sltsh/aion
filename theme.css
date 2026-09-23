@@ -81,7 +81,7 @@
   --italic-color: #7bce88;
   --blockquote-border-color: #367572;
   --hr-color: #4e535c;
-  --code-background: #1e222a;
+  --code-background: #20242c;
   --code-normal: #e2e8f3;
   --code-comment: #98a0af;
   --code-function: #7db2f7;
@@ -212,7 +212,7 @@
   --italic-color: #00742b;
   --blockquote-border-color: #548987;
   --hr-color: #bbbec3;
-  --code-background: #e7eaef;
+  --code-background: #e5e8ed;
   --code-normal: #16181c;
   --code-comment: #65686d;
   --code-function: #2965ad;
@@ -297,6 +297,10 @@
   color: inherit;
 }
 
+.markdown-rendered mark:has(> .tag:only-child) {
+  background-color: transparent;
+}
+
 .nav-files-container > div > .nav-folder:nth-child(6n+1 of .nav-folder) {
   --aion-folder: var(--aion-obsidian-folder-coral);
   --aion-folder-guide: var(--aion-obsidian-folder-coral-guide);
@@ -329,6 +333,11 @@
 
 .nav-files-container .nav-folder-title {
   --nav-item-color: var(--aion-folder, var(--text-muted));
+}
+
+.nav-files-container .nav-file-title.is-active {
+  width: fit-content;
+  max-width: 100%;
 }
 
 /* Selected, dragged and drag-target rows keep Obsidian's own chevron over the accent fill. */
