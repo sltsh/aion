@@ -70,14 +70,15 @@
   --link-unresolved-opacity: 1;
   --link-unresolved-decoration-style: dashed;
   --callout-quote: #a7acb7;
+  --callout-question: var(--color-yellow);
   --h1-color: #e4c058;
   --h2-color: #59cdc8;
-  --h3-color: #e2e8f3;
-  --h4-color: #e2e8f3;
+  --h3-color: #ea955f;
+  --h4-color: #bd96e9;
   --h5-color: #a7acb7;
   --h6-color: #a7acb7;
-  --bold-color: #e2e8f3;
-  --italic-color: #e2e8f3;
+  --bold-color: #ed807e;
+  --italic-color: #7bce88;
   --blockquote-border-color: #367572;
   --hr-color: #4e535c;
   --code-background: #1e222a;
@@ -92,8 +93,10 @@
   --code-operator: #59cdc8;
   --code-punctuation: #a7acb7;
   --code-tag: #e4c058;
-  --tag-color: #e4c058;
-  --tag-background: #2d2100;
+  --tag-color: #7db2f7;
+  --tag-background: #122339;
+  --tag-color-hover: var(--text-normal);
+  --tag-background-hover: #122339;
   --checkbox-color: var(--interactive-accent);
   --checkbox-color-hover: var(--interactive-accent-hover);
   --checkbox-border-color: #70757e;
@@ -114,6 +117,18 @@
   --prompt-border-color: #4e535c;
   --icon-color: #a7acb7;
   --icon-color-hover: #e2e8f3;
+  --aion-obsidian-folder-coral: #ed807e;
+  --aion-obsidian-folder-coral-guide: #935553;
+  --aion-obsidian-folder-copper: #ea955f;
+  --aion-obsidian-folder-copper-guide: #8c5c3e;
+  --aion-obsidian-folder-gold: #e4c058;
+  --aion-obsidian-folder-gold-guide: #7b672e;
+  --aion-obsidian-folder-green: #7bce88;
+  --aion-obsidian-folder-green-guide: #47764e;
+  --aion-obsidian-folder-teal: #59cdc8;
+  --aion-obsidian-folder-teal-guide: #367572;
+  --aion-obsidian-folder-blue: #7db2f7;
+  --aion-obsidian-folder-blue-guide: #4d6b91;
 }
 
 .theme-light {
@@ -186,14 +201,15 @@
   --link-unresolved-opacity: 1;
   --link-unresolved-decoration-style: dashed;
   --callout-quote: #505357;
+  --callout-question: var(--color-yellow);
   --h1-color: #7b6000;
   --h2-color: #00706e;
-  --h3-color: #16181c;
-  --h4-color: #16181c;
+  --h3-color: #a14c00;
+  --h4-color: #7951a3;
   --h5-color: #505357;
   --h6-color: #505357;
-  --bold-color: #16181c;
-  --italic-color: #16181c;
+  --bold-color: #af3c40;
+  --italic-color: #00742b;
   --blockquote-border-color: #548987;
   --hr-color: #bbbec3;
   --code-background: #e7eaef;
@@ -208,8 +224,10 @@
   --code-operator: #00706e;
   --code-punctuation: #505357;
   --code-tag: #7b6000;
-  --tag-color: #7b6000;
-  --tag-background: #f8f0db;
+  --tag-color: #2965ad;
+  --tag-background: #e7f2ff;
+  --tag-color-hover: var(--text-normal);
+  --tag-background-hover: #e7f2ff;
   --checkbox-color: var(--interactive-accent);
   --checkbox-color-hover: var(--interactive-accent-hover);
   --checkbox-border-color: #7c7f84;
@@ -230,6 +248,32 @@
   --prompt-border-color: #bbbec3;
   --icon-color: #505357;
   --icon-color-hover: #16181c;
+  --aion-obsidian-folder-coral: #af3c40;
+  --aion-obsidian-folder-coral-guide: #ab716f;
+  --aion-obsidian-folder-copper: #a14c00;
+  --aion-obsidian-folder-copper-guide: #a3765c;
+  --aion-obsidian-folder-gold: #7b6000;
+  --aion-obsidian-folder-gold-guide: #907e4d;
+  --aion-obsidian-folder-green: #00742b;
+  --aion-obsidian-folder-green-guide: #618a66;
+  --aion-obsidian-folder-teal: #00706e;
+  --aion-obsidian-folder-teal-guide: #548987;
+  --aion-obsidian-folder-blue: #2965ad;
+  --aion-obsidian-folder-blue-guide: #6782a6;
+}
+
+.is-mobile.theme-dark {
+  --tag-color: #7db2f7;
+  --tag-background: #122339;
+  --tag-color-hover: var(--text-normal);
+  --tag-background-hover: #122339;
+}
+
+.is-mobile.theme-light {
+  --tag-color: #2965ad;
+  --tag-background: #e7f2ff;
+  --tag-color-hover: var(--text-normal);
+  --tag-background-hover: #e7f2ff;
 }
 
 /* Obsidian uses its decorative border for text fields; the functional edge needs the UI border. */
@@ -245,4 +289,109 @@
 
 .canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-dark {
   color: var(--aion-obsidian-canvas-label-dark);
+}
+
+/* The editor's .cm-highlight already outranks .cm-strong and .cm-em; reading view needs the same. */
+
+.markdown-rendered mark :is(strong, b, em, i) {
+  color: inherit;
+}
+
+.nav-files-container > div > .nav-folder:nth-child(6n+1 of .nav-folder) {
+  --aion-folder: var(--aion-obsidian-folder-coral);
+  --aion-folder-guide: var(--aion-obsidian-folder-coral-guide);
+}
+
+.nav-files-container > div > .nav-folder:nth-child(6n+2 of .nav-folder) {
+  --aion-folder: var(--aion-obsidian-folder-copper);
+  --aion-folder-guide: var(--aion-obsidian-folder-copper-guide);
+}
+
+.nav-files-container > div > .nav-folder:nth-child(6n+3 of .nav-folder) {
+  --aion-folder: var(--aion-obsidian-folder-gold);
+  --aion-folder-guide: var(--aion-obsidian-folder-gold-guide);
+}
+
+.nav-files-container > div > .nav-folder:nth-child(6n+4 of .nav-folder) {
+  --aion-folder: var(--aion-obsidian-folder-green);
+  --aion-folder-guide: var(--aion-obsidian-folder-green-guide);
+}
+
+.nav-files-container > div > .nav-folder:nth-child(6n+5 of .nav-folder) {
+  --aion-folder: var(--aion-obsidian-folder-teal);
+  --aion-folder-guide: var(--aion-obsidian-folder-teal-guide);
+}
+
+.nav-files-container > div > .nav-folder:nth-child(6n+6 of .nav-folder) {
+  --aion-folder: var(--aion-obsidian-folder-blue);
+  --aion-folder-guide: var(--aion-obsidian-folder-blue-guide);
+}
+
+.nav-files-container .nav-folder-title {
+  --nav-item-color: var(--aion-folder, var(--text-muted));
+}
+
+/* Selected, dragged and drag-target rows keep Obsidian's own chevron over the accent fill. */
+
+.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {
+  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));
+  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));
+}
+
+.nav-files-container .nav-folder > .tree-item-children {
+  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));
+}
+
+.workspace-split.mod-root .workspace-tab-header-container .workspace-tab-header.is-active {
+  box-shadow: inset 0 2px 0 var(--color-yellow), 0 0 0 var(--tab-outline-width) var(--tab-outline-color);
+}
+
+.workspace-split:is(.mod-left-split, .mod-right-split) .workspace-tab-header.is-active {
+  --icon-color-focused: var(--color-yellow);
+  --tab-text-color-focused-active-current: var(--color-yellow);
+}
+
+.side-dock-ribbon-action:hover {
+  color: var(--color-yellow);
+}
+
+.metadata-property-icon {
+  color: var(--color-cyan);
+}
+
+.status-bar {
+  color: var(--text-muted);
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.markdown-rendered :is(p, pre, table, ul, ol) + h3,
+.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > h3 {
+  margin-top: calc(var(--heading-spacing) * 0.8);
+}
+
+.markdown-rendered :is(p, pre, table, ul, ol) + :is(h4, h5, h6),
+.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > :is(h4, h5, h6) {
+  margin-top: calc(var(--heading-spacing) * 0.6);
+}
+
+/* Live Preview's .mod-cm6 .callout-content .callout margin outranks both generic rules for a nested callout. */
+
+.callout-content > :last-child,
+.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {
+  margin-bottom: 0;
+}
+
+.callout-title + .callout-content > :first-child,
+.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {
+  margin-top: var(--size-4-2);
+}
+
+@supports (text-box: trim-both cap alphabetic) {
+  .callout-title-inner {
+    text-box: trim-both cap alphabetic;
+  }
+  .callout-icon .svg-icon,
+  .callout-fold .svg-icon {
+    translate: 0 calc(0.5cap - 0.5lh);
+  }
 }

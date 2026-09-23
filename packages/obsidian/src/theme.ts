@@ -7,6 +7,8 @@ import {
 
 type Scheme = 'dark' | 'light';
 
+export const FOLDER_CYCLE = ['coral', 'copper', 'gold', 'green', 'teal', 'blue'] as const;
+
 const value = (colors: Variables, name: string): string => {
   const color = colors[`--aion-${name}`];
   if (!color) throw new Error(`Missing Aion color: ${name}`);
@@ -30,6 +32,13 @@ const hslChannels = (color: string): [string, string, string] => {
   }
   return [hue.toFixed(4), `${(saturation * 100).toFixed(4)}%`, `${(lightness * 100).toFixed(4)}%`];
 };
+
+const tagColors = (colors: Variables): Record<string, string> => ({
+  '--tag-color': value(colors, 'blue-solid'),
+  '--tag-background': value(colors, 'blue-subtle'),
+  '--tag-color-hover': 'var(--text-normal)',
+  '--tag-background-hover': value(colors, 'blue-subtle'),
+});
 
 export const obsidianColors = (scheme: Scheme): Record<string, string> => {
   const colors = scheme === 'dark' ? dark() : light();
@@ -108,15 +117,16 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--link-unresolved-opacity': '1',
     '--link-unresolved-decoration-style': 'dashed',
     '--callout-quote': c('fg-secondary'),
+    '--callout-question': 'var(--color-yellow)',
 
     '--h1-color': c('gold-solid'),
     '--h2-color': c('teal-solid'),
-    '--h3-color': c('fg-primary'),
-    '--h4-color': c('fg-primary'),
+    '--h3-color': c('copper-solid'),
+    '--h4-color': c('violet-solid'),
     '--h5-color': c('fg-secondary'),
     '--h6-color': c('fg-secondary'),
-    '--bold-color': c('fg-primary'),
-    '--italic-color': c('fg-primary'),
+    '--bold-color': c('coral-solid'),
+    '--italic-color': c('green-solid'),
     '--blockquote-border-color': c('teal-border'),
     '--hr-color': c('border-divider'),
     '--code-background': c('bg-raised'),
@@ -131,8 +141,7 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--code-operator': c('syntax-operator'),
     '--code-punctuation': c('syntax-punctuation'),
     '--code-tag': c('syntax-type'),
-    '--tag-color': c('gold-solid'),
-    '--tag-background': c('gold-subtle'),
+    ...tagColors(colors),
     '--checkbox-color': 'var(--interactive-accent)',
     '--checkbox-color-hover': 'var(--interactive-accent-hover)',
     '--checkbox-border-color': c('border-ui'),
@@ -154,20 +163,54 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--prompt-border-color': c('border-divider'),
     '--icon-color': c('fg-secondary'),
     '--icon-color-hover': c('fg-primary'),
+    ...Object.fromEntries(FOLDER_CYCLE.flatMap((accent) => [
+      [`--aion-obsidian-folder-${accent}`, c(`${accent}-solid`)],
+      [`--aion-obsidian-folder-${accent}-guide`, c(`${accent}-border`)],
+    ])),
   };
 };
 
-const block = (selector: string, scheme: Scheme): string => {
-  const entries = Object.entries(obsidianColors(scheme));
-  return `${selector} {\n  color-scheme: ${scheme};\n${entries.map(([name, color]) => `  ${name}: ${color};`).join('\n')}\n}`;
-};
+const declarations = (entries: Record<string, string>): string =>
+  Object.entries(entries).map(([name, color]) => `  ${name}: ${color};`).join('\n');
+
+const block = (selector: string, scheme: Scheme): string =>
+  `${selector} {\n  color-scheme: ${scheme};\n${declarations(obsidianColors(scheme))}\n}`;
+
+// Obsidian's .is-mobile.theme-dark sets --tag-background and outranks .theme-dark.
+const mobileTags = (scheme: Scheme): string =>
+  `.is-mobile.theme-${scheme} {\n${declarations(tagColors(scheme === 'dark' ? dark() : light()))}\n}`;
+
+export const themeRules: string[] = [
+  '/* Obsidian uses its decorative border for text fields; the functional edge needs the UI border. */',
+  '.theme-dark :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active),\n.theme-light :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active) {\n  border-color: var(--background-modifier-border-hover);\n}',
+  '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-light {\n  color: var(--aion-obsidian-canvas-label-light);\n}',
+  '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-dark {\n  color: var(--aion-obsidian-canvas-label-dark);\n}',
+  '/* The editor\'s .cm-highlight already outranks .cm-strong and .cm-em; reading view needs the same. */',
+  '.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}',
+  ...FOLDER_CYCLE.map((accent, index) =>
+    `.nav-files-container > div > .nav-folder:nth-child(${FOLDER_CYCLE.length}n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`),
+  '.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}',
+  '/* Selected, dragged and drag-target rows keep Obsidian\'s own chevron over the accent fill. */',
+  '.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}',
+  '.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}',
+  '.workspace-split.mod-root .workspace-tab-header-container .workspace-tab-header.is-active {\n  box-shadow: inset 0 2px 0 var(--color-yellow), 0 0 0 var(--tab-outline-width) var(--tab-outline-color);\n}',
+  '.workspace-split:is(.mod-left-split, .mod-right-split) .workspace-tab-header.is-active {\n  --icon-color-focused: var(--color-yellow);\n  --tab-text-color-focused-active-current: var(--color-yellow);\n}',
+  '.side-dock-ribbon-action:hover {\n  color: var(--color-yellow);\n}',
+  '.metadata-property-icon {\n  color: var(--color-cyan);\n}',
+  '.status-bar {\n  color: var(--text-muted);\n  border-top: 1px solid var(--background-modifier-border);\n}',
+  '.markdown-rendered :is(p, pre, table, ul, ol) + h3,\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > h3 {\n  margin-top: calc(var(--heading-spacing) * 0.8);\n}',
+  '.markdown-rendered :is(p, pre, table, ul, ol) + :is(h4, h5, h6),\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > :is(h4, h5, h6) {\n  margin-top: calc(var(--heading-spacing) * 0.6);\n}',
+  '/* Live Preview\'s .mod-cm6 .callout-content .callout margin outranks both generic rules for a nested callout. */',
+  '.callout-content > :last-child,\n.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {\n  margin-bottom: 0;\n}',
+  '.callout-title + .callout-content > :first-child,\n.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {\n  margin-top: var(--size-4-2);\n}',
+  '@supports (text-box: trim-both cap alphabetic) {\n  .callout-title-inner {\n    text-box: trim-both cap alphabetic;\n  }\n  .callout-icon .svg-icon,\n  .callout-fold .svg-icon {\n    translate: 0 calc(0.5cap - 0.5lh);\n  }\n}',
+];
 
 export const themeCss = (): string => [
   '/* Aion for Obsidian. Generated from @sltsh/aion-tokens; do not edit emitted colors. */',
   block('.theme-dark', 'dark'),
   block('.theme-light', 'light'),
-  '/* Obsidian uses its decorative border for text fields; the functional edge needs the UI border. */',
-  '.theme-dark :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active),\n.theme-light :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active) {\n  border-color: var(--background-modifier-border-hover);\n}',
-  '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-light {\n  color: var(--aion-obsidian-canvas-label-light);\n}',
-  '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-dark {\n  color: var(--aion-obsidian-canvas-label-dark);\n}',
+  mobileTags('dark'),
+  mobileTags('light'),
+  ...themeRules,
 ].join('\n\n') + '\n';

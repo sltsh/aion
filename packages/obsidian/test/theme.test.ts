@@ -7,7 +7,7 @@ import {
   obsidianLightHighlight, obsidianLightSelection,
 } from '@sltsh/aion-tokens';
 import { dark, light } from '@sltsh/aion-css';
-import { obsidianColors, themeCss } from '../src/theme.js';
+import { FOLDER_CYCLE, obsidianColors, themeCss, themeRules } from '../src/theme.js';
 
 const css = readFileSync(new URL('../../../theme.css', import.meta.url), 'utf8');
 const manifest = JSON.parse(readFileSync(new URL('../../../manifest.json', import.meta.url), 'utf8')) as Record<string, unknown>;
@@ -159,13 +159,15 @@ test.each(['dark', 'light'] as const)('%s Obsidian 1.13.7 consumer pairs and def
   const c = obsidianColors(scheme);
   const page = resolved(scheme, '--background-primary');
   for (const name of [
-    '--callout-quote', '--color-red', '--color-orange', '--color-green',
-    '--color-cyan', '--color-blue', '--color-purple',
+    '--callout-quote', '--color-red', '--color-orange', '--color-yellow', '--color-green',
+    '--color-cyan', '--color-blue', '--color-purple', '--callout-question',
   ]) {
-    const title = hexToOklch(c[name]!);
+    const title = hexToOklch(resolved(scheme, name));
     const tint = compositeEmitted(title, 0.1, hexToOklch(page));
     expect(contrastEmitted(title, tint), `${scheme} ${name} title`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
+  expect(c['--callout-question']).toBe('var(--color-yellow)');
+  expect(resolved(scheme, '--callout-question')).not.toBe(resolved(scheme, '--color-orange'));
   expect(c['--link-unresolved-opacity']).toBe('1');
   expect(c['--link-unresolved-decoration-style']).toBe('dashed');
   for (const name of [
@@ -216,4 +218,146 @@ test('Light selection, highlight and Dark code retain visible surface separation
   expect(distanceEmitted(hexToOklch(light['--nav-item-background-active']!), lightNeutral.surface))
     .toBeGreaterThanOrEqual(0.06);
   expect(light['--color-base-05']).not.toBe(light['--color-base-10']);
+});
+
+const CONTENT_ACCENTS = ['--h1-color', '--h2-color', '--h3-color', '--h4-color', '--bold-color', '--italic-color'] as const;
+type Oklch = ReturnType<typeof hexToOklch>;
+
+test.each(['dark', 'light'] as const)('%s content accents read on every specified surface', (scheme) => {
+  const c = obsidianColors(scheme);
+  const palette = scheme === 'dark' ? dark() : light();
+  for (const [name, role] of [
+    ['--h1-color', 'gold-solid'], ['--h2-color', 'teal-solid'],
+    ['--h3-color', 'copper-solid'], ['--h4-color', 'violet-solid'],
+    ['--h5-color', 'fg-secondary'], ['--h6-color', 'fg-secondary'],
+    ['--bold-color', 'coral-solid'], ['--italic-color', 'green-solid'],
+  ] as const) expect(c[name]).toBe(palette[`--aion-${role}`]);
+
+  const page = hexToOklch(resolved(scheme, '--background-primary'));
+  const selection = c['--text-selection']!;
+  const selected = selection.length === 9
+    ? compositeEmitted(hexToOklch(selection.slice(0, 7)), parseInt(selection.slice(7), 16) / 255, page)
+    : hexToOklch(selection);
+  const surfaces: [string, Oklch][] = [['page', page], ['selection', selected]];
+  for (const tint of ['--callout-quote', '--color-red', '--color-orange', '--color-yellow', '--color-green',
+    '--color-cyan', '--color-blue', '--color-purple']) {
+    surfaces.push([`${tint} callout`, compositeEmitted(hexToOklch(resolved(scheme, tint)), 0.1, page)]);
+  }
+  for (const name of CONTENT_ACCENTS) {
+    const color = hexToOklch(resolved(scheme, name));
+    for (const [surface, background] of surfaces) {
+      const measured = contrastEmitted(color, background);
+      // The Light single-callout exception is approved; page, selection and every Dark pair retain the floor.
+      if (scheme === 'light' && surface.endsWith(' callout')) continue;
+      expect(measured, `${scheme} ${name} on ${surface}: ${measured.toFixed(2)}`)
+        .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    }
+  }
+});
+
+test.each(['dark', 'light'] as const)('%s highlight owns the foreground of emphasis', (scheme) => {
+  expect(themeRules).toContain('.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}');
+  const measured = ratio(resolved(scheme, '--text-normal'), resolved(scheme, '--text-highlight-bg'));
+  expect(measured, `${scheme} primary on the highlight: ${measured.toFixed(2)}`)
+    .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+});
+
+test.each(['dark', 'light'] as const)('%s tags are blue pills that brighten on hover, on mobile too', (scheme) => {
+  const c = obsidianColors(scheme);
+  const palette = scheme === 'dark' ? dark() : light();
+  expect(c['--tag-color']).toBe(palette['--aion-blue-solid']);
+  expect(c['--tag-background']).toBe(palette['--aion-blue-subtle']);
+  expect(c['--tag-color-hover']).toBe('var(--text-normal)');
+  expect(c['--tag-background-hover']).toBe(c['--tag-background']);
+  for (const [foreground, background] of [
+    ['--tag-color', '--tag-background'],
+    ['--tag-color-hover', '--tag-background-hover'],
+  ] as const) {
+    const measured = ratio(resolved(scheme, foreground), resolved(scheme, background));
+    expect(measured, `${scheme} ${foreground} on ${background}: ${measured.toFixed(2)}`)
+      .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+  const names = ['--tag-color', '--tag-background', '--tag-color-hover', '--tag-background-hover'];
+  expect(themeCss()).toContain(
+    `.is-mobile.theme-${scheme} {\n${names.map((name) => `  ${name}: ${c[name]};`).join('\n')}\n}`,
+  );
+});
+
+test.each(['dark', 'light'] as const)('%s folder accents read on the sidebar and the hover row', (scheme) => {
+  const c = obsidianColors(scheme);
+  const palette = scheme === 'dark' ? dark() : light();
+  const sidebar = hexToOklch(resolved(scheme, '--background-secondary'));
+  const tapRow = scheme === 'dark' ? compositeEmitted([1, 0, 0], 0.15, sidebar) : null;
+  expect(FOLDER_CYCLE.length).toBe(6);
+  for (const accent of FOLDER_CYCLE) {
+    const folder = c[`--aion-obsidian-folder-${accent}`]!;
+    expect(folder).toBe(palette[`--aion-${accent}-solid`]);
+    expect(c[`--aion-obsidian-folder-${accent}-guide`]).toBe(palette[`--aion-${accent}-border`]);
+    const text = ratio(folder, resolved(scheme, '--background-secondary'));
+    expect(text, `${scheme} ${accent} folder on the sidebar: ${text.toFixed(2)}`)
+      .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+    const chevron = ratio(folder, resolved(scheme, '--background-modifier-hover'));
+    expect(chevron, `${scheme} ${accent} chevron on the hover row: ${chevron.toFixed(2)}`)
+      .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    if (tapRow) {
+      const tapped = contrastEmitted(hexToOklch(folder), tapRow);
+      expect(tapped, `${scheme} ${accent} chevron on the mobile tap row: ${tapped.toFixed(2)}`)
+        .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+    }
+  }
+});
+
+test('the folder cycle is anchored, violet-free and colours through Obsidian variables', () => {
+  const order = ['coral', 'copper', 'gold', 'green', 'teal', 'blue'];
+  const cycle = themeRules.filter((rule) => rule.includes(':nth-child('));
+  expect(cycle).toEqual(order.map((accent, index) =>
+    `.nav-files-container > div > .nav-folder:nth-child(6n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`));
+  const rules = themeRules.filter((rule) => rule.includes('.nav-files-container'));
+  expect(rules).toHaveLength(9);
+  for (const rule of rules) {
+    expect(rule).not.toMatch(/(?<![-\w])color\s*:/);
+    expect(rule).not.toMatch(/violet|purple|accent/);
+  }
+  expect(rules).toContain('.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}');
+  expect(rules).toContain('.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}');
+  expect(rules).toContain('.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}');
+});
+
+test.each(['dark', 'light'] as const)('%s chrome marks clear the non-text floor where they land', (scheme) => {
+  const gold = resolved(scheme, '--color-yellow');
+  for (const surface of ['--tab-background-active', '--tab-container-background',
+    '--background-secondary', '--background-modifier-hover']) {
+    const measured = ratio(gold, resolved(scheme, surface));
+    expect(measured, `${scheme} gold mark on ${surface}: ${measured.toFixed(2)}`)
+      .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+  }
+  const property = ratio(resolved(scheme, '--color-cyan'), resolved(scheme, '--background-primary'));
+  expect(property, `${scheme} property icon: ${property.toFixed(2)}`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+});
+
+test('chrome marks are fixed gold and teal, never violet or the picked accent', () => {
+  const chrome = themeRules.filter((rule) =>
+    /workspace-tab|side-dock-ribbon|metadata-property-icon|status-bar/.test(rule));
+  expect(chrome).toEqual([
+    '.workspace-split.mod-root .workspace-tab-header-container .workspace-tab-header.is-active {\n  box-shadow: inset 0 2px 0 var(--color-yellow), 0 0 0 var(--tab-outline-width) var(--tab-outline-color);\n}',
+    '.workspace-split:is(.mod-left-split, .mod-right-split) .workspace-tab-header.is-active {\n  --icon-color-focused: var(--color-yellow);\n  --tab-text-color-focused-active-current: var(--color-yellow);\n}',
+    '.side-dock-ribbon-action:hover {\n  color: var(--color-yellow);\n}',
+    '.metadata-property-icon {\n  color: var(--color-cyan);\n}',
+    '.status-bar {\n  color: var(--text-muted);\n  border-top: 1px solid var(--background-modifier-border);\n}',
+  ]);
+  expect(chrome.join('\n')).not.toMatch(/violet|purple|accent/);
+});
+
+test('reading space is graded and callouts are balanced and aligned', () => {
+  for (const rule of [
+    '.markdown-rendered :is(p, pre, table, ul, ol) + h3,\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > h3 {\n  margin-top: calc(var(--heading-spacing) * 0.8);\n}',
+    '.markdown-rendered :is(p, pre, table, ul, ol) + :is(h4, h5, h6),\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > :is(h4, h5, h6) {\n  margin-top: calc(var(--heading-spacing) * 0.6);\n}',
+    '.callout-content > :last-child,\n.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {\n  margin-bottom: 0;\n}',
+    '.callout-title + .callout-content > :first-child,\n.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {\n  margin-top: var(--size-4-2);\n}',
+    '@supports (text-box: trim-both cap alphabetic) {\n  .callout-title-inner {\n    text-box: trim-both cap alphabetic;\n  }\n  .callout-icon .svg-icon,\n  .callout-fold .svg-icon {\n    translate: 0 calc(0.5cap - 0.5lh);\n  }\n}',
+  ]) expect(themeRules).toContain(rule);
+  const sheet = themeCss();
+  expect(sheet).not.toMatch(/align-items\s*:/);
+  expect(sheet).not.toMatch(/\bh2\b[^{]*\{[^}]*margin/);
+  expect(sheet).not.toMatch(/(?<![-\w])(font-size|line-height|--file-line-width|--line-width)\s*:/);
 });
