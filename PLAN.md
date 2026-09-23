@@ -24,7 +24,7 @@ case and its selection foreground.
 | 8. Marketplace listing | **done** | `packages/vscode/README.md`, the listing icon |
 | 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 | 10. Site light/dark theme switch | **done** | `apps/site/src/theme.ts`, `apps/site/test` |
-| 11. Obsidian community theme, Dark and Light | **v1.0.2 released; community listing pending** | `manifest.json`, `theme.css`, `packages/obsidian` |
+| 11. Obsidian community theme, Dark and Light | **v1.0.2 released; community review pending** | `manifest.json`, `theme.css`, `packages/obsidian` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -326,14 +326,18 @@ match the tagged source byte for byte. The `1.0.2` VSIX also installed in an iso
 portable VS Code profile; the native workbench applied `Aion Light` and rendered its
 emitted editor background.
 
-Next objective: submit the released theme through the Obsidian Community directory.
-That form requires an Obsidian account linked to the repository owner's GitHub account.
+The owner submitted the community listing. Its first review reported that `v1.0.2`
+did not match the manifest's exact version `1.0.2`. A second GitHub release at tag
+`1.0.2` now contains the same manifest and stylesheet, from the same commit. The release
+workflow now creates both tags' releases on future versions.
+
+Next objective: recheck the community entry and resolve any remaining review errors.
 Physical Android and iOS checks remain optional follow-up evidence for platform-specific
 behavior.
 
 ## Order and parallelism
 
-Tasks 1 to 10 are done. Task 11 awaits the community listing.
+Tasks 1 to 10 are done. Task 11 awaits community review.
 
 ## Native acceptance
 

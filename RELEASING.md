@@ -1,8 +1,9 @@
 # Releasing Aion
 
 The tag is the trigger. `.github/workflows/release.yml` runs every gate again, packages the
-extension, publishes tokens and CSS to npm, publishes the extension to both marketplaces
-and creates the GitHub release with the Obsidian theme files.
+extension, publishes tokens and CSS to npm, publishes the extension to both marketplaces,
+and creates two GitHub releases: `vX.Y.Z` for the coupled release and `X.Y.Z` for Obsidian.
+Obsidian requires a release tag that exactly matches `manifest.json`'s version.
 
 ## What deploys where
 
@@ -11,7 +12,7 @@ and creates the GitHub release with the Obsidian theme files.
 | `@sltsh/aion-tokens` | npm | Dark and Light exports |
 | `@sltsh/aion-css` | npm | Dark and Light custom properties |
 | VS Code extension | Visual Studio Marketplace, Open VSX and the GitHub release | Aion and Aion Light in one VSIX |
-| Obsidian theme | GitHub release files; community directory after separate submission | Dark and Light in one stylesheet |
+| Obsidian theme | GitHub release tagged `X.Y.Z`; community directory after separate submission | Dark and Light in one stylesheet |
 | Windows Terminal fragment | Repository and public-site download | Dark standalone scheme only |
 | Public site | GitHub Pages on pushes to `main` | Persistent Dark and Light switch using both emitted palettes |
 | Lab | None | Local development tool only |
@@ -50,7 +51,8 @@ publication. Published versions are immutable: corrections need a new version.
    and `manifest.json` in Obsidian, check both base color schemes in reading, live preview,
    source mode, menus, dialogs and mobile, and capture a current screenshot for the
    community listing. Record native results in `PLAN.md`.
-5. Commit the release preparation, tag that commit as `vX.Y.Z`, then push the tag.
+5. Commit the release preparation, tag that commit as `vX.Y.Z`, then push the tag. The
+   workflow creates the matching `X.Y.Z` release for Obsidian from that same commit.
 
 `scripts/check-version.mjs` compares the tag against every package and the Obsidian manifest.
 `scripts/release-notes.mjs`
@@ -76,4 +78,5 @@ Obsidian files and notes as an artifact. Use a new tag whose checkout includes t
 an old tag uses the old workflow and source.
 
 Obsidian's community directory needs an owner-submitted listing after the GitHub release;
-tag publication alone does not make the theme installable from within Obsidian.
+tag publication alone does not make the theme installable from within Obsidian. If a new
+release is not reflected yet, use **Check for new releases** on its management page.

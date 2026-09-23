@@ -25,6 +25,7 @@ const run = (...args: string[]) =>
   spawnSync(process.execPath, [join(repository, 'scripts/release-notes.mjs'), ...args], {
     cwd: repository,
     encoding: 'utf8',
+    env: { ...process.env, GITHUB_REPOSITORY: 'sltsh/aion' },
   });
 
 beforeAll(() => {
@@ -39,6 +40,7 @@ beforeAll(() => {
   git('config', 'user.name', 'Test');
   git('commit', '--allow-empty', '-m', 'Add the first version');
   git('tag', 'v0.1.0');
+  git('tag', '-a', '0.1.0', '-m', 'Obsidian release');
   git('commit', '--allow-empty', '-m', 'Add the second version');
   git('tag', 'v0.2.0');
   git('commit', '--allow-empty', '-m', 'Add an undescribed version');
@@ -53,6 +55,7 @@ describe('the release notes script', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('A second version.');
     expect(result.stdout).toContain('Add the second version');
+    expect(result.stdout).toContain('/compare/v0.1.0...v0.2.0');
   });
 
   it('fails on a tag that has no changelog section', () => {
