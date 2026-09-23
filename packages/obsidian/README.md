@@ -8,6 +8,14 @@ colors in the generated sheet. Change `packages/tokens/src` and rebuild.
 ![Aion Dark in Obsidian](../../screenshots/obsidian-dark.png)
 ![Aion Light in Obsidian](../../screenshots/obsidian-light.png)
 
+### Phone layout preview
+
+These captures use Obsidian's [built-in mobile emulation](https://docs.obsidian.md/Plugins/Getting%20started/Mobile%20development)
+at a 390px viewport. They are not screenshots from an Android or iOS device.
+
+![Aion Dark in Obsidian's phone emulator](../../screenshots/obsidian-phone-emulated-dark.png)
+![Aion Light in Obsidian's phone emulator](../../screenshots/obsidian-phone-emulated-light.png)
+
 ## Try it locally
 
 1. In your vault, create `.obsidian/themes/Aion/`.
@@ -30,7 +38,9 @@ The repository-root manifest and stylesheet are prepared for an Obsidian communi
 release. A release tag must match the manifest version; the release workflow attaches
 both files. The screenshots above were captured directly from Obsidian 1.13.7 with an
 isolated local vault. Desktop reading, live preview, and source mode were checked in both
-modes; Dark in-note search, file menus, and the command dialog were also checked. Mobile
-layout still needs native review before submission.
+modes; Dark in-note search, file menus, and the command dialog were also checked. The
+built-in phone emulator showed both variants in reading and Source mode, Dark Live Preview
+and note menu, Light navigation, and Appearance settings in both variants. Android and iOS
+hardware remain unchecked.
 The [Obsidian submission guide](https://docs.obsidian.md/themes/app-themes/submit-theme)
 also requires a community listing submission after the GitHub release.

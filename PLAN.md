@@ -313,16 +313,20 @@ checks confirmed both default gold values and a custom blue. Direct 512×288 nat
 captures for both modes are in `screenshots/`, with the Dark store image also at the
 repository root as `screenshot.png`.
 
-A 390px desktop-renderer smoke check with both sidebars collapsed showed the note and
-controls reflowing without clipping. This does not establish native mobile acceptance.
+Obsidian's documented `app.emulateMobile(true)` at a 390px phone viewport showed Dark and
+Light reading and Source mode, Dark Live Preview and note menu, Light navigation drawer,
+and Appearance settings in both variants. Captures are in `screenshots/` and clearly
+marked as emulated. Android and iOS hardware were not checked; the emulator is evidence
+for mobile layout, not platform-specific rendering or touch behavior.
 Release preparation uses `1.0.2` because `v1.0.1` already exists; the manifest, package
 versions, exact dependencies, lockfile and changelog agree. No tag or remote release has
 been created. The repository's tag workflow also publishes the npm and VS Code packages,
-so that coupled release needs owner approval.
+so that coupled release needs owner approval. The `1.0.2` VSIX packaged locally with
+both themes; installation remains unchecked in this environment.
 
-Next objective: review mobile layout in Obsidian, perform the release package/install
-check, then tag and submit the theme through the Obsidian community directory with owner
-authorization.
+Next objective: obtain owner visual approval, complete the VSIX install check on a native
+VS Code instance, then tag and submit the theme through the Obsidian community directory
+with owner authorization.
 
 ## Order and parallelism
 
