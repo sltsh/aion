@@ -2,8 +2,9 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
 import { formatHex } from 'culori';
 import {
-  CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hex, hexAlpha,
-  hexToOklch, lightFindMatch, lightOverlay,
+  CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hex,
+  distanceEmitted, hexToOklch, lightNeutral, obsidianLightActiveRow,
+  obsidianLightHighlight, obsidianLightSelection,
 } from '@sltsh/aion-tokens';
 import { dark, light } from '@sltsh/aion-css';
 import { obsidianColors, themeCss } from '../src/theme.js';
@@ -20,6 +21,20 @@ const resolved = (scheme: 'dark' | 'light', name: string): string => {
   const variables = obsidianColors(scheme);
   const gold = (scheme === 'dark' ? dark() : light())['--aion-gold-solid']!;
   if (name === '--color-accent') return gold;
+  if (name === '--color-accent-1' || name === '--color-accent-2') {
+    const step = name.endsWith('-1') ? 1 : 2;
+    const hue = Number(variables['--accent-h']);
+    const saturation = Number.parseFloat(variables['--accent-s']!) / 100;
+    const lightness = Number.parseFloat(variables['--accent-l']!) / 100;
+    const adjustment = scheme === 'light'
+      ? step === 1 ? [1, 1.01, 1.075] : [3, 1.02, 1.15]
+      : step === 1 ? [3, 1.02, 1.15] : [5, 1.05, 1.29];
+    return formatHex({
+      mode: 'hsl', h: hue - adjustment[0]!,
+      s: Math.min(1, saturation * adjustment[1]!),
+      l: Math.min(1, lightness * adjustment[2]!),
+    });
+  }
   const value = variables[name]!;
   const reference = /^var\((--[a-z0-9-]+)\)$/.exec(value);
   return reference ? resolved(scheme, reference[1]!) : value;
@@ -36,6 +51,9 @@ test('the installable sheet is generated from both Aion variants', () => {
     for (const [name, value] of Object.entries(scheme)) {
       if (name === '--accent-h') expect(value, name).toMatch(/^\d+(\.\d+)?$/);
       else if (name === '--accent-s' || name === '--accent-l') expect(value, name).toMatch(/^\d+(\.\d+)?%$/);
+      else if (name === '--link-unresolved-opacity') expect(value).toBe('1');
+      else if (name === '--link-unresolved-decoration-style') expect(value).toBe('dashed');
+      else if (name.startsWith('--input-shadow')) expect(value).toBe('inset 0 0 0 1px var(--background-modifier-border-hover)');
       else expect(value, name).toMatch(/^(#[0-9a-f]{6}([0-9a-f]{2})?|var\(--[a-z0-9-]+\))$/);
       expect(css).toContain(`${name}: ${value};`);
     }
@@ -73,9 +91,16 @@ test.each(['dark', 'light'] as const)('%s reading pairs clear the emitted contra
     ['--text-normal', '--modal-background'],
     ['--text-muted', '--background-secondary'],
     ['--text-faint', '--modal-background'],
+    ['--text-faint', '--background-modifier-hover'],
     ['--text-accent', '--background-primary'],
     ['--nav-item-color-active', '--nav-item-background-active'],
     ['--text-on-accent', '--interactive-accent'],
+    ['--text-on-accent', '--interactive-accent-hover'],
+    ['--text-accent-hover', '--background-primary'],
+    ['--text-on-accent', '--background-modifier-error'],
+    ['--text-on-accent', '--background-modifier-error-hover'],
+    ['--text-on-accent', '--background-modifier-success'],
+    ['--link-unresolved-color', '--background-primary'],
     ['--code-normal', '--code-background'],
     ['--code-comment', '--code-background'],
     ['--code-function', '--code-background'],
@@ -96,8 +121,8 @@ test.each(['dark', 'light'] as const)('%s reading pairs clear the emitted contra
 
   const selection = c['--text-selection']!;
   if (scheme === 'light') {
-    expect(selection).toBe(hexAlpha(lightOverlay.selection.color, lightOverlay.selection.alpha));
-    expect(c['--text-highlight-bg']).toBe(hex(lightFindMatch.current));
+    expect(selection).toBe(hex(obsidianLightSelection));
+    expect(c['--text-highlight-bg']).toBe(hex(obsidianLightHighlight));
   }
   const selected = selection.length === 9
     ? compositeEmitted(hexToOklch(selection.slice(0, 7)), parseInt(selection.slice(7), 16) / 255,
@@ -106,10 +131,10 @@ test.each(['dark', 'light'] as const)('%s reading pairs clear the emitted contra
   expect(contrastEmitted(hexToOklch(c['--text-normal']!), selected), `${scheme} selected text`)
     .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
 
-  const codeSelection = compositeEmitted(
-    hexToOklch(selection.slice(0, 7)), parseInt(selection.slice(7), 16) / 255,
-    hexToOklch(c['--code-background']!),
-  );
+  const codeSelection = selection.length === 9
+    ? compositeEmitted(hexToOklch(selection.slice(0, 7)), parseInt(selection.slice(7), 16) / 255,
+      hexToOklch(c['--code-background']!))
+    : hexToOklch(selection);
   for (const foreground of ['--code-normal', '--code-comment', '--code-function', '--code-keyword',
     '--code-property', '--code-string', '--code-value', '--code-important', '--code-operator',
     '--code-punctuation', '--code-tag']) {
@@ -127,4 +152,52 @@ test.each(['dark', 'light'] as const)('%s reading pairs clear the emitted contra
     expect(measured, `${scheme} focus edge on ${background}: ${measured.toFixed(2)}`)
       .toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
   }
+});
+
+test.each(['dark', 'light'] as const)('%s Obsidian 1.13.7 consumer pairs and defaults', (scheme) => {
+  const c = obsidianColors(scheme);
+  const page = resolved(scheme, '--background-primary');
+  for (const name of [
+    '--callout-quote', '--color-red', '--color-orange', '--color-green',
+    '--color-cyan', '--color-blue', '--color-purple',
+  ]) {
+    const title = hexToOklch(c[name]!);
+    const tint = compositeEmitted(title, 0.1, hexToOklch(page));
+    expect(contrastEmitted(title, tint), `${scheme} ${name} title`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+  expect(c['--link-unresolved-opacity']).toBe('1');
+  expect(c['--link-unresolved-decoration-style']).toBe('dashed');
+  for (const name of [
+    '--callout-quote', '--link-unresolved-opacity', '--background-modifier-warning',
+    '--input-shadow', '--input-shadow-hover', '--prompt-background',
+  ]) expect(c).toHaveProperty(name);
+  expect(c['--background-modifier-active-hover']).not.toBe(c['--background-modifier-hover']);
+  expect(c['--text-on-accent-inverted']).not.toBe(c['--text-on-accent']);
+  expect(c['--color-pink']).not.toBe(c['--color-red']);
+  expect(c['--prompt-background']).toBe(c['--modal-background']);
+  const edge = c['--background-modifier-border-hover']!;
+  for (const surface of ['--background-modifier-form-field', '--background-primary', '--modal-background']) {
+    expect(ratio(edge, c[surface]!)).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+  }
+});
+
+test('Light selection, highlight and Dark code retain visible surface separation', () => {
+  const light = obsidianColors('light');
+  const dark = obsidianColors('dark');
+  for (const surface of ['--background-primary', '--code-background']) {
+    const separation = distanceEmitted(hexToOklch(light['--text-selection']!), hexToOklch(light[surface]!));
+    expect(separation, `selection against ${surface}`).toBeGreaterThanOrEqual(0.04);
+  }
+  expect(distanceEmitted(hexToOklch(light['--text-highlight-bg']!), lightNeutral.page)).toBeGreaterThanOrEqual(0.08);
+  for (const text of ['--text-normal', '--link-color']) {
+    expect(ratio(light[text]!, light['--text-highlight-bg']!)).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+  expect(distanceEmitted(hexToOklch(dark['--code-background']!), hexToOklch(dark['--background-primary']!)))
+    .toBeGreaterThanOrEqual(0.05);
+  expect(light['--text-highlight-bg']).not.toBe(light['--tag-background']);
+  expect(light['--nav-item-background-active']).toBe(hex(obsidianLightActiveRow));
+  expect(light['--nav-item-background-active']).not.toBe(light['--tag-background']);
+  expect(distanceEmitted(hexToOklch(light['--nav-item-background-active']!), lightNeutral.surface))
+    .toBeGreaterThanOrEqual(0.06);
+  expect(light['--color-base-05']).not.toBe(light['--color-base-10']);
 });

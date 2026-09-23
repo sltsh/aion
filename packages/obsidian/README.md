@@ -33,6 +33,11 @@ The theme maps Obsidian's documented variables for surfaces, controls, text, Mar
 code, navigation, tabs and dialogs. It does not ship fonts, images, scripts or remote
 imports. Your existing font and density settings remain in control.
 
+Obsidian's accent picker changes control accents such as buttons, checkboxes and accent
+text. Aion's headings, tags, active file background, caret, focus ring and highlights
+retain their authored palette roles when a custom accent is selected.
+Custom accent colours are supplied by Obsidian and are outside Aion's contrast gate.
+
 ## Build and release
 
 From the repository root, run `npm run build -w @sltsh/aion-obsidian` after building the

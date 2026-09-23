@@ -334,6 +334,19 @@ and [Aion is live in the community directory](https://community.obsidian.md/them
 at version `1.0.2`. Physical Android and iOS checks remain optional follow-up evidence
 for platform-specific behavior.
 
+### 2026-09-23 review follow-up
+
+`feature/obsidian-review-fixes` addresses the Obsidian 1.13.7 review findings except
+the explicitly excluded finding 9. The accent picker retains its control scope;
+the README names the authored roles that remain fixed. Dark inline and fenced code
+use the raised surface. Light selection and highlights have Obsidian-specific
+token definitions with visible separation and emitted contrast checks.
+`npm run sync:design`, `npm run verify` (1,024 pass), `npm test` (330 pass), and
+`npm run typecheck` passed. A scratch native Obsidian 1.13.7 vault rendered the
+updated Dark and Light reading notes; captures are local at
+`/tmp/aion-obsidian-check/`. Native mobile and cross-platform acceptance remain
+open. This branch is not merged or released.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.
