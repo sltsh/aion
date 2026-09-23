@@ -21,10 +21,21 @@ for (const manifest of wrong) {
 }
 
 const css = JSON.parse(readFileSync('packages/css/package.json', 'utf8'));
+const obsidianPackage = JSON.parse(readFileSync('packages/obsidian/package.json', 'utf8'));
+const obsidian = JSON.parse(readFileSync('manifest.json', 'utf8'));
+if (obsidian.version !== version) {
+  console.error(`Obsidian manifest is ${obsidian.version}, the tag says ${version}`);
+}
 const dependencyMatches = css.dependencies['@sltsh/aion-tokens'] === version;
 if (!dependencyMatches) {
   console.error(`CSS must depend on @sltsh/aion-tokens ${version}`);
 }
 
-if (wrong.length > 0 || !dependencyMatches) process.exit(1);
+const obsidianDependenciesMatch = ['@sltsh/aion-css', '@sltsh/aion-tokens']
+  .every((name) => obsidianPackage.dependencies[name] === version);
+if (!obsidianDependenciesMatch) {
+  console.error(`Obsidian must depend on Aion CSS and tokens ${version}`);
+}
+
+if (wrong.length > 0 || !dependencyMatches || !obsidianDependenciesMatch || obsidian.version !== version) process.exit(1);
 console.log(`${manifests.length} packages are at ${version}`);

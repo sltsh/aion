@@ -5,6 +5,19 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.0.2
+
+### Added
+
+- An Obsidian community theme stylesheet with Dark and Light modes generated from the
+  Aion palette, plus a root manifest and GitHub release attachments.
+- Native Obsidian screenshots for both modes and a store image at the repository root.
+
+### Fixed
+
+- The Obsidian theme now follows the application's accent picker while retaining Aion gold
+  as its default accent in both modes.
+
 ## 1.0.1
 
 ### Added

@@ -24,6 +24,7 @@ case and its selection foreground.
 | 8. Marketplace listing | **done** | `packages/vscode/README.md`, the listing icon |
 | 9. `apps/site` — the public site | **done** | two pages, `apps/site/test` |
 | 10. Site light/dark theme switch | **done** | `apps/site/src/theme.ts`, `apps/site/test` |
+| 11. Obsidian community theme, Dark and Light | **source complete; desktop review in progress** | `manifest.json`, `theme.css`, `packages/obsidian` |
 
 A count of tests or of gate rows is not written here. Both move with the palette, and a
 stale one in a document is a defect this repository has already shipped twice. Run the
@@ -243,7 +244,8 @@ the GitHub release.
 Both workflows assert that a build and a `sync:design` change nothing in the tree. A
 generated file that drifts from its source fails the build.
 
-`scripts/check-version.mjs` compares the tag against every package under `packages/`.
+`scripts/check-version.mjs` compares the tag against every package under `packages/` and
+the root Obsidian manifest.
 `scripts/release-notes.mjs` takes the `CHANGELOG.md` section for the version and appends
 the commits since the previous tag, grouped by the verb that opens each subject line. It
 exits non-zero when the changelog has no section for the version.
@@ -289,9 +291,47 @@ persistence, system following, no-JavaScript rendering, copied values, focus and
 responsive header. The task changed no palette value, so native editor acceptance was not
 reopened.
 
+## Task 11 — Obsidian community theme — desktop review in progress
+
+`packages/obsidian` generates the repository-root `theme.css` from the existing CSS and
+token emitters. The root `manifest.json` names one theme with Dark and Light variants.
+The stylesheet maps Obsidian's surface, text, control, Markdown, code, navigation, tab and
+dialog variables, and ships without scripts, fonts, images or remote imports. The release
+workflow attaches both root files, and `scripts/check-version.mjs` gates their version.
+
+Current local evidence: full build and contrast gate passed, the full
+root and workspace suites, typecheck and `sync:design` passed. Focused Obsidian tests
+check generated parity and reading, selection, search and focus contrast for both modes.
+An independent source review found two missing code roles; both were mapped and the
+generated sheet and focused checks passed again. In Obsidian 1.13.7 on Linux, an isolated
+vault displayed both modes in reading view, live preview and source mode. Dark in-note
+search highlighted both matches visibly. File menus and the command dialog rendered in
+both modes; keyboard selection moved visibly in the Light command dialog.
+The native accent picker exposed a hard-coded gold mapping; the theme now supplies HSL
+defaults derived from the emitted gold and lets Obsidian apply a chosen accent. Native
+checks confirmed both default gold values and a custom blue. Direct 512×288 native
+captures for both modes are in `screenshots/`, with the Dark store image also at the
+repository root as `screenshot.png`.
+
+Obsidian's documented `app.emulateMobile(true)` at a 390px phone viewport showed Dark and
+Light reading and Source mode, Dark Live Preview and note menu, Light navigation drawer,
+and Appearance settings in both variants. Captures are in `screenshots/` and clearly
+marked as emulated. Android and iOS hardware were not checked; the emulator is evidence
+for mobile layout, not platform-specific rendering or touch behavior.
+Release preparation uses `1.0.2` because `v1.0.1` already exists; the manifest, package
+versions, exact dependencies, lockfile and changelog agree. No tag or remote release has
+been created. The repository's tag workflow also publishes the npm and VS Code packages,
+so that coupled release needs owner approval. The `1.0.2` VSIX packaged locally with
+both themes and installed in an isolated portable VS Code profile. The native workbench
+applied `Aion Light` and rendered its emitted editor background.
+
+Next objective: obtain owner visual and publication approval, then tag and submit the
+theme through the Obsidian community directory. Physical Android and iOS checks remain
+optional follow-up evidence for platform-specific behavior.
+
 ## Order and parallelism
 
-Tasks 1 to 10 are done.
+Tasks 1 to 10 are done. Task 11 awaits the remaining native review and community release.
 
 ## Native acceptance
 
