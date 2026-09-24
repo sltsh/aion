@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.3
+
 ### Added
 
 - `npm run release -- <patch|minor|major>` bumps every version, runs the gates, commits,
