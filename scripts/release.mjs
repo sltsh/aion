@@ -1,7 +1,8 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { releaseInPane } from './herdr-pane.mjs';
 
-const USAGE = 'usage: npm run release -- <patch|minor|major|X.Y.Z> [--no-push] [--watch]';
+const USAGE = 'usage: npm run release -- <patch|minor|major|X.Y.Z> [--no-push] [--watch] [--here]';
 const GATES = ['build', 'typecheck', 'verify', 'test', 'sync:design'];
 // A change here means the native acceptance in PLAN.md no longer covers what ships.
 const THEME_OUTPUTS = ['theme.css', 'packages/vscode/themes'];
@@ -10,14 +11,21 @@ const args = process.argv.slice(2);
 const bump = args.find((arg) => !arg.startsWith('--'));
 const push = !args.includes('--no-push');
 const watch = args.includes('--watch');
+const status = args.find((arg) => arg.startsWith('--status='))?.slice('--status='.length);
+if (status) writeFileSync(status, '');
 
 const git = (...params) => execFileSync('git', params, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const succeeds = (command, params) => spawnSync(command, params, { stdio: 'ignore' }).status === 0;
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const writeJson = (path, value) => writeFileSync(path, `${JSON.stringify(value, null, 2)}\n`);
 
+function report(line, stream = console.log) {
+  stream(line);
+  if (status) appendFileSync(status, `${line}\n`);
+}
+
 function stop(message) {
-  console.error(`release stopped: ${message}`);
+  report(`release stopped: ${message}`, console.error);
   process.exit(1);
 }
 
@@ -39,6 +47,8 @@ function next() {
 
 const version = next();
 const tag = `v${version}`;
+
+if (process.env.HERDR_ENV === '1' && !args.includes('--here')) process.exit(await releaseInPane(args, tag, watch));
 
 const branch = git('branch', '--show-current');
 if (branch === '' || branch === 'main' || branch === 'master') {
@@ -107,7 +117,7 @@ if (git('tag', '--list', previous) !== '' && !succeeds('git', ['diff', '--quiet'
 }
 
 if (!push) {
-  console.log(`not pushed. Publish with: git push --atomic origin HEAD:refs/heads/main refs/tags/${tag}`);
+  report(`not pushed. Publish with: git push --atomic origin HEAD:refs/heads/main refs/tags/${tag}`);
   process.exit(0);
 }
 
@@ -119,7 +129,7 @@ if (!run('git', ['push', '--atomic', 'origin', 'HEAD:refs/heads/main', `refs/tag
 if (!succeeds('git', ['fetch', '--quiet', 'origin', 'main:main'])) {
   console.log('notice: local main could not be fast-forwarded; origin/main is correct');
 }
-console.log(`\nPUSHED main and ${tag} at ${sha.slice(0, 7)}. Publishing runs in .github/workflows/release.yml.`);
+report(`PUSHED main and ${tag} at ${sha.slice(0, 7)}. Publishing runs in .github/workflows/release.yml.`);
 
 if (!watch) {
   console.log(`Follow it with: gh run list --workflow release.yml --commit ${sha} --limit 1`);
@@ -137,4 +147,4 @@ if (id === '') stop(`the tag is pushed, but no release run for ${sha.slice(0, 7)
 if (!run('gh', ['run', 'watch', id, '--exit-status', '--interval', '10'])) {
   stop(`the tag is pushed, but the release run failed: gh run view ${id} --log-failed`);
 }
-console.log(`PUBLISHED ${tag}`);
+report(`PUBLISHED ${tag}`);

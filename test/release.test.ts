@@ -24,7 +24,7 @@ const release = (env: Record<string, string> = {}, ...args: string[]) =>
   spawnSync(process.execPath, ['scripts/release.mjs', ...args], {
     cwd: work,
     encoding: 'utf8',
-    env: { ...process.env, ...env },
+    env: { ...process.env, HERDR_ENV: '', ...env },
   });
 
 function changelog(unreleased: string) {
@@ -36,7 +36,7 @@ beforeEach(() => {
   work = join(root, 'work');
   origin = join(root, 'origin.git');
   mkdirSync(join(work, 'scripts'), { recursive: true });
-  for (const name of ['release.mjs', 'check-version.mjs']) cpSync(`scripts/${name}`, join(work, 'scripts', name));
+  for (const name of ['release.mjs', 'herdr-pane.mjs', 'check-version.mjs']) cpSync(`scripts/${name}`, join(work, 'scripts', name));
   json(join(work, 'package.json'), {
     name: 'fixture',
     private: true,
@@ -88,6 +88,14 @@ describe('the release script', () => {
     expect(git(origin, 'rev-parse', 'v1.0.1^{commit}')).toBe(head);
     expect(git(work, 'rev-parse', 'main')).toBe(head);
     expect(git(work, 'status', '--porcelain')).toBe('');
+  });
+
+  it('writes each outcome to the status file a Herdr pane is read through', () => {
+    const status = join(root, 'status');
+    expect(release({}, 'patch', `--status=${status}`).status).toBe(0);
+    expect(readFileSync(status, 'utf8')).toMatch(/^PUSHED main and v1\.0\.1 at \w{7}\./);
+    expect(release({}, 'patch', `--status=${status}`).status).toBe(1);
+    expect(readFileSync(status, 'utf8')).toMatch(/^release stopped: /);
   });
 
   it('takes an explicit version and can stop before pushing', () => {
