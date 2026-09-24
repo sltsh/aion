@@ -3,11 +3,11 @@ name: Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to release, for example v0.1.0'
+        description: 'Tag to release, for example 1.2.0'
         required: true
       dry_run:
         description: 'Run every gate and skip all publishing'
@@ -46,8 +46,7 @@ jobs:
       - name: Choose the marketplace channel
         id: channel
         run: |
-          version="${TAG#v}"
-          if [ "${version%%.*}" = "0" ]; then
+          if [ "${TAG%%.*}" = "0" ]; then
             echo 'flag=--pre-release' >> "$GITHUB_OUTPUT"
           else
             echo 'flag=' >> "$GITHUB_OUTPUT"
@@ -126,33 +125,32 @@ jobs:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: npx ovsx publish --skip-duplicate --packagePath aion-*.vsix
 
+      - name: Bundle the Obsidian theme
+        run: |
+          mkdir -p obsidian/Aion
+          cp manifest.json theme.css obsidian/Aion/
+          (cd obsidian && zip -qr "../aion-obsidian-$TAG.zip" Aion)
+
+      # Obsidian downloads the bare manifest.json and theme.css from the release whose tag
+      # equals the manifest version, so they ship unzipped beside the bundle.
       - name: Create the GitHub release
         if: ${{ !inputs.dry_run }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$TAG" packages/vscode/aion-*.vsix manifest.json theme.css \
+          gh release create "$TAG" packages/vscode/aion-*.vsix "aion-obsidian-$TAG.zip" manifest.json theme.css \
+            --verify-tag \
             --title "Aion $TAG" \
             --notes-file release-notes.md \
             ${{ steps.channel.outputs.flag == '--pre-release' && '--prerelease' || '' }}
 
-      - name: Create the Obsidian release
-        if: ${{ !inputs.dry_run }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          version="${TAG#v}"
-          gh release create "$version" manifest.json theme.css \
-            --target "$(git rev-parse HEAD)" \
-            --title "Aion for Obsidian $version" \
-            --notes "Aion Dark and Light for Obsidian." \
-            ${{ steps.channel.outputs.flag == '--pre-release' && '--prerelease' || '' }}
-
       - uses: actions/upload-artifact@v4
+        if: ${{ inputs.dry_run }}
         with:
           name: aion-${{ env.TAG }}
           path: |
             packages/vscode/*.vsix
+            aion-obsidian-*.zip
             manifest.json
             theme.css
             release-notes.md

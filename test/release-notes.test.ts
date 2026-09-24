@@ -6,6 +6,12 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 const CHANGELOG = `# Changelog
 
+## 0.4.0
+
+### Added
+
+- A fourth version.
+
 ## 0.2.0
 
 ### Added
@@ -45,6 +51,8 @@ beforeAll(() => {
   git('tag', 'v0.2.0');
   git('commit', '--allow-empty', '-m', 'Add an undescribed version');
   git('tag', 'v0.3.0');
+  git('commit', '--allow-empty', '-m', 'Add the fourth version');
+  git('tag', '0.4.0');
 });
 
 afterAll(() => rmSync(repository, { recursive: true, force: true }));
@@ -55,7 +63,15 @@ describe('the release notes script', () => {
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('A second version.');
     expect(result.stdout).toContain('Add the second version');
-    expect(result.stdout).toContain('/compare/v0.1.0...v0.2.0');
+    expect(result.stdout).toMatch(/\/compare\/v?0\.1\.0\.\.\.v0\.2\.0/);
+  });
+
+  it('finds a previous tag from before the bare version scheme', () => {
+    const result = run('0.4.0');
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout).toContain('Add the fourth version');
+    expect(result.stdout).not.toContain('Add an undescribed version');
+    expect(result.stdout).toContain('/compare/v0.3.0...0.4.0');
   });
 
   it('fails on a tag that has no changelog section', () => {

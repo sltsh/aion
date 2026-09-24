@@ -2,8 +2,9 @@
 
 The tag is the trigger. `.github/workflows/release.yml` runs every gate again, packages the
 extension, publishes tokens and CSS to npm, publishes the extension to both marketplaces,
-and creates two GitHub releases: `vX.Y.Z` for the coupled release and `X.Y.Z` for Obsidian.
-Obsidian requires a release tag that exactly matches `manifest.json`'s version.
+and creates one GitHub release tagged `X.Y.Z`. The tag has no `v` because Obsidian reads
+`manifest.json` and `theme.css` from the release whose tag exactly matches the manifest
+version; releases up to 1.1.2 were tagged both `vX.Y.Z` and `X.Y.Z`.
 
 ## What deploys where
 
@@ -12,14 +13,14 @@ Obsidian requires a release tag that exactly matches `manifest.json`'s version.
 | `@sltsh/aion-tokens` | npm | Dark and Light exports |
 | `@sltsh/aion-css` | npm | Dark and Light custom properties |
 | VS Code extension | Visual Studio Marketplace, Open VSX and the GitHub release | Aion and Aion Light in one VSIX |
-| Obsidian theme | GitHub release tagged `X.Y.Z`; community directory after separate submission | Dark and Light in one stylesheet |
+| Obsidian theme | The GitHub release, bare and as `aion-obsidian-X.Y.Z.zip`; community directory after separate submission | Dark and Light in one stylesheet |
 | Windows Terminal fragment | Repository and public-site download | Dark standalone scheme only |
 | Public site | GitHub Pages on pushes to `main` | Persistent Dark and Light switch using both emitted palettes |
 | Lab | None | Local development tool only |
 
 The release workflow publishes package artefacts only from a version tag. A push to
-`main` deploys the public site separately through `pages.yml`; it does not publish npm or
-marketplace packages. The private site workspace is independently versioned at `1.0.0`.
+`main` deploys the public site from `ci.yml`, after that run's gates pass; it does not
+publish npm or marketplace packages. The private site workspace is independently versioned at `1.0.0`.
 
 ## Prerequisites
 
@@ -56,7 +57,7 @@ commits `Release Aion X.Y.Z`, tags it, and pushes `main` and the tag in one atom
 which fast-forwards `main` or is rejected and undone.
 
 `PUSHED` means the tag is on GitHub; it does not mean anything is published. Follow the
-release workflow with `npm run release -- watch vX.Y.Z`, which ends on `PUBLISHED` or names
+release workflow with `npm run release -- watch X.Y.Z`, which ends on `PUBLISHED` or names
 the failing run. `--no-push` stops after the local commit and tag.
 
 Inside Herdr, both commands run in a new sibling pane, so the release can be watched or
@@ -88,9 +89,9 @@ it was built. Do not add `--pre-release` to a publish command.
 
 Run the workflow by hand from the Actions tab with `dry_run` left on. It runs every gate,
 packages the extension, checks both npm packages with `npm publish --dry-run`, and writes
-the notes. It skips all publishing and GitHub release creation, then uploads the VSIX,
-Obsidian files and notes as an artifact. Use a new tag whose checkout includes this workflow; rerunning
-an old tag uses the old workflow and source.
+the notes. It skips all publishing and GitHub release creation, then uploads the VSIX, the
+Obsidian files, their zip and the notes as an artifact. Use a new tag whose checkout
+includes this workflow; rerunning an old tag uses the old workflow and source.
 
 Obsidian's community directory needs an owner-submitted listing after the GitHub release;
 tag publication alone does not make the theme installable from within Obsidian. If a new

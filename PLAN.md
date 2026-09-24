@@ -112,7 +112,7 @@ decoration first. Keep both patterns when adding a surface or an overlay.
 ## Repository
 
 `main` is the working and default GitHub branch. The package release workflow is tag-driven,
-while `pages.yml` deploys the public site from pushes to `main`.
+while `ci.yml` deploys the public site after its gates pass on `main`.
 
 ```
 aion/
@@ -136,7 +136,7 @@ aion/
     vscode/               # the .vsix
     terminal/             # Windows Terminal fragment plus snippet, and the Herdr theme
     css/                  # custom properties and Tailwind v4 @theme
-  .github/workflows/      # ci.yml on every branch, release.yml on a v*.*.* tag, pages.yml on main
+  .github/workflows/      # ci.yml on every branch (and the site on main), release.yml on an X.Y.Z tag
   RELEASING.md            # secrets, the tag procedure, the dry run
   apps/
     lab/                  # Vite plus TypeScript, no framework, local only

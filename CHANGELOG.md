@@ -10,8 +10,17 @@ the versions follow Semantic Versioning.
 - `npm run release -- <patch|minor|major>` bumps every version, runs the gates, commits,
   tags and pushes `main` with the tag atomically, stopping on a moved `main`, an existing
   tag, an empty changelog entry, a failed gate or drifted generated files.
-  `npm run release -- watch vX.Y.Z` follows publishing. Inside Herdr both run in a
+  `npm run release -- watch X.Y.Z` follows publishing. Inside Herdr both run in a
   sibling pane that can be watched and interrupted.
+
+### Changed
+
+- Each version is one GitHub release tagged `X.Y.Z`, the tag Obsidian reads the theme from,
+  instead of a `vX.Y.Z` release and a separate Obsidian one. It carries the VSIX, the bare
+  `manifest.json` and `theme.css` Obsidian downloads, and `aion-obsidian-X.Y.Z.zip` for a
+  manual install.
+- CI deploys the public site after its own gates on `main`, replacing `pages.yml`, which ran
+  every gate a second time on the same commit.
 
 ### Fixed
 

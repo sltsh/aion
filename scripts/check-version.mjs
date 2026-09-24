@@ -4,7 +4,7 @@ const tag = process.argv[2];
 const version = tag?.replace(/^v/, '');
 
 if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-  console.error(`expected a tag of the form v1.2.3, got ${tag ?? '(nothing)'}`);
+  console.error(`expected a tag of the form 1.2.3, got ${tag ?? '(nothing)'}`);
   process.exit(1);
 }
 

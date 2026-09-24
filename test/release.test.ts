@@ -75,7 +75,7 @@ describe('the release script', () => {
   it('bumps every version site, commits, tags and pushes main with the tag', () => {
     const result = release({}, 'patch');
     expect(result.status, result.stdout + result.stderr).toBe(0);
-    expect(result.stdout).toContain('PUSHED main and v1.0.1');
+    expect(result.stdout).toContain('PUSHED main and 1.0.1');
     for (const name of Object.keys(PACKAGES)) expect(read(`packages/${name}/package.json`).version).toBe('1.0.1');
     expect(read('packages/css/package.json').dependencies['@sltsh/aion-tokens']).toBe('1.0.1');
     expect(read('packages/obsidian/package.json').dependencies['@sltsh/aion-css']).toBe('1.0.1');
@@ -85,7 +85,7 @@ describe('the release script', () => {
     expect(readFileSync(join(work, 'CHANGELOG.md'), 'utf8')).toContain('## Unreleased\n\n## 1.0.1\n\n### Fixed');
     const head = git(work, 'rev-parse', 'HEAD');
     expect(git(origin, 'rev-parse', 'main')).toBe(head);
-    expect(git(origin, 'rev-parse', 'v1.0.1^{commit}')).toBe(head);
+    expect(git(origin, 'rev-parse', '1.0.1^{commit}')).toBe(head);
     expect(git(work, 'rev-parse', 'main')).toBe(head);
     expect(git(work, 'status', '--porcelain')).toBe('');
   });
@@ -93,7 +93,7 @@ describe('the release script', () => {
   it('writes each outcome to the status file a Herdr pane is read through', () => {
     const status = join(root, 'status');
     expect(release({}, 'patch', `--status=${status}`).status).toBe(0);
-    expect(readFileSync(status, 'utf8')).toMatch(/^PUSHED main and v1\.0\.1 at \w{7}\./);
+    expect(readFileSync(status, 'utf8')).toMatch(/^PUSHED main and 1\.0\.1 at \w{7}\./);
     expect(release({}, 'patch', `--status=${status}`).status).toBe(1);
     expect(readFileSync(status, 'utf8')).toMatch(/^release stopped: /);
   });
@@ -101,8 +101,8 @@ describe('the release script', () => {
   it('takes an explicit version and can stop before pushing', () => {
     const result = release({}, '2.0.0', '--no-push');
     expect(result.status, result.stdout + result.stderr).toBe(0);
-    expect(git(work, 'tag', '--list', 'v2.0.0')).toBe('v2.0.0');
-    expect(git(origin, 'tag', '--list', 'v2.0.0')).toBe('');
+    expect(git(work, 'tag', '--list', '2.0.0')).toBe('2.0.0');
+    expect(git(origin, 'tag', '--list', '2.0.0')).toBe('');
   });
 
   it('stops when origin/main has moved', () => {
@@ -115,13 +115,13 @@ describe('the release script', () => {
     expect(result.stderr).toContain('origin/main has moved');
   });
 
-  it('stops when the tag already exists on the remote', () => {
-    git(work, 'tag', 'v1.0.1', 'main');
-    git(work, 'push', '-q', 'origin', 'v1.0.1');
-    git(work, 'tag', '--delete', 'v1.0.1');
+  it.each(['1.0.1', 'v1.0.1'])('stops when the tag %s already exists on the remote', (name) => {
+    git(work, 'tag', name, 'main');
+    git(work, 'push', '-q', 'origin', name);
+    git(work, 'tag', '--delete', name);
     const result = release({}, 'patch');
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('the tag v1.0.1 already exists');
+    expect(result.stderr).toContain(`the tag ${name} already exists`);
   });
 
   it('stops when the Unreleased section is empty', () => {
@@ -142,7 +142,7 @@ describe('the release script', () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('a gate failed');
     expect(git(work, 'status', '--porcelain')).toBe('');
-    expect(git(origin, 'tag', '--list', 'v1.0.1')).toBe('');
+    expect(git(origin, 'tag', '--list', '1.0.1')).toBe('');
   });
 
   it('stops when a gate changes a file the release does not own', () => {

@@ -3,7 +3,7 @@ import { appendFileSync, readFileSync, readdirSync, writeFileSync } from 'node:f
 import { releaseInPane } from './herdr-pane.mjs';
 
 const USAGE = 'usage: npm run release -- <patch|minor|major|X.Y.Z> [--no-push] [--here]\n'
-  + '       npm run release -- watch vX.Y.Z [--here]';
+  + '       npm run release -- watch X.Y.Z [--here]';
 const GATES = ['build', 'typecheck', 'verify', 'test', 'sync:design'];
 // A change here means the native acceptance in PLAN.md no longer covers what ships.
 const THEME_OUTPUTS = ['theme.css', 'packages/vscode/themes'];
@@ -46,7 +46,7 @@ function run(command, params) {
 const current = readJson('packages/tokens/package.json').version;
 
 function next() {
-  if (bump === 'watch' && /^v\d+\.\d+\.\d+$/.test(watched ?? '')) return watched.slice(1);
+  if (bump === 'watch' && /^\d+\.\d+\.\d+$/.test(watched ?? '')) return watched;
   if (/^\d+\.\d+\.\d+$/.test(bump ?? '')) return bump;
   const [major, minor, patch] = current.split('.').map(Number);
   if (bump === 'major') return `${major + 1}.0.0`;
@@ -56,7 +56,8 @@ function next() {
 }
 
 const version = next();
-const tag = `v${version}`;
+// Obsidian reads the theme from the release whose tag equals the manifest version.
+const tag = version;
 
 if (process.env.HERDR_ENV === '1' && !args.includes('--here')) process.exit(await releaseInPane(args, tag, bump));
 if (bump === 'watch') {
@@ -77,7 +78,7 @@ if (!succeeds('git', ['merge-base', '--is-ancestor', 'origin/main', 'HEAD'])) {
 }
 const remoteTags = new Set(git('ls-remote', '--tags', '--refs', 'origin').split('\n')
   .map((line) => line.split('\t')[1]));
-for (const name of [tag, version]) {
+for (const name of [tag, `v${version}`]) {
   if (git('tag', '--list', name) !== '' || remoteTags.has(`refs/tags/${name}`)) stop(`the tag ${name} already exists`);
 }
 
@@ -126,8 +127,8 @@ git('tag', '--annotate', tag, '-m', `Aion ${version}`);
 const sha = git('rev-parse', 'HEAD');
 console.log(`\ncommitted ${sha.slice(0, 7)} and tagged ${tag}`);
 
-const previous = `v${current}`;
-if (git('tag', '--list', previous) !== '' && !succeeds('git', ['diff', '--quiet', previous, 'HEAD', '--', ...THEME_OUTPUTS])) {
+const previous = [current, `v${current}`].find((name) => git('tag', '--list', name) !== '');
+if (previous && !succeeds('git', ['diff', '--quiet', previous, 'HEAD', '--', ...THEME_OUTPUTS])) {
   console.log(`notice: ${THEME_OUTPUTS.join(' or ')} changed since ${previous}; the native acceptance in PLAN.md does not cover this release`);
 }
 

@@ -6,7 +6,6 @@ import { describe, expect, it } from 'vitest';
 
 const release = readFileSync('.github/workflows/release.yml', 'utf8');
 const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
-const pages = readFileSync('.github/workflows/pages.yml', 'utf8');
 
 const indentOf = (line: string): number => line.length - line.trimStart().length;
 
@@ -48,7 +47,7 @@ describe('the release notes step', () => {
       const result = spawnSync('bash', ['-e', '-c', body(step(release, 'Write the release notes'))], {
         cwd: repository,
         encoding: 'utf8',
-        env: { ...process.env, TAG: 'v9.9.9' },
+        env: { ...process.env, TAG: '9.9.9' },
       });
       expect(result.status).not.toBe(0);
     } finally {
@@ -70,25 +69,49 @@ describe('both workflows', () => {
   });
 });
 
-describe('Obsidian release assets', () => {
-  it('publishes an exact-version theme release after generated-file validation', () => {
-    const publish = step(release, 'Create the Obsidian release');
+describe('the GitHub release', () => {
+  it('is triggered by the bare version tag Obsidian reads the theme from', () => {
+    expect(release).toContain("- '[0-9]+.[0-9]+.[0-9]+'");
+    expect(release).not.toContain("- 'v[0-9]");
+  });
+
+  it('is the only release, carrying the VSIX, the bare Obsidian files and their bundle', () => {
+    expect(release.match(/gh release create/g)).toHaveLength(1);
+    const publish = step(release, 'Create the GitHub release');
     expect(publish).toContain('if: ${{ !inputs.dry_run }}');
-    expect(order(release, 'Generated files match the tag', 'Create the Obsidian release')).toBe(true);
-    expect(order(release, 'Create the GitHub release', 'Create the Obsidian release')).toBe(true);
-    expect(publish).toContain('version="${TAG#v}"');
-    expect(publish).toContain('gh release create "$version" manifest.json theme.css');
-    expect(publish).toContain('--target "$(git rev-parse HEAD)"');
-    expect(release).toContain('            manifest.json\n            theme.css');
+    expect(publish).toContain('gh release create "$TAG" packages/vscode/aion-*.vsix "aion-obsidian-$TAG.zip" manifest.json theme.css');
+    for (const gate of ['Generated files match the tag', 'Bundle the Obsidian theme']) {
+      expect(order(release, gate, 'Create the GitHub release')).toBe(true);
+    }
+  });
+
+  it('bundles the theme in the folder Obsidian installs it under', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'aion-bundle-step-'));
+    try {
+      cpSync('manifest.json', join(directory, 'manifest.json'));
+      cpSync('theme.css', join(directory, 'theme.css'));
+      const result = spawnSync('bash', ['-e', '-c', body(step(release, 'Bundle the Obsidian theme'))], {
+        cwd: directory,
+        encoding: 'utf8',
+        env: { ...process.env, TAG: '9.9.9' },
+      });
+      expect(result.status, result.stderr).toBe(0);
+      const listing = execFileSync('unzip', ['-Z1', join(directory, 'aion-obsidian-9.9.9.zip')], { encoding: 'utf8' });
+      expect(listing.trim().split('\n').sort()).toEqual(['Aion/', 'Aion/manifest.json', 'Aion/theme.css']);
+      expect(JSON.parse(readFileSync('manifest.json', 'utf8')).name).toBe('Aion');
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
   });
 });
 
 describe('site deployment', () => {
-  it('deploys only after the gates', () => {
-    for (const gate of ['Typecheck', 'Contrast gate', 'Test']) {
-      expect(order(pages, 'Build', gate)).toBe(true);
-      expect(pages.indexOf(`- name: ${gate}`)).toBeLessThan(pages.indexOf('actions/deploy-pages'));
-    }
+  it('deploys from main only, after every gate in the Node 24 job', () => {
+    const site = ci.slice(ci.indexOf('\n  site:'));
+    expect(site).toContain('needs: gate');
+    expect(site).toContain("if: github.ref == 'refs/heads/main'");
+    expect(ci.indexOf('actions/upload-pages-artifact')).toBeGreaterThan(ci.indexOf('- name: Generated files match the commit'));
+    expect(ci.indexOf('actions/deploy-pages')).toBeGreaterThan(ci.indexOf('\n  site:'));
   });
 });
 

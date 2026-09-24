@@ -24,8 +24,8 @@ both variants.
 
 ## Install manually
 
-1. In your vault, create `.obsidian/themes/Aion/`.
-2. Download `manifest.json` and `theme.css` from the [1.1.1 Obsidian release](https://github.com/sltsh/aion/releases/tag/1.1.1) into that folder.
+1. Download `aion-obsidian-X.Y.Z.zip` from the [latest release](https://github.com/sltsh/aion/releases/latest).
+2. Extract it into your vault's `.obsidian/themes/`, which gives `.obsidian/themes/Aion/`.
 3. In Obsidian, open **Settings → Appearance → Themes** and select **Aion**.
 4. Switch **Base color scheme** between **Dark** and **Light** to see both variants.
 
