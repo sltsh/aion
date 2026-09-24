@@ -38,28 +38,36 @@ publication. Published versions are immutable: corrections need a new version.
 
 ## Every release
 
-1. Move the `## Unreleased` heading in `CHANGELOG.md` to the new version number and add a
-   fresh `## Unreleased` above it. The release fails without a section for the version.
-2. Set the same version in all five `packages/*/package.json` files, the root Obsidian
-   `manifest.json`, CSS's exact `@sltsh/aion-tokens` dependency, and Obsidian's exact
-   CSS and token dependencies. Run `npm install --package-lock-only --ignore-scripts`
-   to refresh the lockfile.
-3. Reuse the VS Code native acceptance in `PLAN.md` while the packaged theme contents
-   remain unchanged. If they change, package and install the VSIX, confirm that **Aion
-   Light** appears as a theme, and record the native results in `PLAN.md`.
-4. Reuse the Obsidian native acceptance in `PLAN.md` while the stylesheet and theme
-   behavior remain unchanged; a version-field change alone does not invalidate it. If the
-   theme changes, install the generated files in Obsidian, check both base color schemes
-   in reading, live preview, source mode, menus, dialogs and mobile, and record the results
-   in `PLAN.md`. Capture a new community screenshot when a visual change affects the
-   listing image.
-5. Commit the release preparation, tag that commit as `vX.Y.Z`, then push the tag. The
-   workflow creates the matching `X.Y.Z` release for Obsidian from that same commit.
+Release from the feature branch once its work is committed and its `## Unreleased` entry in
+`CHANGELOG.md` describes it:
 
-`scripts/check-version.mjs` compares the tag against every package and the Obsidian manifest.
-`scripts/release-notes.mjs`
-takes the changelog section and appends the commits since the previous tag, grouped by the
-verb that opens each subject line.
+```sh
+npm run release -- patch        # or minor, major, or an exact X.Y.Z
+```
+
+`scripts/release.mjs` is the whole procedure. It stops, changing nothing, if the branch is
+`main` or detached, the tree is dirty, `origin/main` is not an ancestor of the branch,
+`vX.Y.Z` or `X.Y.Z` already exists, or `## Unreleased` is empty. It then moves the
+changelog heading, sets the version in every `packages/*/package.json`, the exact
+`@sltsh/aion-*` dependencies and `manifest.json`, refreshes the lockfile, and runs
+`check-version`, build, typecheck, verify, test and `sync:design`. A failing gate, or a gate
+that changes a file the release does not own, restores the tree and stops. Otherwise it
+commits `Release Aion X.Y.Z`, tags it, and pushes `main` and the tag in one atomic push,
+which fast-forwards `main` or is rejected and undone.
+
+`PUSHED` means the tag is on GitHub; it does not mean anything is published. Add `--watch`
+to follow the release workflow, which reports `PUBLISHED` or the failing run separately.
+`--no-push` stops after the local commit and tag.
+
+Native acceptance in `PLAN.md` carries forward while `theme.css` and
+`packages/vscode/themes` are unchanged; a version change alone does not invalidate it. The
+script prints a notice when they changed since the previous tag. Rechecking them in the
+applications, and a new community screenshot for a visual change, belongs to the feature
+branch, before the release.
+
+`scripts/check-version.mjs` compares the tag against every package and the Obsidian
+manifest. `scripts/release-notes.mjs` takes the changelog section and appends the commits
+since the previous tag, grouped by the verb that opens each subject line.
 
 ## The channel
 

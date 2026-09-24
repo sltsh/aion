@@ -6,18 +6,18 @@ import { dirname, join } from 'node:path';
 // VS Code keys its cached colour theme by extension id and version, and restores that
 // cache at startup before the extension loads. Reinstalling the same version leaves the
 // old colours on screen however many times you pass --force. Every test build therefore
-// gets its own version. 0.1.0 stays free for the release.
+// gets its own version, and the release version stays free.
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dir = join(root, 'packages/vscode');
 const manifest = join(dir, 'package.json');
 const original = readFileSync(manifest, 'utf8');
-const release = JSON.parse(original).version;
+const { name, version: release } = JSON.parse(original);
 
 // The counter lives in a file rather than in the archive names. VS Code keeps the cached
 // theme of a version that is still installed after its archive is deleted, so a counter
 // read from the directory hands the editor a version it already holds.
 const counter = join(dir, '.dev-version');
-const archive = (name) => new RegExp(`^aion-${release}-dev\\.(\\d+)\\.vsix$`).exec(name);
+const archive = (file) => new RegExp(`^${name}-${release}-dev\\.(\\d+)\\.vsix$`).exec(file);
 
 const next = () => {
   const recorded = existsSync(counter) ? Number(readFileSync(counter, 'utf8').trim()) : 0;
@@ -37,7 +37,7 @@ try {
 }
 // Only this script's own earlier archives are removed. A release candidate or an
 // unrelated archive in the same directory is not this script's to delete.
-for (const name of readdirSync(dir)) {
-  if (archive(name) !== null && name !== `aion-${version}.vsix`) rmSync(join(dir, name));
+for (const file of readdirSync(dir)) {
+  if (archive(file) !== null && file !== `${name}-${version}.vsix`) rmSync(join(dir, file));
 }
 console.log(`\npacked ${version}; ${release} stays free for the release`);

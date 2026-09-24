@@ -121,13 +121,14 @@ aion/
   APP-THEMING.md          # portable colour mapping; tables written by sync:design
   AGENTS.md  CLAUDE.md    # git-ignored; CLAUDE.md imports AGENTS.md
   assets/                 # brand sources, the approval manifest and the derivation note
-  test/                   # bootstrap, release notes and workflow tests
+  test/                   # bootstrap, release, release notes and workflow tests
   scripts/
     sync-design.mjs       # regenerates the DESIGN.md tables
     fetch-fonts.mjs       # Archivo and Monaspace Neon, both OFL
     unzip.mjs             # single-entry zip reader; this machine has no unzip
     check-version.mjs     # the tag and every package agree
     release-notes.mjs     # changelog section plus the commits since the previous tag
+    release.mjs           # bump, gate, commit, tag and push a release
     pack-dev.mjs          # a numbered development .vsix, from .dev-version
   packages/
     tokens/               # @sltsh/aion-tokens — the product

@@ -5,6 +5,17 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Added
+
+- `npm run release -- <patch|minor|major>` bumps every version, runs the gates, commits,
+  tags and pushes `main` with the tag atomically, stopping on a moved `main`, an existing
+  tag, an empty changelog entry, a failed gate or drifted generated files.
+
+### Fixed
+
+- `npm run pack:dev` now removes its earlier development archives; it matched `aion-*`
+  while `vsce` names them `aion-theme-*`.
+
 ## 1.1.2
 
 ### Fixed
