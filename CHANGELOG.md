@@ -5,6 +5,15 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.2
+
+### Fixed
+
+- Obsidian: community theme badges use readable text on their gold fill, and the active
+  file highlight follows the filename with equal padding on both sides.
+- Obsidian: reading-view highlights show gold text beside blue tags, and callout titles
+  center vertically. The stylesheet no longer uses `:has`.
+
 ## 1.1.1
 
 ### Fixed

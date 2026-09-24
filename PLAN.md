@@ -406,6 +406,17 @@ equal inline padding. Obsidian's computed badge style resolved to dark text on t
 gold fill. Light mode, physical phones and other platforms remain unchecked for
 this revision.
 
+### 1.1.2 release acceptance
+
+The Dark-mode Obsidian 1.13.7 checks above remain valid for the unchanged stylesheet.
+The 1.1.2 version fields did not change the stylesheet. In the same isolated native app, Light
+mode computed styles confirmed gold text on a transparent reading highlight, a dark
+gold badge with light text, and a transparent active file row with the fill on its label.
+The community image and Dark/Light desktop screenshots were refreshed from the 1.1.2
+theme. The existing Live Preview, Source, menu, dialog and mobile results for 1.1.1
+were not repeated; those states have not been checked for the new highlight and callout
+rules.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.
