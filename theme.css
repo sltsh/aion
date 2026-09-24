@@ -101,6 +101,7 @@
   --checkbox-color-hover: var(--interactive-accent-hover);
   --checkbox-border-color: #70757e;
   --nav-item-background-active: #2d2100;
+  --aion-obsidian-active-file-background: #2d2100;
   --nav-item-color-active: var(--text-accent);
   --nav-item-color-hover: #e2e8f3;
   --tab-container-background: #171b22;
@@ -232,6 +233,7 @@
   --checkbox-color-hover: var(--interactive-accent-hover);
   --checkbox-border-color: #7c7f84;
   --nav-item-background-active: #f4dea5;
+  --aion-obsidian-active-file-background: #f4dea5;
   --nav-item-color-active: var(--text-accent);
   --nav-item-color-hover: #16181c;
   --tab-container-background: #eff2f7;
@@ -291,14 +293,18 @@
   color: var(--aion-obsidian-canvas-label-dark);
 }
 
-/* The editor's .cm-highlight already outranks .cm-strong and .cm-em; reading view needs the same. */
+.markdown-rendered mark {
+  background-color: transparent;
+  color: var(--color-yellow);
+}
 
 .markdown-rendered mark :is(strong, b, em, i) {
   color: inherit;
 }
 
-.markdown-rendered mark:has(> .tag:only-child) {
-  background-color: transparent;
+.community-item .flair {
+  --flair-background: var(--interactive-accent);
+  --flair-color: var(--text-on-accent);
 }
 
 .nav-files-container > div > .nav-folder:nth-child(6n+1 of .nav-folder) {
@@ -336,8 +342,13 @@
 }
 
 .nav-files-container .nav-file-title.is-active {
-  width: fit-content;
-  max-width: 100%;
+  --nav-item-background-active: transparent;
+}
+
+.nav-files-container .nav-file-title.is-active .nav-file-title-content {
+  background-color: var(--aion-obsidian-active-file-background);
+  border-radius: var(--nav-item-radius);
+  padding-inline: var(--size-4-2);
 }
 
 /* Selected, dragged and drag-target rows keep Obsidian's own chevron over the accent fill. */
@@ -395,12 +406,6 @@
   margin-top: var(--size-4-2);
 }
 
-@supports (text-box: trim-both cap alphabetic) {
-  .callout-title-inner {
-    text-box: trim-both cap alphabetic;
-  }
-  .callout-icon .svg-icon,
-  .callout-fold .svg-icon {
-    translate: 0 calc(0.5cap - 0.5lh);
-  }
+.callout-title {
+  align-items: center;
 }

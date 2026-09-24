@@ -147,6 +147,7 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--checkbox-border-color': c('border-ui'),
 
     '--nav-item-background-active': scheme === 'dark' ? c('gold-subtle') : hex(obsidianLightActiveRow),
+    '--aion-obsidian-active-file-background': scheme === 'dark' ? c('gold-subtle') : hex(obsidianLightActiveRow),
     '--nav-item-color-active': 'var(--text-accent)',
     '--nav-item-color-hover': c('fg-primary'),
     '--tab-container-background': sidebar,
@@ -185,13 +186,14 @@ export const themeRules: string[] = [
   '.theme-dark :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active),\n.theme-light :is(textarea, .multi-select-container, input.metadata-input-text, input[type="date"], input[type="datetime-local"], input[type="text"], input[type="search"], input[type="email"], input[type="password"], input[type="number"]):not(:hover):not(:focus):not(:active) {\n  border-color: var(--background-modifier-border-hover);\n}',
   '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-light {\n  color: var(--aion-obsidian-canvas-label-light);\n}',
   '.canvas-node-group.is-themed .canvas-group-label:not([contenteditable="true"]).mod-foreground-dark {\n  color: var(--aion-obsidian-canvas-label-dark);\n}',
-  '/* The editor\'s .cm-highlight already outranks .cm-strong and .cm-em; reading view needs the same. */',
+  '.markdown-rendered mark {\n  background-color: transparent;\n  color: var(--color-yellow);\n}',
   '.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}',
-  '.markdown-rendered mark:has(> .tag:only-child) {\n  background-color: transparent;\n}',
+  '.community-item .flair {\n  --flair-background: var(--interactive-accent);\n  --flair-color: var(--text-on-accent);\n}',
   ...FOLDER_CYCLE.map((accent, index) =>
     `.nav-files-container > div > .nav-folder:nth-child(${FOLDER_CYCLE.length}n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`),
   '.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}',
-  '.nav-files-container .nav-file-title.is-active {\n  width: fit-content;\n  max-width: 100%;\n}',
+  '.nav-files-container .nav-file-title.is-active {\n  --nav-item-background-active: transparent;\n}',
+  '.nav-files-container .nav-file-title.is-active .nav-file-title-content {\n  background-color: var(--aion-obsidian-active-file-background);\n  border-radius: var(--nav-item-radius);\n  padding-inline: var(--size-4-2);\n}',
   '/* Selected, dragged and drag-target rows keep Obsidian\'s own chevron over the accent fill. */',
   '.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}',
   '.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}',
@@ -205,7 +207,7 @@ export const themeRules: string[] = [
   '/* Live Preview\'s .mod-cm6 .callout-content .callout margin outranks both generic rules for a nested callout. */',
   '.callout-content > :last-child,\n.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {\n  margin-bottom: 0;\n}',
   '.callout-title + .callout-content > :first-child,\n.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {\n  margin-top: var(--size-4-2);\n}',
-  '@supports (text-box: trim-both cap alphabetic) {\n  .callout-title-inner {\n    text-box: trim-both cap alphabetic;\n  }\n  .callout-icon .svg-icon,\n  .callout-fold .svg-icon {\n    translate: 0 calc(0.5cap - 0.5lh);\n  }\n}',
+  '.callout-title {\n  align-items: center;\n}',
 ];
 
 export const themeCss = (): string => [

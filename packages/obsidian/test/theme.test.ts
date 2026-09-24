@@ -261,12 +261,19 @@ test.each(['dark', 'light'] as const)('%s content accents read on every specifie
   }
 });
 
-test.each(['dark', 'light'] as const)('%s highlight owns the foreground of emphasis', (scheme) => {
+test.each(['dark', 'light'] as const)('%s reading highlight uses gold text beside a tag', (scheme) => {
+  expect(themeRules).toContain('.markdown-rendered mark {\n  background-color: transparent;\n  color: var(--color-yellow);\n}');
   expect(themeRules).toContain('.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}');
-  expect(themeRules).toContain('.markdown-rendered mark:has(> .tag:only-child) {\n  background-color: transparent;\n}');
-  const measured = ratio(resolved(scheme, '--text-normal'), resolved(scheme, '--text-highlight-bg'));
-  expect(measured, `${scheme} primary on the highlight: ${measured.toFixed(2)}`)
+  expect(themeCss()).not.toContain(':has(');
+  const measured = ratio(resolved(scheme, '--color-yellow'), resolved(scheme, '--background-primary'));
+  expect(measured, `${scheme} gold on the page: ${measured.toFixed(2)}`)
     .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+});
+
+test.each(['dark', 'light'] as const)('%s community theme badge has readable text on gold', (scheme) => {
+  expect(themeRules).toContain('.community-item .flair {\n  --flair-background: var(--interactive-accent);\n  --flair-color: var(--text-on-accent);\n}');
+  const measured = ratio(resolved(scheme, '--text-on-accent'), resolved(scheme, '--color-yellow'));
+  expect(measured).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
 });
 
 test.each(['dark', 'light'] as const)('%s tags are blue pills that brighten on hover, on mobile too', (scheme) => {
@@ -320,13 +327,14 @@ test('the folder cycle is anchored, violet-free and colours through Obsidian var
   expect(cycle).toEqual(order.map((accent, index) =>
     `.nav-files-container > div > .nav-folder:nth-child(6n+${index + 1} of .nav-folder) {\n  --aion-folder: var(--aion-obsidian-folder-${accent});\n  --aion-folder-guide: var(--aion-obsidian-folder-${accent}-guide);\n}`));
   const rules = themeRules.filter((rule) => rule.includes('.nav-files-container'));
-  expect(rules).toHaveLength(10);
+  expect(rules).toHaveLength(11);
   for (const rule of rules) {
     expect(rule).not.toMatch(/(?<![-\w])color\s*:/);
     expect(rule).not.toMatch(/violet|purple|accent/);
   }
   expect(rules).toContain('.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}');
-  expect(rules).toContain('.nav-files-container .nav-file-title.is-active {\n  width: fit-content;\n  max-width: 100%;\n}');
+  expect(rules).toContain('.nav-files-container .nav-file-title.is-active {\n  --nav-item-background-active: transparent;\n}');
+  expect(rules).toContain('.nav-files-container .nav-file-title.is-active .nav-file-title-content {\n  background-color: var(--aion-obsidian-active-file-background);\n  border-radius: var(--nav-item-radius);\n  padding-inline: var(--size-4-2);\n}');
   expect(rules).toContain('.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}');
   expect(rules).toContain('.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}');
 });
@@ -362,10 +370,10 @@ test('reading space is graded and callouts are balanced and aligned', () => {
     '.markdown-rendered :is(p, pre, table, ul, ol) + :is(h4, h5, h6),\n.markdown-rendered div:is(.el-blockquote, .el-p, .el-pre, .el-table, .el-ul, .el-ol) + div > :is(h4, h5, h6) {\n  margin-top: calc(var(--heading-spacing) * 0.6);\n}',
     '.callout-content > :last-child,\n.markdown-source-view.mod-cm6 .callout-content > .callout:last-child {\n  margin-bottom: 0;\n}',
     '.callout-title + .callout-content > :first-child,\n.markdown-source-view.mod-cm6 .callout-title + .callout-content > .callout:first-child {\n  margin-top: var(--size-4-2);\n}',
-    '@supports (text-box: trim-both cap alphabetic) {\n  .callout-title-inner {\n    text-box: trim-both cap alphabetic;\n  }\n  .callout-icon .svg-icon,\n  .callout-fold .svg-icon {\n    translate: 0 calc(0.5cap - 0.5lh);\n  }\n}',
+    '.callout-title {\n  align-items: center;\n}',
   ]) expect(themeRules).toContain(rule);
   const sheet = themeCss();
-  expect(sheet).not.toMatch(/align-items\s*:/);
+  expect(sheet).not.toContain('text-box:');
   expect(sheet).not.toMatch(/\bh2\b[^{]*\{[^}]*margin/);
   expect(sheet).not.toMatch(/(?<![-\w])(font-size|line-height|--file-line-width|--line-width)\s*:/);
 });

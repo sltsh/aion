@@ -392,6 +392,20 @@ menus and Settings dialogs rendered in both schemes; Obsidian's built-in phone e
 showed the updated tag and code at 390px. The four `screenshots/` captures and the root
 community image use this built sheet. Physical phones and other platforms remain unchecked.
 
+### 2026-09-24 consumer polish
+
+`fix/obsidian-consumer-polish` gives community theme badges a readable foreground on
+the accent fill, places the active file fill around its label, and renders reading-view
+highlights as gold text without a backing fill. This also removes the theme's `:has`
+selector. Callout titles center their icon and text using Obsidian's flex layout instead
+of cap-height trimming. In Obsidian 1.13.7 on Linux, an isolated Dark-mode vault
+rendered the exact reported highlight line as a blue tag followed by gold text with
+no backing fill. The title-only callout measured 12px of top and bottom inset.
+The active file row stayed transparent while its label carried the gold fill with
+equal inline padding. Obsidian's computed badge style resolved to dark text on the
+gold fill. Light mode, physical phones and other platforms remain unchecked for
+this revision.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.
