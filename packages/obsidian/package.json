@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node dist/build.js",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "assets": "rm -rf dist/release && mkdir -p dist/release/Aion && cp ../../manifest.json ../../theme.css dist/release/Aion/ && cd dist/release && zip -qr aion-obsidian-$npm_package_version.zip Aion"
   },
   "dependencies": {
     "@sltsh/aion-css": "1.1.3",
@@ -17,5 +18,12 @@
   "devDependencies": {
     "@types/culori": "^4.0.1",
     "culori": "^4.0.1"
+  },
+  "aion": {
+    "releaseAssets": [
+      "dist/release/aion-obsidian-*.zip",
+      "../../manifest.json",
+      "../../theme.css"
+    ]
   }
 }

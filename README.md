@@ -6,7 +6,7 @@
 
 <p align="center">
   <a href="https://aion.slt.sh">Explore Aion</a> ·
-  <a href="LIGHT.md">Aion Light</a> ·
+  <a href="docs/LIGHT.md">Aion Light</a> ·
   <a href="https://aion.slt.sh/#essentials">Copy colours</a> ·
   <a href="#install">Install</a> ·
   <a href="https://aion.slt.sh/palette.html">Full palette</a>
@@ -30,7 +30,7 @@ syntax hues are solved again for light backgrounds. Gold remains the interaction
 violet remains primarily syntax, comments stay deliberately quiet, and there are no
 italics.
 
-Read [the Light variant guide](LIGHT.md) for its design philosophy, implementation,
+Read [the Light variant guide](docs/LIGHT.md) for its design philosophy, implementation,
 current availability and native-acceptance status.
 
 ## Install
@@ -45,7 +45,7 @@ scheme palettes.
 | Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
 | CSS / Tailwind   | Run `npm install @sltsh/aion-css`; see the [CSS package](packages/css/README.md) for Dark and Light usage. |
 | Obsidian         | [Install Aion from the community directory](https://community.obsidian.md/themes/aion), or follow the [manual steps](packages/obsidian/README.md). |
-| Another app      | Follow the [portable colour-mapping guide](APP-THEMING.md) for native editors, desktop tools and dashboards. |
+| Another app      | Follow the [portable colour-mapping guide](docs/APP-THEMING.md) for native editors, desktop tools and dashboards. |
 
 The Obsidian theme shares Aion's palette in both modes. Preview [Dark](screenshot.png) and
 [Light](screenshots/obsidian-light.png) as captured in Obsidian 1.13.7.
@@ -159,15 +159,15 @@ refresh the lockfile. The release workflow rebuilds and rechecks the repository,
 - creates the GitHub release with the VSIX and generated notes.
 
 The Windows Terminal fragment remains a repository and site download; it is not published
-to npm. See [RELEASING.md](RELEASING.md) for prerequisites, dry-run and tag instructions.
+to npm. See [RELEASING.md](docs/RELEASING.md) for prerequisites, dry-run and tag instructions.
 
 ## Documents
 
 - `DESIGN.md` — the specification. Every table in it is generated.
-- `LIGHT.md` — the Light variant's philosophy, implementation and availability.
-- `APP-THEMING.md` — the portable colour mapping for apps without a package.
+- `docs/LIGHT.md` — the Light variant's philosophy, implementation and availability.
+- `docs/APP-THEMING.md` — the portable colour mapping for apps without a package.
 - `PLAN.md` — the order of work, what is done, and every defect the code found.
-- `RELEASING.md` — the release prerequisites, tag procedure and dry run.
+- `docs/RELEASING.md` — the release prerequisites, tag procedure and dry run.
 
 ## Rules
 

@@ -34,7 +34,7 @@ const error = statusLight.error.text;
 
 Light accents are solved against the darkest light control surface on which accent text
 appears. Decorations and reading states are measured after emitted-byte compositing, just
-like the dark scheme. See the repository's [Light variant guide](../../LIGHT.md) for the
+like the dark scheme. See the repository's [Light variant guide](../../docs/LIGHT.md) for the
 design rationale and availability by target.
 
 ## Two contrast functions, on purpose

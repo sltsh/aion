@@ -79,6 +79,20 @@ jobs:
       - name: Package the extension
         run: npm run package -w ./packages/vscode -- ${{ steps.channel.outputs.flag }}
 
+      - name: Prepare the release assets
+        run: npm run assets --workspaces --if-present
+
+      - name: List the release assets
+        id: assets
+        shell: bash
+        run: |
+          set -o pipefail
+          {
+            echo 'paths<<EOF'
+            node scripts/release-assets.mjs
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - name: Write the release notes
         shell: bash
         run: |
@@ -125,20 +139,17 @@ jobs:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
         run: npx ovsx publish --skip-duplicate --packagePath aion-*.vsix
 
-      - name: Bundle the Obsidian theme
-        run: |
-          mkdir -p obsidian/Aion
-          cp manifest.json theme.css obsidian/Aion/
-          (cd obsidian && zip -qr "../aion-obsidian-$TAG.zip" Aion)
-
       # Obsidian downloads the bare manifest.json and theme.css from the release whose tag
       # equals the manifest version, so they ship unzipped beside the bundle.
       - name: Create the GitHub release
         if: ${{ !inputs.dry_run }}
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          ASSETS: ${{ steps.assets.outputs.paths }}
         run: |
-          gh release create "$TAG" packages/vscode/aion-*.vsix "aion-obsidian-$TAG.zip" manifest.json theme.css \
+          mapfile -t assets <<< "$ASSETS"
+          gh release create "$TAG" "${assets[@]}" \
             --verify-tag \
             --title "Aion $TAG" \
             --notes-file release-notes.md \
@@ -149,9 +160,6 @@ jobs:
         with:
           name: aion-${{ env.TAG }}
           path: |
-            packages/vscode/*.vsix
-            aion-obsidian-*.zip
-            manifest.json
-            theme.css
+            ${{ steps.assets.outputs.paths }}
             release-notes.md
           if-no-files-found: error

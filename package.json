@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build:tokens": "npm run build -w @sltsh/aion-tokens",
-    "build": "npm run build:tokens && npm run build --workspaces --if-present",
+    "build": "npm run build:tokens && npm run build --workspaces --if-present --ignore-scripts",
     "test": "vitest run && npm run test --workspaces --if-present",
     "typecheck": "npm run build:tokens && tsc -p tsconfig.json --noEmit && npm run typecheck --workspaces --if-present",
     "prepare": "npm run build:tokens",

@@ -75,30 +75,30 @@ describe('the GitHub release', () => {
     expect(release).not.toContain("- 'v[0-9]");
   });
 
-  it('is the only release, carrying the VSIX, the bare Obsidian files and their bundle', () => {
+  it('is the only release, and attaches what the ports declare after every gate', () => {
     expect(release.match(/gh release create/g)).toHaveLength(1);
     const publish = step(release, 'Create the GitHub release');
     expect(publish).toContain('if: ${{ !inputs.dry_run }}');
-    expect(publish).toContain('gh release create "$TAG" packages/vscode/aion-*.vsix "aion-obsidian-$TAG.zip" manifest.json theme.css');
-    for (const gate of ['Generated files match the tag', 'Bundle the Obsidian theme']) {
-      expect(order(release, gate, 'Create the GitHub release')).toBe(true);
-    }
+    expect(publish).toContain('ASSETS: ${{ steps.assets.outputs.paths }}');
+    expect(publish).toContain('gh release create "$TAG" "${assets[@]}"');
+    expect(order(release, 'Generated files match the tag', 'Prepare the release assets')).toBe(true);
+    expect(order(release, 'Package the extension', 'List the release assets')).toBe(true);
+    expect(order(release, 'List the release assets', 'Publish npm packages')).toBe(true);
   });
 
-  it('bundles the theme in the folder Obsidian installs it under', () => {
-    const directory = mkdtempSync(join(tmpdir(), 'aion-bundle-step-'));
+  it('hands every listed path to gh as its own argument', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'aion-gh-step-'));
     try {
-      cpSync('manifest.json', join(directory, 'manifest.json'));
-      cpSync('theme.css', join(directory, 'theme.css'));
-      const result = spawnSync('bash', ['-e', '-c', body(step(release, 'Bundle the Obsidian theme'))], {
-        cwd: directory,
+      const log = join(directory, 'calls');
+      writeFileSync(join(directory, 'gh'), '#!/bin/bash\nprintf \'%s\\n\' "$@" > "$CALLS"\n');
+      chmodSync(join(directory, 'gh'), 0o755);
+      const script = body(step(release, 'Create the GitHub release')).replace(/\$\{\{[^}]*\}\}/g, '');
+      const result = spawnSync('bash', ['-e', '-c', script], {
         encoding: 'utf8',
-        env: { ...process.env, TAG: '9.9.9' },
+        env: { ...process.env, PATH: `${directory}:${process.env.PATH}`, CALLS: log, TAG: '9.9.9', ASSETS: 'a.vsix\nmanifest.json' },
       });
       expect(result.status, result.stderr).toBe(0);
-      const listing = execFileSync('unzip', ['-Z1', join(directory, 'aion-obsidian-9.9.9.zip')], { encoding: 'utf8' });
-      expect(listing.trim().split('\n').sort()).toEqual(['Aion/', 'Aion/manifest.json', 'Aion/theme.css']);
-      expect(JSON.parse(readFileSync('manifest.json', 'utf8')).name).toBe('Aion');
+      expect(readFileSync(log, 'utf8').split('\n').slice(0, 5)).toEqual(['release', 'create', '9.9.9', 'a.vsix', 'manifest.json']);
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }

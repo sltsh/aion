@@ -117,10 +117,14 @@ while `ci.yml` deploys the public site after its gates pass on `main`.
 ```
 aion/
   package.json            # npm workspaces root
-  DESIGN.md  LIGHT.md  PLAN.md  README.md  LICENSE  CHANGELOG.md
-  APP-THEMING.md          # portable colour mapping; tables written by sync:design
+  DESIGN.md  PLAN.md  README.md  LICENSE  CHANGELOG.md
+  manifest.json  theme.css  screenshot.png   # Obsidian reads these from the root
+  docs/
+    APP-THEMING.md        # portable colour mapping; tables written by sync:design
+    LIGHT.md              # the Light variant
+    RELEASING.md          # secrets, the tag procedure, the dry run
   AGENTS.md  CLAUDE.md    # git-ignored; CLAUDE.md imports AGENTS.md
-  assets/                 # brand sources, the approval manifest and the derivation note
+  assets/                 # Aion artwork and the derivation note; SLT brand guidance lives in its own private repo
   test/                   # bootstrap, release, release notes and workflow tests
   scripts/
     sync-design.mjs       # regenerates the DESIGN.md tables
@@ -135,9 +139,9 @@ aion/
     tokens/               # @sltsh/aion-tokens — the product
     vscode/               # the .vsix
     terminal/             # Windows Terminal fragment plus snippet, and the Herdr theme
+    obsidian/             # writes the root theme.css
     css/                  # custom properties and Tailwind v4 @theme
   .github/workflows/      # ci.yml on every branch (and the site on main), release.yml on an X.Y.Z tag
-  RELEASING.md            # secrets, the tag procedure, the dry run
   apps/
     lab/                  # Vite plus TypeScript, no framework, local only
     site/                 # the public site at https://aion.slt.sh
@@ -358,9 +362,8 @@ Obsidian 1.13.7 computed styles confirmed both modes in a scratch vault.
 
 ### 2026-09-23 colour and spacing
 
-The Obsidian colour proposal (`docs/superpowers/specs/2026-09-23-obsidian-colour-design.md`)
-is generated from `packages/obsidian/src/theme.ts` at the proposal's defaults. Focused
-tests measure every content accent on the page, the selection and all eight single
+The Obsidian colour proposal is generated from `packages/obsidian/src/theme.ts` at the
+proposal's defaults. Focused tests measure every content accent on the page, the selection and all eight single
 callout tints. Light heading and emphasis colours inside callouts are an accepted
 exception to the 4.5:1 floor, including a single callout; Dark single callouts remain
 gated. The current Light single-callout minimum is 4.78:1 (copper H3 in a quote

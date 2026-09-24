@@ -312,12 +312,7 @@ describe('the presentation pages', () => {
     expect(client).toContain('clearTimeout(previous)');
   });
 
-  it('records the site-owned adoption decisions and keeps presentation structure open', () => {
-    const record = readFileSync(join(root, 'docs/slt-brand-adoption.md'), 'utf8');
-    expect(record).toMatch(/owner visual approval is still\s+required/);
-    expect(record).toContain('Chromium 153.0.8010.12');
-    expect(record).toContain('production no-JS build and reduced motion');
-    expect(record).toContain('lossless WebP exports');
+  it('keeps presentation structure open', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
     expect(css).toContain('.install-list { display: grid;');
     expect(css).not.toContain('.install-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 0; border:');

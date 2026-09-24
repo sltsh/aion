@@ -31,7 +31,7 @@ const DOCUMENTS = [
   ['README.md', ['gate', 'rivals', 'surfaces']],
   ['packages/vscode/README.md', ['gate', 'rivals', 'listing']],
   ['packages/terminal/README.md', ['slots']],
-  ['APP-THEMING.md', ['appBase', 'appAccents', 'appStatus', 'appSyntax', 'slots']],
+  ['docs/APP-THEMING.md', ['appBase', 'appAccents', 'appStatus', 'appSyntax', 'slots']],
 ];
 
 const emitted = execFileSync('node', ['packages/tokens/dist/verify.js', '--markdown'], { encoding: 'utf8' });

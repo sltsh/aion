@@ -5,6 +5,24 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Each port lists the files it attaches to the GitHub release in `aion.releaseAssets` in its
+  `package.json`, and the release workflow collects them, so a new port needs no workflow
+  change. The Obsidian zip is built by the port's own `assets` script.
+- `APP-THEMING.md`, `LIGHT.md` and `RELEASING.md` moved to `docs/`.
+- The root build skips the site's pre-build hook, which rebuilt tokens, CSS and the lab a
+  second time.
+
+### Removed
+
+- SLT brand guidance, the asset approval manifest and the site's brand adoption records.
+  They live in the private brand repository.
+
+### Fixed
+
+- `@sltsh/aion-terminal` is marked private, so it cannot be published to npm by accident.
+
 ## 1.1.3
 
 ### Added

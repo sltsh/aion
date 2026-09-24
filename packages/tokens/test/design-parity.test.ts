@@ -43,7 +43,7 @@ const emitted = (): Set<string> => {
 // The emitted values win when a document disagrees with them. This is what notices.
 const DOCUMENTS = [
   ['DESIGN.md', '../../../DESIGN.md', 50],
-  ['APP-THEMING.md', '../../../APP-THEMING.md', 40],
+  ['docs/APP-THEMING.md', '../../../docs/APP-THEMING.md', 40],
   ['README.md', '../../../README.md', 0],
   ['packages/vscode/README.md', '../../vscode/README.md', 10],
   ['packages/terminal/README.md', '../../terminal/README.md', 16],

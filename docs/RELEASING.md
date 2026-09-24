@@ -32,6 +32,11 @@ put credentials or account-specific setup details in this document.
 Do not approve the `keytar` or `@vscode/vsce-sign` install scripts to work around a local
 failure. CI publishing needs neither.
 
+The GitHub release carries whatever each package lists in `aion.releaseAssets` in its
+`package.json`, relative to the package. `npm run assets --workspaces --if-present` builds
+them first, and `scripts/release-assets.mjs` fails the run before anything is published if
+a listed file is missing.
+
 The workflow publishes only these two npm packages, in dependency order. Terminal
 remains a file download and VS Code remains a marketplace extension. Existing npm
 versions are skipped on retries; registry errors other than a missing version stop
