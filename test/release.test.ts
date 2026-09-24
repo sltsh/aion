@@ -1,10 +1,10 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-const GATE = 'node -e "process.exit(process.env.FAIL_GATE ? 1 : 0)"';
+const GATE = 'node -e "process.env.SLOW_GATE && Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10000); process.exit(process.env.FAIL_GATE ? 1 : 0)"';
 const PACKAGES: Record<string, Record<string, string>> = {
   tokens: {},
   css: { '@sltsh/aion-tokens': '1.0.0' },
@@ -151,4 +151,23 @@ describe('the release script', () => {
     expect(result.stderr).toContain('files the feature should have committed: README.md');
     expect(git(work, 'status', '--porcelain')).toBe('');
   });
+
+  it('restores the version files when the pane it runs in closes mid-gate', async () => {
+    const status = join(root, 'status');
+    const child = spawn(process.execPath, ['scripts/release.mjs', 'patch', `--status=${status}`], {
+      cwd: work,
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env, HERDR_ENV: '', SLOW_GATE: '1' },
+    });
+    const exited = new Promise((resolve) => child.on('exit', resolve));
+    while (!readFileSync(join(work, 'manifest.json'), 'utf8').includes('1.0.1')) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    process.kill(-child.pid!, 'SIGHUP');
+    expect(await exited).toBe(1);
+    expect(readFileSync(status, 'utf8')).toContain('release stopped: interrupted; the version files are restored');
+    expect(git(work, 'status', '--porcelain')).toBe('');
+  }, 20000);
 });

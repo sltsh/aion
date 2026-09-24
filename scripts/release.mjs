@@ -14,6 +14,12 @@ const watch = args.includes('--watch');
 const status = args.find((arg) => arg.startsWith('--status='))?.slice('--status='.length);
 if (status) writeFileSync(status, '');
 
+// Ctrl-C, or closing the Herdr pane, reaches the running gate as well; the flag lets the
+// script outlive it long enough to put the version files back.
+let interrupted = false;
+for (const signal of ['SIGINT', 'SIGHUP', 'SIGTERM']) process.on(signal, () => { interrupted = true; });
+for (const stream of [process.stdout, process.stderr]) stream.on('error', () => {});
+
 const git = (...params) => execFileSync('git', params, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 const succeeds = (command, params) => spawnSync(command, params, { stdio: 'ignore' }).status === 0;
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
@@ -31,7 +37,10 @@ function stop(message) {
 
 function run(command, params) {
   console.log(`$ ${command} ${params.join(' ')}`);
-  return spawnSync(command, params, { stdio: 'inherit' }).status === 0;
+  const result = spawnSync(command, params, { stdio: 'inherit' });
+  // A handler only runs once the event loop turns, so read the signal off the child.
+  if (result.signal !== null || [129, 130, 143].includes(result.status ?? 0)) interrupted = true;
+  return result.status === 0;
 }
 
 const current = readJson('packages/tokens/package.json').version;
@@ -91,10 +100,10 @@ writeJson('manifest.json', { ...readJson('manifest.json'), version });
 
 const gatesPass = run('npm', ['install', '--package-lock-only', '--ignore-scripts', '--no-audit', '--no-fund'])
   && run('node', ['scripts/check-version.mjs', tag])
-  && GATES.every((gate) => run('npm', ['run', gate]));
-if (!gatesPass) {
+  && GATES.every((gate) => !interrupted && run('npm', ['run', gate]));
+if (!gatesPass || interrupted) {
   restore();
-  stop('a gate failed; the version files are restored');
+  stop(`${interrupted ? 'interrupted' : 'a gate failed'}; the version files are restored`);
 }
 
 const unexpected = execFileSync('git', ['status', '--porcelain', '-z'], { encoding: 'utf8' }).split('\0')
@@ -122,6 +131,7 @@ if (!push) {
 }
 
 if (!run('git', ['push', '--atomic', 'origin', 'HEAD:refs/heads/main', `refs/tags/${tag}`])) {
+  if (interrupted) stop(`interrupted during the push; check git ls-remote origin ${tag} before retrying`);
   git('tag', '--delete', tag);
   git('reset', '--quiet', '--hard', 'HEAD~1');
   stop('the push was rejected and nothing was published; the release commit and tag are undone');
@@ -137,14 +147,16 @@ if (!watch) {
 }
 
 let id = '';
-for (let attempt = 0; attempt < 30 && id === ''; attempt += 1) {
+for (let attempt = 0; attempt < 30 && id === '' && !interrupted; attempt += 1) {
   if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 2000));
   const listed = spawnSync('gh', ['run', 'list', '--workflow', 'release.yml', '--commit', sha, '--limit', '1',
     '--json', 'databaseId', '--jq', '.[0].databaseId // ""'], { encoding: 'utf8' });
   id = listed.status === 0 ? listed.stdout.trim() : '';
 }
+if (interrupted) stop('stopped watching; the tag is pushed and the release run continues');
 if (id === '') stop(`the tag is pushed, but no release run for ${sha.slice(0, 7)} appeared within a minute`);
 if (!run('gh', ['run', 'watch', id, '--exit-status', '--interval', '10'])) {
+  if (interrupted) stop(`stopped watching; the tag is pushed and the release run continues: gh run watch ${id}`);
   stop(`the tag is pushed, but the release run failed: gh run view ${id} --log-failed`);
 }
 report(`PUBLISHED ${tag}`);

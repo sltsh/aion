@@ -3,7 +3,10 @@ import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const herdr = (...params) => JSON.parse(execFileSync('herdr', params, { encoding: 'utf8' })).result;
+function herdr(...params) {
+  const output = execFileSync('herdr', params, { encoding: 'utf8' }).trim();
+  return output === '' ? null : JSON.parse(output).result;
+}
 const quote = (word) => `'${word.replaceAll("'", `'\\''`)}'`;
 const pause = () => new Promise((resolve) => setTimeout(resolve, 2000));
 
