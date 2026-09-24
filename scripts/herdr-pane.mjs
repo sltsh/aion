@@ -21,16 +21,16 @@ function finished(pane) {
 
 // The pane is for the person watching; the agent reads outcomes from a status file, because
 // scraping a terminal that `gh run watch` redraws can miss the line it is waiting for.
-export async function releaseInPane(args, tag, watch) {
+export async function releaseInPane(args, tag, mode) {
   const caller = process.env.HERDR_PANE_ID;
   const { rect } = herdr('pane', 'layout', '--pane', caller).layout.panes.find((pane) => pane.pane_id === caller);
   const direction = rect.width > rect.height * 2 ? 'right' : 'down';
   const pane = herdr('pane', 'split', '--pane', caller, '--direction', direction, '--cwd', process.cwd(), '--no-focus').pane.pane_id;
-  herdr('pane', 'rename', pane, `release ${tag}`);
+  herdr('pane', 'rename', pane, `${mode === 'watch' ? 'watch' : 'release'} ${tag}`);
 
   const status = join(mkdtempSync(join(tmpdir(), 'aion-release-')), 'status');
   herdr('pane', 'run', pane, ['node', 'scripts/release.mjs', ...args, '--here', `--status=${status}`].map(quote).join(' '));
-  console.log(`release running in Herdr pane ${pane}; Ctrl-C there stops it`);
+  console.log(`running in Herdr pane ${pane}; Ctrl-C there stops it`);
 
   let printed = 0;
   let started = false;
@@ -43,14 +43,15 @@ export async function releaseInPane(args, tag, watch) {
 
     const last = lines.at(-1) ?? '';
     const stopped = last.startsWith('release stopped');
-    if (stopped || last.startsWith('PUBLISHED') || last.startsWith('not pushed') || (last.startsWith('PUSHED') && !watch)) {
-      const title = stopped ? `Aion ${tag} release stopped` : `Aion ${tag} ${last.split(' ')[0].toLowerCase()}`;
+    if (stopped || /^(PUSHED|PUBLISHED|not pushed)/.test(last)) {
+      const outcome = stopped ? 'stopped' : { PUSHED: 'pushed', PUBLISHED: 'published' }[last.split(' ')[0]] ?? 'tagged locally';
+      const title = `Aion ${tag} ${outcome}`;
       herdr('notification', 'show', title, '--body', `${last} (pane ${pane})`, '--sound', stopped ? 'request' : 'done');
       if (!stopped) herdr('pane', 'close', pane);
       return stopped ? 1 : 0;
     }
     if ((started || waited > 20) && finished(pane)) {
-      console.error(`release stopped: the release in pane ${pane} ended without an outcome; read it there`);
+      console.error(`release stopped: pane ${pane} ended without an outcome; read it there`);
       return 1;
     }
   }

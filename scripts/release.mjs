@@ -2,15 +2,15 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { appendFileSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { releaseInPane } from './herdr-pane.mjs';
 
-const USAGE = 'usage: npm run release -- <patch|minor|major|X.Y.Z> [--no-push] [--watch] [--here]';
+const USAGE = 'usage: npm run release -- <patch|minor|major|X.Y.Z> [--no-push] [--here]\n'
+  + '       npm run release -- watch vX.Y.Z [--here]';
 const GATES = ['build', 'typecheck', 'verify', 'test', 'sync:design'];
 // A change here means the native acceptance in PLAN.md no longer covers what ships.
 const THEME_OUTPUTS = ['theme.css', 'packages/vscode/themes'];
 
 const args = process.argv.slice(2);
-const bump = args.find((arg) => !arg.startsWith('--'));
+const [bump, watched] = args.filter((arg) => !arg.startsWith('--'));
 const push = !args.includes('--no-push');
-const watch = args.includes('--watch');
 const status = args.find((arg) => arg.startsWith('--status='))?.slice('--status='.length);
 if (status) writeFileSync(status, '');
 
@@ -46,6 +46,7 @@ function run(command, params) {
 const current = readJson('packages/tokens/package.json').version;
 
 function next() {
+  if (bump === 'watch' && /^v\d+\.\d+\.\d+$/.test(watched ?? '')) return watched.slice(1);
   if (/^\d+\.\d+\.\d+$/.test(bump ?? '')) return bump;
   const [major, minor, patch] = current.split('.').map(Number);
   if (bump === 'major') return `${major + 1}.0.0`;
@@ -57,7 +58,12 @@ function next() {
 const version = next();
 const tag = `v${version}`;
 
-if (process.env.HERDR_ENV === '1' && !args.includes('--here')) process.exit(await releaseInPane(args, tag, watch));
+if (process.env.HERDR_ENV === '1' && !args.includes('--here')) process.exit(await releaseInPane(args, tag, bump));
+if (bump === 'watch') {
+  git('fetch', '--quiet', '--tags', 'origin');
+  await watchRelease(git('rev-parse', `${tag}^{commit}`));
+  process.exit(0);
+}
 
 const branch = git('branch', '--show-current');
 if (branch === '' || branch === 'main' || branch === 'master') {
@@ -140,23 +146,21 @@ if (!succeeds('git', ['fetch', '--quiet', 'origin', 'main:main'])) {
   console.log('notice: local main could not be fast-forwarded; origin/main is correct');
 }
 report(`PUSHED main and ${tag} at ${sha.slice(0, 7)}. Publishing runs in .github/workflows/release.yml.`);
+console.log(`Watch publishing with: npm run release -- watch ${tag}`);
 
-if (!watch) {
-  console.log(`Follow it with: gh run list --workflow release.yml --commit ${sha} --limit 1`);
-  process.exit(0);
+async function watchRelease(sha) {
+  let id = '';
+  for (let attempt = 0; attempt < 30 && id === '' && !interrupted; attempt += 1) {
+    if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 2000));
+    const listed = spawnSync('gh', ['run', 'list', '--workflow', 'release.yml', '--commit', sha, '--limit', '1',
+      '--json', 'databaseId', '--jq', '.[0].databaseId // ""'], { encoding: 'utf8' });
+    id = listed.status === 0 ? listed.stdout.trim() : '';
+  }
+  if (interrupted) stop('stopped watching; the release run continues');
+  if (id === '') stop(`no release run for ${sha.slice(0, 7)} appeared within a minute`);
+  if (!run('gh', ['run', 'watch', id, '--exit-status', '--interval', '10'])) {
+    if (interrupted) stop(`stopped watching; the release run continues: gh run watch ${id}`);
+    stop(`the release run failed: gh run view ${id} --log-failed`);
+  }
+  report(`PUBLISHED ${tag}`);
 }
-
-let id = '';
-for (let attempt = 0; attempt < 30 && id === '' && !interrupted; attempt += 1) {
-  if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 2000));
-  const listed = spawnSync('gh', ['run', 'list', '--workflow', 'release.yml', '--commit', sha, '--limit', '1',
-    '--json', 'databaseId', '--jq', '.[0].databaseId // ""'], { encoding: 'utf8' });
-  id = listed.status === 0 ? listed.stdout.trim() : '';
-}
-if (interrupted) stop('stopped watching; the tag is pushed and the release run continues');
-if (id === '') stop(`the tag is pushed, but no release run for ${sha.slice(0, 7)} appeared within a minute`);
-if (!run('gh', ['run', 'watch', id, '--exit-status', '--interval', '10'])) {
-  if (interrupted) stop(`stopped watching; the tag is pushed and the release run continues: gh run watch ${id}`);
-  stop(`the tag is pushed, but the release run failed: gh run view ${id} --log-failed`);
-}
-report(`PUBLISHED ${tag}`);

@@ -10,6 +10,8 @@ the versions follow Semantic Versioning.
 - `npm run release -- <patch|minor|major>` bumps every version, runs the gates, commits,
   tags and pushes `main` with the tag atomically, stopping on a moved `main`, an existing
   tag, an empty changelog entry, a failed gate or drifted generated files.
+  `npm run release -- watch vX.Y.Z` follows publishing. Inside Herdr both run in a
+  sibling pane that can be watched and interrupted.
 
 ### Fixed
 

@@ -55,9 +55,14 @@ that changes a file the release does not own, restores the tree and stops. Other
 commits `Release Aion X.Y.Z`, tags it, and pushes `main` and the tag in one atomic push,
 which fast-forwards `main` or is rejected and undone.
 
-`PUSHED` means the tag is on GitHub; it does not mean anything is published. Add `--watch`
-to follow the release workflow, which reports `PUBLISHED` or the failing run separately.
-`--no-push` stops after the local commit and tag.
+`PUSHED` means the tag is on GitHub; it does not mean anything is published. Follow the
+release workflow with `npm run release -- watch vX.Y.Z`, which ends on `PUBLISHED` or names
+the failing run. `--no-push` stops after the local commit and tag.
+
+Inside Herdr, both commands run in a new sibling pane, so the release can be watched or
+stopped with Ctrl-C there. Ctrl-C or closing the pane before the commit restores the version
+files. The calling command prints each outcome, raises a Herdr notification, and closes the
+pane on success; a stopped pane stays open to be read. `--here` runs in the current terminal.
 
 Native acceptance in `PLAN.md` carries forward while `theme.css` and
 `packages/vscode/themes` are unchanged; a version change alone does not invalidate it. The

@@ -129,6 +129,7 @@ aion/
     check-version.mjs     # the tag and every package agree
     release-notes.mjs     # changelog section plus the commits since the previous tag
     release.mjs           # bump, gate, commit, tag and push a release
+    herdr-pane.mjs        # runs a release in a Herdr pane and reads its outcomes
     pack-dev.mjs          # a numbered development .vsix, from .dev-version
   packages/
     tokens/               # @sltsh/aion-tokens — the product
