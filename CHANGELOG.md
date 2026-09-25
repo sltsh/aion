@@ -5,6 +5,11 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- The README leads with a VS Code screenshot, a one-line install and the reasons to
+  switch, and lists every port; repository and release details moved to `CONTRIBUTING.md`.
+
 ### Fixed
 
 - Aion Light: the selection, the current line, the word highlight and other find matches
