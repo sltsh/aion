@@ -440,6 +440,38 @@ prove both, and the gate reports them as information.
 
 This is a calculation. Neither change has been checked in VS Code yet.
 
+Astra's final pass on 1.1.6 found the Light scroll bars still faint (0.006 in OKLab on
+the sidebar) behind a changelog line that called them visible, and a "most visible"
+claim the bounded search did not prove. 1.1.7 maps both scroll bars to the functional
+border ladder the minimap slider uses, tests them on the editor and the sidebar, and
+narrows the claim. Folded and range highlights moved from 0.006 to 0.014 and 0.018; they
+are still under the 0.03 bar and are left in the todo below.
+
+## Todo
+
+Open work, in the order it unblocks the rest:
+
+- [ ] **Native check in VS Code** of 1.1.6 and 1.1.7, then record it under "Native
+      acceptance": Light selection, current line, word highlight, other find matches, a
+      diff over a selection, scroll bars; Dark ANSI black as badge text and as an `SGR 40`
+      background; the Obsidian code comment, which moved to `#616368`.
+- [ ] **Light hero screenshot.** Retake `screenshots/vscode-light.png` with the Dark
+      setup (same file, scroll and window), then make the README hero a `<picture>` that
+      follows the reader's GitHub theme.
+- [ ] **Remove the screenshot fixture**: `packages/tokens/src/accent.ts`, its line in
+      `.git/info/exclude`, and `packages/tokens/dist/src/accent.*` after a build.
+- [ ] **Check `terminal.integrated.minimumContrastRatio`** on the VS Code client. The
+      1.1.6 screenshots showed badges uncorrected, which the 4.5 default would repair.
+- [ ] **Light folded and range highlights** (`editor.foldBackground`,
+      `editor.rangeHighlightBackground`) sit at 0.014 and 0.018 in OKLab; the find-range,
+      selection-occurrence and inactive-selection washes are under 0.005 in both
+      schemes. Decide which need to be seen, solve them, and extend the visibility test.
+- [ ] **Light overlay search.** Commit the overlay search as a script or test so the
+      shipped values are checked against it; Astra found other-find-match 18.7% more
+      visible at chroma 0.098.
+- [ ] **README palette strip**: an SVG of the swatches written by `sync:design` from the
+      tokens, so the README shows the palette without a typed hex.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.

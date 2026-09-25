@@ -5,6 +5,13 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Fixed
+
+- Aion Light: the editor and notebook scroll bars use the functional border, as the
+  minimap slider does, so they are visible on the editor and the sidebar. 1.1.6 claimed
+  this for scroll bars, folded ranges and range highlights; the scroll bars were still
+  faint, and folded and range highlights remain faint.
+
 ## 1.1.6
 
 ### Changed

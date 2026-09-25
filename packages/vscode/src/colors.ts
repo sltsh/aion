@@ -914,6 +914,13 @@ const palettePairs = (palette: Palette): PalettePairs => {
   keyColours.set('minimapSlider.background', hexAlpha(palette.neutral.border, 0.28));
   keyColours.set('minimapSlider.hoverBackground', hexAlpha(palette.neutral.border, 0.42));
   keyColours.set('minimapSlider.activeBackground', hexAlpha(palette.neutral.border, 0.56));
+  // The scroll bars carry no text either, and the pale wash left them at 0.006 in OKLab on
+  // the sidebar. They take the same functional border and the same ladder.
+  for (const prefix of ['scrollbarSlider', 'notebookScrollbarSlider']) {
+    keyColours.set(`${prefix}.background`, hexAlpha(palette.neutral.border, 0.28));
+    keyColours.set(`${prefix}.hoverBackground`, hexAlpha(palette.neutral.border, 0.42));
+    keyColours.set(`${prefix}.activeBackground`, hexAlpha(palette.neutral.border, 0.56));
+  }
   // Inline blame is persistent editor metadata, not incidental chrome. The dim role is
   // too quiet on Light, so promote it to secondary text without competing with primary.
   keyColours.set('git.blame.editorDecorationForeground', hex(palette.neutral.textSecondary));

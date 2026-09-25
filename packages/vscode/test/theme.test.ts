@@ -119,6 +119,30 @@ test('the light minimap slider stays visible and strengthens across interaction 
   expect(previous).toBeGreaterThan(1.9);
 });
 
+// A scroll bar sits over the editor and over the sidebar, and the sidebar is the lighter
+// of the two light surfaces it can land on in a list. Measure it on both.
+test('the light scroll bars stay visible and strengthen on every surface they occupy', () => {
+  for (const prefix of ['scrollbarSlider', 'notebookScrollbarSlider']) {
+    for (const surface of ['editor.background', 'sideBar.background']) {
+      const background = hexToOklch(lightBuilt.colors[surface]!);
+      let previous = 1;
+      for (const [state, alpha] of [['background', 0.28], ['hoverBackground', 0.42], ['activeBackground', 0.56]] as const) {
+        const key = `${prefix}.${state}`;
+        const value = lightBuilt.colors[key]!;
+        expect(value).toBe(hexAlpha(lightEditorNeutral.border, alpha));
+        const composited = compositeEmitted(
+          hexToOklch(value.slice(0, 7)),
+          parseInt(value.slice(7), 16) / 255,
+          background,
+        );
+        const ratio = contrastEmitted(composited, background);
+        expect(ratio, `${key} on ${surface} = ${ratio.toFixed(2)}`).toBeGreaterThan(Math.max(previous, 1.3));
+        previous = ratio;
+      }
+    }
+  }
+});
+
 test('light inline git blame uses the secondary reading role', () => {
   const key = 'git.blame.editorDecorationForeground';
   const value = lightBuilt.colors[key]!;

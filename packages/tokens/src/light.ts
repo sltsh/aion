@@ -176,8 +176,9 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // which no reader could see. A light overlay cannot lighten the editor, and it cannot
 // darken it much either, because the diff wash is painted over the selection and the
 // current line and the syntax accents are already at the floor under that stack. So each
-// is solved to the most visible colour that keeps every light reading state above the
-// floor: hue carries what luminance cannot. The selection is held back by the function
+// was searched for the most visible colour that keeps every light reading state above
+// the floor, one overlay at a time with chroma bounded at 0.09, so the result is a floor
+// on visibility and not a proven maximum: hue carries what luminance cannot. The selection is held back by the function
 // colour under a removed-word diff.
 export const lightOverlay = {
   selection: { color: gamutSafe(0.882, 0.060, 250, 'selection'), alpha: 0.30 },
