@@ -463,9 +463,9 @@ Open work, in the order it unblocks the rest:
 - [ ] **Check `terminal.integrated.minimumContrastRatio`** on the VS Code client. The
       1.1.6 screenshots showed badges uncorrected, which the 4.5 default would repair.
 - [ ] **Light folded and range highlights** (`editor.foldBackground`,
-      `editor.rangeHighlightBackground`) sit at 0.014 and 0.018 in OKLab; the find-range,
-      selection-occurrence and inactive-selection washes are under 0.005 in both
-      schemes. Decide which need to be seen, solve them, and extend the visibility test.
+      `editor.rangeHighlightBackground`) sit at 0.014 and 0.018 in OKLab, and the Light
+      find-range, selection-occurrence and inactive-selection washes under 0.005, where
+      Dark's read 0.034 to 0.052. Decide which need to be seen, solve them, and extend the visibility test.
 - [ ] **Light overlay search.** Commit the overlay search as a script or test so the
       shipped values are checked against it; Astra found other-find-match 18.7% more
       visible at chroma 0.098.
