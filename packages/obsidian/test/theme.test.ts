@@ -261,12 +261,12 @@ test.each(['dark', 'light'] as const)('%s content accents read on every specifie
   }
 });
 
-test.each(['dark', 'light'] as const)('%s reading highlight uses gold text beside a tag', (scheme) => {
-  expect(themeRules).toContain('.markdown-rendered mark {\n  background-color: transparent;\n  color: var(--color-yellow);\n}');
+test.each(['dark', 'light'] as const)('%s reading highlight keeps its background beside a tag', (scheme) => {
+  expect(themeRules).toContain('.markdown-rendered mark {\n  background-color: var(--text-highlight-bg);\n  border-radius: 10px;\n  color: var(--color-yellow);\n}');
   expect(themeRules).toContain('.markdown-rendered mark :is(strong, b, em, i) {\n  color: inherit;\n}');
   expect(themeCss()).not.toContain(':has(');
-  const measured = ratio(resolved(scheme, '--color-yellow'), resolved(scheme, '--background-primary'));
-  expect(measured, `${scheme} gold on the page: ${measured.toFixed(2)}`)
+  const measured = ratio(resolved(scheme, '--color-yellow'), resolved(scheme, '--text-highlight-bg'));
+  expect(measured, `${scheme} gold on the highlight: ${measured.toFixed(2)}`)
     .toBeGreaterThanOrEqual(CONTRAST_FLOOR);
 });
 
@@ -334,7 +334,7 @@ test('the folder cycle is anchored, violet-free and colours through Obsidian var
   }
   expect(rules).toContain('.nav-files-container .nav-folder-title {\n  --nav-item-color: var(--aion-folder, var(--text-muted));\n}');
   expect(rules).toContain('.nav-files-container .nav-file-title.is-active {\n  --nav-item-background-active: transparent;\n}');
-  expect(rules).toContain('.nav-files-container .nav-file-title.is-active .nav-file-title-content {\n  background-color: var(--aion-obsidian-active-file-background);\n  border-radius: var(--nav-item-radius);\n  padding-inline: var(--size-4-2);\n}');
+  expect(rules).toContain('.nav-files-container .nav-file-title.is-active .nav-file-title-content {\n  background-color: var(--aion-obsidian-active-file-background);\n  border-radius: var(--nav-item-radius);\n  margin-inline-start: calc(-1 * var(--size-4-2));\n  padding-inline: var(--size-4-2);\n}');
   expect(rules).toContain('.nav-files-container .nav-folder:not(.is-being-dragged-over) > .nav-folder-title:not(.is-selected, .is-being-dragged) {\n  --nav-collapse-icon-color: var(--aion-folder, var(--text-muted));\n  --nav-collapse-icon-color-collapsed: var(--aion-folder, var(--text-muted));\n}');
   expect(rules).toContain('.nav-files-container .nav-folder > .tree-item-children {\n  --nav-indentation-guide-color: var(--aion-folder-guide, var(--background-modifier-border));\n}');
 });

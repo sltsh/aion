@@ -294,7 +294,8 @@
 }
 
 .markdown-rendered mark {
-  background-color: transparent;
+  background-color: var(--text-highlight-bg);
+  border-radius: 10px;
   color: var(--color-yellow);
 }
 
@@ -348,6 +349,7 @@
 .nav-files-container .nav-file-title.is-active .nav-file-title-content {
   background-color: var(--aion-obsidian-active-file-background);
   border-radius: var(--nav-item-radius);
+  margin-inline-start: calc(-1 * var(--size-4-2));
   padding-inline: var(--size-4-2);
 }
 
