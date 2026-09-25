@@ -2,7 +2,7 @@ import { dark, light } from '@sltsh/aion-css';
 import type { Variables } from '@sltsh/aion-css';
 import {
   hex, lightNeutral, neutral, obsidianCodeBackground, obsidianHoverEdge, obsidianLightActiveRow,
-  obsidianLightHighlight, obsidianLightSelection, obsidianPink,
+  obsidianLightHighlight, obsidianLightLink, obsidianLightSelection, obsidianPink,
 } from '@sltsh/aion-tokens';
 
 type Scheme = 'dark' | 'light';
@@ -109,10 +109,10 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
     '--text-selection': scheme === 'dark' ? c('overlay-selection') : hex(obsidianLightSelection),
     '--text-highlight-bg': scheme === 'dark' ? c('overlay-find-match') : hex(obsidianLightHighlight),
     '--caret-color': c('caret'),
-    '--link-color': c('fg-link'),
-    '--link-color-hover': c('teal-solid'),
-    '--link-external-color': c('fg-link'),
-    '--link-external-color-hover': c('teal-solid'),
+    '--link-color': scheme === 'dark' ? c('fg-link') : hex(obsidianLightLink.normal),
+    '--link-color-hover': scheme === 'dark' ? c('teal-solid') : hex(obsidianLightLink.hover),
+    '--link-external-color': scheme === 'dark' ? c('fg-link') : hex(obsidianLightLink.normal),
+    '--link-external-color-hover': scheme === 'dark' ? c('teal-solid') : hex(obsidianLightLink.hover),
     '--link-unresolved-color': 'var(--text-accent)',
     '--link-unresolved-opacity': '1',
     '--link-unresolved-decoration-style': 'dashed',
@@ -148,7 +148,7 @@ export const obsidianColors = (scheme: Scheme): Record<string, string> => {
 
     '--nav-item-background-active': scheme === 'dark' ? c('gold-subtle') : hex(obsidianLightActiveRow),
     '--aion-obsidian-active-file-background': scheme === 'dark' ? c('gold-subtle') : hex(obsidianLightActiveRow),
-    '--nav-item-color-active': 'var(--text-accent)',
+    '--nav-item-color-active': scheme === 'dark' ? 'var(--text-accent)' : 'var(--text-normal)',
     '--nav-item-color-hover': c('fg-primary'),
     '--tab-container-background': sidebar,
     '--tab-background-active': c('bg-page'),

@@ -194,10 +194,10 @@
   --text-selection: #bbf3fd;
   --text-highlight-bg: #fce6ac;
   --caret-color: #7b6000;
-  --link-color: #2965ad;
-  --link-color-hover: #00706e;
-  --link-external-color: #2965ad;
-  --link-external-color-hover: #00706e;
+  --link-color: #0f4f95;
+  --link-color-hover: #02468b;
+  --link-external-color: #0f4f95;
+  --link-external-color-hover: #02468b;
   --link-unresolved-color: var(--text-accent);
   --link-unresolved-opacity: 1;
   --link-unresolved-decoration-style: dashed;
@@ -234,7 +234,7 @@
   --checkbox-border-color: #7c7f84;
   --nav-item-background-active: #f4dea5;
   --aion-obsidian-active-file-background: #f4dea5;
-  --nav-item-color-active: var(--text-accent);
+  --nav-item-color-active: var(--text-normal);
   --nav-item-color-hover: #16181c;
   --tab-container-background: #eff2f7;
   --tab-background-active: #f6f8fd;

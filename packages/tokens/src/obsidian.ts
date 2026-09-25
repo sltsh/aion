@@ -28,6 +28,11 @@ export const obsidianLightActiveRow: Oklch = solveMarker({
   lightness: [0.900, 0.950], chroma: [0.030, 0.080],
 })?.colour ?? (() => { throw new Error('No readable Obsidian light active row'); })();
 
+export const obsidianLightLink = {
+  normal: [0.430, 0.130, 255],
+  hover: [0.400, 0.130, 255],
+} as const satisfies Record<'normal' | 'hover', Oklch>;
+
 // The general input step makes comments on code, including selected code, too faint.
 export const obsidianCodeBackground = {
   dark: [0.260, BASE_CHROMA, BASE_HUE],

@@ -4,7 +4,7 @@ import { formatHex } from 'culori';
 import {
   CONTRAST_FLOOR, NON_TEXT_FLOOR, compositeEmitted, contrastEmitted, hex,
   distanceEmitted, hexToOklch, lightNeutral, obsidianCodeBackground, obsidianLightActiveRow,
-  obsidianLightHighlight, obsidianLightSelection,
+  obsidianLightHighlight, obsidianLightLink, obsidianLightSelection,
 } from '@sltsh/aion-tokens';
 import { dark, light } from '@sltsh/aion-css';
 import { FOLDER_CYCLE, obsidianColors, themeCss, themeRules } from '../src/theme.js';
@@ -224,6 +224,25 @@ test('Light selection, highlight and Dark code retain visible surface separation
   expect(distanceEmitted(hexToOklch(light['--nav-item-background-active']!), lightNeutral.surface))
     .toBeGreaterThanOrEqual(0.06);
   expect(light['--color-base-05']).not.toBe(light['--color-base-10']);
+});
+
+test('Light links and the selected file stay readable on their rendered surfaces', () => {
+  const c = obsidianColors('light');
+  expect(c['--nav-item-color-active']).toBe('var(--text-normal)');
+  expect(ratio(resolved('light', '--nav-item-color-active'), c['--aion-obsidian-active-file-background']!))
+    .toBeGreaterThanOrEqual(7);
+  for (const [name, token] of [
+    ['--link-color', obsidianLightLink.normal],
+    ['--link-color-hover', obsidianLightLink.hover],
+    ['--link-external-color', obsidianLightLink.normal],
+    ['--link-external-color-hover', obsidianLightLink.hover],
+  ] as const) {
+    expect(c[name]).toBe(hex(token));
+    for (const surface of ['--background-primary', '--background-modifier-hover', '--text-highlight-bg', '--text-selection']) {
+      expect(ratio(c[name]!, c[surface]!), `${name} on ${surface}`)
+        .toBeGreaterThanOrEqual(5.5);
+    }
+  }
 });
 
 const CONTENT_ACCENTS = ['--h1-color', '--h2-color', '--h3-color', '--h4-color', '--bold-color', '--italic-color'] as const;
