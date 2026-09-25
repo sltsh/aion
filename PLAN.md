@@ -451,7 +451,9 @@ are still under the 0.03 bar and are left in the todo below.
 
 Checked in VS Code: Dark ANSI black reads as plain badge text on every chromatic slot and
 as an `SGR 40` background, with `terminal.integrated.minimumContrastRatio` at 1. Light
-badges read poorly there, as the tests prove they must. The Obsidian code comment reads
+badges read poorly there, as the tests prove they must; at the default of 4.5, VS Code
+redrew every Light badge, slot 15 and the `SGR 40` labels in a readable colour and left
+Dark unchanged. The palette cannot carry Light badge text and does not need to. The Obsidian code comment reads
 in both schemes. The Light selection was too faint to find.
 
 It could not be made clearer inside the old budget: every Light accent sat at 4.50:1 on
@@ -472,8 +474,6 @@ Open work, in the order it unblocks the rest:
       highlight, inactive selection, find range, folded range, word highlight, other find
       matches, and the darker syntax. Then the Obsidian and site Light pages, whose accents
       moved with it.
-- [ ] **Check `terminal.integrated.minimumContrastRatio`** at its default of 4.5 on the
-      VS Code client. The 1.1.6 screenshots showed badges uncorrected, which it would repair.
 
 ## Order and parallelism
 
