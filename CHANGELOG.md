@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.6
+
 ### Changed
 
 - The README leads with a VS Code screenshot, a one-line install and the reasons to
