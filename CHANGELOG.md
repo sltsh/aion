@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.7
+
 ### Fixed
 
 - Aion Light: the editor and notebook scroll bars use the functional border, as the
