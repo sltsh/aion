@@ -178,7 +178,7 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // current line and the syntax accents are already at the floor under that stack. So each
 // is solved to the most visible colour that keeps every light reading state above the
 // floor: hue carries what luminance cannot. The selection is held back by the function
-// colour under a removed-word diff, the rest by the comment on their own stacks.
+// colour under a removed-word diff.
 export const lightOverlay = {
   selection: { color: gamutSafe(0.882, 0.060, 250, 'selection'), alpha: 0.30 },
   findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.55 },
