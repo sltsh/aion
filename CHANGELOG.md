@@ -22,6 +22,8 @@ the versions follow Semantic Versioning.
 ### Fixed
 
 - `@sltsh/aion-terminal` is marked private, so it cannot be published to npm by accident.
+- Obsidian: reading-view highlights keep their rounded background, and the active note
+  remains aligned with other notes while retaining its filename highlight.
 
 ## 1.1.3
 
