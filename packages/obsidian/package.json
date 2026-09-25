@@ -1,6 +1,6 @@
 {
   "name": "@sltsh/aion-obsidian",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "private": true,
   "description": "Generated Aion Dark and Light community theme for Obsidian.",
   "license": "MIT",
@@ -12,8 +12,8 @@
     "assets": "rm -rf dist/release && mkdir -p dist/release/Aion && cp ../../manifest.json ../../theme.css dist/release/Aion/ && cd dist/release && zip -qr aion-obsidian-$npm_package_version.zip Aion"
   },
   "dependencies": {
-    "@sltsh/aion-css": "1.1.4",
-    "@sltsh/aion-tokens": "1.1.4"
+    "@sltsh/aion-css": "1.1.5",
+    "@sltsh/aion-tokens": "1.1.5"
   },
   "devDependencies": {
     "@types/culori": "^4.0.1",

@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.5
+
 ### Fixed
 
 - Obsidian Light: the active file uses dark text on its gold highlight, and internal and
