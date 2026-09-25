@@ -9,7 +9,8 @@ import {
 } from '../src/palette.js';
 import {
   lightAccent, lightAccentScale, lightAnsi, lightDiff, lightDiffWash, lightEditorNeutral,
-  lightAnsiBrightBlack, lightAnsiWhite, lightComment, lightDimText, lightNeutral, lightOverlay,
+  lightAnsiBrightBlack, lightAnsiWhite, lightComment, lightDecoration, lightDimText, lightNeutral,
+  lightOverlay,
   LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection,
 } from '../src/light.js';
 import { readingForegrounds, readingStates } from '../src/states.js';
@@ -293,6 +294,33 @@ test('every reading-state overlay moves its editor far enough to be seen, in bot
       const shift = distanceEmitted(compositeEmitted(value.color, value.alpha, editor), editor);
       expect(shift, `${scheme} ${name} moves the editor by ${shift.toFixed(4)}`)
         .toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+    }
+  }
+});
+
+test('every light editor decoration moves the editor far enough to be seen', () => {
+  const editor = lightEditorNeutral.editor;
+  for (const [name, value] of Object.entries(lightDecoration)) {
+    const shift = distanceEmitted(compositeEmitted(value.color, value.alpha, editor), editor);
+    expect(shift, `light ${name} moves the editor by ${shift.toFixed(4)}`)
+      .toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+  }
+});
+
+// Light's word highlight and other find matches once outshone its selection, which then
+// read as the weakest cue in the editor. Dark never did.
+test('the selection is the loudest reading overlay, in both schemes', () => {
+  for (const [scheme, set, extra, editor] of [
+    ['dark', overlay, {}, neutral.editor],
+    ['light', lightOverlay, lightDecoration, lightEditorNeutral.editor],
+  ] as const) {
+    const shift = (value: { color: Oklch; alpha: number }): number =>
+      distanceEmitted(compositeEmitted(value.color, value.alpha, editor), editor);
+    const selection = shift(set.selection);
+    for (const [name, value] of [...Object.entries(set), ...Object.entries(extra)]) {
+      if (name === 'selection') continue;
+      expect(shift(value), `${scheme} ${name} against the selection's ${selection.toFixed(4)}`)
+        .toBeLessThan(selection);
     }
   }
 });

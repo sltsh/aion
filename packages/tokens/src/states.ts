@@ -3,8 +3,10 @@ import { compositeEmitted } from './oklch.js';
 import type { DiffWashName, NeutralName, Overlay, OverlayName, SyntaxRole } from './palette.js';
 import { ACCENTS, SYNTAX, comment, diffWash, findMatch, neutral, overlay } from './palette.js';
 import {
-  lightComment, lightDiffWash, lightEditorNeutral, lightFindMatch, lightOverlay, lightSyntax,
+  lightComment, lightDecoration, lightDiffWash, lightEditorNeutral, lightFindMatch, lightOverlay,
+  lightSyntax,
 } from './light.js';
+import type { LightDecorationName } from './light.js';
 
 export interface ReadingState {
   readonly name: string;
@@ -21,6 +23,8 @@ export interface StateSource {
   readonly findMatch: { readonly current: Oklch };
   readonly syntax: Record<SyntaxRole, Oklch>;
   readonly comment: Oklch;
+  /** Light only: Dark's editor decorations are gated one at a time in the theme test. */
+  readonly decoration?: Record<LightDecorationName, Overlay>;
 }
 
 export const SHIPPED: StateSource = {
@@ -37,6 +41,7 @@ export const LIGHT_SHIPPED: StateSource = {
   findMatch: lightFindMatch,
   comment: lightComment,
   syntax: lightSyntax,
+  decoration: lightDecoration,
 };
 
 const surfaces = (source: StateSource) => ({
@@ -94,6 +99,17 @@ const OTHER_MATCH_BASES: readonly (readonly OverlayName[])[] = [
   [], ['lineHighlight'], ['selection'], ['selection', 'wordHighlight'],
 ];
 
+// The decorations VS Code paints in `DecorationsOverlay` land over the current line or the
+// selection. The inactive selection replaces the selection and, being a selection, never
+// shares a line with the current-line fill.
+const DECORATION_BASES: Record<LightDecorationName, readonly (readonly OverlayName[])[]> = {
+  selectionHighlight: [[], ['lineHighlight'], ['selection']],
+  findRange: [[], ['lineHighlight'], ['selection']],
+  rangeHighlight: [[], ['lineHighlight'], ['selection']],
+  fold: [[], ['lineHighlight'], ['selection']],
+  inactiveSelection: [[]],
+};
+
 // The complete set of backgrounds the contrast guarantee covers. Anything absent here is
 // outside the claim, and `README.md` says so rather than implying every state passes.
 export function readingStates(source: StateSource = SHIPPED): ReadingState[] {
@@ -125,6 +141,20 @@ export function readingStates(source: StateSource = SHIPPED): ReadingState[] {
         name: [name, ...base, 'findMatchOther'].join(' + '),
         background: stackOn(stackOn(surface[name], base), ['findMatchOther']),
       });
+    }
+  }
+  if (source.decoration !== undefined) {
+    const decoration = source.decoration;
+    for (const [name, bases] of Object.entries(DECORATION_BASES) as [LightDecorationName, readonly (readonly OverlayName[])[]][]) {
+      for (const base of bases) {
+        for (const surfaceName of ['editor', 'peekEditor'] as const) {
+          rows.push({
+            name: [surfaceName, ...base, name].join(' + '),
+            background: compositeEmitted(
+              decoration[name].color, decoration[name].alpha, stackOn(surface[surfaceName], base)),
+          });
+        }
+      }
     }
   }
   return rows;

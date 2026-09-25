@@ -921,6 +921,16 @@ const palettePairs = (palette: Palette): PalettePairs => {
     keyColours.set(`${prefix}.hoverBackground`, hexAlpha(palette.neutral.border, 0.42));
     keyColours.set(`${prefix}.activeBackground`, hexAlpha(palette.neutral.border, 0.56));
   }
+  // Light's decorations are solved in the token package; the translucent neutral these
+  // keys share on Dark became the current-line wash and moved the editor by 0.018 at most.
+  if (palette.decoration !== undefined) {
+    const d = palette.decoration;
+    keyColours.set('editor.selectionHighlightBackground', hexAlpha(d.selectionHighlight.color, d.selectionHighlight.alpha));
+    keyColours.set('editor.inactiveSelectionBackground', hexAlpha(d.inactiveSelection.color, d.inactiveSelection.alpha));
+    keyColours.set('editor.findRangeHighlightBackground', hexAlpha(d.findRange.color, d.findRange.alpha));
+    keyColours.set('editor.rangeHighlightBackground', hexAlpha(d.rangeHighlight.color, d.rangeHighlight.alpha));
+    keyColours.set('editor.foldBackground', hexAlpha(d.fold.color, d.fold.alpha));
+  }
   // Inline blame is persistent editor metadata, not incidental chrome. The dim role is
   // too quiet on Light, so promote it to secondary text without competing with primary.
   keyColours.set('git.blame.editorDecorationForeground', hex(palette.neutral.textSecondary));

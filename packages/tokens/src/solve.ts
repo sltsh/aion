@@ -1,6 +1,6 @@
 import type { Oklch } from './oklch.js';
 import { compositeEmitted, contrastEmitted, hex, hexToOklch, inGamut } from './oklch.js';
-import type { OverlayName } from './palette.js';
+import type { Overlay, OverlayName } from './palette.js';
 import { overlay } from './palette.js';
 
 export interface Marker {
@@ -88,3 +88,52 @@ export function solveMarker(marker: Marker): Solution | null {
   }
   return best;
 }
+
+export interface OverlaySearch {
+  readonly hues: readonly number[];
+  /** The surface the overlay has to be seen against. */
+  readonly against: Oklch;
+  /** Every gate the candidate has to pass: the reading states it joins, and any cue under it. */
+  readonly accept: (candidate: Overlay) => boolean;
+  readonly lightness?: readonly [number, number];
+  readonly chroma?: readonly [number, number];
+  readonly alpha?: readonly [number, number];
+}
+
+export interface OverlaySolution {
+  readonly overlay: Overlay;
+  /** OKLab distance the overlay moves `against` by, read from the emitted bytes. */
+  readonly distance: number;
+}
+
+const OVERLAY_STEP = { lightness: 0.01, chroma: 0.01, alpha: 0.05 } as const;
+
+/**
+ * The most visible translucent overlay the caller's gates allow. A grid search, so the result
+ * is a floor on what the gates permit rather than a proven maximum; the step is what a test
+ * compares a shipped value against, not a value to be copied.
+ */
+export function solveOverlay(search: OverlaySearch): OverlaySolution | null {
+  const [minL, maxL] = search.lightness ?? [0.60, 0.96];
+  const [minC, maxC] = search.chroma ?? [0.0, 0.20];
+  const [minA, maxA] = search.alpha ?? [0.10, 0.90];
+  let best: OverlaySolution | null = null;
+  for (const hue of search.hues) {
+    for (let a = minA; a <= maxA + 1e-9; a += OVERLAY_STEP.alpha) {
+      for (let l = minL; l <= maxL + 1e-9; l += OVERLAY_STEP.lightness) {
+        for (let c = minC; c <= maxC + 1e-9; c += OVERLAY_STEP.chroma) {
+          const colour: Oklch = [round3(l), round3(c), hue];
+          if (!inGamut(colour)) continue;
+          const candidate: Overlay = { color: colour, alpha: round3(a) };
+          const distance = distanceEmitted(compositeEmitted(colour, candidate.alpha, search.against), search.against);
+          if (best !== null && distance <= best.distance) continue;
+          if (!search.accept(candidate)) continue;
+          best = { overlay: candidate, distance };
+        }
+      }
+    }
+  }
+  return best;
+}
+
+const round3 = (value: number): number => Math.round(value * 1000) / 1000;

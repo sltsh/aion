@@ -185,12 +185,32 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // the floor, one overlay at a time with chroma bounded at 0.09, so the result is a floor
 // on visibility and not a proven maximum: hue carries what luminance cannot. The selection is
 // held back by the syntax floor, which is why that floor sits at 4.8:1 rather than 4.5:1.
+// The selection is the loudest of them, as on Dark; the word highlight and the other find
+// matches could each pass it and are held at three quarters of it instead.
 export const lightOverlay = {
   selection: { color: gamutSafe(0.835, 0.085, 250, 'selection'), alpha: 0.35 },
-  findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.55 },
-  wordHighlight: { color: gamutSafe(0.872, 0.087, 200, 'word highlight'), alpha: 0.45 },
+  findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.40 },
+  wordHighlight: { color: gamutSafe(0.872, 0.087, 200, 'word highlight'), alpha: 0.29 },
   lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },
 } as const satisfies Record<string, Overlay>;
+
+// Dark draws these five from a translucent neutral, which on Light became the current-line
+// wash and moved the editor by 0.018 in OKLab or less. None is bound by the text on it:
+// each could reach the selection, so each is held at three quarters of it, seen and never
+// mistaken for it. The two that follow a selection take its colour.
+const LIGHT_RANGE_WASH: Overlay = {
+  color: gamutSafe(0.860, 0.040, BASE_HUE, 'range wash'), alpha: 0.35,
+};
+
+export const lightDecoration = {
+  selectionHighlight: { color: lightOverlay.selection.color, alpha: 0.25 },
+  inactiveSelection: { color: lightOverlay.selection.color, alpha: 0.25 },
+  findRange: LIGHT_RANGE_WASH,
+  rangeHighlight: LIGHT_RANGE_WASH,
+  fold: LIGHT_RANGE_WASH,
+} as const satisfies Record<string, Overlay>;
+
+export type LightDecorationName = keyof typeof lightDecoration;
 
 export const lightFindMatch = {
   current: lightAccentScale('gold').subtle,

@@ -80,7 +80,7 @@ Aion they stay quiet without going faint.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 1105 |
+| Rows measured | 1391 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |

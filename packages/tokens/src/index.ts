@@ -16,11 +16,11 @@ export {
   CONTRAST_FLOOR, NON_TEXT_FLOOR, MEANING_PAIR_GAP, CONTRAST_EXEMPT,
 } from './palette.js';
 
-export type { LightNeutralName } from './light.js';
+export type { LightNeutralName, LightDecorationName } from './light.js';
 export {
   LIGHT_LIGHTNESS, lightNeutral, lightEditorNeutral, lightDimText, lightComment, lightSyntax,
   lightAnsiWhite, lightAnsiBrightBlack, LIGHT_CHROMA_FLOOR_EXCEPTION,
-  lightAccent, lightAccents, lightAccentScale, lightOverlay, lightFindMatch, lightDiff,
+  lightAccent, lightAccents, lightAccentScale, lightOverlay, lightDecoration, lightFindMatch, lightDiff,
   lightDiffWash, lightBrackets, lightCursor, lightAnsi, lightTerminalSelection,
 } from './light.js';
 
@@ -33,8 +33,8 @@ export {
   bgLight, fgLight, borderLight, accentLight, semanticLight, BOUNDARY_PAIRS_LIGHT,
 } from './semantic.js';
 
-export type { Marker, Solution } from './solve.js';
-export { solveMarker, binding, distanceEmitted } from './solve.js';
+export type { Marker, Solution, OverlaySearch, OverlaySolution } from './solve.js';
+export { solveMarker, solveOverlay, binding, distanceEmitted } from './solve.js';
 
 export type { ReadingState, StateSource, SurfaceName } from './states.js';
 export { readingStates, readingForegrounds, SHIPPED, LIGHT_SHIPPED } from './states.js';

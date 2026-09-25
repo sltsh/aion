@@ -10,9 +10,10 @@ import {
 } from './palette.js';
 import {
   lightAccents, lightAnsi, lightBrackets, lightComment, lightDiff, lightDiffWash,
-  lightDimText, lightEditorNeutral, lightFindMatch, lightOverlay, lightAccentScale,
+  lightDecoration, lightDimText, lightEditorNeutral, lightFindMatch, lightOverlay, lightAccentScale,
   lightCursor, lightTerminalSelection,
 } from './light.js';
+import type { LightDecorationName } from './light.js';
 import type { StatusScale } from './status.js';
 import { statusLightFor } from './status.js';
 import type { Oklch, Overlay } from './index.js';
@@ -69,6 +70,7 @@ export interface Palette {
   readonly cursor: Oklch;
   readonly terminalSelection: Oklch;
   readonly statuses: Record<StatusName, StatusScale>;
+  readonly decoration?: Record<LightDecorationName, Overlay>;
 }
 
 // The lab drives this. At the default options it must equal the shipped palette exactly,
@@ -196,6 +198,8 @@ export function buildLightPalette(overrides: Partial<LightPreviewOptions> = {}):
   };
   const diffWash = mapValues(lightDiffWash, (value): Overlay =>
     shiftOverlay(value, 0, accentChromaScale));
+  const decoration = mapValues(lightDecoration, (value, name): Overlay =>
+    shiftOverlay(value, name === 'selectionHighlight' || name === 'inactiveSelection' ? 0 : hueDelta, chromaScale));
   const diff = mapValues(lightDiff, (value): Oklch =>
     shiftHue(value, 0, accentLightnessDelta, accentChromaScale));
   const findMatch = mapValues(lightFindMatch, (value): Oklch =>
@@ -223,6 +227,7 @@ export function buildLightPalette(overrides: Partial<LightPreviewOptions> = {}):
     cursor: shiftHue(lightCursor, 0, accentLightnessDelta, accentChromaScale),
     terminalSelection: shiftHue(lightTerminalSelection, hueDelta, surfaceDelta, chromaScale),
     statuses,
+    decoration,
   };
 }
 
