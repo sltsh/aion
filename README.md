@@ -24,7 +24,10 @@
 </p>
 
 <p align="center">
-  <img src="screenshots/vscode-dark.png" alt="Aion Dark in VS Code: a TypeScript file in the editor, the Explorer on the left and a passing test run in the terminal panel" width="880">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="screenshots/vscode-light.png">
+    <img src="screenshots/vscode-dark.png" alt="Aion in VS Code: a TypeScript file in the editor, the Explorer on the left and a passing test run in the terminal panel" width="880">
+  </picture>
 </p>
 
 ```bash
