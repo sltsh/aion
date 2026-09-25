@@ -447,13 +447,13 @@ at least 4.5:1 on the darkest editor surface and more on the page. Accent text o
 
 | Role | Hex | | Accent | Hex | Ratio |
 |---|---|---|---|---|---|
-| page | `#f6f8fd` | | coral | `#af3c40` | 5.58 |
-| surface | `#eff2f7` | | copper | `#a14c00` | 5.57 |
-| raised | `#e7eaef` | | gold | `#7b6000` | 5.62 |
-| input | `#dee1e7` | | green | `#00742b` | 5.59 |
-| hover | `#d5d7dd` | | teal | `#00706e` | 5.58 |
-| hairline | `#cbced3` | | blue | `#2965ad` | 5.55 |
-| divider | `#bbbec3` | | violet | `#7951a3` | 5.62 |
+| page | `#f6f8fd` | | coral | `#aa373c` | 5.95 |
+| surface | `#eff2f7` | | copper | `#9a4800` | 5.99 |
+| raised | `#e7eaef` | | gold | `#765d00` | 5.92 |
+| input | `#dee1e7` | | green | `#006f28` | 5.98 |
+| hover | `#d5d7dd` | | teal | `#006b69` | 5.98 |
+| hairline | `#cbced3` | | blue | `#2460a8` | 5.96 |
+| divider | `#bbbec3` | | violet | `#754d9e` | 5.97 |
 | border | `#7c7f84` | | | | |
 | muted | `#6f7276` | | | | |
 | secondary text | `#505357` | | | | |

@@ -53,8 +53,8 @@ export const lightEditorNeutral: Record<NeutralName, Oklch> = {
 // dim chrome is a little quieter again, and ANSI white/bright-black retain their terminal
 // roles instead of inheriting whichever neutral happened to be emitted first.
 // The comment is the budget every light overlay is solved against. At 0.516 no tinted
-// selection fitted under a diff wash; 0.500 buys that room and stays quieter than dim text.
-export const lightComment: Oklch = lightNeutralRole(0.500);
+// selection fitted under a diff wash; 0.490 buys that room and stays quieter than dim text.
+export const lightComment: Oklch = lightNeutralRole(0.490);
 export const lightDimText: Oklch = lightNeutralRole(0.510);
 export const lightAnsiWhite: Oklch = lightNeutralRole(0.340);
 export const lightAnsiBrightBlack: Oklch = lightNeutralRole(0.505);
@@ -117,6 +117,11 @@ const solveOnLightSurface = (
   throw new Error(`no in-gamut light colour for ${name} at ${floor}:1`);
 };
 
+// Light syntax clears 4.8:1 on `input`, not 4.5:1. The selection sits under running code,
+// and at 4.5:1 no blue fill could move the editor by more than 0.033 in OKLab; this margin
+// is what lets the selection be seen.
+export const LIGHT_SYNTAX_FLOOR = 4.8;
+
 export const lightAccent = (name: AccentName): Oklch => {
   const [, chroma, hue] = ACCENTS[name];
   const ceiling = CHROMA_CEILING[name] ?? CHROMA_DEFAULT[1];
@@ -125,7 +130,7 @@ export const lightAccent = (name: AccentName): Oklch => {
     name,
     hue,
     Math.min(chroma * CHROMA_BOOST * LIGHT_ACCENT_CHROMA_SCALE, ceiling),
-    CONTRAST_FLOOR,
+    LIGHT_SYNTAX_FLOOR,
     minimum,
   );
 };
@@ -178,10 +183,10 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // current line and the syntax accents are already at the floor under that stack. So each
 // was searched for the most visible colour that keeps every light reading state above
 // the floor, one overlay at a time with chroma bounded at 0.09, so the result is a floor
-// on visibility and not a proven maximum: hue carries what luminance cannot. The selection is held back by the function
-// colour under a removed-word diff.
+// on visibility and not a proven maximum: hue carries what luminance cannot. The selection is
+// held back by the syntax floor, which is why that floor sits at 4.8:1 rather than 4.5:1.
 export const lightOverlay = {
-  selection: { color: gamutSafe(0.882, 0.060, 250, 'selection'), alpha: 0.30 },
+  selection: { color: gamutSafe(0.835, 0.085, 250, 'selection'), alpha: 0.35 },
   findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.55 },
   wordHighlight: { color: gamutSafe(0.872, 0.087, 200, 'word highlight'), alpha: 0.45 },
   lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },

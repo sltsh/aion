@@ -43,7 +43,7 @@ test('the light preview defaults are the complete light palette', () => {
     surfaceShift: -0.010,
     accentChroma: 1.10,
     accentLightness: 0.006,
-    commentLightness: 0.500,
+    commentLightness: 0.490,
   });
   expect(plain(buildLightPalette(LIGHT_PREVIEW_DEFAULTS))).toEqual(plain(lightPalette));
 });

@@ -343,7 +343,7 @@ describe('the live readout', () => {
     const lightFailing = readoutRows(buildLightPalette({ commentLightness: 0.600 }), 'light');
     const comment = lightFailing.find((row) => row.label === 'comment')!;
     expect(comment.ratio).toBeLessThan(CONTRAST_FLOOR);
-    expect(comment.against).toContain('removedWord');
+    expect(comment.against).toContain('selection');
   });
 
   test('reports a light accent that fails on the input surface', () => {
