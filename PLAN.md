@@ -474,8 +474,6 @@ Open work, in the order it unblocks the rest:
       on every match but the current one) read faint in the 1.2.0 check. Not pressing: it
       sits at three quarters of the selection, so a louder one needs the selection raised
       with it or an exception to that rule.
-- [ ] **Obsidian and site Light pages** under 1.2.0, whose accents and comment darkened
-      with the syntax floor.
 
 ## Order and parallelism
 
@@ -503,7 +501,9 @@ palette, diff, minimap and inline Git blame adjustments. Dark ANSI black was che
 VS Code on 2026-09-25 and the Obsidian comment in both schemes. The 2026-09-25 Light
 syntax, comment and overlay change makes the Light states a calculation again until
 rechecked. Aion Light 1.2.0 was checked and approved in VS Code on 2026-09-25: the
-selection, the decorations, the word highlight, other find matches and the darker syntax.
+selection, the decorations including the find range, the word highlight, other find
+matches and the darker syntax. The Obsidian theme and the site were approved under 1.2.0
+the same day.
 Any later palette change makes
 the affected native acceptance a calculation again. The gate covers the named set of
 reading states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
