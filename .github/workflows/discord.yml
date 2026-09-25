@@ -1,0 +1,72 @@
+# Posts repository activity to Discord through the DISCORD_WEBHOOK secret, a
+# credential that must never appear in a file. The job reads only the event
+# payload and never checks out code, which keeps pull_request_target safe.
+name: Discord
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+  issues:
+    types: [opened, reopened]
+  release:
+    types: [published]
+  push:
+    tags: ["v[0-9]*", "[0-9]*"]
+  workflow_run:
+    workflows: ["CI", "Release"]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  notify:
+    if: >-
+      (github.event_name != 'workflow_run'
+        || contains(fromJSON('["failure", "timed_out", "startup_failure"]'), github.event.workflow_run.conclusion))
+      && !(github.event_name == 'push' && github.event.deleted)
+    runs-on: ubuntu-latest
+    # Job level: a step cannot reliably read its own env in its if guard.
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+      - name: Post to Discord
+        if: env.DISCORD_WEBHOOK != ''
+        # A Discord outage or revoked webhook must never fail a repository event.
+        continue-on-error: true
+        run: |
+          cat > "$RUNNER_TEMP/notify.jq" <<'JQ'
+          def clip($n): if length > $n then .[0:$n - 1] + "…" else . end;
+          def firstline: (. // "") | split("\n")[0];
+          .repository.full_name as $repo
+          | (if $event == "pull_request_target" then
+              .pull_request as $pr
+              | {title: "\($repo): PR #\($pr.number) \(.action): \($pr.title)", url: $pr.html_url, color: 3447003,
+                 description: (($pr.body // "") | clip(300)),
+                 fields: [{name: "Author", value: $pr.user.login, inline: true},
+                          {name: "Branch", value: "\($pr.head.label) → \($pr.base.ref)", inline: true}]}
+            elif $event == "issues" then
+              .issue as $issue
+              | {title: "\($repo): issue #\($issue.number) \(.action): \($issue.title)", url: $issue.html_url, color: 15105570,
+                 description: (($issue.body // "") | clip(300)),
+                 fields: [{name: "Author", value: $issue.user.login, inline: true}]}
+            elif $event == "release" then
+              {title: "\($repo): release \(.release.tag_name) published", url: .release.html_url, color: 3066993,
+               description: ((.release.name // "") | clip(300)),
+               fields: [{name: "Author", value: .release.author.login, inline: true}]}
+            elif $event == "push" then
+              (.ref | sub("^refs/tags/"; "")) as $tag
+              | {title: "\($repo): tag \($tag) pushed", url: "\(.repository.html_url)/tree/\($tag)", color: 3066993,
+                 description: (.head_commit.message | firstline),
+                 fields: [{name: "Pushed by", value: .pusher.name, inline: true}]}
+            else
+              .workflow_run as $run
+              | {title: "\($repo): \($run.name) \($run.conclusion | gsub("_"; " ")) on \($run.head_branch // "a tag")", url: $run.html_url, color: 15158332,
+                 description: ($run.head_commit.message | firstline),
+                 fields: [{name: "Triggered by", value: $run.triggering_actor.login, inline: true},
+                          {name: "Event", value: $run.event, inline: true}]}
+            end)
+          | .title |= clip(256)
+          | {embeds: [with_entries(select(.value != "" and .value != null))]}
+          JQ
+          jq --arg event "$GITHUB_EVENT_NAME" -f "$RUNNER_TEMP/notify.jq" "$GITHUB_EVENT_PATH" > "$RUNNER_TEMP/payload.json"
+          curl -sS -f -X POST -H "Content-Type: application/json" -d @"$RUNNER_TEMP/payload.json" "$DISCORD_WEBHOOK"
