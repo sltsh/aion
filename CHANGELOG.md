@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.1.4
+
 ### Changed
 
 - Each port lists the files it attaches to the GitHub release in `aion.releaseAssets` in its
