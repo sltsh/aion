@@ -50,7 +50,7 @@ the tokens, and a test fails when the committed copy differs.
 
 | # | Slot | Hex | # | Slot | Hex |
 |---|---|---|---|---|---|
-| 0 | black | `#2a2e36` | 8 | bright black | `#8b909a` |
+| 0 | black | `#22262e` | 8 | bright black | `#8b909a` |
 | 1 | red | `#d86e6c` | 9 | bright red | `#ed807e` |
 | 2 | green | `#67ba75` | 10 | bright green | `#7bce88` |
 | 3 | yellow | `#d1ad43` | 11 | bright yellow | `#e4c058` |
@@ -68,13 +68,29 @@ Every slot except slot 0 clears 4.5:1 on both supported backgrounds: the standal
 lighter of the two and under a selection or a find-match wash as well, because a prompt
 puts the time and the git status in it and a terminal has no foreground override key.
 
-**Slot 0 is the one exemption, and it is a real limitation.** It reads 1.31:1 as a
-foreground on the panel and 1.34:1 on the standalone background. `SGR 30` does select it,
+**Slot 0 is the one exemption, and it is a real limitation.** It reads 1.17:1 as a
+foreground on the panel and 1.21:1 on the standalone background. `SGR 30` does select it,
 so an application that writes black text on the default background is not legible. No dark
 scheme can fix that and keep slot 0 dark enough to serve as a background, which is what
 `SGR 40` and reverse video need. Aion keeps it dark and guarantees the other direction:
-ANSI white reads 5.98:1 on slot 0 and bright white 11.07:1. Reverse video, which paints
+ANSI white reads 6.66:1 on slot 0 and bright white 12.33:1. Reverse video, which paints
 the default foreground as the background, clears the floor in both directions.
+
+**Badges.** Test runners and linters print status as black text on a colour, `SGR 30` on
+`SGR 41` to `46`. Slot 0 clears 4.5:1 on all twelve chromatic slots, and the gate holds it
+there. Two forms of the badge cannot be held by any palette, and `npm run verify` lists
+them as information:
+
+- **Bold badges.** VS Code draws bold text in the bright slot by default
+  (`terminal.integrated.drawBoldTextInBrightColors`), so a bold badge puts slot 8 on the
+  colour. Slot 8 is the grey that has to read on the panel, and no grey does both; a test
+  proves it.
+- **Aion Light.** Its chromatic slots are dark enough to read on the pale panel, and even
+  pure black falls short of 4.5:1 on them.
+
+VS Code's default `terminal.integrated.minimumContrastRatio` of 4.5 repairs both per cell
+when it draws them. If you have lowered it, turn `drawBoldTextInBrightColors` off to get
+the slot 0 badge back in the dark theme.
 
 A terminal that applies its own minimum-contrast correction will change these requested
 colours before drawing them. The numbers above describe what Aion asks for.

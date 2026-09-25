@@ -99,7 +99,7 @@ export function buildPalette(overrides: Partial<PreviewOptions> = {}): Palette {
     ansi[slot] = [L - BRIGHT_TO_NORMAL, C, H];
     ansi[`bright${capitalise(slot)}`] = [L, C, H];
   }
-  ansi.black = [shift(0.300), o.baseChroma, o.baseHue];
+  ansi.black = [shift(0.270), o.baseChroma, o.baseHue];
   ansi.brightBlack = [shift(0.652), o.baseChroma, o.baseHue];
   ansi.white = neutral.textSecondary;
   ansi.brightWhite = neutral.textPrimary;

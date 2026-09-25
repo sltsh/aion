@@ -77,7 +77,7 @@
   --aion-diff-removed: #c92e3b29;
   --aion-diff-added-gutter: #7bce88;
   --aion-diff-removed-gutter: #ed807e;
-  --aion-ansi-black: #2a2e36;
+  --aion-ansi-black: #22262e;
   --aion-ansi-red: #d86e6c;
   --aion-ansi-green: #67ba75;
   --aion-ansi-yellow: #d1ad43;
@@ -162,7 +162,7 @@
     --aion-syntax-escape: #00706e;
     --aion-syntax-function: #2965ad;
     --aion-syntax-keyword: #7951a3;
-    --aion-syntax-comment: #65686d;
+    --aion-syntax-comment: #616368;
     --aion-syntax-punctuation: #505357;
     --aion-fg-link: #2965ad;
     --aion-caret: #7b6000;
@@ -258,7 +258,7 @@
   --aion-syntax-escape: #00706e;
   --aion-syntax-function: #2965ad;
   --aion-syntax-keyword: #7951a3;
-  --aion-syntax-comment: #65686d;
+  --aion-syntax-comment: #616368;
   --aion-syntax-punctuation: #505357;
   --aion-fg-link: #2965ad;
   --aion-caret: #7b6000;
@@ -364,7 +364,7 @@
   --aion-diff-removed: #c92e3b29;
   --aion-diff-added-gutter: #7bce88;
   --aion-diff-removed-gutter: #ed807e;
-  --aion-ansi-black: #2a2e36;
+  --aion-ansi-black: #22262e;
   --aion-ansi-red: #d86e6c;
   --aion-ansi-green: #67ba75;
   --aion-ansi-yellow: #d1ad43;

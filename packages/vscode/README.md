@@ -92,7 +92,7 @@ their own.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 1057 |
+| Rows measured | 1105 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |
@@ -113,11 +113,11 @@ Three kinds of exemption are named rather than hidden:
   theme's corresponding line-number value clears the text floor.
 - Hairline and divider borders sit below 3:1. They separate regions that already read as
   separate; the edges of controls do not use them.
-- ANSI slot 0 reads 1.31:1 as a foreground. SGR 30 does select it, so that is a real
+- ANSI slot 0 reads 1.17:1 as a foreground on the panel. SGR 30 does select it, so that is a real
   limitation and not a claim that no application uses it. No dark scheme can fix it and
   keep slot 0 usable as a background, which is what SGR 40 and reverse video need. What
-  slot 0 does guarantee is the other direction: ANSI white reads 5.98:1 on it and bright
-  white 11.07:1.
+  slot 0 does guarantee is the other direction: ANSI white reads 6.66:1 on it and bright
+  white 12.33:1, and black badge text clears the floor on every colour slot.
 
 ## Colour vision
 

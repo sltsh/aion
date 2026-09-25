@@ -26,7 +26,9 @@ italicised.
 
 Decorations follow the same evidence-first rules as the dark theme. Accent text is
 solved against the darkest light surface on which it can appear. Translucent overlays are
-measured after emitted-byte compositing. Diff line and word fills carry the change in the
+measured after emitted-byte compositing, and each is solved to the most visible colour the
+floor allows: the editor is too light for an overlay to lighten, so hue carries the
+selection, word and find highlights rather than luminance. Diff line and word fills carry the change in the
 code area; the opaque gutter strips use restrained chroma and a lightness difference, with
 glyphs providing a second cue beyond hue.
 

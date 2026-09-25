@@ -422,6 +422,24 @@ theme. The existing Live Preview, Source, menu, dialog and mobile results for 1.
 were not repeated; those states have not been checked for the new highlight and callout
 rules.
 
+### 2026-09-25 Light overlays and terminal badges
+
+A native VS Code screenshot for the README showed what the gate could not: Aion Light's
+current line and word highlight were invisible. All four Light reading-state overlays sat
+at lightness 0.990 over a 0.980 editor and moved it by 0.013 in OKLab or less; the blue
+selection had clipped to near-white. Every text row on them passed, because the gate
+measured text and never the overlay. They are now solved for visibility inside the same
+floor, with the Light comment at 0.500 and the diff washes at 0.06/0.03 to make the room,
+and a test holds every overlay in both schemes to 0.03 in OKLab.
+
+The same screenshots showed a vitest badge, bold black on cyan, at 1.35:1 in Dark and
+2.39:1 in Light. Dark ANSI black moved to 0.270 so plain black badge text clears every
+chromatic slot, which it missed on red at 4.13:1. The bold badge (slot 8 under VS Code's
+default bold-in-bright) and every Light badge cannot be carried by any palette; tests
+prove both, and the gate reports them as information.
+
+This is a calculation. Neither change has been checked in VS Code yet.
+
 ## Order and parallelism
 
 Tasks 1 to 11 are done.
@@ -444,7 +462,9 @@ Checked in the applications themselves on 2026-09-05, not in a calculation:
 - **A sustained working session** at the user's own brightness and scaling.
 
 The Aion Light theme was checked and approved in VS Code on 2026-09-12 after the final
-palette, diff, minimap and inline Git blame adjustments. Any later palette change makes
+palette, diff, minimap and inline Git blame adjustments. The 2026-09-25 overlay, comment
+and diff-wash change and the Dark ANSI black change make those states a calculation again
+until rechecked. Any later palette change makes
 the affected native acceptance a calculation again. The gate covers the named set of
 reading states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
 

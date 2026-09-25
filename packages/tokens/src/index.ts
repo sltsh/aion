@@ -11,7 +11,7 @@ export type {
 export {
   BASE_HUE, BASE_CHROMA, NEUTRAL_LIGHTNESS, neutral, ACCENTS, ACCENT_NAMES, accentScale, scaleOf,
   SYNTAX, ONE_DARK_PRO_HUE, comment, dimText, STATUS, diff, diffWash, overlay, findMatch,
-  bracketPairs, cursor, ansi, ANSI_ORDER, ANSI_BLACK_TEXT, terminalBackground,
+  bracketPairs, cursor, ansi, ANSI_ORDER, ANSI_BLACK_TEXT, ANSI_BADGE, terminalBackground,
   terminalSelection, TERMINAL_BACKGROUNDS, CHROMA_CEILING, CHROMA_DEFAULT, HUE_DRIFT_LIMIT,
   CONTRAST_FLOOR, NON_TEXT_FLOOR, MEANING_PAIR_GAP, CONTRAST_EXEMPT,
 } from './palette.js';

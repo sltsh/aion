@@ -3,7 +3,7 @@ import type { Overlay } from './palette.js';
 import { hex, hexAlpha, compositeEmitted, contrastEmitted } from './oklch.js';
 import type { AccentName, AnsiSlot, DiffWashName, SyntaxRole, TerminalBackgroundName } from './palette.js';
 import {
-  ACCENTS, ACCENT_NAMES, ANSI_BLACK_TEXT, ANSI_ORDER, CONTRAST_FLOOR, NEUTRAL_LIGHTNESS,
+  ACCENTS, ACCENT_NAMES, ANSI_BADGE, ANSI_BLACK_TEXT, ANSI_ORDER, CONTRAST_FLOOR, NEUTRAL_LIGHTNESS,
   NON_TEXT_FLOOR, ONE_DARK_PRO_HUE, SYNTAX, TERMINAL_BACKGROUNDS, accentScale, ansi, comment,
   diff, diffWash, dimText, findMatch, neutral, overlay, terminalSelection,
 } from './palette.js';
@@ -155,6 +155,19 @@ export function checks(): Check[] {
   }
   for (const slot of ANSI_BLACK_TEXT) {
     rows.push(build('ansi', `ansi.${slot} on ansi.black`, ansi[slot], 'ansi.black', ansi.black, CONTRAST_FLOOR));
+  }
+  // A badge: SGR 30 on a chromatic background. The bold form lands in slot 8 under VS
+  // Code's default, and the light scheme cannot carry either form; both are measured as
+  // information because no palette can gate them. See ANSI_BADGE.
+  for (const slot of ANSI_BADGE) {
+    rows.push(build('ansi', `ansi.black badge on ansi.${slot}`, ansi.black, `ansi.${slot}`, ansi[slot],
+      CONTRAST_FLOOR));
+    rows.push(build('ansi', `ansi.brightBlack bold badge on ansi.${slot}`, ansi.brightBlack,
+      `ansi.${slot}`, ansi[slot], 0, 'info'));
+    rows.push(build('light', `light ansi.black badge on ansi.${slot}`, lightAnsi.black,
+      `light ansi.${slot}`, lightAnsi[slot], 0, 'info'));
+    rows.push(build('light', `light ansi.brightBlack bold badge on ansi.${slot}`, lightAnsi.brightBlack,
+      `light ansi.${slot}`, lightAnsi[slot], 0, 'info'));
   }
   // Windows Terminal paints its selection opaque, so every slot has to survive it.
   for (const slot of ANSI_ORDER) {

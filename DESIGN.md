@@ -55,7 +55,7 @@ panel and its opaque terminal selection.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 1057 |
+| Rows measured | 1105 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 35 |
@@ -78,7 +78,7 @@ word under the caret. Aion sets only structural ones — one edge between two re
 - **Hairline and divider borders** separate regions that already read as separate, so no
   non-text floor applies. The edge of a control does not use them; it uses `border`,
   which clears 3:1 on the field inside it and on the chrome behind it.
-- **ANSI slot 0** reads 1.31:1 as a foreground. SGR 30 does select it, so this is a
+- **ANSI slot 0** reads 1.17:1 as a foreground on the panel. SGR 30 does select it, so this is a
   limitation, not a claim that no application uses the slot for text. §10 gives the
   trade-off and what slot 0 does guarantee.
 
@@ -392,7 +392,7 @@ hues at 0.06 lower lightness.
 
 | # | Slot | Hex | Ratio | | # | Slot | Hex | Ratio |
 |---|---|---|---|---|---|---|---|---|
-| 0 | black | `#2a2e36` | exempt | | 8 | bright black | `#8b909a` | 5.71 |
+| 0 | black | `#22262e` | exempt | | 8 | bright black | `#8b909a` | 5.71 |
 | 1 | red | `#d86e6c` | 5.55 | | 9 | bright red | `#ed807e` | 6.96 |
 | 2 | green | `#67ba75` | 7.72 | | 10 | bright green | `#7bce88` | 9.61 |
 | 3 | yellow | `#d1ad43` | 8.51 | | 11 | bright yellow | `#e4c058` | 10.44 |
@@ -409,12 +409,19 @@ or a find-match wash as well, because a prompt puts the time and the git status 
 a terminal has no foreground override key to fall back on.
 
 **Slot 0 is an exemption because of a trade-off, not because of a rule.** `SGR 30` selects
-it as a foreground, and on either background it reads about 1.3:1, so an application that
+it as a foreground, and on either background it reads about 1.2:1, so an application that
 writes black text on the default background is not legible. Raising slot 0 far enough to
 change that would take it past the point where `SGR 40` and reverse video still carry
 text: at lightness 0.400 it still reads only 1.99:1 as a foreground while ANSI white on it
-falls from 5.98:1 to 4.04:1, below the floor. Aion keeps it dark and guarantees the other
+falls from 6.66:1 to 4.04:1, below the floor. Aion keeps it dark and guarantees the other
 direction. `ANSI_BLACK_TEXT` names the pair the gate measures.
+
+Slot 0 is also badge text: `SGR 30` on a chromatic background, which test runners print.
+It sits at lightness 0.270 so it clears the floor on all twelve chromatic slots; at 0.300
+it read 4.13:1 on red. `ANSI_BADGE` names them. A bold badge lands in slot 8 under VS
+Code's default `drawBoldTextInBrightColors`, and no grey reads both on the panel and on
+every colour; the light chromatic slots are too dark for any black. Both are measured as
+information, and VS Code's default `minimumContrastRatio` of 4.5 repairs them per cell.
 
 A terminal that applies a minimum-contrast correction changes these requested colours
 before drawing them. The table describes what Aion asks for, not what every emulator

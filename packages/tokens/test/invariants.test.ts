@@ -3,7 +3,7 @@ import { compositeEmitted, contrastEmitted, contrastEmitted as contrast, inGamut
 import type { Oklch, AccentName, SyntaxRole } from '../src/index.js';
 import {
   neutral, ACCENTS, ACCENT_NAMES, accentScale, SYNTAX, ONE_DARK_PRO_HUE, comment, diff, diffWash,
-  overlay, ansi,
+  overlay, ansi, ANSI_BADGE,
   findMatch, terminalBackground, CHROMA_CEILING, CHROMA_DEFAULT, HUE_DRIFT_LIMIT,
   CONTRAST_FLOOR, NON_TEXT_FLOOR, MEANING_PAIR_GAP, STATUS,
 } from '../src/palette.js';
@@ -13,6 +13,7 @@ import {
   LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection,
 } from '../src/light.js';
 import { readingForegrounds, readingStates } from '../src/states.js';
+import { distanceEmitted } from '../src/solve.js';
 
 const syntaxColor = (role: SyntaxRole): Oklch => ACCENTS[SYNTAX[role]];
 const roles = Object.keys(SYNTAX) as SyntaxRole[];
@@ -275,5 +276,62 @@ test('the light diff wash is visible and keeps its selection cue', () => {
       contrastEmitted(word(selected), word(lightNeutral.page)),
       `${side} selection through wash`,
     ).toBeGreaterThan(1 + (selectionShift - 1) * 0.5);
+  }
+});
+
+// The gate proves text reads on an overlay; nothing proved the overlay could be seen. The
+// light set shipped at 0.013 in OKLab or less, invisible in VS Code, while every row it
+// sat under passed. The light diff wash, confirmed visible natively, sits near 0.03.
+const OVERLAY_VISIBILITY = 0.03;
+
+test('every reading-state overlay moves its editor far enough to be seen, in both schemes', () => {
+  for (const [scheme, set, editor] of [
+    ['dark', overlay, neutral.editor],
+    ['light', lightOverlay, lightEditorNeutral.editor],
+  ] as const) {
+    for (const [name, value] of Object.entries(set)) {
+      const shift = distanceEmitted(compositeEmitted(value.color, value.alpha, editor), editor);
+      expect(shift, `${scheme} ${name} moves the editor by ${shift.toFixed(4)}`)
+        .toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+    }
+  }
+});
+
+// A word highlight lands on a selection, and an opaque or near-opaque wash would hide it.
+test('the selection still reads through a word highlight, in both schemes', () => {
+  for (const [scheme, set, editor] of [
+    ['dark', overlay, neutral.editor],
+    ['light', lightOverlay, lightEditorNeutral.editor],
+  ] as const) {
+    const selected = compositeEmitted(set.selection.color, set.selection.alpha, editor);
+    const word = (base: Oklch): Oklch =>
+      compositeEmitted(set.wordHighlight.color, set.wordHighlight.alpha, base);
+    const through = distanceEmitted(word(selected), word(editor));
+    expect(through, `${scheme} selection through the word highlight`)
+      .toBeGreaterThan(distanceEmitted(selected, editor) * 0.5);
+  }
+});
+
+const greys = (): Oklch[] =>
+  Array.from({ length: 201 }, (_, i): Oklch => [i / 200, ansi.brightBlack[1], ansi.brightBlack[2]]);
+
+// VS Code draws bold text in the bright slot by default, so a bold SGR 30 badge is slot 8
+// on a colour. Slot 8 also has to read on the panel. No grey does both, which is why the
+// bold badge is information in the gate and not a row the palette could be made to pass.
+test('no grey can be slot 8 on the dark panel and bold badge text on every colour', () => {
+  const both = greys().filter((grey) =>
+    contrastEmitted(grey, neutral.terminal) >= CONTRAST_FLOOR
+    && ANSI_BADGE.every((slot) => contrastEmitted(grey, ansi[slot]) >= CONTRAST_FLOOR));
+  expect(both.map(hex)).toEqual([]);
+});
+
+// The light chromatic slots are text on a pale panel, so they are dark, and the darkest
+// black the display can show still falls short on them. VS Code's default minimum contrast
+// ratio repairs the badge per cell; the palette cannot.
+test('no light black reads on a light chromatic slot at the floor', () => {
+  const blackest: Oklch = [0, 0, 0];
+  for (const slot of ANSI_BADGE) {
+    const ratio = contrastEmitted(blackest, lightAnsi[slot]);
+    expect(ratio, `pure black on light ${slot} = ${ratio.toFixed(2)}`).toBeLessThan(CONTRAST_FLOOR);
   }
 });

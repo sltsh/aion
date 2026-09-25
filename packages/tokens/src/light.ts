@@ -52,7 +52,9 @@ export const lightEditorNeutral: Record<NeutralName, Oklch> = {
 // light ramp's secondary text is the punctuation colour; comments sit one step quieter,
 // dim chrome is a little quieter again, and ANSI white/bright-black retain their terminal
 // roles instead of inheriting whichever neutral happened to be emitted first.
-export const lightComment: Oklch = lightNeutralRole(0.516);
+// The comment is the budget every light overlay is solved against. At 0.516 no tinted
+// selection fitted under a diff wash; 0.500 buys that room and stays quieter than dim text.
+export const lightComment: Oklch = lightNeutralRole(0.500);
 export const lightDimText: Oklch = lightNeutralRole(0.510);
 export const lightAnsiWhite: Oklch = lightNeutralRole(0.340);
 export const lightAnsiBrightBlack: Oklch = lightNeutralRole(0.505);
@@ -168,13 +170,20 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
   };
 };
 
-// Native light decorations have their own budget. The blue selection and gold match
-// remain visible through hue while staying on the light side of the syntax budget.
+// Native light decorations have their own budget. They used to be pale washes at 0.990,
+// lighter than the 0.980 editor, and sRGB holds almost no chroma there: the blue selection
+// clipped to near-white and every overlay moved the editor by 0.013 in OKLab or less,
+// which no reader could see. A light overlay cannot lighten the editor, and it cannot
+// darken it much either, because the diff wash is painted over the selection and the
+// current line and the syntax accents are already at the floor under that stack. So each
+// is solved to the most visible colour that keeps every light reading state above the
+// floor: hue carries what luminance cannot. The selection is held back by the function
+// colour under a removed-word diff, the rest by the comment on their own stacks.
 export const lightOverlay = {
-  selection: { color: gamutSafe(0.990, 0.040, 255, 'selection'), alpha: 0.60 },
-  findMatchOther: { color: gamutSafe(0.990, 0.060, 90, 'other find match'), alpha: 0.55 },
-  wordHighlight: { color: gamutSafe(0.990, 0.040, 90, 'word highlight'), alpha: 0.50 },
-  lineHighlight: { color: gamutSafe(0.990, 0.020, BASE_HUE, 'current line'), alpha: 0.55 },
+  selection: { color: gamutSafe(0.882, 0.060, 250, 'selection'), alpha: 0.30 },
+  findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.55 },
+  wordHighlight: { color: gamutSafe(0.872, 0.087, 200, 'word highlight'), alpha: 0.45 },
+  lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },
 } as const satisfies Record<string, Overlay>;
 
 export const lightFindMatch = {
@@ -188,12 +197,14 @@ const LIGHT_DIFF_WASH_COLOR = {
 
 // Pale subtle fills moved the editor by less than 0.01 in OKLab and disappeared in a
 // rendered diff. Low-alpha solid accents make the line and changed word perceptible while
-// every syntax role stays above 4.5:1 and at least half the selection cue survives.
+// every syntax role stays above 4.5:1 and at least half the selection cue survives. The
+// wash shares its budget with the selection under it: at 0.07 it left the selection
+// 0.024 of visibility, and 0.06 splits the room so both land near 0.03.
 export const lightDiffWash = {
-  addedLine: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.07 },
-  addedWord: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.035 },
-  removedLine: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.07 },
-  removedWord: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.035 },
+  addedLine: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.06 },
+  addedWord: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.03 },
+  removedLine: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.06 },
+  removedWord: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.03 },
 } as const satisfies Record<string, Overlay>;
 
 // The strips are the only opaque diff marker. Their restrained chroma keeps the gutter

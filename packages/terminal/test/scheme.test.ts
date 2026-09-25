@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import {
-  ACCENTS, ANSI_BLACK_TEXT, ANSI_ORDER, CONTRAST_FLOOR, TERMINAL_BACKGROUNDS, ansi,
+  ACCENTS, ANSI_BADGE, ANSI_BLACK_TEXT, ANSI_ORDER, CONTRAST_FLOOR, TERMINAL_BACKGROUNDS, ansi,
   contrastEmitted, hex, hexToOklch, neutral, terminalBackground, terminalSelection,
 } from '@sltsh/aion-tokens';
 import { fragment, scheme, settingsSnippet } from '../src/scheme.js';
@@ -83,6 +83,15 @@ test('slot 0 carries the two white slots as a background', () => {
   for (const slot of ANSI_BLACK_TEXT) {
     const ratio = contrastEmitted(ansi[slot], ansi.black);
     expect(ratio, `${slot} on ansi.black = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+  }
+});
+
+// Test runners print their status as a badge: SGR 30 on a colour. At 0.300 slot 0 read
+// 4.13:1 on red. The bold form lands in slot 8 and no palette can carry it; see ANSI_BADGE.
+test('slot 0 carries badge text on every chromatic slot', () => {
+  for (const slot of ANSI_BADGE) {
+    const ratio = contrastEmitted(ansi.black, ansi[slot]);
+    expect(ratio, `ansi.black on ${slot} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
   }
 });
 

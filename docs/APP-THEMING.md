@@ -109,7 +109,7 @@ selection, then check how the application handles selected text and reverse vide
 
 | # | Slot | Hex | # | Slot | Hex |
 | --- | --- | --- | --- | --- | --- |
-| 0 | black | `#2a2e36` | 8 | bright black | `#8b909a` |
+| 0 | black | `#22262e` | 8 | bright black | `#8b909a` |
 | 1 | red | `#d86e6c` | 9 | bright red | `#ed807e` |
 | 2 | green | `#67ba75` | 10 | bright green | `#7bce88` |
 | 3 | yellow | `#d1ad43` | 11 | bright yellow | `#e4c058` |

@@ -198,7 +198,9 @@ export const ansi: Record<AnsiSlot, Oklch> = (() => {
   // Slot 8 clears the text floor on both backgrounds and under a selection or a find
   // match wash, because a prompt puts the time and the git status in it and the terminal
   // has no foreground override to fall back on. Slot 0 cannot: see TERMINAL_BACKGROUNDS.
-  out.black = [0.300, BASE_CHROMA, BASE_HUE];
+  // Slot 0 is also the text of a badge, SGR 30 on SGR 41 to 46, which test runners print.
+  // At 0.300 it read 4.13:1 on red; 0.270 clears every chromatic slot. See ANSI_BADGE.
+  out.black = [0.270, BASE_CHROMA, BASE_HUE];
   out.brightBlack = [0.652, BASE_CHROMA, BASE_HUE];
   out.white = neutral.textSecondary;
   out.brightWhite = neutral.textPrimary;
@@ -233,6 +235,15 @@ export const terminalSelection: Oklch = accentScale('blue').subtle;
 // text. Aion keeps slot 0 dark and guarantees the other direction instead: slots 7 and 15
 // clear the text floor on top of it. `ANSI_BLACK_TEXT` is what that gate measures.
 export const ANSI_BLACK_TEXT = ['white', 'brightWhite'] as const satisfies readonly AnsiSlot[];
+
+// A badge is SGR 30 text on a chromatic background slot. Dark slot 0 carries it on all
+// twelve. Two cases cannot be carried by any palette, and are measured rather than hidden:
+// VS Code draws bold text in the bright slot by default, so a bold badge puts slot 8 on
+// the colour, and slot 8 is the grey that has to read on the panel; and a light scheme's
+// chromatic slots must be dark enough to read on its pale panel, which leaves no black
+// dark enough to read on them. VS Code's default `minimumContrastRatio` of 4.5 is what
+// repairs both, per cell, at render time.
+export const ANSI_BADGE = ANSI_ORDER.filter((slot) => !/black|white/i.test(slot));
 
 export const CHROMA_CEILING: Partial<Record<AccentName, number>> = {
   gold: 0.17, green: 0.17, blue: 0.13, violet: 0.13,

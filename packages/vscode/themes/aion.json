@@ -548,7 +548,7 @@
     "tab.unfocusedInactiveBackground": "#171b22",
     "tab.unfocusedInactiveForeground": "#848993",
     "tab.unfocusedInactiveModifiedBorder": "#8c5c3e",
-    "terminal.ansiBlack": "#2a2e36",
+    "terminal.ansiBlack": "#22262e",
     "terminal.ansiBlue": "#6b9fe2",
     "terminal.ansiBrightBlack": "#8b909a",
     "terminal.ansiBrightBlue": "#7db2f7",

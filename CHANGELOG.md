@@ -5,6 +5,18 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Fixed
+
+- Aion Light: the selection, the current line, the word highlight and other find matches
+  are visible. They were near-white washes on a near-white editor. The comment is slightly
+  darker and the diff washes slightly lighter to make room for them within the contrast
+  floor, and scroll bars, folded ranges and range highlights that share the current-line
+  colour are now visible too.
+- Terminal: black badge text, such as a test runner's status, clears 4.5:1 on every colour
+  in the dark theme and Windows Terminal. Bold badges and Aion Light badges depend on VS
+  Code's default minimum contrast ratio; the terminal README explains why no palette can
+  carry them.
+
 ## 1.1.5
 
 ### Fixed
