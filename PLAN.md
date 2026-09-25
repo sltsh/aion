@@ -447,30 +447,33 @@ border ladder the minimap slider uses, tests them on the editor and the sidebar,
 narrows the claim. Folded and range highlights moved from 0.006 to 0.014 and 0.018; they
 are still under the 0.03 bar and are left in the todo below.
 
+### 2026-09-25 native check of 1.1.7, and the Light selection
+
+Checked in VS Code: Dark ANSI black reads as plain badge text on every chromatic slot and
+as an `SGR 40` background, with `terminal.integrated.minimumContrastRatio` at 1. Light
+badges read poorly there, as the tests prove they must. The Obsidian code comment reads
+in both schemes. The Light selection was too faint to find.
+
+It could not be made clearer inside the old budget: every Light accent sat at 4.50:1 on
+`input`, and no blue fill moved the editor further than 0.033 in OKLab. Light syntax is
+now solved to 4.8:1 and the comment sits at 0.490, which takes the selection to 0.058.
+The five Light decorations that shared Dark's translucent neutral (selection highlight,
+inactive selection, find range, range highlight, fold) are solved at three quarters of
+the selection and are reading states; the word highlight and other find matches, which
+outshone the selection, are held there too. `solveOverlay` commits the search, and
+`test/overlay-search.test.ts` holds the selection to within 5% of its optimum. All of
+this is a calculation.
+
 ## Todo
 
 Open work, in the order it unblocks the rest:
 
-- [ ] **Native check in VS Code** of 1.1.6 and 1.1.7, then record it under "Native
-      acceptance": Light selection, current line, word highlight, other find matches, a
-      diff over a selection, scroll bars; Dark ANSI black as badge text and as an `SGR 40`
-      background; the Obsidian code comment, which moved to `#616368`.
-- [ ] **Light hero screenshot.** Retake `screenshots/vscode-light.png` with the Dark
-      setup (same file, scroll and window), then make the README hero a `<picture>` that
-      follows the reader's GitHub theme.
-- [ ] **Remove the screenshot fixture**: `packages/tokens/src/accent.ts`, its line in
-      `.git/info/exclude`, and `packages/tokens/dist/src/accent.*` after a build.
-- [ ] **Check `terminal.integrated.minimumContrastRatio`** on the VS Code client. The
-      1.1.6 screenshots showed badges uncorrected, which the 4.5 default would repair.
-- [ ] **Light folded and range highlights** (`editor.foldBackground`,
-      `editor.rangeHighlightBackground`) sit at 0.014 and 0.018 in OKLab, and the Light
-      find-range, selection-occurrence and inactive-selection washes under 0.005, where
-      Dark's read 0.034 to 0.052. Decide which need to be seen, solve them, and extend the visibility test.
-- [ ] **Light overlay search.** Commit the overlay search as a script or test so the
-      shipped values are checked against it; Astra found other-find-match 18.7% more
-      visible at chroma 0.098.
-- [ ] **README palette strip**: an SVG of the swatches written by `sync:design` from the
-      tokens, so the README shows the palette without a typed hex.
+- [ ] **Native check in VS Code** of the Light change above: selection, selection
+      highlight, inactive selection, find range, folded range, word highlight, other find
+      matches, and the darker syntax. Then the Obsidian and site Light pages, whose accents
+      moved with it.
+- [ ] **Check `terminal.integrated.minimumContrastRatio`** at its default of 4.5 on the
+      VS Code client. The 1.1.6 screenshots showed badges uncorrected, which it would repair.
 
 ## Order and parallelism
 
@@ -494,9 +497,10 @@ Checked in the applications themselves on 2026-09-05, not in a calculation:
 - **A sustained working session** at the user's own brightness and scaling.
 
 The Aion Light theme was checked and approved in VS Code on 2026-09-12 after the final
-palette, diff, minimap and inline Git blame adjustments. The 2026-09-25 overlay, comment
-and diff-wash change and the Dark ANSI black change make those states a calculation again
-until rechecked. Any later palette change makes
+palette, diff, minimap and inline Git blame adjustments. Dark ANSI black was checked in
+VS Code on 2026-09-25 and the Obsidian comment in both schemes. The 2026-09-25 Light
+syntax, comment and overlay change makes the Light states a calculation again until
+rechecked. Any later palette change makes
 the affected native acceptance a calculation again. The gate covers the named set of
 reading states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
 

@@ -5,6 +5,22 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Aion Light: syntax colours clear 4.8:1 on the input surface rather than 4.5:1, and the
+  comment is slightly darker. At 4.5:1 no blue selection could be seen; the selection now
+  moves the editor almost twice as far.
+- Aion Light: the word highlight and other find matches are quieter than the selection,
+  which they used to outshine.
+- The README shows the palette as an SVG strip written from the tokens, and its screenshot
+  follows the reader's GitHub theme.
+
+### Fixed
+
+- Aion Light: the selection highlight, the inactive selection, the find range, range
+  highlights and folded ranges are visible. They moved the editor by 0.018 in OKLab or
+  less and are now gated as reading states.
+
 ## 1.1.7
 
 ### Fixed
