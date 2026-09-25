@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.2.0
+
 ### Changed
 
 - Aion Light: syntax colours clear 4.8:1 on the input surface rather than 4.5:1, and the
