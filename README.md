@@ -1,86 +1,82 @@
 <p align="center">
-  <img src="assets/aion-lockup-horizontal.png" alt="Aion" width="720">
+  <img src="assets/aion-lockup-horizontal.png" alt="Aion" width="560">
 </p>
-
-<p align="center">Dark and light themes for editors and the web, with matching terminal colours.<br>Gold accents, cool surfaces, familiar syntax. No italics.</p>
 
 <p align="center">
-  <a href="https://aion.slt.sh">Explore Aion</a> ·
-  <a href="docs/LIGHT.md">Aion Light</a> ·
-  <a href="https://aion.slt.sh/#essentials">Copy colours</a> ·
-  <a href="#install">Install</a> ·
-  <a href="https://aion.slt.sh/palette.html">Full palette</a>
+  <strong>A theme where your code is the deepest thing on the screen.</strong><br>
+  Gold for focus, cool surfaces, the syntax colours your hands already know,<br>
+  and a contrast floor that CI enforces. No italics. Dark and Light.
 </p>
 
-## A familiar place to work
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme"><img src="https://img.shields.io/visual-studio-marketplace/v/sltsh.aion-theme?label=VS%20Marketplace" alt="Visual Studio Marketplace"></a>
+  <a href="https://open-vsx.org/extension/sltsh/aion-theme"><img src="https://img.shields.io/open-vsx/v/sltsh/aion-theme?label=Open%20VSX" alt="Open VSX"></a>
+  <a href="https://www.npmjs.com/package/@sltsh/aion-css"><img src="https://img.shields.io/npm/v/@sltsh/aion-css?label=npm" alt="npm"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue" alt="MIT licence"></a>
+</p>
 
-Aion follows the One Dark Pro syntax role map, with gold for focus and navigation and
-teal as a secondary accent. The dark editor is the darkest surface; the raised sidebar
-and panels keep the workspace easy to read. Aion Light is tuned independently for light
-surfaces and generated alongside the dark VS Code theme.
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="https://aion.slt.sh/#sample">Live preview</a> ·
+  <a href="https://aion.slt.sh/palette.html">Full palette</a> ·
+  <a href="https://aion.slt.sh/#essentials">Copy colours</a> ·
+  <a href="docs/LIGHT.md">Aion Light</a>
+</p>
 
-Explore the [live code preview](https://aion.slt.sh/#sample) to see the palette in use.
-The name comes from the Ancient Greek αἰών: an age, an epoch, a span of existence.
+<p align="center">
+  <img src="screenshots/vscode-dark.png" alt="Aion Dark in VS Code: a TypeScript file in the editor, the Explorer on the left and a passing test run in the terminal panel" width="880">
+</p>
 
-## Aion Light
+```bash
+code --install-extension sltsh.aion-theme
+```
 
-Aion Light preserves the dark theme's roles rather than inverting its values. Its editor
-is the cleanest, lightest canvas; supporting surfaces deepen gradually, and the familiar
-syntax hues are solved again for light backgrounds. Gold remains the interaction accent,
-violet remains primarily syntax, comments stay deliberately quiet, and there are no
-italics.
+Then pick **Aion** or **Aion Light** from **Preferences: Color Theme**.
 
-Read [the Light variant guide](docs/LIGHT.md) for its design philosophy, implementation,
-current availability and native-acceptance status.
+## Why Aion
 
-## Install
+**Your code sits deepest.** In Aion the editor is the darkest surface. The sidebar,
+activity bar and status bar are raised one step above it, and the panel sits between the
+two, so the eye settles on the code rather than on the chrome around it. Of the four
+themes compared here, two do the opposite and two paint both one colour:
 
-Aion is available from npm, the Visual Studio Marketplace and Open VSX. The published
-extension contains both **Aion** and **Aion Light**, and the npm packages expose both
-scheme palettes.
-
-| Use Aion in      | Get started                                                                                                                                             |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| VS Code          | Run `code --install-extension sltsh.aion-theme`, then choose **Aion** or **Aion Light** with **Preferences: Color Theme**. |
-| Windows Terminal | [Download aion.json](https://aion.slt.sh/downloads/aion.json), then follow the steps below.                                                             |
-| CSS / Tailwind   | Run `npm install @sltsh/aion-css`; see the [CSS package](packages/css/README.md) for Dark and Light usage. |
-| Obsidian         | [Install Aion from the community directory](https://community.obsidian.md/themes/aion), or follow the [manual steps](packages/obsidian/README.md). |
-| Another app      | Follow the [portable colour-mapping guide](docs/APP-THEMING.md) for native editors, desktop tools and dashboards. |
-
-The Obsidian theme shares Aion's palette in both modes. Preview [Dark](screenshot.png) and
-[Light](screenshots/obsidian-light.png) as captured in Obsidian 1.13.7.
-
-For Windows Terminal, save `aion.json` in
-`%LOCALAPPDATA%\Microsoft\Windows Terminal\Fragments\sltsh` (create the folder if needed).
-Restart Terminal, then select **Aion** under **Settings → Profiles → Appearance → Colour
-scheme**. The [terminal guide](packages/terminal/README.md) also covers manual settings.
-
-## Built for readable code
-
-Syntax, interface text and decorations are checked against their intended surfaces.
-The contrast gate runs in CI and blocks colours below their floor. It covers a named set
-of reading states, not every state an application can produce; see the
-[design specification](DESIGN.md#31-the-states-the-floor-covers) for the scope and exemptions.
-
-<details>
-<summary>Contrast measurements and theme comparisons</summary>
-
-| Theme            | Editor    | Sidebar   | Order                |
-| ---------------- | --------- | --------- | -------------------- |
+| Theme | Editor | Sidebar | Order |
+|---|---|---|---|
 | One Dark Pro | `#282c34` | `#21252b` | sidebar below editor |
 | Ayu Mirage | `#242936` | `#1f2430` | sidebar below editor |
 | Nord | `#2e3440` | `#2e3440` | one surface |
 | Catppuccin Mocha | `#1e1e2e` | `#1e1e2e` | one surface |
 
-**The contrast floor is a gate, not a claim.** Every token is defined in OKLCH and checked
-against the surface it sits on, decorations composited the way the renderer composites
-them. `npm run verify` exits non-zero on a token below its floor, and CI runs it on every
-branch, so a colour below the floor cannot be released. The gate covers a named set of
-reading states, not every state a renderer can produce; §3.1 of `DESIGN.md` is the set,
-and three kinds of exemption are documented.
+**Nothing to relearn.** Syntax follows the One Dark Pro role map: functions are blue,
+strings green, keywords violet, types gold. Each hue is solved again in OKLCH so that it
+clears its floor in every reading state the gate covers. Gold is the signature everywhere else: the
+cursor, the focus ring, the search hit and the active tab.
 
-| What the gate checks             |  Count |
-| -------------------------------- | -----: |
+**The contrast floor is a gate, not a claim.** Every colour is checked against the surface
+it sits on, including under a current-line highlight, a selection, a word highlight and a
+diff fill, composited the way the renderer composites them. CI runs the gate on every
+branch, so a colour below its floor cannot ship.
+
+Here is the lowest of eight syntax roles on a plain editor line, against each theme's own
+editor background:
+
+| Theme | Lowest ratio | Below 4.5:1 | Source |
+|---|---|---|---|
+| Aion | 6.95 | none | — |
+| One Dark Pro | 3.73 | comment, variable | [One Dark Pro](https://github.com/Binaryify/OneDark-Pro/blob/main/themes/OneDark-Pro.json) @ `54c3280` |
+| Ayu Mirage | 3.42 | comment | [Ayu Mirage](https://github.com/ayu-theme/vscode-ayu/blob/master/ayu-mirage.json) @ `444ef92` |
+| Nord | 2.43 | comment, number | [Nord](https://github.com/nordtheme/visual-studio-code/blob/develop/themes/nord-color-theme.json) @ `8ead098` |
+| Catppuccin Mocha | 5.81 | none | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
+
+That compares eight colours on one background, read on 2026-09-05 at the revision named;
+it is not a measure of accessibility or usability. Comments are the usual casualty, and in
+Aion they stay quiet without going faint.
+
+<details>
+<summary>What the gate checks</summary>
+
+| What the gate checks | Count |
+|---|---:|
 | Rows measured | 1057 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
@@ -90,90 +86,59 @@ and three kinds of exemption are documented.
 | TextMate rules | 64 |
 | Semantic tokens | 32 |
 
-| Theme            | Lowest ratio | Below 4.5:1       | Source                                                                                                                           |
-| ---------------- | ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Aion | 6.95 | none | — |
-| One Dark Pro | 3.73 | comment, variable | [One Dark Pro](https://github.com/Binaryify/OneDark-Pro/blob/main/themes/OneDark-Pro.json) @ `54c3280` |
-| Ayu Mirage | 3.42 | comment | [Ayu Mirage](https://github.com/ayu-theme/vscode-ayu/blob/master/ayu-mirage.json) @ `444ef92` |
-| Nord | 2.43 | comment, number | [Nord](https://github.com/nordtheme/visual-studio-code/blob/develop/themes/nord-color-theme.json) @ `8ead098` |
-| Catppuccin Mocha | 5.81 | none | [Catppuccin Mocha](https://github.com/catppuccin/vscode/blob/main/packages/catppuccin-vsc/src/theme/tokens/index.ts) @ `befc9e6` |
-
-Eight syntax roles on a plain editor line, against each theme's own editor background,
-read on 2026-09-05 at the revision named. Every table here is generated: `npm run
-sync:design` rewrites them from the token package and the emitted theme, so the copy
-cannot drift from the emitter. This compares eight colours, not accessibility and not
-usability.
+The gate covers a named set of reading states, not every state an application can
+produce, and every exemption is documented. [§3.1 of the design specification](DESIGN.md#31-the-states-the-floor-covers)
+lists each state and the foreground that reads worst on it. Every table in this README is
+generated from the token package, so the copy cannot drift from what ships.
 
 </details>
 
-The dark and light VS Code themes are generated from their complete scheme palettes and
-share the same selectors and semantic-token names. Their contrast guarantees are
-calculated over the named renderer states; native editor rendering remains a separate
-acceptance check after a palette change.
+## Install
+
+| Use Aion in | Get started |
+|---|---|
+| **VS Code** | `code --install-extension sltsh.aion-theme`, or install from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme). |
+| **Cursor, Windsurf, VSCodium** | Search for **Aion** in the extensions view; it is published to [Open VSX](https://open-vsx.org/extension/sltsh/aion-theme). |
+| **Obsidian** | [Install from the community directory](https://community.obsidian.md/themes/aion), or follow the [manual steps](packages/obsidian/README.md). |
+| **Windows Terminal** | [Download aion.json](https://aion.slt.sh/downloads/aion.json) and follow the [terminal guide](packages/terminal/README.md). |
+| **Herdr** | Merge the theme from the [terminal guide](packages/terminal/README.md#herdr) into your config. |
+| **CSS / Tailwind** | `npm install @sltsh/aion-css`; see the [CSS package](packages/css/README.md). |
+| **Anything else** | The [portable colour-mapping guide](docs/APP-THEMING.md) maps every role for native editors, desktop tools and dashboards. |
+
+The extension ships both **Aion** and **Aion Light**, and the npm packages expose both
+palettes. The integrated terminal uses a matching ANSI set whose bright eight are
+byte-identical to the syntax accents.
+
+## Aion Light
+
+Aion Light keeps the dark theme's roles rather than inverting its values. The editor is
+the cleanest, lightest canvas, supporting surfaces deepen around it, and every syntax hue
+is solved again for a light background. Gold stays the interaction accent and comments
+stay quiet. The [Light guide](docs/LIGHT.md) covers its design and availability.
+
+## Beyond the editor
+
+The same palette carries into Obsidian, in both modes:
+
+<table>
+  <tr>
+    <td><img src="screenshots/obsidian-dark.png" alt="Aion Dark in Obsidian"></td>
+    <td><img src="screenshots/obsidian-light.png" alt="Aion Light in Obsidian"></td>
+  </tr>
+</table>
+
+The [public site](https://aion.slt.sh) is built on `@sltsh/aion-css` and switches between
+both palettes, and the [palette reference](https://aion.slt.sh/palette.html) lists every
+colour with its role.
+
+The name comes from the Ancient Greek αἰών: an age, an epoch, a span of existence.
 
 ## Contributing
 
-Bug reports and port contributions are welcome. For a rendering issue, include the app
-version, a screenshot, and the steps needed to reproduce it. For palette changes, edit
-the OKLCH source in `packages/tokens`; generated colours should never be edited by hand.
-
-## Packages
-
-| Package             | What it ships                                                                      |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| `packages/tokens`   | `@sltsh/aion-tokens` — both scheme palettes, OKLCH definitions and the build gate  |
-| `packages/vscode`   | the VS Code extension: Aion, Aion Light, their gates and scope fixtures            |
-| `packages/terminal` | the dark Windows Terminal fragment, settings snippet and Herdr theme               |
-| `packages/css`      | both schemes as custom properties and a Tailwind v4 `@theme` block                 |
-| `packages/obsidian` | generates the Dark and Light Obsidian community theme stylesheet                  |
-| `apps/lab`          | the surface gallery: five surfaces, one palette, six live sliders                  |
-| `apps/site`         | the public site at https://aion.slt.sh: the landing page and the palette reference |
-
-## Commands
-
-```bash
-npm install
-npm run build       # every package emits its artefact
-npm test            # every workspace, plus the release and bootstrap tests at the root
-npm run typecheck
-npm run verify      # the contrast gate; exits non-zero on any failure
-npm run sync:design # regenerates the generated tables in DESIGN.md and both READMEs
-npm run dev -w ./apps/lab   # the surface gallery on http://localhost:8421
-npm run dev -w ./apps/site  # the public site on http://localhost:8422
-```
-
-CI runs the same gate on every branch and pull request under Node 22 and Node 24, and
-fails when a build or a `sync:design` changes a tracked file. A `v*.*.*` tag publishes.
-
-## Release and deployment
-
-Pushes to `main` run CI and deploy `apps/site` to GitHub Pages. The lab remains local.
-
-A version tag is the package release trigger. Before tagging, move the changelog section,
-set the same version in all four package manifests, update the CSS token dependency and
-refresh the lockfile. The release workflow rebuilds and rechecks the repository, then:
-
-- publishes `@sltsh/aion-tokens` and `@sltsh/aion-css` to npm;
-- publishes one VSIX containing Aion and Aion Light to the Visual Studio Marketplace and
-  Open VSX;
-- creates the GitHub release with the VSIX and generated notes.
-
-The Windows Terminal fragment remains a repository and site download; it is not published
-to npm. See [RELEASING.md](docs/RELEASING.md) for prerequisites, dry-run and tag instructions.
-
-## Documents
-
-- `DESIGN.md` — the specification. Every table in it is generated.
-- `docs/LIGHT.md` — the Light variant's philosophy, implementation and availability.
-- `docs/APP-THEMING.md` — the portable colour mapping for apps without a package.
-- `PLAN.md` — the order of work, what is done, and every defect the code found.
-- `docs/RELEASING.md` — the release prerequisites, tag procedure and dry run.
-
-## Rules
-
-Do not edit a hex value by hand anywhere in this repository. Change the OKLCH definition
-in `packages/tokens` and rebuild. If a document and the emitted values disagree, the
-emitted values are right and the document is stale; run `npm run sync:design`.
+Bug reports and ports are welcome. For a rendering issue, include the app version, a
+screenshot and the steps to reproduce it. Colours are defined once in OKLCH and generated
+everywhere else, so a palette change starts in `packages/tokens`. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the repository layout, commands and release process.
 
 ## Licence
 
