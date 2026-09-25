@@ -52,3 +52,6 @@ export {
 
 export type { Rival, RivalResult, SurfaceOrder } from './rivals.js';
 export { RIVALS, SYNTAX_ROLES_COMPARED, contrastHex, measure, surfaceOrder } from './rivals.js';
+
+export type { StripScheme } from './strip.js';
+export { paletteStrip } from './strip.js';

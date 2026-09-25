@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="864" height="192" viewBox="0 0 864 192" role="img" aria-label="Aion Dark palette">
+  <rect width="864" height="192" rx="16" fill="#11151c"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" text-anchor="middle">
+  <rect x="24" y="24" width="88" height="88" rx="12" fill="#ed807e"/>
+  <text x="68" y="134" fill="#e2e8f3" font-size="14">coral</text>
+  <text x="68" y="154" fill="#a7acb7" font-size="12">#ed807e</text>
+  <rect x="128" y="24" width="88" height="88" rx="12" fill="#ea955f"/>
+  <text x="172" y="134" fill="#e2e8f3" font-size="14">copper</text>
+  <text x="172" y="154" fill="#a7acb7" font-size="12">#ea955f</text>
+  <rect x="232" y="24" width="88" height="88" rx="12" fill="#e4c058"/>
+  <text x="276" y="134" fill="#e2e8f3" font-size="14">gold</text>
+  <text x="276" y="154" fill="#a7acb7" font-size="12">#e4c058</text>
+  <rect x="336" y="24" width="88" height="88" rx="12" fill="#7bce88"/>
+  <text x="380" y="134" fill="#e2e8f3" font-size="14">green</text>
+  <text x="380" y="154" fill="#a7acb7" font-size="12">#7bce88</text>
+  <rect x="440" y="24" width="88" height="88" rx="12" fill="#59cdc8"/>
+  <text x="484" y="134" fill="#e2e8f3" font-size="14">teal</text>
+  <text x="484" y="154" fill="#a7acb7" font-size="12">#59cdc8</text>
+  <rect x="544" y="24" width="88" height="88" rx="12" fill="#7db2f7"/>
+  <text x="588" y="134" fill="#e2e8f3" font-size="14">blue</text>
+  <text x="588" y="154" fill="#a7acb7" font-size="12">#7db2f7</text>
+  <rect x="648" y="24" width="88" height="88" rx="12" fill="#bd96e9"/>
+  <text x="692" y="134" fill="#e2e8f3" font-size="14">violet</text>
+  <text x="692" y="154" fill="#a7acb7" font-size="12">#bd96e9</text>
+  <rect x="752" y="24" width="88" height="88" rx="12" fill="#98a0af"/>
+  <text x="796" y="134" fill="#e2e8f3" font-size="14">comment</text>
+  <text x="796" y="154" fill="#a7acb7" font-size="12">#98a0af</text>
+  </g>
+</svg>

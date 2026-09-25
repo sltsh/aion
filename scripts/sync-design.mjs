@@ -48,7 +48,7 @@ for (const line of emitted.split('\n')) {
 // theme, never typed: the prose said 630 interface keys, 54 TextMate rules and 25 covered
 // states while the code produced 622, 64 and 35.
 const { checks, readingStates } = await import('../packages/tokens/dist/index.js');
-const { hex, neutral, fg, border, accent, status, syntax, cursor, compositeEmitted, overlay } =
+const { hex, neutral, fg, border, accent, status, syntax, cursor, compositeEmitted, overlay, paletteStrip } =
   await import('../packages/tokens/dist/index.js');
 const appBase = [
   ['Main content', 'neutral.editor', neutral.editor],
@@ -121,4 +121,9 @@ for (const [path, wanted] of DOCUMENTS) {
   }
   writeFileSync(file, output.join('\n'));
   console.log(`${path}: ${replaced} tables regenerated from the token package`);
+}
+
+for (const scheme of ['dark', 'light']) {
+  writeFileSync(new URL(`../assets/palette-${scheme}.svg`, import.meta.url), paletteStrip(scheme));
+  console.log(`assets/palette-${scheme}.svg: written from the token package`);
 }

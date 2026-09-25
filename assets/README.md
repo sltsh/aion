@@ -13,3 +13,6 @@ brand artwork is independent of the palette.
 `aion-logo-light.png` and `aion-wordmark-light.png` preserve the supplied geometry and
 alpha while replacing the pale structure with the emitted dark editor base. The lab's
 `icon-light.png` is the corresponding 128px glyph and is selected with the light scheme.
+
+`palette-dark.svg` and `palette-light.svg` are not artwork: `npm run sync:design` writes
+them from the token package, and a test fails if either drifts from the emitter.

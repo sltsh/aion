@@ -36,6 +36,13 @@ code --install-extension sltsh.aion-theme
 
 Then pick **Aion** or **Aion Light** from **Preferences: Color Theme**.
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="assets/palette-light.svg">
+    <img src="assets/palette-dark.svg" alt="The Aion accents and comment colour, each with its hex value" width="864">
+  </picture>
+</p>
+
 ## Why Aion
 
 **Your code sits deepest.** In Aion the editor is the darkest surface. The sidebar,
