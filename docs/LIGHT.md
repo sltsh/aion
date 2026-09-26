@@ -2,8 +2,8 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/aion-wordmark.png">
-    <img src="assets/aion-wordmark-light.png" alt="Aion" width="540">
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/aion-wordmark.png">
+    <img src="../assets/aion-wordmark-light.png" alt="Aion" width="540">
   </picture>
 </p>
 
@@ -102,4 +102,4 @@ minimap and inline Git blame adjustments. Any later palette change requires fres
 acceptance.
 
 See [RELEASING.md](RELEASING.md) for the tag-driven publication process and
-[DESIGN.md](DESIGN.md) for the complete colour and contrast specification.
+[DESIGN.md](../DESIGN.md) for the complete colour and contrast specification.

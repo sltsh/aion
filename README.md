@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme"><img src="https://img.shields.io/visual-studio-marketplace/v/sltsh.aion-theme?label=VS%20Marketplace" alt="Visual Studio Marketplace"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme"><img src="https://img.shields.io/badge/VS%20Marketplace-install-blue" alt="Visual Studio Marketplace"></a>
   <a href="https://open-vsx.org/extension/sltsh/aion-theme"><img src="https://img.shields.io/open-vsx/v/sltsh/aion-theme?label=Open%20VSX" alt="Open VSX"></a>
   <a href="https://www.npmjs.com/package/@sltsh/aion-css"><img src="https://img.shields.io/npm/v/@sltsh/aion-css?label=npm" alt="npm"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-MIT-blue" alt="MIT licence"></a>
