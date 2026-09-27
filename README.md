@@ -87,17 +87,20 @@ Aion they stay quiet without going faint.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 1391 |
+| Rows measured | 12633 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
-| Reading states per syntax colour | 35 |
+| Reading states per syntax colour | 559 |
 | Lowest ratio in a reading state | 4.50:1 |
 | Interface keys the theme sets | 623 |
 | TextMate rules | 64 |
 | Semantic tokens | 32 |
 
-The gate covers a named set of reading states, not every state an application can
-produce, and every exemption is documented. [§3.1 of the design specification](DESIGN.md#31-the-states-the-floor-covers)
+The gate covers bases and diff states with every subset of the three reading highlights,
+plus one other decoration at a time, intersected with producible renderer contexts.
+It omits word highlight with hover highlight and a find range over a selected diff word,
+as well as alternate find and diff-word registrations; it does not cover every
+combination VS Code can draw. Every exemption is documented. [§3.1 of the design specification](DESIGN.md#31-the-states-the-floor-covers)
 lists each state and the foreground that reads worst on it. Every table in this README is
 generated from the token package, so the copy cannot drift from what ships.
 

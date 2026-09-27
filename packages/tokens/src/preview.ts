@@ -4,7 +4,8 @@ import type {
 } from './palette.js';
 import {
   ACCENTS, ANSI_HUE, BASE_CHROMA, BASE_HUE, BRIGHT_TO_NORMAL, NEUTRAL_LIGHTNESS, STATUS, SYNTAX,
-  bracketPairs, capitalise, comment as shippedComment, diff as shippedDiff,
+  bracketPairs, capitalise, comment as shippedComment, decoration as shippedDecoration,
+  secondaryDecoration as shippedSecondaryDecoration, diff as shippedDiff,
   diffWash as shippedWash,
   findMatch as shippedFindMatch,
   overlay as shippedOverlay, dimText as shippedDim, scaleOf, terminalSelection,
@@ -71,8 +72,8 @@ export interface Palette {
   readonly cursor: Oklch;
   readonly terminalSelection: Oklch;
   readonly statuses: Record<StatusName, StatusScale>;
-  readonly decoration?: Record<LightDecorationName, Overlay>;
-  readonly secondaryDecoration?: Record<SecondaryDecorationName, Overlay>;
+  readonly decoration: Record<LightDecorationName, Overlay>;
+  readonly secondaryDecoration: Record<SecondaryDecorationName, Overlay>;
 }
 
 // The lab drives this. At the default options it must equal the shipped palette exactly,
@@ -115,8 +116,42 @@ export function buildPalette(overrides: Partial<PreviewOptions> = {}): Palette {
       o.baseHue - BASE_HUE + shippedOverlay.selection.color[2]], alpha: shippedOverlay.selection.alpha },
     findMatchOther: { color: reHue(shippedOverlay.findMatchOther.color, accents.gold),
       alpha: shippedOverlay.findMatchOther.alpha },
-    wordHighlight: { color: neutral.hover, alpha: shippedOverlay.wordHighlight.alpha },
+    wordHighlight: { color: [shift(shippedOverlay.wordHighlight.color[0]),
+      shippedOverlay.wordHighlight.color[1] * o.baseChroma / BASE_CHROMA, o.baseHue],
+      alpha: shippedOverlay.wordHighlight.alpha },
     lineHighlight: { color: neutral.hairline, alpha: shippedOverlay.lineHighlight.alpha },
+  };
+
+  const decoration = mapValues(shippedDecoration, (value): Overlay => ({
+    color: [shift(value.color[0]), value.color[1] * o.baseChroma / BASE_CHROMA,
+      value.color[2] + o.baseHue - BASE_HUE],
+    alpha: value.alpha,
+  }));
+  const secondaryColour = (name: SecondaryDecorationName, accent: Oklch): Oklch =>
+    [shippedSecondaryDecoration[name].color[0] + o.surfaceShift,
+      shippedSecondaryDecoration[name].color[1] * o.accentChroma, accent[2]];
+  const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
+    hover: { color: secondaryColour('hover', accents.blue), alpha: shippedSecondaryDecoration.hover.alpha },
+    symbol: { color: secondaryColour('symbol', accents.gold), alpha: shippedSecondaryDecoration.symbol.alpha },
+    strongWord: { color: secondaryColour('strongWord', accents.teal), alpha: shippedSecondaryDecoration.strongWord.alpha },
+    stackFrame: { color: secondaryColour('stackFrame', accents.gold), alpha: shippedSecondaryDecoration.stackFrame.alpha },
+    focusedStackFrame: { color: secondaryColour('focusedStackFrame', accents.green), alpha: shippedSecondaryDecoration.focusedStackFrame.alpha },
+    bracketMatch: { color: secondaryColour('bracketMatch', accents.gold), alpha: shippedSecondaryDecoration.bracketMatch.alpha },
+    commentRange: { color: secondaryColour('commentRange', accents.gold), alpha: shippedSecondaryDecoration.commentRange.alpha },
+    activeCommentRange: { color: secondaryColour('activeCommentRange', accents.gold), alpha: shippedSecondaryDecoration.activeCommentRange.alpha },
+    unchangedCode: { color: [shift(shippedSecondaryDecoration.unchangedCode.color[0]),
+      shippedSecondaryDecoration.unchangedCode.color[1] * o.baseChroma / BASE_CHROMA, o.baseHue],
+      alpha: shippedSecondaryDecoration.unchangedCode.alpha },
+    mergeCurrentHeader: { color: secondaryColour('mergeCurrentHeader', accents.green), alpha: shippedSecondaryDecoration.mergeCurrentHeader.alpha },
+    mergeIncomingHeader: { color: secondaryColour('mergeIncomingHeader', accents.blue), alpha: shippedSecondaryDecoration.mergeIncomingHeader.alpha },
+    mergeCommonHeader: { color: [shift(shippedSecondaryDecoration.mergeCommonHeader.color[0]),
+      shippedSecondaryDecoration.mergeCommonHeader.color[1] * o.baseChroma / BASE_CHROMA, o.baseHue],
+      alpha: shippedSecondaryDecoration.mergeCommonHeader.alpha },
+    mergeChange: { color: secondaryColour('mergeChange', accents.green), alpha: shippedSecondaryDecoration.mergeChange.alpha },
+    mergeChangeWord: { color: secondaryColour('mergeChangeWord', accents.green), alpha: shippedSecondaryDecoration.mergeChangeWord.alpha },
+    searchMatch: { color: secondaryColour('searchMatch', accents.gold), alpha: shippedSecondaryDecoration.searchMatch.alpha },
+    covered: { color: secondaryColour('covered', accents.green), alpha: shippedSecondaryDecoration.covered.alpha },
+    uncovered: { color: secondaryColour('uncovered', accents.coral), alpha: shippedSecondaryDecoration.uncovered.alpha },
   };
 
   return {
@@ -145,6 +180,8 @@ export function buildPalette(overrides: Partial<PreviewOptions> = {}): Palette {
     cursor: accents.gold,
     terminalSelection,
     statuses,
+    decoration,
+    secondaryDecoration,
   };
 }
 

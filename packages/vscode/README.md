@@ -92,10 +92,10 @@ their own.
 
 | What the gate checks | Count |
 |---|---:|
-| Rows measured | 1391 |
+| Rows measured | 12633 |
 | Below their floor | 0 |
 | Exempt rows, all documented | 5 |
-| Reading states per syntax colour | 35 |
+| Reading states per syntax colour | 559 |
 | Lowest ratio in a reading state | 4.50:1 |
 | Interface keys the theme sets | 623 |
 | TextMate rules | 64 |

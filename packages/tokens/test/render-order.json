@@ -1,0 +1,734 @@
+{
+  "revision": "4336606aa949efdcddb89b3db3e216562730b2bf",
+  "orderRule": {
+    "sourcePath": "src/vs/editor/browser/viewParts/decorations/decorations.ts",
+    "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/decorations/decorations.ts",
+    "sourceLines": [
+      81,
+      111
+    ],
+    "viewPartSourcePath": "src/vs/editor/browser/view.ts",
+    "viewPartSourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/view.ts",
+    "viewPartLines": [
+      219,
+      222
+    ]
+  },
+  "layers": [
+    {
+      "name": "lineHighlight",
+      "viewPart": 0,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "current-line",
+      "sourcePath": "src/vs/editor/browser/viewParts/currentLineHighlight/currentLineHighlight.ts",
+      "sourceLine": 219,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/currentLineHighlight/currentLineHighlight.ts"
+    },
+    {
+      "name": "selection",
+      "viewPart": 1,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "selected-text",
+      "sourcePath": "src/vs/editor/browser/viewParts/selections/selections.ts",
+      "sourceLine": 64,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/selections/selections.ts"
+    },
+    {
+      "name": "inactiveSelection",
+      "viewPart": 1,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "selected-text",
+      "sourcePath": "src/vs/editor/browser/viewParts/selections/selections.ts",
+      "sourceLine": 64,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/selections/selections.ts"
+    },
+    {
+      "name": "mergeCurrentHeader",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "ced-<runtime-key>-0",
+      "sourcePath": "extensions/merge-conflict/src/mergeDecorator.ts",
+      "sourceLine": 82,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/extensions/merge-conflict/src/mergeDecorator.ts"
+    },
+    {
+      "name": "mergeCommonHeader",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "ced-<runtime-key>-0",
+      "sourcePath": "extensions/merge-conflict/src/mergeDecorator.ts",
+      "sourceLine": 95,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/extensions/merge-conflict/src/mergeDecorator.ts"
+    },
+    {
+      "name": "mergeIncomingHeader",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "ced-<runtime-key>-0",
+      "sourcePath": "extensions/merge-conflict/src/mergeDecorator.ts",
+      "sourceLine": 107,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/extensions/merge-conflict/src/mergeDecorator.ts"
+    },
+    {
+      "name": "focusedStackFrame",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "debug-focused-stack-frame-line",
+      "sourcePath": "src/vs/workbench/contrib/debug/browser/callStackEditorContribution.ts",
+      "sourceLine": 59,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/debug/browser/callStackEditorContribution.ts"
+    },
+    {
+      "name": "stackFrame",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "debug-top-stack-frame-line",
+      "sourcePath": "src/vs/workbench/contrib/debug/browser/callStackEditorContribution.ts",
+      "sourceLine": 53,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/debug/browser/callStackEditorContribution.ts"
+    },
+    {
+      "name": "unchangedCode",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "diff-unchanged-lines",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts",
+      "sourceLine": 192,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts"
+    },
+    {
+      "name": "findRange",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "findScope",
+      "sourcePath": "src/vs/editor/contrib/find/browser/findDecorations.ts",
+      "sourceLine": 345,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/find/browser/findDecorations.ts"
+    },
+    {
+      "name": "fold",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "folded-background",
+      "sourcePath": "src/vs/editor/contrib/folding/browser/foldingDecorations.ts",
+      "sourceLine": 46,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/folding/browser/foldingDecorations.ts"
+    },
+    {
+      "name": "removedLine",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "line-delete",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts",
+      "sourceLine": 43,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts"
+    },
+    {
+      "name": "addedLine",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "line-insert",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts",
+      "sourceLine": 35,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts"
+    },
+    {
+      "name": "mergeChange",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "merge-editor-diff result",
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView.ts",
+      "sourceLine": 207,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView.ts"
+    },
+    {
+      "name": "rangeHighlight",
+      "viewPart": 2,
+      "isWholeLine": true,
+      "zIndex": 0,
+      "className": "rangeHighlight",
+      "sourcePath": "src/vs/editor/contrib/find/browser/findDecorations.ts",
+      "sourceLine": 339,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/find/browser/findDecorations.ts"
+    },
+    {
+      "name": "bracketMatch",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "bracket-match",
+      "sourcePath": "src/vs/editor/contrib/bracketMatching/browser/bracketMatching.ts",
+      "sourceLine": 303,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/bracketMatching/browser/bracketMatching.ts"
+    },
+    {
+      "name": "removedWord",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "char-delete",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts",
+      "sourceLine": 82,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts"
+    },
+    {
+      "name": "addedWord",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "char-insert",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts",
+      "sourceLine": 65,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts"
+    },
+    {
+      "name": "covered",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "coverage-deco-inline coverage-deco-hit",
+      "sourcePath": "src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts",
+      "sourceLine": 58,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts"
+    },
+    {
+      "name": "uncovered",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "coverage-deco-inline coverage-deco-miss",
+      "sourcePath": "src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts",
+      "sourceLine": 59,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts"
+    },
+    {
+      "name": "hover",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "hoverHighlight",
+      "sourcePath": "src/vs/editor/contrib/hover/browser/contentHoverRendered.ts",
+      "sourceLine": 225,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/hover/browser/contentHoverRendered.ts"
+    },
+    {
+      "name": "mergeChangeWord",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "merge-editor-diff-word result",
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView.ts",
+      "sourceLine": 219,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView.ts"
+    },
+    {
+      "name": "searchMatch",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "searchEditorFindMatch",
+      "sourcePath": "src/vs/workbench/contrib/searchEditor/browser/searchEditorInput.ts",
+      "sourceLine": 269,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/searchEditor/browser/searchEditorInput.ts"
+    },
+    {
+      "name": "selectionHighlight",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "selectionHighlight",
+      "sourcePath": "src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts",
+      "sourceLine": 55,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts"
+    },
+    {
+      "name": "symbol",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "symbolHighlight",
+      "sourcePath": "src/vs/editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl.ts",
+      "sourceLine": 688,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl.ts"
+    },
+    {
+      "name": "wordHighlight",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "wordHighlight",
+      "sourcePath": "src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts",
+      "sourceLine": 75,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts"
+    },
+    {
+      "name": "strongWord",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 0,
+      "className": "wordHighlightStrong",
+      "sourcePath": "src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts",
+      "sourceLine": 27,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts"
+    },
+    {
+      "name": "findMatchOther",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 10,
+      "className": "findMatch",
+      "sourcePath": "src/vs/editor/contrib/find/browser/findDecorations.ts",
+      "sourceLine": 306,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/find/browser/findDecorations.ts"
+    },
+    {
+      "name": "commentRange",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 20,
+      "className": "comment-thread-range",
+      "sourcePath": "src/vs/workbench/contrib/comments/browser/commentThreadRangeDecorator.ts",
+      "sourceLine": 47,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/comments/browser/commentThreadRangeDecorator.ts"
+    },
+    {
+      "name": "activeCommentRange",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 20,
+      "className": "comment-thread-range-current",
+      "sourcePath": "src/vs/workbench/contrib/comments/browser/commentThreadRangeDecorator.ts",
+      "sourceLine": 57,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/comments/browser/commentThreadRangeDecorator.ts"
+    }
+  ],
+  "variantsOmitted": [
+    {
+      "name": "addedWord",
+      "variant": "whole-line char-insert",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts",
+      "sourceLine": 71,
+      "reason": "The covered word fill selects the inline char-insert registration; the whole-line variant sorts in the whole-line group."
+    },
+    {
+      "name": "removedWord",
+      "variant": "whole-line char-delete",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/registrations.contribution.ts",
+      "sourceLine": 88,
+      "reason": "The covered word fill selects the inline char-delete registration; the whole-line variant sorts in the whole-line group."
+    },
+    {
+      "name": "findMatchOther",
+      "variant": "more than 1000 matches",
+      "sourcePath": "src/vs/editor/contrib/find/browser/findDecorations.ts",
+      "sourceLine": 163,
+      "reason": "The no-overview fallback uses zIndex 0 rather than the selected zIndex 10 match."
+    },
+    {
+      "name": "mergeCurrentHeader",
+      "variant": "runtime decoration type key",
+      "sourcePath": "src/vs/editor/browser/services/abstractCodeEditorService.ts",
+      "sourceLine": 874,
+      "reason": "The ced class key is generated at runtime. The coverage represents one header type at a time; their relative sort is not a universal contract."
+    }
+  ],
+  "exclusions": [
+    {
+      "layers": [
+        "lineHighlight",
+        "selection"
+      ],
+      "sourcePath": "src/vs/editor/browser/viewParts/currentLineHighlight/currentLineHighlight.ts",
+      "sourceLine": 191,
+      "reason": "The current-line content fill is suppressed while selections are nonempty.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/currentLineHighlight/currentLineHighlight.ts"
+    },
+    {
+      "layers": [
+        "lineHighlight",
+        "inactiveSelection"
+      ],
+      "sourcePath": "src/vs/editor/browser/viewParts/currentLineHighlight/currentLineHighlight.ts",
+      "sourceLine": 191,
+      "reason": "Inactive selection replaces selection while focus is elsewhere.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/currentLineHighlight/currentLineHighlight.ts"
+    },
+    {
+      "layers": [
+        "selection",
+        "inactiveSelection"
+      ],
+      "sourcePath": "src/vs/editor/browser/viewParts/selections/selections.css",
+      "sourceLine": 14,
+      "reason": "Active and inactive styles are alternatives on the same selection.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/viewParts/selections/selections.css"
+    },
+    {
+      "layers": [
+        "addedLine",
+        "removedLine"
+      ],
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts",
+      "sourceLine": 27,
+      "reason": "Original and modified decorations are attached to separate editor collections; removed fills use the original side and added fills use the modified side.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts"
+    },
+    {
+      "layers": [
+        "addedWord",
+        "removedWord"
+      ],
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts",
+      "sourceLine": 27,
+      "reason": "Original and modified decorations are attached to separate editor collections; removed fills use the original side and added fills use the modified side.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts"
+    },
+    {
+      "layers": [
+        "unchangedCode",
+        "addedLine"
+      ],
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts",
+      "sourceLine": 192,
+      "reason": "Unchanged-region ranges exclude changed lines.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts"
+    },
+    {
+      "layers": [
+        "unchangedCode",
+        "removedLine"
+      ],
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts",
+      "sourceLine": 192,
+      "reason": "Unchanged-region ranges exclude changed lines.",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts"
+    },
+    {
+      "layers": [
+        "mergeChange",
+        "addedLine"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 96,
+      "reason": "Merge Editor allocates separate CodeEditorWidget instances and editor-owned decorations; Diff Editor fills and unchanged-region fills belong to its distinct widgets. Merge Editor also omits FoldingController.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChange",
+        "removedLine"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 96,
+      "reason": "Merge Editor allocates separate CodeEditorWidget instances and editor-owned decorations; Diff Editor fills and unchanged-region fills belong to its distinct widgets. Merge Editor also omits FoldingController.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChange",
+        "unchangedCode"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 96,
+      "reason": "Merge Editor allocates separate CodeEditorWidget instances and editor-owned decorations; Diff Editor fills and unchanged-region fills belong to its distinct widgets. Merge Editor also omits FoldingController.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChange",
+        "fold"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 123,
+      "reason": "Merge Editor omits FoldingController from its CodeEditorWidget contributions.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChangeWord",
+        "addedLine"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 96,
+      "reason": "Merge Editor allocates separate CodeEditorWidget instances and editor-owned decorations; Diff Editor fills and unchanged-region fills belong to its distinct widgets. Merge Editor also omits FoldingController.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChangeWord",
+        "removedLine"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 96,
+      "reason": "Merge Editor allocates separate CodeEditorWidget instances and editor-owned decorations; Diff Editor fills and unchanged-region fills belong to its distinct widgets. Merge Editor also omits FoldingController.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChangeWord",
+        "unchangedCode"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 96,
+      "reason": "Merge Editor allocates separate CodeEditorWidget instances and editor-owned decorations; Diff Editor fills and unchanged-region fills belong to its distinct widgets. Merge Editor also omits FoldingController.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    },
+    {
+      "layers": [
+        "mergeChangeWord",
+        "fold"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+      "sourceLine": 123,
+      "reason": "Merge Editor omits FoldingController from its CodeEditorWidget contributions.",
+      "proof": "mergeDiffEditors",
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+    }
+  ],
+  "paintTransforms": [
+    {
+      "names": [
+        "lineHighlight",
+        "selection",
+        "inactiveSelection",
+        "mergeCurrentHeader",
+        "mergeCommonHeader",
+        "mergeIncomingHeader",
+        "focusedStackFrame",
+        "stackFrame",
+        "unchangedCode",
+        "findRange",
+        "fold",
+        "removedLine",
+        "addedLine",
+        "mergeChange",
+        "rangeHighlight",
+        "bracketMatch",
+        "removedWord",
+        "addedWord",
+        "covered",
+        "uncovered",
+        "hover",
+        "mergeChangeWord",
+        "searchMatch",
+        "symbol",
+        "wordHighlight",
+        "strongWord",
+        "findMatchOther",
+        "commentRange",
+        "activeCommentRange"
+      ],
+      "sourcePath": "src/vs/workbench/services/themes/browser/colorThemeCss.ts",
+      "sourceLine": 50,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/services/themes/browser/colorThemeCss.ts",
+      "colorSourcePath": "src/vs/base/common/color.ts",
+      "sourceLines": [
+        40,
+        615,
+        889
+      ],
+      "reason": "Theme colors are parsed with Color.fromHex and CSS variables use Color.toString; alpha becomes round3(byte/255), then Number(alpha.toFixed(2)). Direct theming rules interpolate the same Color.",
+      "consumers": [
+        {
+          "sourcePath": "src/vs/editor/browser/widget/diffEditor/style.css",
+          "sourceLines": [
+            62,
+            374,
+            378,
+            407,
+            415
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/style.css"
+        },
+        {
+          "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/media/mergeEditor.css",
+          "sourceLines": [
+            89,
+            93
+          ],
+          "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/media/mergeEditor.css"
+        }
+      ]
+    },
+    {
+      "name": "selectionHighlight",
+      "sourcePath": "src/vs/editor/contrib/wordHighlighter/browser/highlightDecorations.ts",
+      "sourceLine": 104,
+      "colorSourcePath": "src/vs/base/common/color.ts",
+      "sourceLines": [
+        40,
+        461,
+        615,
+        889
+      ],
+      "reason": "The selection highlight theming participant halves parsed emitted alpha, rounds to three decimals, then formats CSS alpha to two decimals."
+    }
+  ],
+  "conservativePairs": [
+    {
+      "layers": [
+        "mergeChangeWord"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/model/diffComputer.ts",
+      "sourceLines": [
+        78,
+        80,
+        89,
+        112
+      ],
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/model/diffComputer.ts",
+      "reason": "Range containment validation is commented out because it does not hold; the source does not establish word-only exclusion."
+    },
+    {
+      "layers": [
+        "searchMatch",
+        "addedLine"
+      ],
+      "sourcePath": "src/vs/workbench/contrib/searchEditor/browser/searchEditorInput.ts",
+      "sourceLine": 268,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/searchEditor/browser/searchEditorInput.ts",
+      "reason": "Search matches use resultsModel.deltaDecorations with global owner, so distinct editor widget allocation does not establish an exclusion."
+    }
+  ],
+  "surfaces": [
+    {
+      "name": "findMatch",
+      "viewPart": 2,
+      "isWholeLine": false,
+      "zIndex": 13,
+      "className": "currentFindMatch",
+      "sourcePath": "src/vs/editor/contrib/find/browser/findDecorations.ts",
+      "sourceLine": 289,
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/contrib/find/browser/findDecorations.ts",
+      "reason": "Opaque current find fill paints above zIndex 0 wordHighlight, so the legacy findMatch + wordHighlight row has the current find surface background."
+    }
+  ],
+  "dependencies": [
+    {
+      "layer": "addedWord",
+      "requires": "addedLine",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts",
+      "sourceLines": [
+        48,
+        64
+      ],
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts"
+    },
+    {
+      "layer": "removedWord",
+      "requires": "removedLine",
+      "sourcePath": "src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts",
+      "sourceLines": [
+        45,
+        61
+      ],
+      "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts"
+    }
+  ],
+  "contextProofs": {
+    "mergeDiffEditors": [
+      {
+        "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
+        "sourceLines": [
+          96,
+          123
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
+      },
+      {
+        "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/inputCodeEditorView.ts",
+        "sourceLines": [
+          211
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/inputCodeEditorView.ts"
+      },
+      {
+        "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView.ts",
+        "sourceLines": [
+          115
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/resultCodeEditorView.ts"
+      },
+      {
+        "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/utils.ts",
+        "sourceLines": [
+          32,
+          38
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/utils.ts"
+      },
+      {
+        "sourcePath": "src/vs/editor/browser/widget/diffEditor/components/diffEditorEditors.ts",
+        "sourceLines": [
+          66,
+          67
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/components/diffEditorEditors.ts"
+      },
+      {
+        "sourcePath": "src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts",
+        "sourceLines": [
+          27,
+          28
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/components/diffEditorDecorations.ts"
+      },
+      {
+        "sourcePath": "src/vs/editor/browser/widget/diffEditor/utils.ts",
+        "sourceLines": [
+          60,
+          65
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/utils.ts"
+      },
+      {
+        "sourcePath": "src/vs/editor/browser/widget/codeEditor/codeEditorWidget.ts",
+        "sourceLines": [
+          295,
+          1339,
+          1347
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/codeEditor/codeEditorWidget.ts"
+      },
+      {
+        "sourcePath": "src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts",
+        "sourceLines": [
+          203,
+          221
+        ],
+        "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts"
+      }
+    ]
+  },
+  "visibilityLimitation": {
+    "name": "selectionHighlight",
+    "scheme": "light",
+    "rawKeyVisibility": 0.05546130089215064,
+    "paintedVisibility": 0.02866136629857174,
+    "existingRawFloor": 0.03,
+    "status": "unresolved native painted visibility; no infeasibility claim",
+    "evidence": "/tmp/aion-task1-painted-selection-bound.json",
+    "boundedSeamProbe": "/tmp/aion-task1-painted-selection-seam.json"
+  }
+}

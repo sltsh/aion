@@ -460,9 +460,10 @@ It could not be made clearer inside the old budget: every Light accent sat at 4.
 `input`, and no blue fill moved the editor further than 0.033 in OKLab. Light syntax is
 now solved to 4.8:1 and the comment sits at 0.490, which takes the selection to 0.058.
 The five Light decorations that shared Dark's translucent neutral (selection highlight,
-inactive selection, find range, range highlight, fold) are solved at three quarters of
-the selection and are reading states; the word highlight and other find matches, which
-outshone the selection, are held there too. `solveOverlay` commits the search, and
+inactive selection, find range, range highlight, fold) became visible reading states.
+The later renderer-stack calculation re-solved the selection highlight, find range,
+range highlight, fold and word highlight against their overlapping states while keeping
+the selection cue visible beneath them. `solveOverlay` commits the search, and
 `test/overlay-search.test.ts` holds the selection to within 5% of its optimum. All of
 this is a calculation.
 
@@ -480,6 +481,31 @@ Open work, in the order it unblocks the rest:
 Tasks 1 to 11 are done.
 
 ## Native acceptance
+
+The renderer-stack re-solve below is **calculation; not yet checked natively**. The
+previous VS Code checks do not establish the appearance of these changed keys:
+
+Light selection highlight passes the existing raw-key visibility test, but the calculated
+painted fill is below the intended native visibility threshold after alpha transformation.
+The bounded search did not resolve that while retaining the raw-key selection hierarchy.
+Re-solving selection provides more hierarchy budget, but the tested near-solution then
+falls below the comment floor on a selected removed word with selection highlight.
+Painted visibility remains unresolved; the bounded searches do not prove infeasibility.
+
+- **Dark:** `editor.findMatchHighlightBackground`, `editor.findRangeHighlightBackground`,
+  `editor.focusedStackFrameHighlightBackground`, `editor.foldBackground`,
+  `editor.hoverHighlightBackground`, `editor.rangeHighlightBackground`,
+  `editor.selectionHighlightBackground`, `editor.stackFrameHighlightBackground`,
+  `editor.symbolHighlightBackground`, `editor.wordHighlightBackground`,
+  `editor.wordHighlightStrongBackground`, `editorBracketMatch.background`,
+  `editorCommentsWidget.rangeActiveBackground`, `editorCommentsWidget.rangeBackground`,
+  `merge.commonHeaderBackground`, `merge.currentHeaderBackground`,
+  `merge.incomingHeaderBackground`, `mergeEditor.change.background`,
+  `mergeEditor.change.word.background`, `searchEditor.findMatchBackground`,
+  `testing.coveredBackground`, `testing.uncoveredBackground`.
+- **Light:** `editor.findRangeHighlightBackground`, `editor.foldBackground`,
+  `editor.rangeHighlightBackground`, `editor.selectionHighlightBackground`,
+  `editor.wordHighlightBackground`, `diffEditor.removedLineBackground`.
 
 Checked in the applications themselves on 2026-09-05, not in a calculation:
 

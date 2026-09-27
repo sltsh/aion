@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { compositeEmitted, contrastEmitted, contrastEmitted as contrast, inGamut, hex } from '../src/oklch.js';
-import type { Oklch, AccentName, SyntaxRole } from '../src/index.js';
+import type { Oklch, AccentName, SyntaxRole, StackLayer } from '../src/index.js';
 import {
   neutral, ACCENTS, ACCENT_NAMES, accentScale, SYNTAX, ONE_DARK_PRO_HUE, comment, diff, diffWash,
   overlay, ansi, ANSI_BADGE,
@@ -13,7 +13,7 @@ import {
   lightOverlay,
   LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection,
 } from '../src/light.js';
-import { readingForegrounds, readingStates } from '../src/states.js';
+import { LIGHT_SHIPPED, SHIPPED, orderStack, readingForegrounds, readingStates, stackBackground } from '../src/states.js';
 import { distanceEmitted } from '../src/solve.js';
 
 const syntaxColor = (role: SyntaxRole): Oklch => ACCENTS[SYNTAX[role]];
@@ -325,18 +325,36 @@ test('the selection is the loudest reading overlay, in both schemes', () => {
   }
 });
 
-// A word highlight lands on a selection, and an opaque or near-opaque wash would hide it.
-test('the selection still reads through a word highlight, in both schemes', () => {
+// A word or another find match lands on a selection, and an overly strong wash hides it.
+test('the selection still reads through word and find highlights, in both schemes', () => {
   for (const [scheme, set, editor] of [
     ['dark', overlay, neutral.editor],
     ['light', lightOverlay, lightEditorNeutral.editor],
   ] as const) {
     const selected = compositeEmitted(set.selection.color, set.selection.alpha, editor);
-    const word = (base: Oklch): Oklch =>
-      compositeEmitted(set.wordHighlight.color, set.wordHighlight.alpha, base);
-    const through = distanceEmitted(word(selected), word(editor));
-    expect(through, `${scheme} selection through the word highlight`)
-      .toBeGreaterThan(distanceEmitted(selected, editor) * 0.5);
+    for (const name of ['wordHighlight', 'findMatchOther'] as const) {
+      const layer = set[name];
+      const over = (base: Oklch): Oklch => compositeEmitted(layer.color, layer.alpha, base);
+      const through = distanceEmitted(over(selected), over(editor));
+      expect(through, `${scheme} selection through ${name}`)
+        .toBeGreaterThan(distanceEmitted(selected, editor) * 0.5);
+    }
+  }
+});
+
+test('a text decoration preserves at least half the selection cue beneath it', () => {
+  for (const [scheme, source] of [['dark', SHIPPED], ['light', LIGHT_SHIPPED]] as const) {
+    const editor = source.neutral.editor;
+    const selected = compositeEmitted(source.overlay.selection.color, source.overlay.selection.alpha, editor);
+    const floor = distanceEmitted(selected, editor) * 0.5;
+    const names = [...Object.keys(source.decoration), ...Object.keys(source.secondaryDecoration)]
+      .filter((name) => name !== 'inactiveSelection') as StackLayer[];
+    for (const name of names) {
+      const plain = stackBackground(source, editor, orderStack(new Set([name])));
+      const through = stackBackground(source, editor, orderStack(new Set(['selection', name])));
+      expect(distanceEmitted(through, plain), `${scheme} selection through ${name}`)
+        .toBeGreaterThan(floor);
+    }
   }
 });
 

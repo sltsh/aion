@@ -63,14 +63,8 @@ export const ONE_DARK_PRO_HUE = {
   string: 133.0, operator: 206.3, escape: 206.3, function: 245.3, keyword: 318.2,
 } as const satisfies Record<SyntaxRole, number>;
 
-// The comment is the dimmest thing a reader has to read, so it sets the budget for every
-// decoration that can sit under it. It is solved against the lightest supported stack —
-// a selected word inside a highlighted current line — not against the plain editor.
-//
-// It stops one notch under `variable`, the dimmest accent. Below that the comment alone
-// caps every decoration; above it `variable` binds instead and the extra lightness buys
-// nothing. At 0.672 the diff fill could reach 1.07:1 against the editor, which no reader
-// could see; here it reaches 1.22:1.
+// The comment is the dimmest reading colour. Hold it fixed while solving the named
+// renderer stacks; moving it would change the syntax hierarchy to buy overlay contrast.
 export const comment: Oklch = [0.704, BASE_CHROMA + 0.008, BASE_HUE];
 
 // Step 10 is a solid-hover step in the Radix model, not a text step. Line numbers borrow
@@ -133,35 +127,40 @@ export type SecondaryDecorationName =
   | 'mergeCurrentHeader' | 'mergeIncomingHeader' | 'mergeCommonHeader'
   | 'mergeChange' | 'mergeChangeWord' | 'searchMatch' | 'covered' | 'uncovered';
 
+// These fills are solved against the covered stacks in renderer order. Selection
+// highlight is authored at twice its painted alpha: VS Code halves it in CSS.
 export const decoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: neutral.border, alpha: 0.12 },
+  selectionHighlight: { color: [0.320, 0.200, 264], alpha: 0.70 },
   inactiveSelection: { color: neutral.border, alpha: 0.08 },
-  findRange: { color: neutral.border, alpha: 0.12 },
-  rangeHighlight: { color: neutral.hover, alpha: 0.5 },
-  fold: { color: neutral.hover, alpha: 0.4 },
+  findRange: { color: [0.320, 0.200, 264], alpha: 0.50 },
+  rangeHighlight: { color: [0.320, 0.200, 264], alpha: 0.50 },
+  fold: { color: [0.320, 0.200, 264], alpha: 0.50 },
 };
 
 export const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
-  hover: { color: ACCENTS.blue, alpha: 0.12 },
-  symbol: { color: ACCENTS.gold, alpha: 0.10 },
-  strongWord: { color: ACCENTS.teal, alpha: 0.12 },
-  stackFrame: { color: ACCENTS.gold, alpha: 0.10 },
-  focusedStackFrame: { color: ACCENTS.green, alpha: 0.12 },
-  bracketMatch: { color: ACCENTS.gold, alpha: 0.10 },
-  commentRange: { color: ACCENTS.gold, alpha: 0.10 },
-  activeCommentRange: { color: ACCENTS.gold, alpha: 0.10 },
+  hover: { color: [0.340, 0.100, 255], alpha: 0.45 },
+  symbol: { color: [0.350, 0.070, 90], alpha: 0.40 },
+  strongWord: { color: [0.340, 0.010, 192], alpha: 0.45 },
+  stackFrame: { color: [0.280, 0.060, 90], alpha: 0.40 },
+  focusedStackFrame: { color: [0.280, 0.080, 148], alpha: 0.45 },
+  bracketMatch: { color: [0.320, 0.070, 90], alpha: 0.40 },
+  commentRange: { color: [0.350, 0.070, 90], alpha: 0.40 },
+  activeCommentRange: { color: [0.350, 0.070, 90], alpha: 0.40 },
   unchangedCode: { color: neutral.hover, alpha: 0.3 },
-  mergeCurrentHeader: { color: ACCENTS.green, alpha: 0.12 },
-  mergeIncomingHeader: { color: ACCENTS.blue, alpha: 0.12 },
-  mergeCommonHeader: { color: neutral.border, alpha: 0.20 },
-  mergeChange: { color: diff.addedGutter, alpha: 0.10 },
-  mergeChangeWord: { color: diff.addedGutter, alpha: 0.12 },
-  searchMatch: { color: ACCENTS.gold, alpha: 0.10 },
-  covered: { color: ACCENTS.green, alpha: 0.12 },
-  uncovered: { color: ACCENTS.coral, alpha: 0.14 },
+  mergeCurrentHeader: { color: [0.280, 0.080, 148], alpha: 0.45 },
+  mergeIncomingHeader: { color: [0.300, 0.100, 255], alpha: 0.50 },
+  mergeCommonHeader: { color: [0.320, 0.200, 264], alpha: 0.50 },
+  mergeChange: { color: [0.370, 0.100, 148], alpha: 0.45 },
+  mergeChangeWord: { color: [0.370, 0.100, 148], alpha: 0.45 },
+  searchMatch: { color: [0.350, 0.070, 90], alpha: 0.40 },
+  covered: { color: [0.330, 0.100, 148], alpha: 0.45 },
+  uncovered: { color: [0.390, 0.160, 22], alpha: 0.40 },
 };
 
-// Every alpha here is a contrast budget, not a taste. These three stack under running
+// The secondary fills above keep the selection cue visible through each one. Their
+// original bright accents exhausted the comment budget over a selected diff word.
+
+// Every alpha here is a contrast budget, not a taste. These overlays stack under running
 // code, so the gate composites them and measures the syntax colours on the result.
 // `lineHighlight` blends toward `hairline` at a low alpha rather than toward a near
 // surface at a high one: `sidebar` is one step off the editor, so no alpha of it
@@ -183,8 +182,8 @@ export const overlay = {
   // The other matches take the same dark-wash treatment as the selection, for the same
   // reason: a pale gold at a low alpha is what the budget allows and it reads as nothing.
   // This is solved to keep the selection reading through it at half its plain-line shift.
-  findMatchOther: { color: [0.400, 0.075, ACCENTS.gold[2]], alpha: 0.40 },
-  wordHighlight:  { color: neutral.hover,  alpha: 0.28 },
+  findMatchOther: { color: [0.350, 0.070, 90], alpha: 0.40 },
+  wordHighlight: { color: [0.370, 0.200, 264], alpha: 0.45 },
   lineHighlight:  { color: neutral.hairline, alpha: 0.36 },
 } as const satisfies Record<string, Overlay>;
 

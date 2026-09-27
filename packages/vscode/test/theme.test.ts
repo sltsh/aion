@@ -1,15 +1,14 @@
 import { readFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { test, expect } from 'vitest';
 import {
   ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, MEANING_PAIR_GAP, NON_TEXT_FLOOR, accentScale, ansi,
   buildLightPalette, compositeEmitted,
   contrastEmitted, decoration, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, lightAnsi,
   lightDecoration, lightDiff, lightEditorNeutral, lightPalette, lightSecondaryDecoration,
-  lightTerminalSelection, LIGHT_SHIPPED, neutral, overlay, readingForegrounds, readingStates,
+  lightTerminalSelection, LIGHT_SHIPPED, SHIPPED, neutral, overlay, readingForegrounds, readingStates,
   secondaryDecoration, statusLight,
 } from '@sltsh/aion-tokens';
-import type { Oklch } from '@sltsh/aion-tokens';
+import type { Oklch, StackLayer } from '@sltsh/aion-tokens';
 import { lightTheme, theme } from '../src/theme.js';
 import { buildColors, colors } from '../src/colors.js';
 import { semanticTokenColors, tokenColors } from '../src/tokens.js';
@@ -449,9 +448,7 @@ const OVER: Record<string, { under: string; reads: 'code' | 'terminal' | 'uiText
   'keybindingTable.rowsBackground': { under: 'keybindingTable.headerBackground', reads: 'uiText' },
   'tree.tableOddRowsBackground': { under: 'sideBar.background', reads: 'uiText' },
   'selection.background': { under: 'input.background', reads: 'uiText' },
-  // A find match is the one decoration allowed to replace what it covers, so the pair to
-  // measure is its own foreground key, checked separately below.
-  'editor.findMatchHighlightBackground': { under: 'editor.background', reads: 'none' },
+  'editor.findMatchHighlightBackground': { under: 'editor.background', reads: 'code' },
   // Nothing is ever drawn on top of these: rulers, sliders, shadows and drop targets sit
   // beside the text or behind it, never under a glyph. A key that scales the glyph itself
   // is not in this table at all; see the unused-code test below.
@@ -518,14 +515,37 @@ const DECORATION_KEYS = {
   'testing.uncoveredBackground': ['secondaryDecoration', 'uncovered'],
 } as const;
 
-const ALREADY_TOKEN_OWNED: Record<string, string> = {
-  'editor.lineHighlightBackground': 'The current-line overlay is already a reading state.',
-  'editor.selectionBackground': 'The selection overlay is already a reading state.',
-  'editor.wordHighlightBackground': 'The word overlay is already a reading state.',
-  'diffEditor.insertedLineBackground': 'The added-line wash is already a reading state.',
-  'diffEditor.removedLineBackground': 'The removed-line wash is already a reading state.',
-  'diffEditor.insertedTextBackground': 'The added-word wash is already a reading state.',
-  'diffEditor.removedTextBackground': 'The removed-word wash is already a reading state.',
+const LAYER_KEYS: Record<StackLayer, string> = {
+  lineHighlight: 'editor.lineHighlightBackground',
+  selection: 'editor.selectionBackground',
+  inactiveSelection: 'editor.inactiveSelectionBackground',
+  wordHighlight: 'editor.wordHighlightBackground',
+  findMatchOther: 'editor.findMatchHighlightBackground',
+  addedLine: 'diffEditor.insertedLineBackground',
+  addedWord: 'diffEditor.insertedTextBackground',
+  removedLine: 'diffEditor.removedLineBackground',
+  removedWord: 'diffEditor.removedTextBackground',
+  selectionHighlight: 'editor.selectionHighlightBackground',
+  findRange: 'editor.findRangeHighlightBackground',
+  rangeHighlight: 'editor.rangeHighlightBackground',
+  fold: 'editor.foldBackground',
+  hover: 'editor.hoverHighlightBackground',
+  symbol: 'editor.symbolHighlightBackground',
+  strongWord: 'editor.wordHighlightStrongBackground',
+  stackFrame: 'editor.stackFrameHighlightBackground',
+  focusedStackFrame: 'editor.focusedStackFrameHighlightBackground',
+  bracketMatch: 'editorBracketMatch.background',
+  commentRange: 'editorCommentsWidget.rangeBackground',
+  activeCommentRange: 'editorCommentsWidget.rangeActiveBackground',
+  unchangedCode: 'diffEditor.unchangedCodeBackground',
+  mergeCurrentHeader: 'merge.currentHeaderBackground',
+  mergeIncomingHeader: 'merge.incomingHeaderBackground',
+  mergeCommonHeader: 'merge.commonHeaderBackground',
+  mergeChange: 'mergeEditor.change.background',
+  mergeChangeWord: 'mergeEditor.change.word.background',
+  searchMatch: 'searchEditor.findMatchBackground',
+  covered: 'testing.coveredBackground',
+  uncovered: 'testing.uncoveredBackground',
 };
 
 const NOT_A_TEXT_LAYER: Record<string, string> = {};
@@ -540,8 +560,18 @@ test('every decoration key painted under code comes from the token maps, in both
   const unclassified = Object.entries(OVER)
     .filter(([, value]) => value.reads === 'code' && value.under === 'editor.background')
     .map(([key]) => key)
-    .filter((key) => !(key in DECORATION_KEYS) && !(key in ALREADY_TOKEN_OWNED) && !(key in NOT_A_TEXT_LAYER));
+    .filter((key) => !Object.values(LAYER_KEYS).includes(key) && !(key in NOT_A_TEXT_LAYER));
   expect(unclassified).toEqual([]);
+});
+
+test('the modelled layers are exactly the emitted editor text-layer keys', () => {
+  const emitted = Object.entries(OVER)
+    .filter(([, value]) => value.reads === 'code' && value.under === 'editor.background')
+    .map(([key]) => key)
+    .filter((key) => !(key in NOT_A_TEXT_LAYER));
+  const mapped = Object.values(LAYER_KEYS);
+  expect(new Set(mapped).size).toBe(mapped.length);
+  expect(new Set(mapped)).toEqual(new Set(emitted));
 });
 
 test('custom light previews keep accent and neutral secondary decorations linked to their palette', () => {
@@ -555,13 +585,6 @@ test('custom light previews keep accent and neutral secondary decorations linked
     hexAlpha(palette.overlay.lineHighlight.color, lightSecondaryDecoration.unchangedCode.alpha));
   expect(custom['editor.hoverHighlightBackground']).not.toBe(lightBuilt.colors['editor.hoverHighlightBackground']);
   expect(custom['diffEditor.unchangedCodeBackground']).not.toBe(lightBuilt.colors['diffEditor.unchangedCodeBackground']);
-});
-
-test('moving the decorations changed no emitted byte', () => {
-  const digest = (value: unknown): string => createHash('sha256')
-    .update(`${JSON.stringify(value, null, 2)}\n`).digest('hex');
-  expect(digest(built)).toBe('5a84d751270b3976457a43849afc642aefff0d9613ac79675dc110a427076359');
-  expect(digest(lightBuilt)).toBe('3e9c0c4b91cfee4ba8001ec0fabac1f28fb5c23821e20ea231f34d6f2fca49bf');
 });
 
 // An alpha byte means one of two different things. In most keys it is the opacity of a
@@ -593,13 +616,20 @@ const composited = (key: string): Oklch => {
 // text on top of it reads at, and the gate has to measure the tinted value.
 test('text keeps the floor on every decoration painted under it', () => {
   const groups: Record<string, Record<string, Oklch>> = {
-    code: readingForegrounds(),
     terminal: Object.fromEntries(ANSI_ORDER.filter((s) => s !== 'black').map((s) => [s, ansi[s]])),
     uiText: { primary: neutral.textPrimary, secondary: neutral.textSecondary },
   };
+  for (const source of [SHIPPED, LIGHT_SHIPPED]) {
+    for (const state of readingStates(source)) {
+      for (const [name, colour] of Object.entries(readingForegrounds(source))) {
+        const ratio = contrastEmitted(colour, state.background);
+        expect(ratio, `${name} on ${state.name} = ${ratio.toFixed(2)}`).toBeGreaterThanOrEqual(CONTRAST_FLOOR);
+      }
+    }
+  }
   for (const key of alphaKeys()) {
     const { reads } = OVER[key]!;
-    if (reads === 'none') continue;
+    if (reads === 'none' || reads === 'code') continue;
     const background = composited(key);
     for (const [name, colour] of Object.entries(groups[reads]!)) {
       const ratio = contrastEmitted(colour, background);

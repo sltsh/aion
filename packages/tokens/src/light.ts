@@ -176,39 +176,25 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
   };
 };
 
-// Native light decorations have their own budget. They used to be pale washes at 0.990,
-// lighter than the 0.980 editor, and sRGB holds almost no chroma there: the blue selection
-// clipped to near-white and every overlay moved the editor by 0.013 in OKLab or less,
-// which no reader could see. A light overlay cannot lighten the editor, and it cannot
-// darken it much either, because the diff wash is painted over the selection and the
-// current line and the syntax accents are already at the floor under that stack. So each
-// was searched for the most visible colour that keeps every light reading state above
-// the floor, one overlay at a time with chroma bounded at 0.09, so the result is a floor
-// on visibility and not a proven maximum: hue carries what luminance cannot. The selection is
-// held back by the syntax floor, which is why that floor sits at 4.8:1 rather than 4.5:1.
-// The selection is the loudest of them, as on Dark; the word highlight and the other find
-// matches could each pass it and are held at three quarters of it instead.
+// Near the light editor, sRGB leaves little room for visible pale fills. The hue supplies
+// separation while the comment and syntax accents bound lightness on every covered
+// stack. The selection remains the strongest reading cue, including through a word or
+// another find match.
 export const lightOverlay = {
   selection: { color: gamutSafe(0.835, 0.085, 250, 'selection'), alpha: 0.35 },
   findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.40 },
-  wordHighlight: { color: gamutSafe(0.872, 0.087, 200, 'word highlight'), alpha: 0.29 },
+  wordHighlight: { color: gamutSafe(0.900, 0.090, 200, 'word highlight'), alpha: 0.45 },
   lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },
 } as const satisfies Record<string, Overlay>;
 
-// Dark draws these five from a translucent neutral, which on Light became the current-line
-// wash and moved the editor by 0.018 in OKLab or less. None is bound by the text on it:
-// each could reach the selection, so each is held at three quarters of it, seen and never
-// mistaken for it. The two that follow a selection take its colour.
-const LIGHT_RANGE_WASH: Overlay = {
-  color: gamutSafe(0.860, 0.040, BASE_HUE, 'range wash'), alpha: 0.35,
-};
-
+// Find and folded ranges need a cyan hue to stay visible without hiding a selection on
+// a diff word. Selection highlight is halved by VS Code's CSS after its key is emitted.
 export const lightDecoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: lightOverlay.selection.color, alpha: 0.25 },
+  selectionHighlight: { color: [0.900, 0.040, 250], alpha: 0.65 },
   inactiveSelection: { color: lightOverlay.selection.color, alpha: 0.25 },
-  findRange: LIGHT_RANGE_WASH,
-  rangeHighlight: LIGHT_RANGE_WASH,
-  fold: LIGHT_RANGE_WASH,
+  findRange: { color: [0.930, 0.060, 210], alpha: 0.45 },
+  rangeHighlight: { color: [0.910, 0.000, 264], alpha: 0.50 },
+  fold: { color: [0.930, 0.060, 210], alpha: 0.45 },
 };
 
 export const lightSecondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
@@ -245,12 +231,12 @@ const LIGHT_DIFF_WASH_COLOR = {
 // Pale subtle fills moved the editor by less than 0.01 in OKLab and disappeared in a
 // rendered diff. Low-alpha solid accents make the line and changed word perceptible while
 // every syntax role stays above 4.5:1 and at least half the selection cue survives. The
-// wash shares its budget with the selection under it: at 0.07 it left the selection
-// 0.024 of visibility, and 0.06 splits the room so both land near 0.03.
+// removed line uses a pale red at higher opacity after accounting for native CSS alpha
+// rounding. Its search retains the existing diff visibility and selection-cue constraints.
 export const lightDiffWash = {
   addedLine: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.06 },
   addedWord: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.03 },
-  removedLine: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.06 },
+  removedLine: { color: [0.880, 0.040, 22], alpha: 0.50 },
   removedWord: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.03 },
 } as const satisfies Record<string, Overlay>;
 

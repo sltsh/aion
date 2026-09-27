@@ -67,7 +67,16 @@ const emittedChannels = (c: Oklch): [number, number, number] => {
 // A decoration ships as an 8-bit colour and an 8-bit alpha byte, and the renderer blends
 // those bytes. Compositing in OKLCH instead would miss the rounding on both operands.
 export function compositeEmitted(over: Oklch, alpha: number, under: Oklch): Oklch {
-  const a = Math.round(clamp(alpha) * 255) / 255;
+  return compositeChannels(over, Math.round(clamp(alpha) * 255) / 255, under);
+}
+
+// For CSS alpha derived after a theme key has already been parsed. The browser blends
+// that alpha directly; quantizing it as a fresh eight-bit theme key would change a byte.
+export function compositeCssAlpha(over: Oklch, alpha: number, under: Oklch): Oklch {
+  return compositeChannels(over, clamp(alpha), under);
+}
+
+function compositeChannels(over: Oklch, a: number, under: Oklch): Oklch {
   const front = emittedChannels(over);
   const back = emittedChannels(under);
   const blend = front.map((v, i) => Math.round(v * a + back[i]! * (1 - a)));

@@ -5,6 +5,12 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Gate a named set of VS Code decoration stacks in renderer paint order in both themes,
+  and re-solve the overlays that fell below the text contrast floor. The new values are
+  calculation only until checked in VS Code.
+
 ## 1.2.0
 
 ### Changed

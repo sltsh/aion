@@ -1,7 +1,7 @@
 export type { Oklch, LinearSrgb, SolveDirection } from './oklch.js';
 export {
   oklchToLinearSrgb, inGamut, hex, hexAlpha, luminance, contrast, contrastEmitted,
-  compositeEmitted, hexToOklch, solveLightness,
+  compositeEmitted, compositeCssAlpha, hexToOklch, solveLightness,
 } from './oklch.js';
 
 export type {
@@ -38,8 +38,11 @@ export {
 export type { Marker, Solution, OverlaySearch, OverlaySolution } from './solve.js';
 export { solveMarker, solveOverlay, binding, distanceEmitted } from './solve.js';
 
-export type { ReadingState, StateSource, SurfaceName } from './states.js';
-export { readingStates, readingForegrounds, SHIPPED, LIGHT_SHIPPED } from './states.js';
+export type { ReadingState, StateSource, SurfaceName, StackLayer } from './states.js';
+export {
+  readingStates, readingForegrounds, SHIPPED, LIGHT_SHIPPED, RENDER_ORDER,
+  producible, covered, orderStack, stackName, stackBackground, paintedAlpha,
+} from './states.js';
 
 export { flatten } from './flatten.js';
 
