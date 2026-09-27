@@ -500,7 +500,10 @@ The Aion Light theme was checked and approved in VS Code on 2026-09-12 after the
 palette, diff, minimap and inline Git blame adjustments. Dark ANSI black was checked in
 VS Code on 2026-09-25 and the Obsidian comment in both schemes. The 2026-09-25 Light
 syntax, comment and overlay change makes the Light states a calculation again until
-rechecked. Any later palette change makes
+rechecked. The listing screenshots, `screenshots/vscode-{dark,light}.png`, are VS Code
+1.139.1 renders of both themes from the 2026-09-27 tokens (Linux, Xvfb, 2x, via
+`scripts/vscode-screenshots.sh`): evidence that the theme renders, not a legibility review.
+Any later palette change makes
 the affected native acceptance a calculation again. The gate covers the named set of
 reading states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
 
