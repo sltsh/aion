@@ -1,6 +1,6 @@
 import {
-  ACCENTS, accentScale, ansi, comment, cursor, diff, diffWash, dimText, findMatch, hex,
-  hexAlpha, neutral, overlay, status, terminalSelection,
+  ACCENTS, accentScale, ansi, comment, cursor, decoration, diff, diffWash, dimText, findMatch, hex,
+  hexAlpha, lightSecondaryDecoration, neutral, overlay, secondaryDecoration, status, terminalSelection,
 } from '@sltsh/aion-tokens';
 import type { Palette, StatusName } from '@sltsh/aion-tokens';
 
@@ -40,6 +40,10 @@ const info = hex(status.info.text);
 
 const wash = (name: keyof typeof diffWash): string =>
   hexAlpha(diffWash[name].color, diffWash[name].alpha);
+const decorationHex = (name: keyof typeof decoration): string =>
+  hexAlpha(decoration[name].color, decoration[name].alpha);
+const secondaryDecorationHex = (name: keyof typeof secondaryDecoration): string =>
+  hexAlpha(secondaryDecoration[name].color, secondaryDecoration[name].alpha);
 const transparent = '#00000000';
 
 const alpha = (colour: Parameters<typeof hexAlpha>[0], value: number) => hexAlpha(colour, value);
@@ -167,10 +171,10 @@ export const editorCore = {
   'editorCursor.foreground': hex(cursor),
   'editorCursor.background': editor,
   'editor.selectionBackground': hexAlpha(overlay.selection.color, overlay.selection.alpha),
-  'editor.inactiveSelectionBackground': alpha(n.border, 0.08),
-  'editor.selectionHighlightBackground': alpha(n.border, 0.12),
+  'editor.inactiveSelectionBackground': decorationHex('inactiveSelection'),
+  'editor.selectionHighlightBackground': decorationHex('selectionHighlight'),
   'editor.wordHighlightBackground': hexAlpha(overlay.wordHighlight.color, overlay.wordHighlight.alpha),
-  'editor.wordHighlightStrongBackground': alpha(a.teal, 0.12),
+  'editor.wordHighlightStrongBackground': secondaryDecorationHex('strongWord'),
   // Opaque, so it takes the full budget whatever sits under it, and dark enough that the
   // syntax colours it covers stay above the floor. `editor.findMatchForeground` and
   // `editor.findMatchHighlightForeground` are deliberately unset: `findWidget.ts` applies
@@ -182,22 +186,22 @@ export const editorCore = {
   'editor.findMatchBorder': transparent,
   'editor.findMatchHighlightBackground': hexAlpha(overlay.findMatchOther.color, overlay.findMatchOther.alpha),
 
-  'editor.findRangeHighlightBackground': alpha(n.border, 0.12),
-  'editor.hoverHighlightBackground': alpha(a.blue, 0.12),
+  'editor.findRangeHighlightBackground': decorationHex('findRange'),
+  'editor.hoverHighlightBackground': secondaryDecorationHex('hover'),
   'editor.lineHighlightBackground': hexAlpha(overlay.lineHighlight.color, overlay.lineHighlight.alpha),
   'editor.lineHighlightBorder': transparent,
-  'editor.rangeHighlightBackground': alpha(n.hover, 0.5),
-  'editor.symbolHighlightBackground': alpha(a.gold, 0.10),
-  'editor.foldBackground': alpha(n.hover, 0.4),
-  'editor.stackFrameHighlightBackground': alpha(a.gold, 0.10),
-  'editor.focusedStackFrameHighlightBackground': alpha(a.green, 0.12),
+  'editor.rangeHighlightBackground': decorationHex('rangeHighlight'),
+  'editor.symbolHighlightBackground': secondaryDecorationHex('symbol'),
+  'editor.foldBackground': decorationHex('fold'),
+  'editor.stackFrameHighlightBackground': secondaryDecorationHex('stackFrame'),
+  'editor.focusedStackFrameHighlightBackground': secondaryDecorationHex('focusedStackFrame'),
   'editorLink.activeForeground': teal,
   'editorWhitespace.foreground': hex(n.hairline),
   'editorIndentGuide.background1': hex(n.hover),
   'editorIndentGuide.activeBackground1': hex(n.divider),
   'editorRuler.foreground': hex(n.hover),
   'editorCodeLens.foreground': dim,
-  'editorBracketMatch.background': alpha(a.gold, 0.10),
+  'editorBracketMatch.background': secondaryDecorationHex('bracketMatch'),
   'editorBracketMatch.border': hex(s('gold').border),
   'editorBracketHighlight.foreground1': gold,
   'editorBracketHighlight.foreground2': teal,
@@ -438,22 +442,22 @@ export const diffAndMerge = {
   'diffEditor.diagonalFill': hex(n.hover),
   'diffEditor.unchangedRegionBackground': panel,
   'diffEditor.unchangedRegionForeground': dim,
-  'diffEditor.unchangedCodeBackground': alpha(n.hover, 0.3),
+  'diffEditor.unchangedCodeBackground': secondaryDecorationHex('unchangedCode'),
   // The gutter column carries the line number and no body text, so it is gated at 3:1
   // against that alone and is the loudest of the three diff markers.
   'diffEditorGutter.insertedLineBackground': hex(diff.addedStrip),
   'diffEditorGutter.removedLineBackground': hex(diff.removedStrip),
   'diffEditorOverview.insertedForeground': alpha(a.green, 0.7),
   'diffEditorOverview.removedForeground': alpha(a.coral, 0.7),
-  'merge.currentHeaderBackground': alpha(a.green, 0.12),
+  'merge.currentHeaderBackground': secondaryDecorationHex('mergeCurrentHeader'),
   'merge.currentContentBackground': hex(s('green').subtle),
-  'merge.incomingHeaderBackground': alpha(a.blue, 0.12),
+  'merge.incomingHeaderBackground': secondaryDecorationHex('mergeIncomingHeader'),
   'merge.incomingContentBackground': hex(s('blue').subtle),
-  'merge.commonHeaderBackground': alpha(n.border, 0.20),
+  'merge.commonHeaderBackground': secondaryDecorationHex('mergeCommonHeader'),
   'merge.commonContentBackground': widget,
   'merge.border': hairline,
-  'mergeEditor.change.background': alpha(diff.addedGutter, 0.10),
-  'mergeEditor.change.word.background': alpha(diff.addedGutter, 0.12),
+  'mergeEditor.change.background': secondaryDecorationHex('mergeChange'),
+  'mergeEditor.change.word.background': secondaryDecorationHex('mergeChangeWord'),
   'mergeEditor.conflict.unhandledUnfocused.border': hex(s('copper').border),
   'mergeEditor.conflict.unhandledFocused.border': copper,
   'mergeEditor.conflict.handledUnfocused.border': hex(s('green').border),
@@ -626,9 +630,9 @@ export const debugAndTesting = {
   'testing.message.error.lineBackground': hex(s('coral').subtle),
   'testing.message.info.decorationForeground': info,
   'testing.message.info.lineBackground': hex(s('blue').subtle),
-  'testing.coveredBackground': alpha(a.green, 0.12),
+  'testing.coveredBackground': secondaryDecorationHex('covered'),
   'testing.coveredBorder': hex(s('green').border),
-  'testing.uncoveredBackground': alpha(a.coral, 0.14),
+  'testing.uncoveredBackground': secondaryDecorationHex('uncovered'),
   'testing.uncoveredBorder': hex(s('coral').border),
   'testing.coverCountBadgeBackground': hex(s('gold').subtle),
   'testing.coverCountBadgeForeground': gold,
@@ -704,15 +708,15 @@ export const settingsAndWelcome = {
   'extensionIcon.preReleaseForeground': copper,
   'extensionIcon.sponsorForeground': coral,
   'ports.iconRunningProcessForeground': green,
-  'searchEditor.findMatchBackground': alpha(a.gold, 0.10),
+  'searchEditor.findMatchBackground': secondaryDecorationHex('searchMatch'),
   'searchEditor.textInputBorder': control,
   'search.resultsInfoForeground': dim,
   'commentsView.resolvedIcon': dim,
   'commentsView.unresolvedIcon': gold,
   'editorCommentsWidget.resolvedBorder': hairline,
   'editorCommentsWidget.unresolvedBorder': hex(s('gold').border),
-  'editorCommentsWidget.rangeBackground': alpha(a.gold, 0.10),
-  'editorCommentsWidget.rangeActiveBackground': alpha(a.gold, 0.10),
+  'editorCommentsWidget.rangeBackground': secondaryDecorationHex('commentRange'),
+  'editorCommentsWidget.rangeActiveBackground': secondaryDecorationHex('activeCommentRange'),
 };
 
 export const charts = {
@@ -930,6 +934,29 @@ const palettePairs = (palette: Palette): PalettePairs => {
     keyColours.set('editor.findRangeHighlightBackground', hexAlpha(d.findRange.color, d.findRange.alpha));
     keyColours.set('editor.rangeHighlightBackground', hexAlpha(d.rangeHighlight.color, d.rangeHighlight.alpha));
     keyColours.set('editor.foldBackground', hexAlpha(d.fold.color, d.fold.alpha));
+  }
+  const secondaryKeys: Record<string, keyof typeof lightSecondaryDecoration> = {
+    'editor.hoverHighlightBackground': 'hover',
+    'editor.symbolHighlightBackground': 'symbol',
+    'editor.wordHighlightStrongBackground': 'strongWord',
+    'editor.stackFrameHighlightBackground': 'stackFrame',
+    'editor.focusedStackFrameHighlightBackground': 'focusedStackFrame',
+    'editorBracketMatch.background': 'bracketMatch',
+    'editorCommentsWidget.rangeBackground': 'commentRange',
+    'editorCommentsWidget.rangeActiveBackground': 'activeCommentRange',
+    'diffEditor.unchangedCodeBackground': 'unchangedCode',
+    'merge.currentHeaderBackground': 'mergeCurrentHeader',
+    'merge.incomingHeaderBackground': 'mergeIncomingHeader',
+    'merge.commonHeaderBackground': 'mergeCommonHeader',
+    'mergeEditor.change.background': 'mergeChange',
+    'mergeEditor.change.word.background': 'mergeChangeWord',
+    'searchEditor.findMatchBackground': 'searchMatch',
+    'testing.coveredBackground': 'covered',
+    'testing.uncoveredBackground': 'uncovered',
+  };
+  for (const [key, name] of Object.entries(secondaryKeys)) {
+    const value = lightSecondaryDecoration[name];
+    keyColours.set(key, hexAlpha(value.color, value.alpha));
   }
   // Inline blame is persistent editor metadata, not incidental chrome. The dim role is
   // too quiet on Light, so promote it to secondary text without competing with primary.

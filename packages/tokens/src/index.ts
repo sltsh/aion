@@ -6,11 +6,12 @@ export {
 
 export type {
   NeutralName, AccentName, AccentScale, SyntaxRole, StatusName, DiffName, Overlay, OverlayName,
-  AnsiSlot, TerminalBackgroundName, DiffWashName,
+  AnsiSlot, TerminalBackgroundName, DiffWashName, DecorationName, SecondaryDecorationName,
 } from './palette.js';
 export {
   BASE_HUE, BASE_CHROMA, NEUTRAL_LIGHTNESS, neutral, ACCENTS, ACCENT_NAMES, accentScale, scaleOf,
-  SYNTAX, ONE_DARK_PRO_HUE, comment, dimText, STATUS, diff, diffWash, overlay, findMatch,
+  SYNTAX, ONE_DARK_PRO_HUE, comment, dimText, STATUS, diff, diffWash, decoration,
+  secondaryDecoration, overlay, findMatch,
   bracketPairs, cursor, ansi, ANSI_ORDER, ANSI_BLACK_TEXT, ANSI_BADGE, terminalBackground,
   terminalSelection, TERMINAL_BACKGROUNDS, CHROMA_CEILING, CHROMA_DEFAULT, HUE_DRIFT_LIMIT,
   CONTRAST_FLOOR, NON_TEXT_FLOOR, MEANING_PAIR_GAP, CONTRAST_EXEMPT,
@@ -20,7 +21,8 @@ export type { LightNeutralName, LightDecorationName } from './light.js';
 export {
   LIGHT_LIGHTNESS, lightNeutral, lightEditorNeutral, lightDimText, lightComment, lightSyntax,
   lightAnsiWhite, lightAnsiBrightBlack, LIGHT_CHROMA_FLOOR_EXCEPTION,
-  lightAccent, lightAccents, lightAccentScale, lightOverlay, lightDecoration, lightFindMatch, lightDiff,
+  lightAccent, lightAccents, lightAccentScale, lightOverlay, lightDecoration,
+  lightSecondaryDecoration, lightFindMatch, lightDiff,
   lightDiffWash, lightBrackets, lightCursor, lightAnsi, lightTerminalSelection,
 } from './light.js';
 

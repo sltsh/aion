@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { test, expect } from 'vitest';
 import {
   ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, MEANING_PAIR_GAP, NON_TEXT_FLOOR, accentScale, ansi, compositeEmitted,
-  contrastEmitted, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, lightAnsi,
-  lightDiff, lightEditorNeutral, lightPalette, lightTerminalSelection, LIGHT_SHIPPED, neutral, overlay,
-  readingForegrounds, readingStates, statusLight,
+  contrastEmitted, decoration, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, lightAnsi,
+  lightDecoration, lightDiff, lightEditorNeutral, lightPalette, lightSecondaryDecoration,
+  lightTerminalSelection, LIGHT_SHIPPED, neutral, overlay, readingForegrounds, readingStates,
+  secondaryDecoration, statusLight,
 } from '@sltsh/aion-tokens';
 import type { Oklch } from '@sltsh/aion-tokens';
 import { lightTheme, theme } from '../src/theme.js';
@@ -489,6 +491,64 @@ const OVER: Record<string, { under: string; reads: 'code' | 'terminal' | 'uiText
   'panelSection.dropBackground': { under: 'panel.background', reads: 'none' },
   'terminal.dropBackground': { under: 'terminal.background', reads: 'none' },
 };
+
+const DECORATION_KEYS = {
+  'editor.selectionHighlightBackground': ['decoration', 'selectionHighlight'],
+  'editor.inactiveSelectionBackground': ['decoration', 'inactiveSelection'],
+  'editor.findRangeHighlightBackground': ['decoration', 'findRange'],
+  'editor.rangeHighlightBackground': ['decoration', 'rangeHighlight'],
+  'editor.foldBackground': ['decoration', 'fold'],
+  'editor.hoverHighlightBackground': ['secondaryDecoration', 'hover'],
+  'editor.symbolHighlightBackground': ['secondaryDecoration', 'symbol'],
+  'editor.wordHighlightStrongBackground': ['secondaryDecoration', 'strongWord'],
+  'editor.stackFrameHighlightBackground': ['secondaryDecoration', 'stackFrame'],
+  'editor.focusedStackFrameHighlightBackground': ['secondaryDecoration', 'focusedStackFrame'],
+  'editorBracketMatch.background': ['secondaryDecoration', 'bracketMatch'],
+  'editorCommentsWidget.rangeBackground': ['secondaryDecoration', 'commentRange'],
+  'editorCommentsWidget.rangeActiveBackground': ['secondaryDecoration', 'activeCommentRange'],
+  'diffEditor.unchangedCodeBackground': ['secondaryDecoration', 'unchangedCode'],
+  'merge.currentHeaderBackground': ['secondaryDecoration', 'mergeCurrentHeader'],
+  'merge.incomingHeaderBackground': ['secondaryDecoration', 'mergeIncomingHeader'],
+  'merge.commonHeaderBackground': ['secondaryDecoration', 'mergeCommonHeader'],
+  'mergeEditor.change.background': ['secondaryDecoration', 'mergeChange'],
+  'mergeEditor.change.word.background': ['secondaryDecoration', 'mergeChangeWord'],
+  'searchEditor.findMatchBackground': ['secondaryDecoration', 'searchMatch'],
+  'testing.coveredBackground': ['secondaryDecoration', 'covered'],
+  'testing.uncoveredBackground': ['secondaryDecoration', 'uncovered'],
+} as const;
+
+const ALREADY_TOKEN_OWNED: Record<string, string> = {
+  'editor.lineHighlightBackground': 'The current-line overlay is already a reading state.',
+  'editor.selectionBackground': 'The selection overlay is already a reading state.',
+  'editor.wordHighlightBackground': 'The word overlay is already a reading state.',
+  'diffEditor.insertedLineBackground': 'The added-line wash is already a reading state.',
+  'diffEditor.removedLineBackground': 'The removed-line wash is already a reading state.',
+  'diffEditor.insertedTextBackground': 'The added-word wash is already a reading state.',
+  'diffEditor.removedTextBackground': 'The removed-word wash is already a reading state.',
+};
+
+const NOT_A_TEXT_LAYER: Record<string, string> = {};
+
+test('every decoration key painted under code comes from the token maps, in both schemes', () => {
+  for (const [key, [layer, name]] of Object.entries(DECORATION_KEYS)) {
+    const dark = layer === 'decoration' ? decoration[name] : secondaryDecoration[name];
+    const light = layer === 'decoration' ? lightDecoration[name] : lightSecondaryDecoration[name];
+    expect(built.colors[key], key).toBe(hexAlpha(dark.color, dark.alpha));
+    expect(lightBuilt.colors[key], key).toBe(hexAlpha(light.color, light.alpha));
+  }
+  const unclassified = Object.entries(OVER)
+    .filter(([, value]) => value.reads === 'code' && value.under === 'editor.background')
+    .map(([key]) => key)
+    .filter((key) => !(key in DECORATION_KEYS) && !(key in ALREADY_TOKEN_OWNED) && !(key in NOT_A_TEXT_LAYER));
+  expect(unclassified).toEqual([]);
+});
+
+test('moving the decorations changed no emitted byte', () => {
+  const digest = (value: unknown): string => createHash('sha256')
+    .update(`${JSON.stringify(value, null, 2)}\n`).digest('hex');
+  expect(digest(built)).toBe('5a84d751270b3976457a43849afc642aefff0d9613ac79675dc110a427076359');
+  expect(digest(lightBuilt)).toBe('3e9c0c4b91cfee4ba8001ec0fabac1f28fb5c23821e20ea231f34d6f2fca49bf');
+});
 
 // An alpha byte means one of two different things. In most keys it is the opacity of a
 // wash the renderer blends into the surface, and the text on top reads against the blend.

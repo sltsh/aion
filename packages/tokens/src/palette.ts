@@ -124,6 +124,43 @@ export interface Overlay {
   readonly alpha: number;
 }
 
+export type DecorationName =
+  | 'selectionHighlight' | 'inactiveSelection' | 'findRange' | 'rangeHighlight' | 'fold';
+
+export type SecondaryDecorationName =
+  | 'hover' | 'symbol' | 'strongWord' | 'stackFrame' | 'focusedStackFrame'
+  | 'bracketMatch' | 'commentRange' | 'activeCommentRange' | 'unchangedCode'
+  | 'mergeCurrentHeader' | 'mergeIncomingHeader' | 'mergeCommonHeader'
+  | 'mergeChange' | 'mergeChangeWord' | 'searchMatch' | 'covered' | 'uncovered';
+
+export const decoration: Record<DecorationName, Overlay> = {
+  selectionHighlight: { color: neutral.border, alpha: 0.12 },
+  inactiveSelection: { color: neutral.border, alpha: 0.08 },
+  findRange: { color: neutral.border, alpha: 0.12 },
+  rangeHighlight: { color: neutral.hover, alpha: 0.5 },
+  fold: { color: neutral.hover, alpha: 0.4 },
+};
+
+export const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
+  hover: { color: ACCENTS.blue, alpha: 0.12 },
+  symbol: { color: ACCENTS.gold, alpha: 0.10 },
+  strongWord: { color: ACCENTS.teal, alpha: 0.12 },
+  stackFrame: { color: ACCENTS.gold, alpha: 0.10 },
+  focusedStackFrame: { color: ACCENTS.green, alpha: 0.12 },
+  bracketMatch: { color: ACCENTS.gold, alpha: 0.10 },
+  commentRange: { color: ACCENTS.gold, alpha: 0.10 },
+  activeCommentRange: { color: ACCENTS.gold, alpha: 0.10 },
+  unchangedCode: { color: neutral.hover, alpha: 0.3 },
+  mergeCurrentHeader: { color: ACCENTS.green, alpha: 0.12 },
+  mergeIncomingHeader: { color: ACCENTS.blue, alpha: 0.12 },
+  mergeCommonHeader: { color: neutral.border, alpha: 0.20 },
+  mergeChange: { color: diff.addedGutter, alpha: 0.10 },
+  mergeChangeWord: { color: diff.addedGutter, alpha: 0.12 },
+  searchMatch: { color: ACCENTS.gold, alpha: 0.10 },
+  covered: { color: ACCENTS.green, alpha: 0.12 },
+  uncovered: { color: ACCENTS.coral, alpha: 0.14 },
+};
+
 // Every alpha here is a contrast budget, not a taste. These three stack under running
 // code, so the gate composites them and measures the syntax colours on the result.
 // `lineHighlight` blends toward `hairline` at a low alpha rather than toward a near

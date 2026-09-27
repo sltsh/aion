@@ -1,7 +1,8 @@
 import type { Oklch } from './oklch.js';
 import { solveLightness, inGamut, contrastEmitted } from './oklch.js';
 import type {
-  AccentName, AccentScale, AnsiChromaticSlot, AnsiSlot, NeutralName, Overlay, SyntaxRole,
+  AccentName, AccentScale, AnsiChromaticSlot, AnsiSlot, DecorationName, NeutralName, Overlay,
+  SecondaryDecorationName, SyntaxRole,
 } from './palette.js';
 import {
   ACCENTS, ANSI_HUE, BASE_CHROMA, BASE_HUE, BRIGHT_TO_NORMAL, CHROMA_CEILING,
@@ -202,15 +203,35 @@ const LIGHT_RANGE_WASH: Overlay = {
   color: gamutSafe(0.860, 0.040, BASE_HUE, 'range wash'), alpha: 0.35,
 };
 
-export const lightDecoration = {
+export const lightDecoration: Record<DecorationName, Overlay> = {
   selectionHighlight: { color: lightOverlay.selection.color, alpha: 0.25 },
   inactiveSelection: { color: lightOverlay.selection.color, alpha: 0.25 },
   findRange: LIGHT_RANGE_WASH,
   rangeHighlight: LIGHT_RANGE_WASH,
   fold: LIGHT_RANGE_WASH,
-} as const satisfies Record<string, Overlay>;
+};
 
-export type LightDecorationName = keyof typeof lightDecoration;
+export const lightSecondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
+  hover: { color: lightAccentScale('blue').subtle, alpha: 0.12 },
+  symbol: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
+  strongWord: { color: lightAccentScale('teal').subtle, alpha: 0.12 },
+  stackFrame: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
+  focusedStackFrame: { color: lightAccentScale('green').subtle, alpha: 0.12 },
+  bracketMatch: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
+  commentRange: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
+  activeCommentRange: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
+  unchangedCode: { color: lightOverlay.lineHighlight.color, alpha: 0.3 },
+  mergeCurrentHeader: { color: lightAccentScale('green').subtle, alpha: 0.12 },
+  mergeIncomingHeader: { color: lightAccentScale('blue').subtle, alpha: 0.12 },
+  mergeCommonHeader: { color: lightOverlay.lineHighlight.color, alpha: 0.20 },
+  mergeChange: { color: lightAccentScale('green').subtle, alpha: 0.10 },
+  mergeChangeWord: { color: lightAccentScale('green').subtle, alpha: 0.12 },
+  searchMatch: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
+  covered: { color: lightAccentScale('green').subtle, alpha: 0.12 },
+  uncovered: { color: lightAccentScale('coral').subtle, alpha: 0.14 },
+};
+
+export type LightDecorationName = DecorationName;
 
 export const lightFindMatch = {
   current: lightAccentScale('gold').subtle,
