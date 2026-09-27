@@ -190,7 +190,7 @@ export const lightOverlay = {
 // Find and folded ranges need a cyan hue to stay visible without hiding a selection on
 // a diff word. Selection highlight is halved by VS Code's CSS after its key is emitted.
 export const lightDecoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: [0.900, 0.040, 250], alpha: 0.65 },
+  selectionHighlight: { color: [0.885, 0.004, 250], alpha: 0.610 },
   inactiveSelection: { color: lightOverlay.selection.color, alpha: 0.25 },
   findRange: { color: [0.930, 0.060, 210], alpha: 0.45 },
   rangeHighlight: { color: [0.910, 0.000, 264], alpha: 0.50 },

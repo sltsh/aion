@@ -63,7 +63,9 @@ z-index 10; VS Code's mode above 1,000 matches and whole-line diff word variants
 outside this ordering claim. `packages/tokens/test/render-order.json` records the pinned
 source and variants. Alpha follows the emitted byte through VS Code’s parsed Color and
 two-decimal CSS formatter; selection highlight also halves it. The existing visibility
-invariants still measure raw emitted keys, so that check is not a native paint measurement.
+invariants still measure raw emitted keys; selection highlight also clears the painted
+visibility floor through the shared CSS-alpha compositor. These are calculations, not
+native editor acceptance.
 `LIGHT_SHIPPED` runs the same layer set for Aion Light, and light
 ANSI slots are measured separately on the light panel and its terminal selection.
 

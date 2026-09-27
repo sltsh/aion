@@ -124,7 +124,7 @@
     "editor.lineHighlightBorder": "#00000000",
     "editor.rangeHighlightBackground": "#e1e1e180",
     "editor.selectionBackground": "#9fceff59",
-    "editor.selectionHighlightBackground": "#cbe1f8a6",
+    "editor.selectionHighlightBackground": "#d7d9dc9c",
     "editor.stackFrameHighlightBackground": "#f8f0db1a",
     "editor.symbolHighlightBackground": "#f8f0db1a",
     "editor.wordHighlightBackground": "#92f1f673",

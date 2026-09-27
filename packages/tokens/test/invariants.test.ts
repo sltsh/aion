@@ -298,6 +298,14 @@ test('every reading-state overlay moves its editor far enough to be seen, in bot
   }
 });
 
+test.each([['dark', SHIPPED], ['light', LIGHT_SHIPPED]] as const)(
+  '%s selection highlight clears visibility after its native alpha transformation', (_scheme, source) => {
+    const editor = source.neutral.editor;
+    const painted = stackBackground(source, editor, ['selectionHighlight']);
+    expect(distanceEmitted(painted, editor)).toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+  },
+);
+
 test('every light editor decoration moves the editor far enough to be seen', () => {
   const editor = lightEditorNeutral.editor;
   for (const [name, value] of Object.entries(lightDecoration)) {

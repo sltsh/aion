@@ -485,12 +485,10 @@ Tasks 1 to 11 are done.
 The renderer-stack re-solve below is **calculation; not yet checked natively**. The
 previous VS Code checks do not establish the appearance of these changed keys:
 
-Light selection highlight passes the existing raw-key visibility test, but the calculated
-painted fill is below the intended native visibility threshold after alpha transformation.
-The bounded search did not resolve that while retaining the raw-key selection hierarchy.
-Re-solving selection provides more hierarchy budget, but the tested near-solution then
-falls below the comment floor on a selected removed word with selection highlight.
-Painted visibility remains unresolved; the bounded searches do not prove infeasibility.
+The finer emitted-colour search resolves Light selection highlight's painted visibility
+while preserving the selection hierarchy and comment. Both raw-key visibility and the
+calculated CSS-alpha paint now pass their tests. This remains a calculation, not native
+editor acceptance.
 
 - **Dark:** `editor.findMatchHighlightBackground`, `editor.findRangeHighlightBackground`,
   `editor.focusedStackFrameHighlightBackground`, `editor.foldBackground`,

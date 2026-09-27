@@ -720,15 +720,5 @@
         "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts"
       }
     ]
-  },
-  "visibilityLimitation": {
-    "name": "selectionHighlight",
-    "scheme": "light",
-    "rawKeyVisibility": 0.05546130089215064,
-    "paintedVisibility": 0.02866136629857174,
-    "existingRawFloor": 0.03,
-    "status": "unresolved native painted visibility; no infeasibility claim",
-    "evidence": "/tmp/aion-task1-painted-selection-bound.json",
-    "boundedSeamProbe": "/tmp/aion-task1-painted-selection-seam.json"
   }
 }
