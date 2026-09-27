@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { test, expect } from 'vitest';
 import {
-  ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, MEANING_PAIR_GAP, NON_TEXT_FLOOR, accentScale, ansi, compositeEmitted,
+  ACCENTS, ANSI_ORDER, CONTRAST_FLOOR, MEANING_PAIR_GAP, NON_TEXT_FLOOR, accentScale, ansi,
+  buildLightPalette, compositeEmitted,
   contrastEmitted, decoration, diff, diffWash, findMatch, hex, hexAlpha, hexToOklch, lightAnsi,
   lightDecoration, lightDiff, lightEditorNeutral, lightPalette, lightSecondaryDecoration,
   lightTerminalSelection, LIGHT_SHIPPED, neutral, overlay, readingForegrounds, readingStates,
@@ -10,7 +11,7 @@ import {
 } from '@sltsh/aion-tokens';
 import type { Oklch } from '@sltsh/aion-tokens';
 import { lightTheme, theme } from '../src/theme.js';
-import { colors } from '../src/colors.js';
+import { buildColors, colors } from '../src/colors.js';
 import { semanticTokenColors, tokenColors } from '../src/tokens.js';
 
 const built = theme();
@@ -541,6 +542,19 @@ test('every decoration key painted under code comes from the token maps, in both
     .map(([key]) => key)
     .filter((key) => !(key in DECORATION_KEYS) && !(key in ALREADY_TOKEN_OWNED) && !(key in NOT_A_TEXT_LAYER));
   expect(unclassified).toEqual([]);
+});
+
+test('custom light previews keep accent and neutral secondary decorations linked to their palette', () => {
+  const palette = buildLightPalette({ accentChroma: 0.8, baseHue: 200 });
+  const custom = buildColors(palette);
+  expect(custom['editor.hoverHighlightBackground']).toBe(
+    hexAlpha(palette.scales.blue.subtle, lightSecondaryDecoration.hover.alpha));
+  expect(custom['mergeEditor.change.background']).toBe(
+    hexAlpha(palette.scales.green.subtle, lightSecondaryDecoration.mergeChange.alpha));
+  expect(custom['diffEditor.unchangedCodeBackground']).toBe(
+    hexAlpha(palette.overlay.lineHighlight.color, lightSecondaryDecoration.unchangedCode.alpha));
+  expect(custom['editor.hoverHighlightBackground']).not.toBe(lightBuilt.colors['editor.hoverHighlightBackground']);
+  expect(custom['diffEditor.unchangedCodeBackground']).not.toBe(lightBuilt.colors['diffEditor.unchangedCodeBackground']);
 });
 
 test('moving the decorations changed no emitted byte', () => {

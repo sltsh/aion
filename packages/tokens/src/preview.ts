@@ -1,5 +1,6 @@
 import type {
-  AccentName, AccentScale, AnsiChromaticSlot, AnsiSlot, NeutralName, StatusName, SyntaxRole,
+  AccentName, AccentScale, AnsiChromaticSlot, AnsiSlot, NeutralName, SecondaryDecorationName,
+  StatusName, SyntaxRole,
 } from './palette.js';
 import {
   ACCENTS, ANSI_HUE, BASE_CHROMA, BASE_HUE, BRIGHT_TO_NORMAL, NEUTRAL_LIGHTNESS, STATUS, SYNTAX,
@@ -11,7 +12,7 @@ import {
 import {
   lightAccents, lightAnsi, lightBrackets, lightComment, lightDiff, lightDiffWash,
   lightDecoration, lightDimText, lightEditorNeutral, lightFindMatch, lightOverlay, lightAccentScale,
-  lightCursor, lightTerminalSelection,
+  lightSecondaryDecoration, lightCursor, lightTerminalSelection,
 } from './light.js';
 import type { LightDecorationName } from './light.js';
 import type { StatusScale } from './status.js';
@@ -71,6 +72,7 @@ export interface Palette {
   readonly terminalSelection: Oklch;
   readonly statuses: Record<StatusName, StatusScale>;
   readonly decoration?: Record<LightDecorationName, Overlay>;
+  readonly secondaryDecoration?: Record<SecondaryDecorationName, Overlay>;
 }
 
 // The lab drives this. At the default options it must equal the shipped palette exactly,
@@ -200,6 +202,25 @@ export function buildLightPalette(overrides: Partial<LightPreviewOptions> = {}):
     shiftOverlay(value, 0, accentChromaScale));
   const decoration = mapValues(lightDecoration, (value, name): Overlay =>
     shiftOverlay(value, name === 'selectionHighlight' || name === 'inactiveSelection' ? 0 : hueDelta, chromaScale));
+  const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
+    hover: { color: scales.blue.subtle, alpha: lightSecondaryDecoration.hover.alpha },
+    symbol: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.symbol.alpha },
+    strongWord: { color: scales.teal.subtle, alpha: lightSecondaryDecoration.strongWord.alpha },
+    stackFrame: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.stackFrame.alpha },
+    focusedStackFrame: { color: scales.green.subtle, alpha: lightSecondaryDecoration.focusedStackFrame.alpha },
+    bracketMatch: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.bracketMatch.alpha },
+    commentRange: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.commentRange.alpha },
+    activeCommentRange: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.activeCommentRange.alpha },
+    unchangedCode: { color: overlay.lineHighlight.color, alpha: lightSecondaryDecoration.unchangedCode.alpha },
+    mergeCurrentHeader: { color: scales.green.subtle, alpha: lightSecondaryDecoration.mergeCurrentHeader.alpha },
+    mergeIncomingHeader: { color: scales.blue.subtle, alpha: lightSecondaryDecoration.mergeIncomingHeader.alpha },
+    mergeCommonHeader: { color: overlay.lineHighlight.color, alpha: lightSecondaryDecoration.mergeCommonHeader.alpha },
+    mergeChange: { color: scales.green.subtle, alpha: lightSecondaryDecoration.mergeChange.alpha },
+    mergeChangeWord: { color: scales.green.subtle, alpha: lightSecondaryDecoration.mergeChangeWord.alpha },
+    searchMatch: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.searchMatch.alpha },
+    covered: { color: scales.green.subtle, alpha: lightSecondaryDecoration.covered.alpha },
+    uncovered: { color: scales.coral.subtle, alpha: lightSecondaryDecoration.uncovered.alpha },
+  };
   const diff = mapValues(lightDiff, (value): Oklch =>
     shiftHue(value, 0, accentLightnessDelta, accentChromaScale));
   const findMatch = mapValues(lightFindMatch, (value): Oklch =>
@@ -228,6 +249,7 @@ export function buildLightPalette(overrides: Partial<LightPreviewOptions> = {}):
     terminalSelection: shiftHue(lightTerminalSelection, hueDelta, surfaceDelta, chromaScale),
     statuses,
     decoration,
+    secondaryDecoration,
   };
 }
 

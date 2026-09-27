@@ -1,6 +1,6 @@
 import {
   ACCENTS, accentScale, ansi, comment, cursor, decoration, diff, diffWash, dimText, findMatch, hex,
-  hexAlpha, lightSecondaryDecoration, neutral, overlay, secondaryDecoration, status, terminalSelection,
+  hexAlpha, neutral, overlay, secondaryDecoration, status, terminalSelection,
 } from '@sltsh/aion-tokens';
 import type { Palette, StatusName } from '@sltsh/aion-tokens';
 
@@ -935,7 +935,7 @@ const palettePairs = (palette: Palette): PalettePairs => {
     keyColours.set('editor.rangeHighlightBackground', hexAlpha(d.rangeHighlight.color, d.rangeHighlight.alpha));
     keyColours.set('editor.foldBackground', hexAlpha(d.fold.color, d.fold.alpha));
   }
-  const secondaryKeys: Record<string, keyof typeof lightSecondaryDecoration> = {
+  const secondaryKeys: Record<string, keyof typeof secondaryDecoration> = {
     'editor.hoverHighlightBackground': 'hover',
     'editor.symbolHighlightBackground': 'symbol',
     'editor.wordHighlightStrongBackground': 'strongWord',
@@ -954,9 +954,11 @@ const palettePairs = (palette: Palette): PalettePairs => {
     'testing.coveredBackground': 'covered',
     'testing.uncoveredBackground': 'uncovered',
   };
-  for (const [key, name] of Object.entries(secondaryKeys)) {
-    const value = lightSecondaryDecoration[name];
-    keyColours.set(key, hexAlpha(value.color, value.alpha));
+  if (palette.secondaryDecoration !== undefined) {
+    for (const [key, name] of Object.entries(secondaryKeys)) {
+      const value = palette.secondaryDecoration[name];
+      keyColours.set(key, hexAlpha(value.color, value.alpha));
+    }
   }
   // Inline blame is persistent editor metadata, not incidental chrome. The dim role is
   // too quiet on Light, so promote it to secondary text without competing with primary.
