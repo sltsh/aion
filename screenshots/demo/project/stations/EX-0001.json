@@ -1,0 +1,13 @@
+{
+  "id": "EX-0001",
+  "name": "Example Harbour",
+  "timeZone": "Europe/London",
+  "datum": 3.2,
+  "harmonics": {
+    "M2": { "amplitude": 1.62, "phase": 118.4 },
+    "S2": { "amplitude": 0.54, "phase": 162.1 },
+    "N2": { "amplitude": 0.31, "phase": 101.7 },
+    "K1": { "amplitude": 0.07, "phase": 76.2 },
+    "O1": { "amplitude": 0.06, "phase": 330.5 }
+  }
+}

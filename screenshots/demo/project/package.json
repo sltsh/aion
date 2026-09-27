@@ -1,0 +1,10 @@
+{
+  "name": "tidal",
+  "version": "0.4.0",
+  "description": "Tide heights from harmonic constants",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test --test-reporter=spec"
+  }
+}
