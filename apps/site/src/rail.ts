@@ -6,7 +6,7 @@ export function mountRail(nav: HTMLElement, hero: Element): () => void {
   const targets = anchors.map((anchor) => document.getElementById(anchor.hash.slice(1)));
   const update = (): void => {
     const box = hero.getBoundingClientRect();
-    const gutter = box.left;
+    const gutter = targets[0]?.getBoundingClientRect().left ?? box.left;
     nav.hidden = gutter < 190 || box.bottom > 0;
     nav.style.left = `${Math.max(16, gutter - 174)}px`;
     let active = 0;

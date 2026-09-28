@@ -446,7 +446,7 @@ describe('the new page shell', () => {
     for (const html of [landing(flags), palette(flags)]) {
       it(`renders an inline mark and one hidden named chip for released=${flags.released}`, () => {
         expect(html.match(/<header class="site-head">/g)).toHaveLength(1);
-        expect(html.match(/<slt-site-mark placement="inline">/g)).toHaveLength(1);
+        expect(html.match(/<slt-site-mark placement="inline">/g)).toHaveLength(html.includes('data-hero') ? 2 : 1);
         expect(html).not.toContain('<slt-site-mark>');
         expect(html).toMatch(/<button[^>]+role="switch"[^>]+aria-label="Light theme"[^>]+aria-checked="false"[^>]+hidden/);
         expect(html.match(/role="switch"/g)).toHaveLength(1);

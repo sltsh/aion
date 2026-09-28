@@ -15,6 +15,14 @@ export const SHELL = {
   explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
 } as const;
 export const CONTENT = {
+  hero: {
+    headline: ['Your code is', 'the deepest thing', 'on the screen.'],
+    sub: 'Gold marks where you are. Every colour is solved, never chosen.',
+    install: 'Install for VS Code', openVsx: 'Open VSX',
+    slider: 'Share of the hero shown in the other scheme', darkName: 'Aion', lightName: 'Aion Light',
+    marketplace: 'https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme',
+    registry: 'https://open-vsx.org/extension/sltsh/aion-theme',
+  },
   pitch: "A theme for editors, terminals and the web.",
   heroDetail: "Gold accents. Cool surfaces. Familiar syntax. No italics.",
   editorNote: "Familiar syntax. No italics.",

@@ -3,6 +3,9 @@ import '@sltsh/site-mark/register';
 import './styles.css';
 import './styles/shell.css';
 import './styles/chip.css';
+import '@sltsh/aion-lab/render/editor.css';
+import './styles/hero.css';
+import { mountHero } from './hero/controller.js';
 import { mountChip } from './chip.js';
 import { mountRail } from './rail.js';
 import { initializeTheme, syncFavicons } from './theme.js';
@@ -51,8 +54,12 @@ const theme = initializeTheme({
   updateAssets: (theme) => syncFavicons(document.querySelectorAll<HTMLLinkElement>('link[data-theme-favicon]'), theme),
 });
 
+const heroRoot = document.querySelector<HTMLElement>('[data-hero]');
+const heroController = heroRoot ? mountHero(heroRoot, theme, { now: () => performance.now(), raf: (callback) => requestAnimationFrame(callback), cancelRaf: (id) => cancelAnimationFrame(id), reducedMotion, resize: window }) : null;
+root.classList.add('js');
+heroController?.arrive();
 const chip = document.querySelector<HTMLButtonElement>('[data-scheme-chip]');
-const disposeChip = chip ? mountChip(chip, theme, null) : () => {};
+const disposeChip = chip ? mountChip(chip, theme, heroController) : () => {};
 const rail = document.querySelector<HTMLElement>('.chapter-rail');
 const hero = document.getElementById('overview');
 const disposeRail = rail && hero ? mountRail(rail, hero) : () => {};
@@ -65,6 +72,13 @@ const siteHead = document.querySelector<HTMLElement>('.site-head');
 const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 const menu = document.querySelector<HTMLElement>('.site-menu');
 const phone = window.matchMedia('(max-width: 599px)');
+const menuHome = menu?.parentElement;
+const menuPortal = document.querySelector<HTMLElement>('.hero-menu-portal');
+const placeMenu = (): void => {
+  if (!menu || !menuHome || !menuPortal) return;
+  (phone.matches ? menuPortal : menuHome).append(menu);
+};
+placeMenu();
 let menuEffect: Animation | undefined;
 let menuOpen = false;
 const settleMenu = (): void => {
@@ -100,16 +114,16 @@ const setMenu = (open: boolean, motion = true): void => {
 };
 setMenu(false, false);
 menuToggle?.addEventListener('click', () => setMenu(!menuOpen), { signal });
-siteHead?.querySelector('.site-nav')?.addEventListener('click', (event) => {
+menu?.querySelector('.site-nav')?.addEventListener('click', (event) => {
   if (event.target instanceof Element && event.target.closest('a')) setMenu(false);
 }, { signal });
 document.addEventListener('click', (event) => {
-  if (event.target instanceof Node && !siteHead?.contains(event.target)) setMenu(false);
+  if (event.target instanceof Node && !siteHead?.contains(event.target) && !menu?.contains(event.target)) setMenu(false);
 }, { signal });
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && menuOpen) { setMenu(false); menuToggle?.focus({ preventScroll: true }); }
 }, { signal });
-phone.addEventListener('change', () => setMenu(false, false), { signal });
+phone.addEventListener('change', () => { placeMenu(); setMenu(false, false); }, { signal });
 window.addEventListener('resize', settleMenu, { signal });
 
 document.addEventListener('click', (event) => {
@@ -232,5 +246,5 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) settl
 window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
-  if (!event.persisted) { disposeChip(); disposeRail(); theme.dispose(); lifetime.abort(); }
+  if (!event.persisted) { disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
 }, { signal });
