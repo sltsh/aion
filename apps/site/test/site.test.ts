@@ -495,7 +495,7 @@ describe('the new page shell', () => {
   });
   it('pairs header navigation text and underline and gives every target a 44px minimum', () => {
     const css = readFileSync(join(root, 'src/styles/shell.css'), 'utf8');
-    expect(css).toMatch(/\.site-nav a\s*\{[^}]*min-height:\s*44px/);
+    expect(css).toMatch(/\.site-nav a, \.site-nav > span\s*\{[^}]*min-height:\s*44px/);
     expect(css).toContain('color: var(--aion-fg-secondary)');
     expect(css).toContain('.site-nav a:hover, .site-nav a:focus-visible, .site-nav a[aria-current] { color: var(--aion-fg-primary);');
     expect(css).toMatch(/\.site-nav a::after\s*\{[^}]*height:\s*3px[^}]*background:\s*var\(--aion-gold-solid\)/);

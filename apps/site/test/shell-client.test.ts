@@ -12,11 +12,15 @@ vi.mock('../src/intro.js', () => ({ isHomepagePath: () => true, shouldPlayIntro:
 function chipHarness(onScreen: boolean) {
   const document = Object.assign(new EventTarget(), { hidden: false, defaultView: null });
   const halves = ['dark', 'light'].map((theme) => ({ dataset: { theme }, classList: { toggle: vi.fn() } }));
+  const base = { dataset: {}, querySelectorAll: () => halves };
+  const incoming = { dataset: {}, style: { clipPath: '' }, hidden: true, querySelectorAll: () => [] };
+  const frames = new Map<number, FrameRequestCallback>(); let id = 0;
   const attributes = new Map<string, string>();
   const button = Object.assign(new EventTarget(), {
-    ownerDocument: document, hidden: true, focus: vi.fn(),
+    ownerDocument: document, hidden: true, dataset: {}, focus: vi.fn(),
+    getBoundingClientRect: () => ({ width: 144, height: 52 }),
     setAttribute: (name: string, value: string) => { attributes.set(name, value); },
-    querySelectorAll: () => halves, querySelector: () => null,
+    querySelectorAll: () => halves, querySelector: (selector: string) => selector === '[data-chip-base]' ? base : incoming,
   });
   const listeners = new Set<(theme: Theme, cause: ThemeCause) => void>();
   const order: string[] = [];
@@ -38,8 +42,9 @@ function chipHarness(onScreen: boolean) {
     },
     cancelThrow() { order.push('cancel'); finish('superseded'); }, arrive() {}, dispose() {},
   };
-  const dispose = mountChip(button as unknown as HTMLButtonElement, controller, hero);
-  return { button, controller, hero, attributes, halves, order, finish: () => finish('committed'), dispose };
+  const dispose = mountChip(button as unknown as HTMLButtonElement, controller, hero, { now: () => 0, raf: callback => { frames.set(++id, callback); return id; }, cancelRaf: key => { frames.delete(key); }, supportsViewTransitions: true });
+  const finishWipe = () => { const queued = [...frames.values()]; frames.clear(); queued.forEach(callback => callback(720)); };
+  return { button, controller, hero, attributes, halves, order, finishWipe, finish: () => finish('committed'), dispose };
 }
 
 describe('scheme chip client', () => {
@@ -50,7 +55,7 @@ describe('scheme chip client', () => {
     expect(h.order).toEqual(['request:wipe']);
     expect(h.attributes.get('aria-checked')).toBe('true');
     expect(h.button.focus).toHaveBeenCalledWith({ preventScroll: true });
-    expect(h.halves[1]!.classList.toggle).toHaveBeenLastCalledWith('chip-key', true);
+    h.finishWipe(); expect(h.halves[1]!.classList.toggle).toHaveBeenLastCalledWith('chip-key', true);
     h.dispose(); h.button.dispatchEvent(new Event('click')); expect(h.order).toHaveLength(1);
   });
   it('throws first on screen and lets the hero commit without a second wipe', async () => {
@@ -97,7 +102,7 @@ it('moves the live header current link with the chapter in view and clears it ab
   const sections = new Map([...positions].map(([id]) => [id, {
     getBoundingClientRect: () => ({ top: positions.get(id)! }),
   }]));
-  const header = { getBoundingClientRect: () => ({ bottom: 64 }) };
+  const header = { getBoundingClientRect: () => ({ bottom: 64 - window.scrollY }) };
   const frames: FrameRequestCallback[] = [];
   const root = {
     classList: { add() {} }, removeAttribute() {}, dataset: {}, scrollHeight: 5000,
@@ -128,9 +133,9 @@ it('moves the live header current link with the chapter in view and clears it ab
     const chapters = ['depth', 'solved', 'rounded', 'states', 'terminal', 'palette', 'install'];
     for (const chapter of chapters) {
       window.scrollY = chapters.indexOf(chapter) * 350;
-      positions.set('depth', chapter === 'depth' ? 100 : -300);
-      positions.set('solved', chapter === 'depth' ? 900 : chapter === 'solved' ? 100 : -200);
-      positions.set('install', chapter === 'install' ? 100 : 1700);
+      positions.set('depth', chapter === 'depth' ? 32 : -300);
+      positions.set('solved', chapter === 'depth' ? 900 : chapter === 'solved' ? 32 : -200);
+      positions.set('install', chapter === 'install' ? 32 : 1700);
       window.dispatchEvent(new Event('scroll'));
       flushFrames();
       const current = anchors.filter((anchor) => anchor.attributes.get('aria-current') === 'location');

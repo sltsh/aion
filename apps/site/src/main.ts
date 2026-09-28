@@ -195,7 +195,7 @@ const selectSection = (active: typeof tracked[number] | undefined): void => {
 let navigationFrame: number | undefined;
 const updateNavigation = (): void => {
   navigationFrame = undefined;
-  const header = siteHead?.getBoundingClientRect().bottom ?? 0;
+  const header = Math.max(0, siteHead?.getBoundingClientRect().bottom ?? 0);
   const jump = document.querySelector('.jump');
   const mobileJump = jump && getComputedStyle(jump).display === 'flex' ? jump.getBoundingClientRect().height : 0;
   const threshold = header + mobileJump + 48;

@@ -680,6 +680,33 @@ async function engineRun(name) {
         assert.ok(!reset,`the painted reveal reset to the outgoing scheme at ${reset?.t.toFixed(1)} ms after visible progress at ${visible.t.toFixed(1)} ms`);
       }finally{await cdp.send('Page.stopScreencast').catch(()=>{});await Promise.all(writes);await cdp.detach();}
     });
+    for(const scheme of ['dark','light'])await run(`nav-current-${scheme}`,{colorScheme:scheme},async(p,_c,row,capture)=>{
+      await p.goto(base);await settled(p);
+      const nav=p.locator('header.site-head .site-nav');
+      assert.equal(await nav.locator('[aria-current]').count(),0,'nothing is current above Depth');
+      const mirrored=await p.evaluate(()=>[document.querySelector('header.site-head .site-nav a'),document.querySelector('.site-head-picture .site-nav span')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {font:s.font,padding:s.padding,width:r.width,height:r.height};}));
+      assert.deepEqual(mirrored[0],mirrored[1],'picture header does not mirror live typography/geometry');assert.ok(mirrored[0].height>=44);assert.ok(mirrored[0].font.includes('13px'));assert.ok(mirrored[0].font.includes('Monaspace Neon'));
+      assert.equal(await p.locator('.site-head-picture .site-nav [aria-current],.site-head-picture .site-nav a,.site-head-picture .site-nav button').count(),0);
+      assert.equal(await p.locator('.site-head-picture').getAttribute('inert'),'');
+      row.measurements={mirrored,chapters:[]};await capture(`nav-current-${scheme}-top`);
+      for(const id of ['depth','solved','rounded','states','terminal','palette','install']){
+        const expected=id==='depth'?'Depth':id==='install'?'Install':'Proof';
+        await p.locator('#'+id).evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));
+        await p.waitForFunction(label=>document.querySelector('header.site-head .site-nav [aria-current]')?.textContent===label,expected);
+        const current=nav.locator('[aria-current]');assert.equal(await current.count(),1);assert.equal(await current.getAttribute('aria-current'),'location');
+        const m=await current.evaluate(e=>{const s=getComputedStyle(e),u=getComputedStyle(e,'::after'),r=e.getBoundingClientRect();return {text:e.textContent,font:s.font,height:r.height,textColour:s.color,underlineHeight:parseFloat(u.height),bottom:parseFloat(u.bottom),transform:u.transform,clip:u.clipPath,transition:u.transitionDuration};});
+        assert.ok(m.height>=44);assert.equal(m.underlineHeight,3);assert.equal(m.bottom,2);assert.equal(m.transform,'matrix(1, 0, 0, 1, 0, 0)');assert.ok(m.clip.startsWith('polygon('));assert.equal(m.transition,'0s');row.measurements.chapters.push({id,...m});
+      }
+      await p.goto(base+'/#install');await settled(p);await p.waitForFunction(()=>document.querySelector('header.site-head .site-nav [aria-current]')?.textContent==='Install');
+      await p.setViewportSize({width:390,height:1000});await p.goto(base);await settled(p);
+      const toggle=p.locator('header.site-head .menu-toggle');await toggle.click();await p.waitForFunction(()=>document.querySelector('header.site-head .menu-toggle')?.getAttribute('aria-expanded')==='true');
+      const mobile=await p.locator('.hero-menu-portal .site-nav a').evaluateAll(es=>es.map(e=>({height:e.getBoundingClientRect().height,font:getComputedStyle(e).fontSize})));
+      assert.equal(mobile.length,4);assert.ok(mobile.every(m=>m.height>=44&&m.font==='13px'));row.measurements.mobile=mobile;await capture(`nav-current-${scheme}-mobile-open`);
+      await p.locator('.hero-menu-portal .site-nav a[href="#solved"]').click();await p.waitForFunction(()=>document.querySelector('header.site-head .menu-toggle')?.getAttribute('aria-expanded')==='false');
+      await p.waitForFunction(()=>document.querySelector('.hero-menu-portal .site-nav [aria-current]')?.textContent==='Proof');
+      await p.setViewportSize({width:1440,height:1000});await p.goto(base+'/palette.html');await settled(p);
+      const paletteNav=p.locator('header.site-head .site-nav [aria-current]');assert.equal(await paletteNav.count(),1);assert.equal(await paletteNav.textContent(),'Palette');assert.equal(await paletteNav.getAttribute('aria-current'),'page');await capture(`nav-current-${scheme}-palette`);
+    });
     await run('clipboard-unavailable-and-rejection',{},async(p)=>{
       await p.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));await p.goto(base+'/#install');await settled(p);await p.locator('[data-install-target] [data-copy]').first().click();assert.match(await p.locator('.copy-status').textContent(),/unavailable|select/i);assert.equal(await p.locator('.install-command code').first().evaluate(e=>getComputedStyle(e).userSelect),'text');
       await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('rejected');}}}));await p.locator('[data-install-target] [data-copy]').first().click();await p.waitForFunction(()=>document.querySelector('.copy-status').dataset.status==='error');assert.ok(await p.locator('.copy-status').isVisible());

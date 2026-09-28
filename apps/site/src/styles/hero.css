@@ -9,6 +9,7 @@
 .js .hero-far, .js .hero-seam-svg, .js .hero-handle { display: block; }
 .diptych .site-head { height: 76px; min-height: 76px; padding: 0 48px; border: 0; background: var(--n-editor); color: var(--n-text-primary); }
 .diptych .site-nav a, .diptych .site-nav span { color: var(--n-text-secondary); }
+.diptych .site-nav a:hover, .diptych .site-nav a:focus-visible, .diptych .site-nav a[aria-current] { color: var(--n-text-primary); }
 .diptych .site-nav { margin-left: auto; }
 .diptych .site-path { gap: 12px; }
 .diptych .header-wordmark img { height: 19px; width: auto; }
@@ -31,7 +32,6 @@
 .diptych .code { font-family: 'Monaspace Neon', monospace; }
 .diptych .traffic i, .diptych .pill, .diptych .find-input { border-radius: 0; }
 .diptych .find-widget, .diptych .hover-card { box-shadow: none; border-radius: 0; }
-.diptych .site-head-picture .site-nav span { display: flex; align-items: center; min-height: 2.75rem; padding: 0 1rem; border-bottom: 2px solid transparent; font-size: 0.85rem; }
 .hero-seam-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
 .hero-seam-svg line { stroke: var(--a-gold); stroke-width: 1.5; }
 .hero-dragging { cursor: grabbing; user-select: none; }
@@ -60,7 +60,7 @@
   .hero-shell:has(.site-head[data-menu]) .hero-menu-portal .site-menu { display: none; position: relative; inset: auto; padding: 0.75rem 16px 1rem; background: var(--aion-bg-surface); border-bottom: 1px solid var(--aion-border-hairline); }
   .hero-shell:has(.site-head[data-menu="open"]) .hero-menu-portal .site-menu, .hero-menu-portal .site-menu[data-disclosing] { display: grid; gap: 0.75rem; }
   .hero-menu-portal .site-nav { display: grid; margin: 0; gap: 0.25rem; }
-  .hero-menu-portal .site-nav a { min-height: 2.75rem; padding: 0 1rem; font-size: 1rem; }
+  .hero-menu-portal .site-nav a { min-height: 2.75rem; padding: 0 1rem; font-size: 0.8125rem; }
 }
 @media (max-width: 599px) {
   .diptych .site-head-picture .site-menu { display: none; }
