@@ -4,7 +4,7 @@ import type { ThemeController } from '../theme.js';
 import { CONTENT } from '../content.js';
 import { floorLimit, failDirection, probeSurfaces, worstSurface, SOLVED_CHIPS } from './probe.js';
 import type { ProbeInputs } from './probe.js';
-import { solvedScale } from '../render/solved.js';
+import { solvedScale, solvedStrip } from '../render/solved.js';
 
 export function mountSolved(root: HTMLElement, controller: ThemeController, inputs: ProbeInputs): () => void {
   const lifetime = new AbortController(), {signal} = lifetime;
@@ -17,9 +17,7 @@ export function mountSolved(root: HTMLElement, controller: ThemeController, inpu
     let L = Number(slider.value);
     if (hold.checked && (L-limit)*dir>0) { L=limit; slider.value=String(L); }
     const colour: Oklch = [L,base[1],base[2]], worst=worstSurface(colour,surfaces), shipped=worstSurface(base,surfaces);
-    const background=surfaces.find(row=>row.name===worst.name)!.background;
-    probe.style.background=hex(background); probe.style.color=hex(colour);
-    root.querySelector<HTMLElement>('[data-solved-word]')!.textContent=selected.word;
+    probe.innerHTML=solvedStrip(colour,source);
     root.querySelector<HTMLElement>('[data-solved-hex]')!.textContent=`${hex(colour)} ${CONTENT.solved.on} ${worst.name}`;
     const verdict=root.querySelector<HTMLElement>('[data-solved-verdict]')!;
     verdict.dataset['verdict']=worst.ratio>=4.5?'pass':'fail';

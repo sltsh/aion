@@ -1,5 +1,9 @@
 import type { Oklch, Palette } from '@sltsh/aion-tokens';
 export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; where: string }[] = [
+  { fg: '--aion-border-ui', bg: '--aion-bg-raised', floor: 3, where: 'Solved strip tile edge against card' },
+  ...(['gold', 'coral', 'copper', 'green', 'teal', 'blue', 'violet'] as const).map(accent => ({
+    fg: `--aion-${accent}-solid`, bg: '--aion-bg-raised', floor: 4.5 as const, where: `Solved ${accent} accent name`,
+  })),
   { fg: '--n-text-primary', bg: '--n-editor', floor: 4.5, where: 'Palette file and chart labels; install tile name' },
   { fg: '--n-text-secondary', bg: '--n-editor', floor: 4.5, where: 'Palette guides and uses; install channel' },
   { fg: '--n-text-primary', bg: '--n-sidebar', floor: 4.5, where: 'install command and Copy label' },
