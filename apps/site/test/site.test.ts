@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dark, light } from '@sltsh/aion-css';
-import { buildPalette, checks, flatten, lightPalette, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch, hex } from '@sltsh/aion-tokens';
+import { buildPalette, checks, flatten, lightPalette, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch, hex, RENDER_ORDER, stackBackground } from '@sltsh/aion-tokens';
 import { variables } from '@sltsh/aion-lab/variables';
 import { obsidianColors } from '@sltsh/aion-obsidian/colors';
 import { probeSurfaces } from '../src/chapters/probe.js';
@@ -425,8 +425,10 @@ describe('parity with the emitter', () => {
         ...Object.values(variables(lightPalette)),
         ...Object.values(obsidianColors('dark')),
         ...Object.values(obsidianColors('light')),
-        ...[buildPalette(), lightPalette].flatMap(source =>
-          probeSurfaces(source).map(surface => hex(surface.background))),
+        ...[buildPalette(), lightPalette].flatMap(source => [
+          ...probeSurfaces(source).map(surface => hex(surface.background)),
+          ...RENDER_ORDER.map(layer => hex(stackBackground(source, source.neutral.editor, [layer]))),
+        ]),
       ].map((v) => v.toLowerCase()),
     );
     const pages = [

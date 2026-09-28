@@ -2,7 +2,7 @@ import { hex } from '@sltsh/aion-tokens';
 import type { ThemeController } from '../theme.js';
 import type { ProbeInputs } from './probe.js';
 import { CONTENT } from '../content.js';
-import { disabledReasonAt, enabledAt, drawnBackgrounds, placementRatios, togglePlacement, expandSpan } from './placement.js';
+import { disabledReasonAt, enabledAt, drawnBackgrounds, placementRatios, togglePlacement, expandSpan, PLACEMENT } from './placement.js';
 import type { ToolbarLayer } from './placement.js';
 export interface CountEnvironment {
   now(): number;
@@ -66,6 +66,15 @@ export function mountStates(root: HTMLElement, controller: ThemeController, inpu
   const draw = (animate: boolean): void => {
     const source = inputs[controller.theme], backgrounds = drawnBackgrounds(on, source);
     const variant = root.querySelector<HTMLElement>(`[data-state-scheme="${controller.theme}"]`)!;
+    for (const row of variant.querySelectorAll<HTMLElement>('[data-state-line]')) {
+      const line = Number(row.dataset['stateLine']);
+      const wholeLine = new Set([...on].filter(layer => PLACEMENT[layer].some(span =>
+        span.line === line && span.from === undefined && span.to === undefined)));
+      const fill = drawnBackgrounds(wholeLine, source).find(background => background.span.line === line)!;
+      const code = row.querySelector<HTMLElement>('code')!;
+      code.style.backgroundColor = hex(fill.background);
+      code.dataset['lineLayers'] = fill.layers.join(' ');
+    }
     for (const fragment of variant.querySelectorAll<HTMLElement>('[data-state-fragment]')) {
       const line = Number(fragment.dataset['line']), from = Number(fragment.dataset['from']), to = Number(fragment.dataset['to']);
       const row = backgrounds.find(row => row.span.line === line && row.span.from <= from && row.span.to >= to)!;

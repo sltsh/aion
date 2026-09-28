@@ -65,11 +65,15 @@ test('scheme changes retain covered toggles, clear deltas and disposal removes i
     toggleAttribute(name: string, on: boolean) { if (on) this.attrs.set(name, ''); else this.attrs.delete(name); }
     querySelector(selector: string) { return this.children.get(selector); }
     fragments: Node[] = [];
-    querySelectorAll() { return this.fragments; }
+    rows: Node[] = [];
+    querySelectorAll(selector?: string) { return selector === '[data-state-line]' ? this.rows : this.fragments; }
   }
   const buttons = TOOLBAR.map(layer => { const node = new Node(); node.dataset['stateToggle'] = layer; return node; });
   const variants = Object.fromEntries((['dark', 'light'] as const).map(scheme => {
     const variant = new Node();
+    for (const [line] of STATE_SAMPLE.entries()) {
+      const row = new Node(); row.dataset['stateLine'] = String(line); row.children.set('code', new Node()); variant.rows.push(row);
+    }
     for (const [line] of STATE_SAMPLE.entries()) for (const fragment of stateFragments(line)) {
       const node = new Node(); node.textContent = fragment.text; node.dataset = { line: String(line), from: String(fragment.from), to: String(fragment.to), role: fragment.role }; variant.fragments.push(node);
     }
@@ -92,7 +96,10 @@ test('scheme changes retain covered toggles, clear deltas and disposal removes i
   const word = buttons.find(button => button.dataset['stateToggle'] === 'addedWord')!;
   word.dispatchEvent(new Event('click')); expect(word.attrs.get('aria-pressed')).toBe('true');
   expect(buttons.find(button => button.dataset['stateToggle'] === 'removedLine')!.disabled).toBe(false);
+  expect(variants['dark']!.rows[2]!.children.get('code')!.style['backgroundColor']).toBe(hex(stackBackground(buildPalette(), buildPalette().neutral.editor, ['addedLine'])));
+  expect(variants['dark']!.rows[2]!.children.get('code')!.dataset['lineLayers']).toBe('addedLine');
   scheme = 'light'; notify(); expect(word.attrs.get('aria-pressed')).toBe('true');
+  expect(variants['light']!.rows[2]!.children.get('code')!.style['backgroundColor']).toBe(hex(stackBackground(lightPalette, lightPalette.neutral.editor, ['addedLine'])));
   const selected = new Set<ToolbarLayer>(['addedLine', 'addedWord']);
   expect(variants['light']!.children.get('[data-state-bghex]')!.textContent).toBe([...new Set(drawnBackgrounds(selected, lightPalette).map(row => hex(row.background)))].join(', '));
   expect(variants['light']!.children.get('[data-state-meter="comment"]')!.children.get('[data-state-delta]')!.textContent).toBe('');
