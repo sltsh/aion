@@ -1,33 +1,28 @@
 import { expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { buildPalette, lightPalette, orderStack, readingStates, stackName } from '@sltsh/aion-tokens';
-import type { StackLayer } from '@sltsh/aion-tokens';
-import { TOOLBAR, disabledReason, enabled, stackBackground, toggle } from '../src/chapters/stack.js';
+import { buildPalette, lightPalette, hex, stackBackground } from '@sltsh/aion-tokens';
+import { TOOLBAR, enabledAt, drawnBackgrounds, togglePlacement, placementRatios } from '../src/chapters/placement.js';
+import type { ToolbarLayer } from '../src/chapters/placement.js';
 import { cancelCount, countTo } from '../src/chapters/states.js';
 import type { CountEnvironment } from '../src/chapters/states.js';
-import { renderStates } from '../src/render/states.js';
-import { CONTENT } from '../src/content.js';
-for (const source of [buildPalette(), lightPalette]) test(`every reachable toolbar stack is gated, editor L=${source.neutral.editor[0]}`, () => {
-  const rows = new Map(readingStates(source).map(row => [row.name, row.background]));
-  const queue: Set<StackLayer>[] = [new Set()], seen = new Set<string>();
-  for (let i = 0; i < queue.length; i++) {
-    const on = queue[i]!, name = stackName('editor', orderStack(on));
-    if (seen.has(name)) continue;
-    seen.add(name); expect(stackBackground(source, on)).toEqual(rows.get(name));
-    for (const layer of TOOLBAR) if (enabled(on, layer)) queue.push(toggle(on, layer));
+import { renderStates, stateFragments } from '../src/render/states.js';
+import { CONTENT, STATE_SAMPLE } from '../src/content.js';
+for (const layer of TOOLBAR) test(`fragments preserve every token under ${layer}`, () => {
+  const on = togglePlacement(new Set(), layer);
+  for (const source of [buildPalette(), lightPalette]) {
+    const backgrounds = drawnBackgrounds(on, source);
+    for (const [line, tokens] of STATE_SAMPLE.entries()) {
+      const fragments = stateFragments(line);
+      expect(fragments.map(fragment => fragment.text).join('')).toBe(tokens.map(([, text]) => text).join(''));
+      for (const fragment of fragments) expect(backgrounds.some(row => row.span.line === line && row.span.from <= fragment.from && row.span.to >= fragment.to)).toBe(true);
+      for (const [role] of tokens) expect(fragments.some(fragment => fragment.role === role)).toBe(true);
+    }
+    expect(placementRatios(source, on).every(row => row.ratio >= 4.5)).toBe(true);
   }
-  expect(seen.size).toBe(60);
 });
-test('words bring lines, and removing lines removes words without mutating input', () => {
-  const on = new Set<StackLayer>(); const word = toggle(on, 'addedWord');
-  expect(word).toEqual(new Set(['addedLine', 'addedWord'])); expect(on.size).toBe(0);
-  expect(toggle(word, 'addedLine').size).toBe(0);
-});
-test('disabled toggles explain current-line/selection and added/removed exclusions from content', () => {
-  expect(disabledReason(new Set(['selection']), 'lineHighlight')).toBe('currentSelection');
-  expect(disabledReason(new Set(['addedLine']), 'removedWord')).toBe('diffSides');
-  expect(CONTENT.states.reasons.currentSelection).toContain('never stack');
-  expect(disabledReason(new Set(), 'selection')).toBeNull();
+test('spatially separate added and removed states remain eligible', () => {
+  expect(enabledAt(new Set(['addedLine']), 'removedWord')).toBe(true);
+  expect(enabledAt(new Set(['lineHighlight']), 'selection')).toBe(false);
 });
 test('meters count in 560ms, show a delta for 1.8s and settle reduced motion immediately', () => {
   let now = 0, value = 0, delta: number | null = null, next = 0;
@@ -46,12 +41,15 @@ test('meters count in 560ms, show a delta for 1.8s and settle reduced motion imm
   cancelCount(env); expect(value).toBe(6); expect(frames.size).toBe(0); expect(timers.size).toBe(0);
   countTo(8, 5, { ...env, reducedMotion: () => true }); expect(value).toBe(5); expect(delta).toBeNull();
 });
-for (const released of [true, false]) test(`three code lines, scroll access and no obsolete action, released=${released}`, () => {
+for (const released of [true, false]) test(`complete code sample, scroll access and no obsolete action, released=${released}`, () => {
   const html = renderStates({ released });
-  expect(html.match(/data-state-line=/g)).toHaveLength(6);
+  expect(html.match(/data-state-line=/g)).toHaveLength(STATE_SAMPLE.length * 2);
   expect(html).toContain('tabindex="0"'); expect(html).toContain(CONTENT.states.codeLabel);
   expect(html).not.toContain('Show it'); expect(html).not.toContain('open question');
   expect(html).not.toContain('data-delta-visible');
+  expect(html).toContain('data-state-toggle="mergeConflict"');
+  expect(html).not.toContain('mergeChangeWord');
+  for (const source of [buildPalette(), lightPalette]) for (const layer of TOOLBAR) expect(html).toContain(hex(stackBackground(source, source.neutral.editor, [layer === 'mergeConflict' ? 'mergeCurrentHeader' : layer])));
   const css = readFileSync(new URL('../src/styles/states.css', import.meta.url), 'utf8');
   expect(css).toMatch(/font:[^;]*22px/); expect(css).toContain('max-width:599px'); expect(css).toContain('font-size:16px');
 });
@@ -66,11 +64,15 @@ test('scheme changes retain covered toggles, clear deltas and disposal removes i
     removeAttribute(name: string) { this.attrs.delete(name); }
     toggleAttribute(name: string, on: boolean) { if (on) this.attrs.set(name, ''); else this.attrs.delete(name); }
     querySelector(selector: string) { return this.children.get(selector); }
-    querySelectorAll() { return [new Node(), new Node()]; }
+    fragments: Node[] = [];
+    querySelectorAll() { return this.fragments; }
   }
   const buttons = TOOLBAR.map(layer => { const node = new Node(); node.dataset['stateToggle'] = layer; return node; });
   const variants = Object.fromEntries((['dark', 'light'] as const).map(scheme => {
     const variant = new Node();
+    for (const [line] of STATE_SAMPLE.entries()) for (const fragment of stateFragments(line)) {
+      const node = new Node(); node.textContent = fragment.text; node.dataset = { line: String(line), from: String(fragment.from), to: String(fragment.to), role: fragment.role }; variant.fragments.push(node);
+    }
     for (const role of ['comment', 'keyword', 'variable', 'operator', 'punctuation', 'function']) {
       const meter = new Node();
       for (const key of ['value', 'delta', 'lowest', 'fill']) meter.children.set(`[data-state-${key}]`, new Node());
@@ -89,10 +91,31 @@ test('scheme changes retain covered toggles, clear deltas and disposal removes i
   const dispose = mountStates(root as unknown as HTMLElement, controller, { dark: buildPalette(), light: lightPalette }, { reducedMotion: reduced as unknown as MediaQueryList });
   const word = buttons.find(button => button.dataset['stateToggle'] === 'addedWord')!;
   word.dispatchEvent(new Event('click')); expect(word.attrs.get('aria-pressed')).toBe('true');
-  expect(buttons.find(button => button.dataset['stateToggle'] === 'removedLine')!.disabled).toBe(true);
+  expect(buttons.find(button => button.dataset['stateToggle'] === 'removedLine')!.disabled).toBe(false);
   scheme = 'light'; notify(); expect(word.attrs.get('aria-pressed')).toBe('true');
-  const selected = new Set<StackLayer>(['addedLine', 'addedWord']);
-  expect(variants['light']!.children.get('[data-state-bghex]')!.textContent).toBe((await import('@sltsh/aion-tokens')).hex(stackBackground(lightPalette, selected)));
+  const selected = new Set<ToolbarLayer>(['addedLine', 'addedWord']);
+  expect(variants['light']!.children.get('[data-state-bghex]')!.textContent).toBe([...new Set(drawnBackgrounds(selected, lightPalette).map(row => hex(row.background)))].join(', '));
   expect(variants['light']!.children.get('[data-state-meter="comment"]')!.children.get('[data-state-delta]')!.textContent).toBe('');
-  dispose(); word.dispatchEvent(new Event('click')); expect(word.attrs.get('aria-pressed')).toBe('true');
+  const current = buttons.find(button => button.dataset['stateToggle'] === 'lineHighlight')!;
+  const selection = buttons.find(button => button.dataset['stateToggle'] === 'selection')!;
+  current.dispatchEvent(new Event('click'));
+  expect(selection.disabled).toBe(false); expect(selection.attrs.get('aria-disabled')).toBe('true');
+  expect(selection.attrs.get('aria-describedby')).toBe('states-reasons'); expect(selection.title).toContain('Line 2, columns');
+  selection.dispatchEvent(new Event('click')); expect(selection.attrs.get('aria-pressed')).toBe('false');
+  for (const layer of TOOLBAR) {
+    const button = buttons.find(button => button.dataset['stateToggle'] === layer)!;
+    button.dispatchEvent(new Event('click'));
+    const on = new Set(buttons.filter(button => button.attrs.get('aria-pressed') === 'true').map(button => button.dataset['stateToggle'] as ToolbarLayer));
+    const drawn = drawnBackgrounds(on, lightPalette);
+    for (const fragment of variants['light']!.fragments) {
+      const row = drawn.find(row => row.span.line === Number(fragment.dataset['line']) && row.span.from <= Number(fragment.dataset['from']) && row.span.to >= Number(fragment.dataset['to']))!;
+      expect(fragment.style['backgroundColor']).toBe(hex(row.background));
+      expect(fragment.dataset['layers']).toBe(row.layers.join(' '));
+    }
+    for (const { role, ratio } of placementRatios(lightPalette, on)) expect(Number(variants['light']!.children.get(`[data-state-meter="${role}"]`)!.children.get('[data-state-value]')!.dataset['value'])).toBe(ratio);
+    for (const [line, tokens] of STATE_SAMPLE.entries()) expect(variants['light']!.fragments.filter(fragment => fragment.dataset['line'] === String(line)).map(fragment => fragment.textContent).join('')).toBe(tokens.map(([, text]) => text).join(''));
+  }
+  word.dispatchEvent(new Event('click'));
+  const pressed = word.attrs.get('aria-pressed');
+  dispose(); word.dispatchEvent(new Event('click')); expect(word.attrs.get('aria-pressed')).toBe(pressed);
 });

@@ -1,9 +1,9 @@
-import { covered, hex, orderStack } from '@sltsh/aion-tokens';
-import type { StackLayer } from '@sltsh/aion-tokens';
+import { hex } from '@sltsh/aion-tokens';
 import type { ThemeController } from '../theme.js';
 import type { ProbeInputs } from './probe.js';
 import { CONTENT } from '../content.js';
-import { disabledReason, enabled, stackBackground, stateRatios, toggle } from './stack.js';
+import { disabledReasonAt, enabledAt, drawnBackgrounds, placementRatios, togglePlacement, expandSpan } from './placement.js';
+import type { ToolbarLayer } from './placement.js';
 export interface CountEnvironment {
   now(): number;
   reducedMotion(): boolean;
@@ -61,14 +61,18 @@ export function mountStates(root: HTMLElement, controller: ThemeController, inpu
   const lifetime = new AbortController(), { signal } = lifetime;
   const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-state-toggle]')];
   const counters = new Map<HTMLElement, CountEnvironment>();
-  let on = new Set<StackLayer>();
+  let on = new Set<ToolbarLayer>();
   const settle = (): void => { for (const env of counters.values()) cancelCount(env); };
   const draw = (animate: boolean): void => {
-    if (!covered(on)) on.clear();
-    const source = inputs[controller.theme], background = stackBackground(source, on);
+    const source = inputs[controller.theme], backgrounds = drawnBackgrounds(on, source);
     const variant = root.querySelector<HTMLElement>(`[data-state-scheme="${controller.theme}"]`)!;
-    variant.querySelectorAll<HTMLElement>('[data-state-line="0"] code, [data-state-line="1"] code').forEach(line => { line.style.backgroundColor = hex(background); });
-    const ratios = stateRatios(source, background), lowest = Math.min(...ratios.map(r => r.ratio));
+    for (const fragment of variant.querySelectorAll<HTMLElement>('[data-state-fragment]')) {
+      const line = Number(fragment.dataset['line']), from = Number(fragment.dataset['from']), to = Number(fragment.dataset['to']);
+      const row = backgrounds.find(row => row.span.line === line && row.span.from <= from && row.span.to >= to)!;
+      fragment.style.backgroundColor = hex(row.background);
+      fragment.dataset['layers'] = row.layers.join(' ');
+    }
+    const ratios = placementRatios(source, on), lowest = Math.min(...ratios.map(r => r.ratio));
     for (const { role, ratio } of ratios) {
       const meter = variant.querySelector<HTMLElement>(`[data-state-meter="${role}"]`)!;
       const value = meter.querySelector<HTMLElement>('[data-state-value]')!, delta = meter.querySelector<HTMLElement>('[data-state-delta]')!;
@@ -88,21 +92,23 @@ export function mountStates(root: HTMLElement, controller: ThemeController, inpu
     }
     const reasons = new Set<string>();
     for (const button of buttons) {
-      const layer = button.dataset['stateToggle'] as StackLayer, reason = disabledReason(on, layer);
-      button.disabled = !enabled(on, layer); button.setAttribute('aria-pressed', String(on.has(layer)));
-      button.title = reason ? CONTENT.states.reasons[reason] : '';
-      if (reason) { button.setAttribute('aria-describedby', 'states-reasons'); reasons.add(CONTENT.states.reasons[reason]); }
+      const layer = button.dataset['stateToggle'] as ToolbarLayer, failure = disabledReasonAt(on, layer);
+      const span = failure ? expandSpan(failure.span) : null;
+      const reason = failure && span ? CONTENT.states.failedSpan(CONTENT.states.reasons[failure.reason], span.line, span.from, span.to) : '';
+      button.disabled = false; button.setAttribute('aria-disabled', String(!enabledAt(on, layer))); button.setAttribute('aria-pressed', String(on.has(layer)));
+      button.title = reason;
+      if (reason) { button.setAttribute('aria-describedby', 'states-reasons'); reasons.add(reason); }
       else button.removeAttribute('aria-describedby');
     }
     root.querySelector<HTMLElement>('[data-state-reasons]')!.textContent = [...reasons].join(' ');
-    root.querySelector<HTMLElement>('[data-state-note]')!.textContent = on.size ? CONTENT.states.stacked(orderStack(on).map(layer => CONTENT.states.labels[layer as keyof typeof CONTENT.states.labels]).join(', then ')) : CONTENT.states.empty;
-    variant.querySelector<HTMLElement>('[data-state-bghex]')!.textContent = hex(background);
-    variant.querySelector<HTMLElement>('[data-state-bg-swatch]')!.style.backgroundColor = hex(background);
+    root.querySelector<HTMLElement>('[data-state-note]')!.textContent = on.size ? CONTENT.states.stacked([...on].map(layer => CONTENT.states.labels[layer as keyof typeof CONTENT.states.labels]).join(', ')) : CONTENT.states.empty;
+    variant.querySelector<HTMLElement>('[data-state-bghex]')!.textContent = [...new Set(backgrounds.map(row => hex(row.background)))].join(', ');
+    variant.querySelector<HTMLElement>('[data-state-bg-swatch]')!.style.backgroundColor = hex(backgrounds[0]!.background);
   };
   for (const button of buttons) button.addEventListener('click', () => {
-    const layer = button.dataset['stateToggle'] as StackLayer;
-    if (!enabled(on, layer)) return;
-    on = toggle(on, layer); draw(true);
+    const layer = button.dataset['stateToggle'] as ToolbarLayer;
+    if (!enabledAt(on, layer)) return;
+    on = togglePlacement(on, layer); draw(true);
   }, { signal });
   const unsubscribe = controller.subscribe(() => { settle(); draw(false); });
   const preference = (): void => { if (environment.reducedMotion.matches) settle(); };

@@ -52,9 +52,9 @@ export const CONTENT = {
   states: {
     title: 'Code remains legible with things on top of it.',
     lede: 'Select, search or diff. Stack the states VS Code can draw and watch each colour stay above the floor.',
-    toolbar: 'Reading states', codeLabel: 'Three lines of code with reading states', background: 'background', lowest: 'lowest', floor: 'floor 4.5:1',
-    empty: 'Nothing on. Turn on what VS Code draws over the first two lines.',
-    stacked: (names: string): string => `Under the first two lines: ${names}.`,
+    toolbar: 'Reading states', codeLabel: 'Code and merge conflict with reading states', background: 'drawn backgrounds', lowest: 'lowest', floor: 'floor 4.5:1',
+    empty: 'Nothing on. Turn on reading states at their positions in the sample.',
+    stacked: (names: string): string => `Drawn at their sample positions: ${names}.`,
     noScript: 'The code and ratios show the current scheme. Enable JavaScript to stack its states.',
     caption: 'These controls cover a named set of reading states, not every combination an editor can produce.',
     reasons: {
@@ -62,12 +62,9 @@ export const CONTENT = {
       diffSides: 'A line is either added or removed, so those states never stack.',
       outsideCoverage: 'This combination is outside the measured reading states.',
     },
-    labels: { lineHighlight: 'current line', selection: 'selection', wordHighlight: 'word highlight', findMatchOther: 'other find matches', addedLine: 'added line', addedWord: 'added word', removedLine: 'removed line', removedWord: 'removed word' },
-    code: [
-      [['comment', '// resolve the age from the registry']],
-      [['keyword', 'const'], ['plain', ' '], ['variable', 'entry'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['keyword', 'await'], ['plain', ' '], ['variable', 'registry'], ['punctuation', '.'], ['function', 'get'], ['punctuation', '('], ['variable', 'id'], ['punctuation', ');']],
-      [['keyword', 'return'], ['plain', ' '], ['type', 'Epoch'], ['punctuation', '.'], ['function', 'of'], ['punctuation', '('], ['variable', 'entry'], ['punctuation', ','], ['plain', ' '], ['number', '1_440'], ['plain', ' '], ['operator', '*'], ['plain', ' '], ['number', '365'], ['punctuation', ');']],
-    ],
+    labels: { lineHighlight: 'current line', selection: 'selection', wordHighlight: 'word highlight', findMatchOther: 'other find matches', addedLine: 'added line', addedWord: 'added word', removedLine: 'removed line', removedWord: 'removed word', bracketMatch: 'bracket match', findRange: 'find range', mergeConflict: 'merge conflict' },
+    code: STATE_SAMPLE,
+    failedSpan: (reason: string, line: number, from: number, to: number): string => `${reason} Line ${line + 1}, columns ${from + 1}–${to}.`,
   },
   terminal: {
     title: 'Sixteen slots, measured on both backgrounds.',
