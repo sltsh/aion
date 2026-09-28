@@ -1,0 +1,4 @@
+svg text.dimension-label{fill:var(--aion-fg-secondary);font:12px "Monaspace Neon",monospace}
+svg text.dimension-label.dimension-label-error{fill:var(--aion-status-error-text)}
+.palette-chapter svg text.dimension-label{fill:var(--n-text-secondary)}
+.palette-chapter svg text.dimension-label.dimension-label-error{fill:var(--status-error-text)}
