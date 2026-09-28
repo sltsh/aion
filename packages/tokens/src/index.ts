@@ -60,3 +60,5 @@ export { RIVALS, SYNTAX_ROLES_COMPARED, contrastHex, measure, surfaceOrder } fro
 
 export type { StripScheme } from './strip.js';
 export { paletteStrip } from './strip.js';
+
+export { srgbChannels, roundingShift, roundingFlip } from './rounding.js';

@@ -499,7 +499,7 @@ review on the same date found fourteen more. Every entry below is one of those f
 ### Changed
 
 - Contrast is measured on the emitted 8-bit hex, not the ideal OKLCH. The two readings
-  differ by up to 0.06.
+  differ near the floor; `roundingShift` now measures the gap on its documented grid.
 - Light accents solve against the `raised` surface rather than `page`, so they stay
   legible on a card and on their own subtle fill.
 - Light muted moved to lightness 0.560 and light border to 0.650, so the light ramp needs

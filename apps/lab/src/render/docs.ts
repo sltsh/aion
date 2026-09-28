@@ -50,8 +50,9 @@ export function docsSurface(): string {
         <div class="callout callout-warning">
           ${icons.warning}
           <div><b>Use <code>contrastEmitted</code>, never <code>contrast</code>.</b>
-            <p><code>contrast</code> reads the ideal OKLCH. A reader sees the rounded hex,
-              and the two differ by up to 0.06 at a 4.5:1 floor.</p></div>
+            <p><code>contrast</code> reads the ideal OKLCH. A reader sees the rounded hex.
+              <code>roundingShift</code> measures their largest observed gap near the floor
+              on its documented grid.</p></div>
         </div>
 
         <h2>Solving a token</h2>

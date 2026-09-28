@@ -40,10 +40,29 @@ design rationale and availability by target.
 ## Two contrast functions, on purpose
 
 `contrast` reads the ideal OKLCH. `contrastEmitted` reads the rounded 8-bit hex that
-actually ships. They differ by up to 0.06, which matters at a 4.5:1 floor.
+actually ships. `roundingShift(background)` measures their largest observed gap near
+the floor on the documented grid; it is not a universal rounding bound.
 
 Use `contrastEmitted` for any gate or report; a user measures the hex. `solveLightness`
 uses the continuous form, because bisection needs one.
+
+## Rounding API
+
+- `srgbChannels(colour)` returns `{ exact, bytes }`: clamped, gamma-encoded sRGB channels
+  multiplied by 255 before rounding, and the three integer bytes that `hex` emits.
+- `roundingShift(background, floor = 4.5)` returns `{ shift, colour }`, the largest
+  absolute continuous/emitted contrast difference observed with `|contrast - floor| ≤ 0.1`.
+  The grid includes hue `3i` (`i = 0…119`), chroma `0.01j` (`j = 0…20`), and lightness
+  `0.00005k` (`k = 0…20000`). Only points whose un-clipped linear sRGB channels all lie
+  in `[0, 1]` qualify. Ties keep the first point in hue, chroma, lightness order.
+  Bisection brackets the bands before visiting their integer lightness indices.
+  It throws if the floor is invalid or no point qualifies.
+- `roundingFlip(base, background, { window = 0.02, step = 0.00005, floor = 4.5 } = {})`
+  returns the first sampled lightness that passes continuous contrast and fails emitted
+  contrast, or `null`. Samples ascend from `L₀ - window` in integer multiples of `step`
+  through `L₀ + window`, restricted to `[0, 1]`; `L₀` is solved in the base colour's
+  contrast direction by `solveLightness`. Invalid options throw. Both helpers require
+  a finite floor of at least 1.
 
 ## Layers
 

@@ -84,7 +84,7 @@ const gamutSafe = (lightness: number, chroma: number, hue: number, label: string
 // Dark accents lose contrast on a light page, so lightness drops and chroma rises.
 // The two constraints fight: more chroma leaves the sRGB gamut at the lightness the
 // floor demands. Walk chroma down until a colour satisfies both, then verify against
-// the emitted hex, because rounding to 8 bits can cost up to 0.06 of the ratio.
+// the emitted hex; roundingShift measures the gap near the floor on its grid.
 //
 // The reference surface is `input`, not `page`: an accent that only clears the floor on
 // a light surface fails the moment it lands on a native control. `hover` is darker, but

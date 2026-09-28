@@ -50,7 +50,7 @@ const srgbLuminance = (channels: readonly number[]): number => {
 };
 
 // A user measures the 8-bit hex that ships, not the ideal OKLCH. Rounding moves the ratio
-// by up to 0.06, so the build gate uses this and the solvers use the continuous form.
+// near a floor; roundingShift measures the largest gap on its documented grid.
 export function contrastEmitted(a: Oklch, b: Oklch): number {
   const quantise = (c: Oklch): number[] =>
     oklchToLinearSrgb(...c).map(clamp).map(encode).map((v) => Math.round(clamp(v) * 255) / 255);

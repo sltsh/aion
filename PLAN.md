@@ -58,7 +58,8 @@ read.
 **Task 1** found two more:
 
 4. `contrast` read the ideal OKLCH, but a user sees the rounded 8-bit hex. The two
-   readings differ by up to 0.06. `contrastEmitted` now measures the shipped hex and every
+   readings differ near the floor; `roundingShift` measures the gap on its grid.
+   `contrastEmitted` now measures the shipped hex and every
    gate asserts against it; `solveLightness` keeps the continuous form, because bisection
    needs one. No shipped colour breached a floor, so no dark value moved.
 5. Light muted at lightness 0.600 reached 3.84:1, below the floor and undocumented.
