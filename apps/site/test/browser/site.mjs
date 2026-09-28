@@ -101,23 +101,33 @@ const chipMotionProbe = () => {
     if (records.some(r => r.target.matches?.('[data-hero]') && r.attributeName === 'data-hero-share')) probe.heroWrites.push(value);
     if (records.some(r => r.target === document.documentElement && r.attributeName === 'data-theme')) probe.commits.push(value);
   }).observe(document, { subtree: true, attributes: true, attributeFilter: ['data-chip-progress', 'data-hero-share', 'data-theme'] });
-  const frame = t => { if (active) probe.frames.push(snapshot(t)); native(frame); }; native(frame);
+  // Each ready page scene records its root animation's start once, so the chip clock can be compared with it
+  // without a global animation scan on every frame.
+  const sceneStart = () => { for (const entry of window.__transitions ?? []) if (entry.ready !== undefined && entry.finished === undefined && entry.sceneStartAt === undefined) { const a = document.getAnimations().find(a => a.effect?.pseudoElement === '::view-transition-new(root)' && typeof a.startTime === 'number'); if (a) entry.sceneStartAt = a.startTime + a.effect.getComputedTiming().delay; } };
+  const frame = t => { if (active) { probe.frames.push(snapshot(t)); sceneStart(); } native(frame); }; native(frame);
 };
 const chipMotionEvidence = page => page.evaluate(() => { const { snapshot, start, ...data } = window.__chipMotion; return { ...data, final: snapshot(), transitions: window.__transitions }; });
 const chipEaseTime = q => { const b = 1 - Math.cbrt(1 - q), u = 1 - b; return 3 * u * u * b * .22 + 3 * u * b * b * .36 + b ** 3; };
-const chipClock = (data, { click = 0, from = 0, to = 1, duration = 720, eased = false, until = Infinity } = {}) => {
-  const at = data.clicks[click].t;
-  const writes = data.writes.filter(s => s.t > at && s.t < until);
+// anchor: the page scene's root animation start, where an off-screen chip restarts its clock. held: the interval the
+// harness itself withheld every frame, so the final write is due on the first frame available after the deadline.
+const chipClock = (data, { click = 0, from = 0, to = 1, duration = 720, eased = false, until = Infinity, anchor, held } = {}) => {
+  const clicked = data.clicks[click].t, at = anchor ?? clicked;
+  if (anchor !== undefined) assert.ok(Number.isFinite(anchor) && anchor >= clicked, 'page scene start not recorded after the click');
+  const writes = data.writes.filter(s => (anchor === undefined ? s.t > at : s.t >= at - 1) && s.t < until);
   const moving = writes.filter(s => { const q = (s.progress - from) / (to - from); return q > .02 && q < .98; });
-  assert.ok(moving.length >= 3, 'too few live chip writes to reconstruct its clock');
+  const withheld = held && held[0] < at + duration && held[1] > at;
+  assert.ok(moving.length >= (withheld ? 2 : 3), 'too few live chip writes to reconstruct its clock');
   const starts = moving.map(s => { const q = (s.progress - from) / (to - from); return s.t - duration * (eased ? chipEaseTime(q) : q); });
   const intervals = data.frames.slice(1).map((s, i) => s.t - data.frames[i].t).sort((a, b) => a - b);
   const frame = intervals[Math.floor(intervals.length / 2)] ?? 1000 / 60;
   const start = Math.min(...starts), last = writes.find(s => s.progress === to)?.t;
   assert.ok(Math.max(...starts) - start <= frame, `chip moved its clock: ${starts.map(t => (t - at).toFixed(1))}`);
-  assert.ok(Math.abs(start - at) <= frame, `chip did not start on click: ${start - at} ms`);
-  if (until === Infinity) assert.ok(last >= start + duration - frame && last <= start + duration + frame, `chip ended ${last - at} ms after click, deadline ${start + duration - at} ms`);
-  return { start: start - at, deadline: start + duration - at, last: last === undefined ? null : last - at, frame, samples: moving.length };
+  assert.ok(Math.abs(start - at) <= frame, `chip did not start on ${anchor === undefined ? 'click' : 'page scene'}: ${start - at} ms`);
+  const due = withheld ? Math.max(start + duration, held[1]) : start + duration;
+  // The final write is due on the first frame the engine delivers at or after the deadline, whatever its cadence.
+  const firstDue = data.frames.find(f => f.t >= due - .5)?.t ?? due;
+  if (until === Infinity) assert.ok(last >= start + duration - frame && last <= Math.max(due + frame, firstDue + .5), `chip ended ${last - clicked} ms after click, deadline ${start + duration - clicked} ms`);
+  return { start: start - clicked, deadline: start + duration - clicked, due: due - clicked, last: last === undefined ? null : last - clicked, frame, samples: moving.length, withheld: Boolean(withheld) };
 };
 // Installed before the bootstrap: mutation clocks and rAF samples survive actual bfcache restoration.
 const introProbe = () => {
@@ -253,9 +263,12 @@ async function engineRun(name) {
           const native=requestAnimationFrame.bind(window);window.__chipCapture=null;window.__chipVTReady=null;
           const start=Document.prototype.startViewTransition;Document.prototype.startViewTransition=function(update){const transition=start.call(this,update);transition.ready.then(()=>{window.__chipVTReady=performance.now();},()=>{});return transition;};
           document.querySelector('[data-scheme-chip]').addEventListener('click',()=>{
-            const clicked=performance.now();let scene;const watch=t=>{scene??=document.getAnimations().find(a=>a.effect?.pseudoElement==='::view-transition-new(root)'&&a.playState==='running');const q=scene?.effect?.getComputedTiming().progress;
-              if(typeof q==='number'&&q>=target-.025){window.freezeFrames=true;const sampledAt=performance.now(),local=Number(document.querySelector('[data-scheme-chip]').dataset.chipProgress),rootStart=scene.startTime;scene.pause();
-                window.__chipCapture={clicked,t,sampledAt,heldAt:performance.now(),vtReady:window.__chipVTReady,rootStart,scene:q,local,active:document.documentElement.hasAttribute('data-theme-transition'),group:getComputedStyle(document.querySelector('[data-scheme-chip]')).viewTransitionName};}
+            const clicked=performance.now();let scene,previous;const watch=t=>{scene??=document.getAnimations().find(a=>a.effect?.pseudoElement==='::view-transition-new(root)'&&a.playState==='running');const q=scene?.effect?.getComputedTiming().progress;
+              // Take the delivered frame nearest the target: slow engines step the scene by more than the tolerance.
+              // Freeze after this frame's remaining callbacks, so the chip has painted the frame the scene is paused on.
+              const step=typeof q==='number'&&typeof previous==='number'&&q>previous?q-previous:0;if(typeof q==='number')previous=q;
+              if(typeof q==='number'&&q>=target-Math.max(.025,step/2)){const sceneTime=scene.currentTime;setTimeout(()=>{window.freezeFrames=true;const sampledAt=performance.now(),local=Number(document.querySelector('[data-scheme-chip]').dataset.chipProgress),rootStart=scene.startTime,pausedFrom=scene.currentTime;scene.pause();scene.currentTime=sceneTime;
+                window.__chipCapture={clicked,t,sampledAt,heldAt:performance.now(),vtReady:window.__chipVTReady,rootStart,scene:q,step,pausedFrom,local,active:document.documentElement.hasAttribute('data-theme-transition'),group:getComputedStyle(document.querySelector('[data-scheme-chip]')).viewTransitionName};});}
               else native(watch);};native(watch);
           },{capture:true,once:true});
         },target);
@@ -266,7 +279,7 @@ async function engineRun(name) {
         await p.close();
       }
       const frames=row.measurements.frames;
-      for(const f of frames){assert.ok(f.active&&f.group==='aion-chip','capture was outside the native chip scene');assert.ok(Math.abs(f.scene-f.target)<=.05,`capture missed scene ${f.target}: ${f.scene}`);assert.ok(f.local>0&&f.local<=1,'local wipe did not run during scene');assert.ok(f.changed>10,'chip screenshot remained its outgoing frame');assert.deepEqual(f.bright,[],'moving seam brighter than both emitted surfaces');}
+      for(const f of frames){assert.ok(f.active&&f.group==='aion-chip','capture was outside the native chip scene');assert.ok(Math.abs(f.scene-f.target)<=Math.max(.05,f.step/2+.01),`capture missed scene ${f.target}: ${f.scene}, frame step ${f.step}`);assert.ok(f.local>0&&f.local<=1,'local wipe did not run during scene');assert.ok(f.changed>10,'chip screenshot remained its outgoing frame');assert.deepEqual(f.bright,[],'moving seam brighter than both emitted surfaces');}
       for(let i=1;i<frames.length;i++){assert.ok(frames[i].local>frames[i-1].local,'local progress did not advance');assert.ok(frames[i].bytes.some((v,j)=>v!==frames[i-1].bytes[j]),'chip snapshots frozen between scene fractions');}
       row.measurements.frames=frames.map(({bytes,...f})=>f);
     });
@@ -676,7 +689,7 @@ async function engineRun(name) {
     const chipIdle = async p => { const still = await p.evaluate(async () => { const chip = document.querySelector('[data-scheme-chip]'); let mutations = 0; const observer = new MutationObserver(records => { mutations += records.length; }); observer.observe(chip, { subtree: true, attributes: true, childList: true, characterData: true }); const from = chip.dataset.chipProgress; await new Promise(resolve => setTimeout(resolve, 900)); observer.disconnect(); return { mutations, from, to: chip.dataset.chipProgress, incomingHidden: chip.querySelector('[data-chip-incoming]').hidden, scene: document.documentElement.hasAttribute('data-theme-transition') }; }); assert.equal(still.mutations, 0, 'idle chip still writing'); assert.equal(still.to, still.from); assert.equal(still.incomingHidden, true); assert.equal(still.scene, false); return still; };
     for (const mode of ['offscreen', 'onscreen']) await run(`chip-motion-${mode}`, { reducedMotion: 'no-preference' }, async (p, _c, row) => {
       await prepareChipMotion(p, mode === 'offscreen'); await clickChip(p); await finishChipMotion(p);
-      const data = await chipMotionEvidence(p); row.measurements = { data }; row.measurements.clock = chipClock(data, { eased: mode === 'onscreen' });
+      const data = await chipMotionEvidence(p); row.measurements = { data }; row.measurements.clock = chipClock(data, mode === 'onscreen' ? { eased: true } : { anchor: data.transitions[0]?.sceneStartAt });
       assert.equal(data.clicks.length, 1); assert.equal(data.final.base, 'light'); assert.equal(data.final.progress, 1); assert.equal(data.final.focused, true);
       assert.ok(data.transitions.length === 1 && data.transitions[0].ready !== undefined, 'page wipe missing');
       if (mode === 'offscreen') {
@@ -703,7 +716,7 @@ async function engineRun(name) {
     await run('chip-motion-latest-choice', { reducedMotion: 'no-preference' }, async (p, _c, row) => {
       await prepareChipMotion(p, true); await clickChip(p); await p.waitForFunction(() => document.documentElement.hasAttribute('data-theme-transition') && Number(document.querySelector('[data-scheme-chip]').dataset.chipProgress) > .25); await clickChip(p); await finishChipMotion(p);
       const data = await chipMotionEvidence(p); row.measurements = { data };
-      assert.equal(data.clicks.length, 2); assert.equal(data.final.theme, 'dark', 'latest choice during page wipe did not commit'); assert.equal(data.final.base, 'dark'); assert.equal(data.final.focused, true); assert.equal(data.transitions.length, 2); row.measurements.latest = chipClock(data, { click: 1 });
+      assert.equal(data.clicks.length, 2); assert.equal(data.final.theme, 'dark', 'latest choice during page wipe did not commit'); assert.equal(data.final.base, 'dark'); assert.equal(data.final.focused, true); assert.equal(data.transitions.length, 2); row.measurements.latest = chipClock(data, { click: 1, anchor: data.transitions[1]?.sceneStartAt });
       assert.ok(data.clicks[1].scene, 'latest choice was not made during page wipe'); await consistent(p, 'dark'); row.measurements.still = await chipIdle(p);
     });
     for (const mode of ['offscreen', 'onscreen']) await run(`chip-motion-reduced-${mode}`, { reducedMotion: 'no-preference' }, async (p, _c, row) => {
@@ -742,14 +755,15 @@ async function engineRun(name) {
         const result={kind,resized:resize};
         if(kind==='glide')result.releaseGeometry=await p.locator('[data-hero]').evaluate(h=>{const r=h.getBoundingClientRect();return {width:r.width,height:r.height};});
         if(resize){
-          await p.waitForFunction(at=>performance.now()-window.__t0>=at,{glide:400,intro:900,'chip-on':300,'chip-off':300}[kind]);
+          if(kind==='chip-off')await p.waitForFunction(()=>{const e=window.__transitions?.[0];return e?.sceneStartAt!==undefined&&performance.now()-e.sceneStartAt>=150;});
+          else await p.waitForFunction(at=>performance.now()-window.__t0>=at,{glide:400,intro:900,'chip-on':300}[kind]);
           if(evidence){const path=`${dir}/${screenshotName(`${row.id}-before-resize`)}.png`;await p.screenshot({path});row.artifacts.push(path);result.beforeFrame={path,url:p.url(),viewport:p.viewportSize(),t:await p.evaluate(()=>performance.now()-window.__t0)};}
-          await p.evaluate(()=>{window.freezeFrames=true;});result.before=await p.evaluate(()=>window.__resizeProbe.share());result.revealBefore=await p.evaluate(()=>window.__resizeProbe.reveal());result.at=await p.evaluate(()=>performance.now()-window.__t0);
+          result.held=[await p.evaluate(()=>{window.freezeFrames=true;return performance.now();})];result.before=await p.evaluate(()=>window.__resizeProbe.share());result.revealBefore=await p.evaluate(()=>window.__resizeProbe.reveal());result.at=await p.evaluate(()=>performance.now()-window.__t0);
           if(kind==='chip-on'||kind==='chip-off')result.chipBefore=await p.locator('[data-scheme-chip]').getAttribute('data-chip-progress');
           await p.setViewportSize({width:759,height:1000});result.after=await p.evaluate(()=>window.__resizeProbe.share());
           if(kind==='chip-on'||kind==='chip-off')result.chipAfter=await p.locator('[data-scheme-chip]').getAttribute('data-chip-progress');
           if(evidence){const path=`${dir}/${screenshotName(`${row.id}-after-resize`)}.png`;await p.screenshot({path});row.artifacts.push(path);result.afterFrame={path,url:p.url(),viewport:p.viewportSize(),t:await p.evaluate(()=>performance.now()-window.__t0)};}
-          await p.evaluate(()=>{window.freezeFrames=false;window.heldFrames.splice(0).forEach(callback=>requestAnimationFrame(callback));});
+          result.held.push(await p.evaluate(()=>{window.freezeFrames=false;window.heldFrames.splice(0).forEach(callback=>requestAnimationFrame(callback));return performance.now();}));
         }
         // Evidence only: screenshots taken while the sequence runs. Chromium paints view-transition snapshots into them; Firefox and
         // WebKit screenshots show the live document, so their page-scene frames show the committed scheme.
@@ -769,7 +783,7 @@ async function engineRun(name) {
     };
     for(const kind of ['glide','intro','chip-on','chip-off'])await run(`resize-settle-in-flight-${kind}`,{},async(_p,_c,row)=>{
       const baseline=await sequence(kind,false,row);const resized=await sequence(kind,true,row);const evidence=await sequence(kind,true,row,true);row.measurements={baseline,resized,evidence};
-      if(kind==='chip-on'||kind==='chip-off'){assert.ok(Math.abs(Number(resized.chipAfter)-Number(resized.chipBefore))<1e-3,'local chip progress moved across resize');row.measurements.chipClocks=[baseline,resized].map(r=>chipClock(r.chip,{eased:kind==='chip-on'}));assert.ok(row.measurements.chipClocks[1].last-row.measurements.chipClocks[1].deadline<=row.measurements.chipClocks[0].last-row.measurements.chipClocks[0].deadline+Math.max(baseline.frame,resized.frame),'resize extended local chip wipe');}
+      if(kind==='chip-on'||kind==='chip-off'){assert.ok(Math.abs(Number(resized.chipAfter)-Number(resized.chipBefore))<1e-3,'local chip progress moved across resize');row.measurements.chipClocks=[baseline,resized].map(r=>chipClock(r.chip,kind==='chip-on'?{eased:true,held:r.held}:{anchor:r.chip.transitions?.[0]?.sceneStartAt,held:r.held}));assert.ok(row.measurements.chipClocks[1].last-row.measurements.chipClocks[1].due<=row.measurements.chipClocks[0].last-row.measurements.chipClocks[0].due+Math.max(baseline.frame,resized.frame),'resize extended local chip wipe');}
       assert.ok(baseline.ended&&resized.ended,'the sequence did not finish within 6 s');
       assert.ok(Math.abs(resized.after-resized.before)<1e-3,`share moved across the resize ${resized.before} → ${resized.after}`);
       const frame=Math.max(baseline.frame,resized.frame);
