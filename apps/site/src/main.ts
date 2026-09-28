@@ -6,6 +6,9 @@ import './styles/chip.css';
 import './styles/intro.css';
 import '@sltsh/aion-lab/render/editor.css';
 import './styles/hero.css';
+import './styles/claims.css';
+import './styles/depth.css';
+import { mountDepth } from './chapters/depth.js';
 import { mountHero } from './hero/controller.js';
 import { mountChip } from './chip.js';
 import { mountRail } from './rail.js';
@@ -85,6 +88,8 @@ if (introEligible) {
   root.removeAttribute('data-intro');
   arriveIfCurrent();
 }
+const depthRoot = document.querySelector<HTMLElement>('[data-depth]');
+const disposeDepth = depthRoot ? mountDepth(depthRoot) : () => {};
 const chip = document.querySelector<HTMLButtonElement>('[data-scheme-chip]');
 const disposeChip = chip ? mountChip(chip, theme, heroController) : () => {};
 const rail = document.querySelector<HTMLElement>('.chapter-rail');
@@ -273,5 +278,5 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) settl
 window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
-  if (!event.persisted) { disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
+  if (!event.persisted) { disposeDepth(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
 }, { signal });

@@ -15,6 +15,25 @@ export const SHELL = {
   explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
 } as const;
 export const CONTENT = {
+  claims: {
+    eyebrow: 'The proof', title: 'Six claims. Each one measured.',
+    extremes: {
+      darkest: { figure: 'Darkest', sentence: 'The editor is the darkest surface in Aion. Every bar, panel and widget steps up from it by a measured amount.' },
+      lightest: { figure: 'Lightest', sentence: 'The editor is the lightest surface in Aion Light. Every bar, panel and widget steps down from it by a measured amount.' },
+    },
+    solved: 'The lowest contrast of any shown syntax colour on the editor. The floor is 4.5:1.',
+    rounded: 'The largest observed rounding shift near the floor on the documented grid. Aion measures the rounded colour.',
+    states: 'Select, search or diff: code remains legible in the reading states Aion measures.',
+    terminal: { dark: 'Every terminal colour, measured on the standalone terminal and the VS Code panel.', light: 'Every terminal colour, measured on the Light panel and the Light terminal selection.' },
+    palette: 'Syntax colours, each placed by its measured contrast.',
+    actions: ['Take the editor apart', 'Drag a colour', 'Watch it round', 'Stack the states', 'See the slots', 'Measure a colour'],
+  },
+  depth: {
+    title: 'Your code is the deepest thing on the screen.',
+    lede: { dark: 'VS Code’s defaults put the sidebar below the editor. Aion reverses that: the editor is the darkest surface, and every bar, panel and widget steps up from it by a measured amount, so your code sits at the bottom of the stack.', light: 'In Aion Light the editor is the lightest surface, and every bar, panel and widget steps down from it by a measured amount. Either way your code sits on the extreme surface, and everything else stands back from it.' },
+    putTogether: 'Put it together', takeApart: 'Take it apart', ruler: 'Strata, measured against the editor',
+    parts: 'Editor parts, measured against the editor',
+  },
   intro: { label: 'Aion syntax colours', wordmark: 'Aion', skip: 'Any key skips' },
   hero: {
     headline: ['Your code is', 'the deepest thing', 'on the screen.'],

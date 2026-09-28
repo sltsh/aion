@@ -1,0 +1,35 @@
+.claims-index{--site-mono:"Monaspace Neon",monospace;--site-sans:"Archivo",sans-serif;--site-heading-stretch:125%;--mono:var(--site-mono);--sans:var(--site-sans);padding:96px 0 40px}
+.claims-index h2{font:800 44px/1.02 var(--site-sans);font-stretch:var(--site-heading-stretch,125%);margin:12px 0 40px}
+.claims-eyebrow,.claim-number,.claim-action{font:12px var(--site-mono);color:var(--aion-fg-secondary)}
+.claims-grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--aion-border-hairline)}
+.claim-card{display:flex;flex-direction:column;gap:16px;min-height:300px;padding:26px 24px 30px;border-left:1px solid var(--aion-border-hairline);border-bottom:1px solid var(--aion-border-hairline);color:var(--aion-fg-primary);background:var(--aion-bg-surface);text-decoration:none}
+.claim-card:nth-child(4n+1){border-left:0;padding-left:0}
+.claim-card h3{font:500 20px var(--site-sans);margin:0}
+.claim-visual{height:64px;display:flex;align-items:center;gap:4px;transform-origin:left center}
+.claim-visual i{display:block;width:48px;height:28px;border:1px solid var(--aion-border-hairline)}
+.claim-figure{font:600 56px/1 var(--site-mono);letter-spacing:-.04em}
+.claim-sentence{font:19px/1.35 var(--site-sans);color:var(--aion-fg-secondary);margin:0;flex:1}
+.claim-action{margin-top:12px}
+.claim-layers{position:relative}
+.claim-layers i{position:absolute;transform:translate(calc(var(--site-claim-index)*18px),calc(var(--site-claim-index)*-6px))}
+.claim-round i{width:60px;height:40px;background:var(--s-comment)}
+.claim-round i+ i{background:var(--s-operator)}
+.claim-ansi{flex-direction:column;align-items:flex-start;justify-content:center}
+.claim-ansi > span{display:flex;gap:2px}
+.claim-ansi i{width:10px;height:18px;border:0}
+.claim-syntax{display:flex;gap:5px;align-items:flex-end;height:64px}
+.claim-syntax i{width:14px;border:0}
+.claim-card:focus-visible{outline:2px solid var(--aion-border-focus);outline-offset:-2px}
+
+@media (prefers-reduced-motion: no-preference){.claim-visual{transition:transform var(--slt-motion-feedback) var(--slt-ease-out)}
+.claim-card:hover .claim-visual,.claim-card:focus-visible .claim-visual{transform:translateY(-6px)}
+}
+
+@media (max-width: 759px){.claims-index{padding:56px 0}
+.claims-grid{grid-template-columns:repeat(2,1fr)}
+.claim-card{padding:20px;min-height:300px}
+.claim-figure{font-size:40px}
+}
+
+@media (max-width:479px){.claims-grid{grid-template-columns:1fr}
+}

@@ -1,4 +1,6 @@
 export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; where: string }[] = [
+  { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'claim card text, Depth part tags and ruler labels' },
+  { fg: '--aion-fg-secondary', bg: '--aion-bg-surface', floor: 4.5, where: 'claim card descriptions and ruler ratios' },
   { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'page and headings' },
   { fg: '--aion-fg-secondary', bg: '--aion-bg-surface', floor: 4.5, where: 'page copy' },
   { fg: '--aion-fg-primary', bg: '--aion-bg-raised', floor: 4.5, where: 'controls and tabs' },
