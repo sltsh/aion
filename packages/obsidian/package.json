@@ -5,8 +5,15 @@
   "description": "Generated Aion Dark and Light community theme for Obsidian.",
   "license": "MIT",
   "type": "module",
+  "exports": {
+    "./colors": {
+      "types": "./dist/theme.d.ts",
+      "default": "./dist/theme.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node dist/build.js",
+    "build:colors": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "assets": "rm -rf dist/release && mkdir -p dist/release/Aion && cp ../../manifest.json ../../theme.css dist/release/Aion/ && cd dist/release && zip -qr aion-obsidian-$npm_package_version.zip Aion"

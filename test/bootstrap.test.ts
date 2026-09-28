@@ -8,7 +8,7 @@ const site = JSON.parse(readFileSync('apps/site/package.json', 'utf8')) as {
   scripts: Record<string, string>;
 };
 const lab = JSON.parse(readFileSync('apps/lab/package.json', 'utf8')) as {
-  exports: Record<string, { types: string; default: string }>;
+  exports: Record<string, string | { types: string; default: string }>;
   scripts: Record<string, string>;
 };
 
@@ -36,7 +36,21 @@ describe('a clean checkout', () => {
   });
 
   it('loads the shared renderer from generated JavaScript rather than TypeScript source', () => {
-    expect(lab.scripts['build:render']).toBe('tsc -p tsconfig.render.json');
+    expect(lab.scripts['build:render']).toContain('tsc -p tsconfig.render.json');
+    expect(lab.scripts['build:render']).toContain('src/render/editor.css dist/render/editor.css');
+    expect(lab.exports['./variables']).toEqual({
+      types: './dist/variables.d.ts',
+      default: './dist/variables.js',
+    });
+    expect(lab.exports['./render/editor']).toEqual({
+      types: './dist/render/editor.d.ts',
+      default: './dist/render/editor.js',
+    });
+    expect(lab.exports['./render/icons']).toEqual({
+      types: './dist/render/icons.d.ts',
+      default: './dist/render/icons.js',
+    });
+    expect(lab.exports['./render/editor.css']).toBe('./dist/render/editor.css');
     expect(lab.exports['./render/code']).toEqual({
       types: './dist/render/code.d.ts',
       default: './dist/render/code.js',

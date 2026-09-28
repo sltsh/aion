@@ -1,0 +1,341 @@
+/* ---- VS Code editor window ---- */
+
+.window {
+  border: 1px solid var(--n-divider);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--n-editor);
+  box-shadow: 0 20px 52px rgb(0 0 0 / 0.45);
+}
+
+/* ---- VS Code ---- */
+
+.vscode { font-size: 13px; }
+
+.vscode-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 12px;
+  background: var(--n-sidebar);
+  border-bottom: 1px solid var(--n-hairline);
+  font-size: 11.5px;
+  color: var(--n-dim);
+}
+
+.traffic { display: flex; gap: 6px; }
+.traffic i { width: 10px; height: 10px; border-radius: 50%; }
+.dot-red { background: var(--a-coral); }
+.dot-amber { background: var(--a-copper); }
+.dot-green { background: var(--a-green); }
+.vscode-title-text { color: var(--n-text-secondary); }
+
+.vscode-body { display: flex; height: 650px; }
+
+.activity-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 46px;
+  padding-top: 8px;
+  background: var(--n-sidebar);
+  border-right: 1px solid var(--n-hairline);
+}
+
+.activity-item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: none;
+  color: var(--n-dim);
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.activity-item.is-active { color: var(--a-gold); }
+.activity-item.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  background: var(--a-gold);
+}
+.activity-item:hover { color: var(--n-text-primary); }
+.activity-foot { margin-top: auto; margin-bottom: 10px; }
+
+.side-bar {
+  display: flex;
+  flex-direction: column;
+  width: 208px;
+  background: var(--n-sidebar);
+  border-right: 1px solid var(--n-hairline);
+  font-size: 12px;
+}
+
+.side-heading {
+  margin: 0;
+  padding: 11px 12px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--n-dim);
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px 3px calc(12px + var(--depth) * 12px);
+  color: var(--n-text-secondary);
+  white-space: nowrap;
+}
+
+.tree-row:hover { background: var(--n-hover); }
+.tree-row.is-folder { color: var(--n-text-primary); font-weight: 600; }
+.tree-row.is-active { background: var(--n-editor); color: var(--n-text-primary); box-shadow: inset 2px 0 0 var(--a-gold); }
+.tree-row.is-untracked .tree-label { color: var(--a-teal); }
+.tree-row.is-untracked .tree-git { color: var(--a-teal); }
+.tree-row.is-modified .tree-label { color: var(--a-copper); }
+.tree-row.is-modified .tree-git { color: var(--a-copper); }
+.tree-row.is-conflict .tree-label { color: var(--a-coral); }
+.tree-row.is-conflict .tree-git { color: var(--a-coral); }
+.tree-row.is-deleted .tree-label { color: var(--a-coral); }
+.tree-row.is-deleted .tree-git { color: var(--a-coral); }
+.tree-row.is-deleted .tree-label { text-decoration: line-through; }
+.tree-spacer { width: 1em; }
+.tree-label { overflow: hidden; text-overflow: ellipsis; }
+.tree-git { margin-left: auto; font-size: 10px; font-weight: 700; }
+
+.side-foot { margin-top: auto; padding: 11px 12px; border-top: 1px solid var(--n-hairline); }
+.side-foot-label { margin-bottom: 6px; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--n-dim); }
+.meter { height: 5px; border-radius: 99px; background: var(--n-hover); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--a-gold); }
+
+.vscode-main { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+
+.tab-bar { display: flex; height: 35px; flex-shrink: 0; background: var(--n-sidebar); font-size: 11.5px; }
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 13px;
+  color: var(--n-dim);
+  border-right: 1px solid var(--n-hairline);
+  cursor: default;
+}
+
+.tab.is-active {
+  background: var(--n-editor);
+  color: var(--n-text-primary);
+  box-shadow: inset 0 2px 0 var(--a-gold);
+}
+
+.tab-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--a-blue); }
+.tab-dot.is-dirty { background: var(--a-copper); }
+.tab-close { color: var(--n-dim); }
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 14px;
+  flex-shrink: 0;
+  background: var(--n-editor);
+  color: var(--n-dim);
+  font-size: 10.5px;
+}
+
+.editor {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--n-editor);
+  padding: 8px 0;
+}
+
+/* ---- code ---- */
+
+.code { font: 12.5px/1.65 var(--mono); }
+.code-row { display: flex; }
+.code-row.is-added { background: var(--o-added-line); }
+.code-row.is-removed { background: var(--o-removed-line); }
+.code-row.is-added .diff-word { background: var(--o-added-word); }
+.code-row.is-removed .diff-word { background: var(--o-removed-word); }
+.code-row.is-added .code-gutter { background: var(--d-added-strip); }
+.code-row.is-removed .code-gutter { background: var(--d-removed-strip); }
+
+/* A selected word inside a diff. The wash is the top layer, not the selection: VS Code
+   registers DecorationsOverlay after SelectionsOverlay, so the wash paints last. Nesting
+   a selection span inside a washed row would composite them the other way round. */
+.code-row.is-added .t-selected {
+  background: linear-gradient(var(--o-added-line), var(--o-added-line)),
+    linear-gradient(var(--o-selection), var(--o-selection)), var(--n-editor);
+}
+.code-row.is-removed .t-selected {
+  background: linear-gradient(var(--o-removed-line), var(--o-removed-line)),
+    linear-gradient(var(--o-selection), var(--o-selection)), var(--n-editor);
+}
+
+.code-gutter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  width: 62px;
+  padding-right: 12px;
+  flex: 0 0 auto;
+  user-select: none;
+  color: var(--n-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.code-number.is-current { color: var(--n-text-primary); }
+.gutter-added { color: var(--d-added-gutter); font-weight: 700; }
+.gutter-removed { color: var(--d-removed-gutter); font-weight: 700; }
+
+.code-line { flex: 1; white-space: pre; padding-right: 16px; color: var(--n-text-secondary); }
+.code-line.is-current { background: var(--o-line-highlight); }
+
+.t-keyword { color: var(--s-keyword); }
+.t-function { color: var(--s-function); }
+.t-type { color: var(--s-type); }
+.t-string { color: var(--s-string); }
+.t-number { color: var(--s-number); }
+.t-variable { color: var(--s-variable); }
+.t-operator { color: var(--s-operator); }
+.t-comment { color: var(--s-comment); }
+.t-punctuation { color: var(--s-punctuation); }
+.t-constant { color: var(--s-constant); }
+.t-escape { color: var(--s-escape); }
+.t-selected { background: var(--o-selection); }
+.t-word-highlight { background: var(--o-word-highlight); }
+/* A find match keeps the syntax colour under it. The two foreground override keys are
+   unusable: findWidget.ts applies each one to the other one's decoration. */
+.t-find-other { background: var(--o-find-match-other); }
+.t-find-current { background: var(--find-current); }
+.t-plain { color: var(--n-text-secondary); }
+.b1 { color: var(--bracket-1); }
+.b2 { color: var(--bracket-2); }
+.b3 { color: var(--bracket-3); }
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.05em;
+  vertical-align: -0.2em;
+  background: var(--caret);
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+
+.find-widget {
+  position: absolute;
+  top: 8px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: var(--n-widget);
+  border: 1px solid var(--n-border);
+  border-radius: var(--radius-sm);
+  font: 11.5px/1 var(--mono);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.5);
+}
+
+.find-input {
+  padding: 4px 8px;
+  min-width: 140px;
+  background: var(--n-input);
+  border-radius: 3px;
+  color: var(--n-text-primary);
+}
+
+.find-caret { display: inline-block; width: 1px; height: 0.9em; margin-left: 1px; background: var(--caret); vertical-align: -0.1em; }
+.find-count { color: var(--n-dim); }
+
+
+.hover-card {
+  position: absolute;
+  right: 34px;
+  bottom: 26px;
+  width: 292px;
+  padding: 11px 13px;
+  background: var(--n-widget);
+  border: 1px solid var(--n-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 14px 34px rgb(0 0 0 / 0.55);
+}
+
+.hover-signature { font: 11.5px/1.4 var(--mono); }
+.hover-body { margin: 7px 0 0; font-size: 12.5px; color: var(--n-text-secondary); }
+.hover-tags { display: flex; gap: 6px; margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--n-hairline); }
+
+.pill {
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: var(--n-hover);
+  color: var(--n-text-primary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.pill-solid { background: var(--a-gold); color: var(--n-editor); }
+
+.panel { display: flex; flex-direction: column; height: 172px; flex-shrink: 0; background: var(--n-terminal); border-top: 1px solid var(--n-divider); }
+
+.panel-tabs {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 30px;
+  padding: 0 14px;
+  flex-shrink: 0;
+  background: var(--n-sidebar);
+  color: var(--n-dim);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.panel-tabs .is-active { color: var(--n-text-primary); box-shadow: inset 0 -2px 0 var(--a-gold); height: 100%; display: flex; align-items: center; }
+.badge-error {
+  padding: 1px 4px;
+  border: 1px solid var(--a-coral-border);
+  border-radius: 3px;
+  background: var(--a-coral-subtle);
+  color: var(--status-error-text);
+}
+.panel-terminal { flex: 1; padding: 7px 14px; font: 11.5px/1.6 var(--mono); color: var(--n-text-primary); overflow: hidden; }
+.term-dim { color: var(--n-text-secondary); }
+.term-prompt { color: var(--a-teal); margin-right: 6px; }
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 24px;
+  padding: 0 12px;
+  flex-shrink: 0;
+  background: var(--n-sidebar);
+  border-top: 1px solid var(--n-hairline);
+  color: var(--n-dim);
+  font-size: 10.5px;
+}
+
+.status-branch { color: var(--a-teal); display: flex; align-items: center; gap: 4px; }
+.status-error { color: var(--status-error-text); display: flex; align-items: center; gap: 4px; }
+.status-warning { color: var(--status-warning-text); display: flex; align-items: center; gap: 4px; }
+.status-language { color: var(--a-gold); }
+.status-spacer { margin-left: auto; }

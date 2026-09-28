@@ -4,6 +4,19 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./variables": {
+      "types": "./dist/variables.d.ts",
+      "default": "./dist/variables.js"
+    },
+    "./render/editor": {
+      "types": "./dist/render/editor.d.ts",
+      "default": "./dist/render/editor.js"
+    },
+    "./render/icons": {
+      "types": "./dist/render/icons.d.ts",
+      "default": "./dist/render/icons.js"
+    },
+    "./render/editor.css": "./dist/render/editor.css",
     "./render/code": {
       "types": "./dist/render/code.d.ts",
       "default": "./dist/render/code.js"
@@ -12,7 +25,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && npm run build:render",
-    "build:render": "tsc -p tsconfig.render.json",
+    "build:render": "tsc -p tsconfig.render.json && mkdir -p dist/render && cp src/render/editor.css dist/render/editor.css",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"

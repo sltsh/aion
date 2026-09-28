@@ -8,5 +8,11 @@
     "rootDir": "src",
     "outDir": "dist"
   },
-  "include": ["src/render/code.ts"]
+  "include": [
+    "src/figures.ts",
+    "src/variables.ts",
+    "src/render/code.ts",
+    "src/render/editor.ts",
+    "src/render/icons.ts"
+  ]
 }

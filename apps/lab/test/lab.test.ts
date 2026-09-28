@@ -11,7 +11,10 @@ import { variables } from '../src/variables.js';
 import { SURFACES } from '../src/render/index.js';
 import { createLabController } from '../src/state.js';
 
-const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+const css = [
+  readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/render/editor.css', import.meta.url), 'utf8'),
+].join('\n');
 const html = SURFACES.map((surface) => surface.html()).join('\n');
 const tokens = variables(buildPalette());
 
