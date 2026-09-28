@@ -1,5 +1,24 @@
 import { expect, test } from 'vitest';
-import { glide, settle, releaseVelocity, keyStep, seamGeometry, shareAt, inGrabBand } from '../src/hero/seam.js';
+import { FLICK, MAGNET, commitsOnRelease, normalSpeed, restingShare, glide, settle, releaseVelocity, keyStep, seamGeometry, shareAt, inGrabBand } from '../src/hero/seam.js';
+
+test('release commits at the normal flick speed even with a short projection', () => {
+  const v = FLICK * Math.SQRT2 / (1440 + 900);
+  expect(normalSpeed(v, 1440, 900)).toBe(FLICK);
+  expect(settle(0.42 + v * 320)).toBeLessThan(1);
+  expect(commitsOnRelease(0.42, v, 1440, 900)).toBe(true);
+  expect(commitsOnRelease(0.42, v * 0.99, 1440, 900)).toBe(false);
+  expect(commitsOnRelease(0.42, v, 390, 500)).toBe(false);
+});
+test('backward releases never commit, and their far-magnet rest stays inside', () => {
+  expect(commitsOnRelease(0.42, -0.1, 1440, 900)).toBe(false);
+  expect(commitsOnRelease(0.99, -0.00001, 1440, 900)).toBe(false);
+  expect(restingShare(0.99, -0.00001)).toBe(1 - MAGNET);
+  expect(commitsOnRelease(0.96, 0, 1440, 900)).toBe(true);
+  expect(restingShare(0.02, 0)).toBe(0);
+  expect(restingShare(0.42, -0.001)).toBeCloseTo(0.1, 12);
+  expect(restingShare(0.42, -0.1)).toBe(0);
+  expect(restingShare(0.42, 0.1)).toBe(1 - MAGNET);
+});
 
 test('glide follows the exponential displacement and initial velocity', () => {
   const curve = glide(10, -0.2);

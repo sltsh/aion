@@ -1,7 +1,14 @@
 const clamp = (p: number): number => Math.max(0, Math.min(1, p));
-export const glide = (x0: number, v: number, tau = 320): ((t: number) => number) =>
+export const FLICK = 1;
+export const MAGNET = 0.06;
+export const TAU = 320;
+export const glide = (x0: number, v: number, tau = TAU): ((t: number) => number) =>
   (t) => x0 + v * tau * (1 - Math.exp(-Math.max(0, t) / tau));
-export const settle = (p: number): number => p >= 0.94 ? 1 : p <= 0.06 ? 0 : p;
+export const settle = (p: number): number => p >= 1 - MAGNET ? 1 : p <= MAGNET ? 0 : p;
+export const normalSpeed = (v: number, width: number, height: number): number => v * (width + height) / Math.SQRT2;
+export const commitsOnRelease = (p: number, v: number, width: number, height: number): boolean =>
+  v >= 0 && (settle(p + v * TAU) === 1 || normalSpeed(v, width, height) >= FLICK);
+export const restingShare = (p: number, v: number): number => Math.min(1 - MAGNET, settle(p + v * TAU));
 export function releaseVelocity(samples: readonly (readonly [t: number, x: number])[], now: number, window = 90): number {
   const recent = samples.filter(([t]) => now - t >= 0 && now - t <= window);
   if (recent.length < 2) return 0;

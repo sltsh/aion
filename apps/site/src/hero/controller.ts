@@ -1,7 +1,7 @@
 import type { Hero } from '../chip.js';
 import type { Theme, ThemeController } from '../theme.js';
 import { CONTENT } from '../content.js';
-import { glide, inGrabBand, keyStep, releaseVelocity, seamGeometry, shareAt, settle } from './seam.js';
+import { TAU, commitsOnRelease, glide, inGrabBand, keyStep, releaseVelocity, restingShare, seamGeometry, shareAt, settle } from './seam.js';
 export type { Hero } from '../chip.js';
 
 interface EventSource { addEventListener(type: string, listener: EventListener): void; removeEventListener(type: string, listener: EventListener): void }
@@ -12,7 +12,8 @@ export interface HeroEnv {
   reducedMotion: MediaQueryList;
   resize: EventSource;
 }
-type Motion = { kind: 'throw' | 'arrival' | 'glide' | 'cancel' | 'key'; generation: number; start: number; from: number; target: number; duration: number; curve?: (time: number) => number; resolve?: (result: 'committed' | 'superseded') => void };
+type Motion = { kind: 'throw' | 'arrival' | 'flick' | 'glide' | 'settle' | 'cancel' | 'key'; generation: number; start: number; from: number; target: number; duration: number; endpoint?: number; curve?: (time: number) => number; resolve?: (result: 'committed' | 'superseded') => void };
+const commits = (kind: Motion['kind']): boolean => kind === 'throw' || kind === 'flick' || kind === 'key';
 const clamp = (p: number): number => Math.max(0, Math.min(1, p));
 const other = (theme: Theme): Theme => theme === 'dark' ? 'light' : 'dark';
 // Evaluate the shared cubic-bezier(.22,1,.36,1) for the injected RAF clock.
@@ -78,23 +79,27 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   const commit = (): void => { controller.request(other(controller.theme), { scene: 'wipe' }); };
   const tick = (time: number): void => {
     frame = undefined;
-    const active = motion;
+    let active = motion;
     if (!active || disposed) return;
     if (active.generation !== controller.generation) { stop(); p = 0; paint(); return; }
-    const elapsed = Math.max(0, time - active.start);
+    let elapsed = Math.max(0, time - active.start);
+    if (active.kind === 'glide' && elapsed >= active.duration && active.endpoint !== active.target) {
+      active = { ...active, kind: 'settle', start: active.start + active.duration, from: active.endpoint!, duration: 160, curve: undefined };
+      motion = active; elapsed = Math.max(0, time - active.start);
+    }
     const done = elapsed >= active.duration;
     p = done ? active.target : active.curve ? clamp(active.curve(elapsed)) : active.from + (active.target - active.from) * ease(elapsed / active.duration);
     paint();
     if (!done) { frame = env.raf(tick); return; }
     motion = undefined;
-    if (p === 1 && (active.kind === 'throw' || active.kind === 'glide' || active.kind === 'key')) commit();
+    if (p === 1 && commits(active.kind)) commit();
     active.resolve?.('committed');
   };
   const animate = (next: Motion): void => {
     stop(); motion = next;
-    if (env.reducedMotion.matches || next.target === next.from) {
+    if (env.reducedMotion.matches || (next.target === next.from && !next.curve)) {
       p = next.target; paint(); motion = undefined;
-      if (p === 1 && (next.kind === 'throw' || next.kind === 'glide' || next.kind === 'key')) commit();
+      if (p === 1 && commits(next.kind)) commit();
       next.resolve?.('committed');
     } else frame = env.raf(tick);
   };
@@ -132,9 +137,19 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     if (!drag || event.pointerId !== drag.id) return;
     const velocity = event.type === 'pointercancel' ? 0 : releaseVelocity(drag.samples, env.now());
     endDrag();
-    const target = settle(clamp(p + velocity * 320));
     const from = p;
-    animate({ kind: 'glide', generation: controller.generation, start: env.now(), from, target, duration: 3200, curve: glide(from, (target - from) / 320) });
+    if (commitsOnRelease(from, velocity, width, height)) {
+      const minimum = (1 - from) / (TAU * (1 - Math.exp(-720 / TAU)));
+      const speed = Math.max(velocity, minimum);
+      const duration = from === 1 ? 0 : Math.min(720, -TAU * Math.log1p(-(1 - from) / (speed * TAU)));
+      animate({ kind: 'flick', generation: controller.generation, start: env.now(), from, target: 1, duration, curve: glide(from, speed) });
+      return;
+    }
+    const endpoint = clamp(from + velocity * TAU), target = restingShare(from, velocity);
+    const remaining = Math.abs(endpoint - from), tolerance = 0.5 * Math.SQRT2 / (width + height);
+    // Fix hand-over time in share coordinates so resizing cannot restart either release phase.
+    const duration = remaining <= tolerance ? 0 : -TAU * Math.log1p(-(remaining - tolerance) / (Math.abs(velocity) * TAU));
+    animate({ kind: 'glide', generation: controller.generation, start: env.now(), from, target, endpoint, duration, curve: glide(from, velocity) });
   };
   const onKey = (event: KeyboardEvent): void => {
     const target = keyStep(event.key, p); if (target === null || disposed) return;
@@ -146,7 +161,7 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     if (frame !== undefined) env.cancelRaf(frame); frame = undefined;
     if (active.generation !== controller.generation) { p = 0; paint(); active.resolve?.('superseded'); return; }
     p = active.target; paint();
-    if (p === 1 && (active.kind === 'throw' || active.kind === 'glide' || active.kind === 'key')) commit();
+    if (p === 1 && commits(active.kind)) commit();
     active.resolve?.('committed');
   };
   const onResize: EventListener = measure;

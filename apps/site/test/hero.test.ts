@@ -4,7 +4,7 @@ import { mountHero } from '../src/hero/controller.js';
 import { mountChip } from '../src/chip.js';
 import { initializeTheme } from '../src/theme.js';
 import { renderHero } from '../src/render/hero.js';
-import { seamGeometry } from '../src/hero/seam.js';
+import { FLICK, glide, restingShare, seamGeometry } from '../src/hero/seam.js';
 
 class Node extends EventTarget {
   dataset: Record<string, string> = {}; style = { clipPath: '', left: '', top: '', setProperty: vi.fn(), removeProperty: vi.fn() };
@@ -47,6 +47,113 @@ function harness(reduce = false) {
   const storage = (theme: 'light' | 'dark') => resize.dispatchEvent(Object.assign(new Event('storage'), { key: 'aion-site-theme', newValue: theme }));
   return { root, base, far, handle, line, controller, request, hero, advance, pointer, key, storage, reduced, resize, frames, page, figure, setWidth: (next: number) => { width = next; }, setHeight: (next: number) => { height = next; } };
 }
+
+function releaseAt(h: ReturnType<typeof harness>, from: number, velocity: number, width = 1440, height = 900, type = 'pointerup') {
+  h.setWidth(width); h.setHeight(height); h.resize.dispatchEvent(new Event('resize'));
+  const x = (p: number) => (1 - p) * (width + height) - 360;
+  h.pointer('pointerdown', x(Number(h.root.dataset['heroShare'])));
+  h.advance(100); h.pointer('pointermove', x(from - velocity * 20));
+  const first = Number(h.root.dataset['heroShare']);
+  h.advance(20); h.pointer('pointermove', x(from));
+  const actualFrom = Number(h.root.dataset['heroShare']);
+  h.pointer(type, x(from));
+  return { from: actualFrom, velocity: type === 'pointercancel' ? 0 : (actualFrom - first) / 20 };
+}
+
+describe('release physics', () => {
+  const flick = FLICK * Math.SQRT2 / 2340;
+  it('a flick at FLICK commits though its projection falls short of the magnet, within 720ms', () => {
+    const h = harness(); releaseAt(h, 0.42, flick * (1 + 1e-12));
+    h.advance(719); expect(h.request).not.toHaveBeenCalled();
+    h.advance(17); expect(h.request).toHaveBeenCalledTimes(1); expect(h.controller.theme).toBe('light');
+    expect(h.frames.size).toBe(0); h.advance(1000); expect(h.request).toHaveBeenCalledTimes(1); h.hero.dispose();
+  });
+  it('just under FLICK with a short projection does not commit and ends at its projection', () => {
+    const h = harness(); const release = releaseAt(h, 0.42, flick * 0.99);
+    h.advance(3200); expect(h.request).not.toHaveBeenCalled();
+    expect(Number(h.root.dataset['heroShare'])).toBeCloseTo(restingShare(release.from, release.velocity), 6);
+    expect(h.frames.size).toBe(0); h.hero.dispose();
+  });
+  it('a committing throw keeps its measured velocity until arrival', () => {
+    const h = harness(); const release = releaseAt(h, 0.42, 0.004);
+    const curve = glide(release.from, release.velocity);
+    for (const elapsed of [20, 60, 120]) {
+      h.advance(elapsed === 20 ? 20 : elapsed === 60 ? 40 : 60);
+      expect(Number(h.root.dataset['heroShare'])).toBeCloseTo(curve(elapsed), 6);
+      expect(h.request).not.toHaveBeenCalled();
+    }
+    h.advance(100); expect(h.request).toHaveBeenCalledTimes(1); expect(h.frames.size).toBe(0); h.hero.dispose();
+  });
+  it('a non-committing throw glides at its measured velocity before its magnet settle', () => {
+    const h = harness(); const release = releaseAt(h, 0.1, -0.0002);
+    h.advance(160); expect(Number(h.root.dataset['heroShare'])).toBeCloseTo(glide(release.from, release.velocity)(160), 6);
+    h.advance(2000); expect(Number(h.root.dataset['heroShare'])).toBe(0); expect(h.request).not.toHaveBeenCalled(); expect(h.frames.size).toBe(0); h.hero.dispose();
+  });
+  it('hands over under half a normal pixel from the physical endpoint, before settling into a magnet', () => {
+    const h = harness(); const release = releaseAt(h, 0.1, -0.0002);
+    const endpoint = release.from + release.velocity * 320;
+    const handover = 320 * Math.log(Math.abs(release.velocity) * 320 * 2340 / Math.SQRT2 / 0.5);
+    h.advance(handover - 1);
+    expect(Number(h.root.dataset['heroShare'])).toBeCloseTo(glide(release.from, release.velocity)(handover - 1), 6);
+    h.advance(2); expect(Number(h.root.dataset['heroShare'])).toBeLessThanOrEqual(endpoint);
+    expect(Number(h.root.dataset['heroShare'])).toBeGreaterThan(0); expect(h.frames.size).toBe(1);
+    h.advance(159); expect(Number(h.root.dataset['heroShare'])).toBe(0); expect(h.frames.size).toBe(0); h.hero.dispose();
+  });
+  it.each([[0.42, -0.01], [0.99, -0.00001], [0.1, -0.0002], [0.02, 0], [0.42, 0], [0.1, -0.01]])('every non-committing release ends: p=%s v=%s', (from, velocity) => {
+    const h = harness(); const release = releaseAt(h, from, velocity);
+    const endpoint = Math.max(0, Math.min(1, release.from + release.velocity * 320));
+    const remaining = Math.abs(endpoint - release.from);
+    const distance = 0.5 * Math.SQRT2 / 2340;
+    const handover = remaining <= distance ? 0 : -320 * Math.log(1 - (remaining - distance) / (Math.abs(release.velocity) * 320));
+    h.advance(handover + 161);
+    expect(Number(h.root.dataset['heroShare'])).toBeCloseTo(restingShare(release.from, release.velocity), 6);
+    expect(h.request).not.toHaveBeenCalled(); expect(h.frames.size).toBe(0); h.hero.dispose();
+  });
+  it('a still release inside the far magnet commits', () => {
+    const h = harness(); releaseAt(h, 0.96, 0); h.advance(736); expect(h.request).toHaveBeenCalledTimes(1); h.hero.dispose();
+  });
+  it('storage supersedes a flick and reduced motion finishes a flick immediately', () => {
+    const h = harness(); releaseAt(h, 0.42, flick); h.advance(100); h.storage('light'); h.advance(1000);
+    expect(h.request).not.toHaveBeenCalled(); expect(h.root.dataset['heroShare']).toBe('0'); expect(h.frames.size).toBe(0); h.hero.dispose();
+    const reduced = harness(); releaseAt(reduced, 0.42, flick * (1 + 1e-12)); reduced.advance(100);
+    reduced.reduced.matches = true; reduced.reduced.dispatchEvent(new Event('change'));
+    expect(reduced.request).toHaveBeenCalledTimes(1); expect(reduced.frames.size).toBe(0); reduced.hero.dispose();
+  });
+  it('reduced motion ends a magnet glide at its final rest and pointercancel discards velocity', () => {
+    const h = harness(); releaseAt(h, 0.99, -0.00001); h.advance(100);
+    h.reduced.matches = true; h.reduced.dispatchEvent(new Event('change'));
+    expect(Number(h.root.dataset['heroShare'])).toBe(0.94); expect(h.request).not.toHaveBeenCalled(); expect(h.frames.size).toBe(0); h.hero.dispose();
+    const cancel = harness(); releaseAt(cancel, 0.42, 0.01, 1440, 900, 'pointercancel'); cancel.advance(1000);
+    expect(Number(cancel.root.dataset['heroShare'])).toBeCloseTo(0.42, 6); expect(cancel.request).not.toHaveBeenCalled(); expect(cancel.frames.size).toBe(0); cancel.hero.dispose();
+  });
+  it('resize keeps both release phases on their original share timeline', () => {
+    const h = harness(); const control = harness(); releaseAt(h, 0.1, -0.0002); releaseAt(control, 0.1, -0.0002);
+    for (const elapsed of [100, 1450, 180, 160]) {
+      h.advance(elapsed); control.advance(elapsed);
+      const before = h.root.dataset['heroShare']; h.setWidth(390); h.setHeight(500); h.resize.dispatchEvent(new Event('resize'));
+      expect(h.root.dataset['heroShare']).toBe(before); expect(h.root.dataset['heroShare']).toBe(control.root.dataset['heroShare']);
+    }
+    expect(h.frames.size).toBe(0); h.hero.dispose(); control.hero.dispose();
+  });
+  it('a flick started at zero and on a phone commits once, and resize preserves its velocity timeline', () => {
+    for (const [width, height] of [[1440, 900], [390, 500]]) {
+      const h = harness(); const control = harness();
+      const release = releaseAt(h, 0.1, 0.004, width, height); releaseAt(control, 0.1, 0.004, width, height);
+      h.advance(100); control.advance(100); expect(Number(h.root.dataset['heroShare'])).toBeCloseTo(glide(release.from, release.velocity)(100), 6);
+      const before = h.root.dataset['heroShare']; h.setWidth(700); h.setHeight(650); h.resize.dispatchEvent(new Event('resize'));
+      expect(h.root.dataset['heroShare']).toBe(before);
+      h.advance(100); control.advance(100); expect(h.root.dataset['heroShare']).toBe(control.root.dataset['heroShare']);
+      h.advance(536); control.advance(536); expect(h.request).toHaveBeenCalledTimes(1); expect(control.request).toHaveBeenCalledTimes(1);
+      expect(h.frames.size).toBe(0); h.hero.dispose(); control.hero.dispose();
+    }
+  });
+  it('a new drag and storage during magnet settling supersede the remaining release frames', () => {
+    const h = harness(); releaseAt(h, 0.1, -0.0002); h.advance(1750); expect(h.frames.size).toBe(1);
+    h.pointer('pointerdown', 440); expect(h.frames.size).toBe(0); h.advance(500); expect(h.request).not.toHaveBeenCalled(); h.hero.dispose();
+    const storage = harness(); releaseAt(storage, 0.99, -0.00001); storage.advance(800); expect(storage.frames.size).toBe(1);
+    storage.storage('light'); storage.advance(1000); expect(storage.root.dataset['heroShare']).toBe('0'); expect(storage.frames.size).toBe(0); expect(storage.request).not.toHaveBeenCalled(); storage.hero.dispose();
+  });
+});
 
 describe('Diptych controller', () => {
   it('arrives to 42% in 720ms, and settles immediately with reduced motion', () => {
