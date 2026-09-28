@@ -191,10 +191,13 @@ test('fonts arriving mid-assembly re-cut the existing movers in place', async ()
   const dispose = mountDepth(root as unknown as HTMLElement);
   const movers = [...(frame['children'] as Array<Record<string, unknown>>)];
   expect(movers).toHaveLength(2);
+  expect(button.hidden).toBe(false);
+  expect((root.attrs as Map<string, string>).has('data-depth-mounted')).toBe(true);
   const clones = movers.map((mover) => (mover['children'] as Array<Record<string, Record<string, unknown>>>)[0]!);
   const before = clones.map((clone) => clone['style']!['clipPath']);
   button.dispatchEvent(new Event('click'));
-  button.dispatchEvent(new Event('click'));
+  expect(button.attrs.get('aria-pressed')).toBe('true');
+  expect((root.attrs as Map<string, string>).has('data-depth-apart')).toBe(false);
   expect((root.attrs as Map<string, string>).has('data-depth-moved')).toBe(true);
   shift = 12;
   fontsLoaded();
@@ -207,7 +210,62 @@ test('fonts arriving mid-assembly re-cut the existing movers in place', async ()
   expect(after).not.toEqual(before);
   expect(after[0]).toBe('inset(0px -12px 656px 12px)');
   expect(movers.map((mover) => (mover['style'] as Record<string, unknown>)['--site-depth-x'])).toEqual(['0px', '0px']);
-  expect((root.attrs as Map<string, string>).has('data-depth-apart')).toBe(true);
+  expect(movers.map((mover) => (mover['style'] as Record<string, unknown>)['--site-depth-y'])).toEqual(['-156px', '104px']);
+  expect((root.attrs as Map<string, string>).has('data-depth-apart')).toBe(false);
+  expect((root.attrs as Map<string, string>).has('data-depth-moved')).toBe(true);
+  expect(button.attrs.get('aria-pressed')).toBe('true');
   dispose();
+  expect(removed).toEqual(['div', 'div']);
+  vi.unstubAllGlobals();
+});
+
+test('an idle late font load refreshes geometry in place and disposal removes the movers', async () => {
+  const { mountDepth } = await import('../src/chapters/depth.js');
+  let shift = 0;
+  const removed: string[] = [];
+  const node = (name: string, box = { left: 0, top: 0, width: 1244, height: 686 }) => {
+    const target = new EventTarget() as EventTarget & Record<string, unknown>;
+    const style: Record<string, unknown> = { setProperty(key: string, value: string) { style[key] = value; }, removeProperty(key: string) { delete style[key]; } };
+    const children: unknown[] = [];
+    return Object.assign(target, { name, dataset: { stratum: 'bars' } as Record<string, string>, style, children, hidden: true, textContent: '', innerHTML: name, clientWidth: 0, attrs: new Map<string, string>(),
+      toggleAttribute(key: string, on: boolean) { if (on) this.attrs.set(key, ''); else this.attrs.delete(key); },
+      setAttribute(key: string, value: string) { this.attrs.set(key, value); },
+      removeAttribute(key: string) { this.attrs.delete(key); },
+      getBoundingClientRect: () => ({ ...box, left: box.left + (name === 'editor' ? 0 : shift), top: box.top }),
+      querySelector: ((): unknown => null) as (selector: string) => unknown, querySelectorAll: (): unknown[] => [],
+      append(...nodes: unknown[]) { children.push(...nodes); }, remove() { removed.push(name); }, cloneNode: () => node(`${name}-clone`) });
+  };
+  const stage = node('stage'), frame = node('frame'), base = node('base'), editor = node('editor'), button = node('button');
+  const parts = new Map([['.vscode-title', node('title', { left: 0, top: 0, width: 1244, height: 30 })], ['.status-bar', node('status', { left: 0, top: 664, width: 1244, height: 22 })]]);
+  editor['querySelector'] = (selector: string) => parts.get(selector) ?? null;
+  const labels = [node('label-0'), node('label-5')];
+  const root = node('root');
+  base['querySelector'] = () => editor;
+  let fontsLoaded = () => {};
+  root['ownerDocument'] = { defaultView: new EventTarget(), fonts: { ready: new Promise<void>((resolve) => { fontsLoaded = resolve; }) }, createElement: (tag: string) => node(tag) };
+  const nodes: Record<string, unknown> = { '[data-depth-stage]': stage, '[data-depth-frame]': frame, '[data-depth-base]': base, '[data-depth-assemble]': button, '[data-depth-part="0"]': labels[0], '[data-depth-part="5"]': labels[1] };
+  root['querySelector'] = (selector: string) => nodes[selector] ?? null;
+  vi.stubGlobal('ResizeObserver', class { observe() {} disconnect() {} });
+  stage.clientWidth = 1100;
+  const dispose = mountDepth(root as unknown as HTMLElement);
+  const movers = [...(frame['children'] as Array<Record<string, unknown>>)];
+  expect(movers).toHaveLength(2);
+  expect(button.hidden).toBe(false);
+  const clones = movers.map((mover) => (mover['children'] as Array<Record<string, Record<string, unknown>>>)[0]!);
+  const before = clones.map((clone) => clone['style']!['clipPath']);
+  shift = 12;
+  fontsLoaded();
+  await Promise.resolve();
+  await Promise.resolve();
+  expect(frame['children']).toEqual(movers);
+  expect(clones.map((clone) => clone['style']!['clipPath'])).not.toEqual(before);
+  expect(clones[0]!['style']!['clipPath']).toBe('inset(0px -12px 656px 12px)');
+  expect(removed).toEqual([]);
+  expect((root.attrs as Map<string, string>).has('data-depth-apart')).toBe(true);
+  expect((root.attrs as Map<string, string>).has('data-depth-moved')).toBe(false);
+  expect(button.attrs.get('aria-pressed')).toBe('false');
+  dispose();
+  expect(removed).toEqual(['div', 'div']);
+  expect(button.hidden).toBe(true);
   vi.unstubAllGlobals();
 });
