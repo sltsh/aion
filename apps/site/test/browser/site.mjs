@@ -29,9 +29,18 @@ const resizeProbe = () => {
   const share = () => Number(document.querySelector('[data-hero]')?.dataset.heroShare ?? 0);
   const boxes = () => Object.fromEntries(['[data-hero]', '[data-hero-handle]', '[data-scheme-chip]', '.chapter-rail', ...[...document.querySelectorAll('#content > section[id]')].map(s => `#${s.id}`)].map(s => { const r = document.querySelector(s)?.getBoundingClientRect(); return [s, r ? [r.x, r.y, r.width, r.height] : null]; }));
   const clips = () => ['[data-hero-far]', '[data-hero-seam-far]'].map(s => { const e = document.querySelector(s); return e ? getComputedStyle(e).clipPath : null; });
+  // Every root view transition, when it started and when the engine finished or skipped it. A skipped transition removes its
+  // snapshot, while Chromium keeps a script animation aimed at the vanished pseudo-element running, so a reveal counts only while
+  // a transition is live.
+  const startTransition = Document.prototype.startViewTransition; window.__transitions = [];
+  if (startTransition) Document.prototype.startViewTransition = function (update) { const t = () => Math.round(performance.now() - (window.__t0 ?? 0)); const entry = { start: t(), width: innerWidth }; window.__transitions.push(entry); const vt = startTransition.call(this, update); vt.finished.then(() => { entry.finished = t(); }); return vt; };
+  const live = () => window.__transitions.some(e => e.finished === undefined);
+  // The page scene's incoming reveal as the engine runs it: the clip animation's progress on the new root snapshot, or null.
+  // Samples carry the frame's timestamp, the time the engine sampled the animation at, not the time the callback ran.
+  const reveal = () => { if (!live()) return null; const a = document.getAnimations().find(a => a.effect?.pseudoElement === '::view-transition-new(root)' && a.playState === 'running'); const p = a?.effect?.getComputedTiming().progress; return typeof p === 'number' ? p : null; };
   const frames = ms => new Promise(resolve => { const start = performance.now(), out = []; const step = t => { out.push(t); if (performance.now() - start < ms) raf(step); else resolve(out); }; raf(step); });
   window.__resizeProbe = {
-    running, share,
+    running, share, reveal,
     // Every running animation seen on any frame for `ms`: a resize must start none.
     async started(ms) { const seen = new Set(); const start = performance.now(); await new Promise(resolve => { const step = () => { running().forEach(n => seen.add(n)); if (performance.now() - start < ms) raf(step); else resolve(); }; raf(step); }); return [...seen]; },
     async still(ms) {
@@ -46,13 +55,14 @@ const resizeProbe = () => {
     // The share's last change is stamped when it is written, so the order of frame callbacks cannot delay the end by a frame.
     async end(t0, bound = 6000) {
       const hero = document.querySelector('[data-hero]'); let value = share(), changed = t0;
-      const observer = new MutationObserver(() => { const s = share(); if (s !== value) { value = s; changed = performance.now(); } });
+      let arrived; const observer = new MutationObserver(() => { const s = share(); if (s !== value) { value = s; changed = performance.now(); if (s >= .999) arrived ??= changed - t0; } });
       if (hero) observer.observe(hero, { attributes: true, attributeFilter: ['data-hero-share'] });
-      let quiet = 0, calmSince, intervals = [], previous, seen = changed;
-      return new Promise(resolve => { const step = t => { if (previous !== undefined) intervals.push(t - previous); previous = t; const now = performance.now();
+
+      let quiet = 0, calmSince, intervals = [], previous, seen = changed; const reveals = [];
+      return new Promise(resolve => { const step = t => { if (previous !== undefined) intervals.push(t - previous); previous = t; const now = performance.now(); const r = reveal(); if (r !== null) reveals.push([Math.round((t - t0) * 10) / 10, Math.round(r * 1000) / 1000]);
         const busy = window.freezeFrames || running().length || document.documentElement.hasAttribute('data-intro') || document.documentElement.hasAttribute('data-theme-transition');
         if (busy) { quiet = 0; calmSince = undefined; } else { calmSince ??= now; quiet = seen === changed ? quiet + 1 : 0; } seen = changed;
-        if (quiet >= 3 || now - t0 > bound) { observer.disconnect(); intervals.sort((a, b) => a - b); const ended = now - t0 <= bound; resolve({ ended, end: Math.max(changed, calmSince ?? now) - t0, frame: intervals[Math.floor(intervals.length / 2)] ?? 1000 / 60, share: value }); } else raf(step); }; raf(step); });
+        if (quiet >= 3 || now - t0 > bound) { observer.disconnect(); intervals.sort((a, b) => a - b); const ended = now - t0 <= bound; resolve({ ended, end: Math.max(changed, calmSince ?? now) - t0, frame: intervals[Math.floor(intervals.length / 2)] ?? 1000 / 60, share: value, reveals, arrived }); } else raf(step); }; raf(step); });
     },
     frames,
   };
@@ -196,13 +206,39 @@ async function engineRun(name) {
       release();await p.evaluate(()=>document.fonts.ready);const started=await p.evaluate(()=>window.__resizeProbe.started(720));const still=await p.evaluate(()=>window.__resizeProbe.still(2000));row.measurements={started,still};
       assert.deepEqual(started,[],'the late font started motion');assertStill(still,'late font');
     });
+    // Fonts that land while the parts assemble re-cut the existing movers; replacing them jumped the parts to the end of the assembly.
+    await run('resize-settle-font-during-assembly',{reducedMotion:'no-preference',viewport:{width:1440,height:1000}},async(p,_c,row)=>{
+      let release;const gate=new Promise(resolve=>{release=resolve;});await p.route('**/*.woff2',async route=>{await gate;await route.continue();});
+      await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.addInitScript(resizeProbe);
+      await p.goto(base+'/#depth',{waitUntil:'domcontentloaded'});await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'));await p.waitForTimeout(900);
+      await p.locator('#depth').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await p.waitForTimeout(100);
+      assert.equal(await p.evaluate(()=>document.fonts.status),'loading');
+      await p.evaluate(()=>{const frame=document.querySelector('[data-depth-frame]');window.__movers=[...frame.querySelectorAll('.depth-mover:not(.depth-base)')];window.__frameWrites=0;new MutationObserver(r=>{window.__frameWrites+=r.length;}).observe(frame,{childList:true});
+        const f=()=>Number(getComputedStyle(window.__movers[0]).getPropertyValue('--site-depth-f'));window.__assembly=[];
+        document.querySelector('[data-depth-assemble]').addEventListener('click',()=>{const t0=performance.now();window.__t0=t0;document.fonts.ready.then(()=>{window.__fontsAt=performance.now()-t0;});const step=t=>{window.__assembly.push([Math.round((t-t0)*10)/10,f()]);if(performance.now()-t0<1400)requestAnimationFrame(step);};requestAnimationFrame(step);},{capture:true,once:true});});
+      await p.locator('[data-depth-assemble]').click();await p.waitForFunction(()=>performance.now()-window.__t0>=200);release();
+      await p.waitForFunction(()=>window.__assembly.at(-1)?.[0]>=1350,null,{timeout:5000});
+      const result=await p.evaluate(()=>({assembly:window.__assembly,fontsAt:window.__fontsAt,frameWrites:window.__frameWrites,kept:window.__movers.every(m=>m.isConnected)&&document.querySelectorAll('[data-depth-frame] .depth-mover:not(.depth-base)').length===window.__movers.length}));
+      const still=await p.evaluate(()=>window.__resizeProbe.still(2000));row.measurements={...result,still};
+      assert.ok(result.fontsAt!==undefined&&result.fontsAt<600,`fonts did not land during the assembly (${result.fontsAt} ms)`);
+      assert.equal(result.frameWrites,0,'the movers were replaced');assert.ok(result.kept,'a transitioning mover was removed');
+      const a=result.assembly,drops=a.slice(1).map(([t,v],i)=>[t,a[i][1]-v]);const frame=a.slice(1).map(([t],i)=>t-a[i][0]).sort((x,y)=>x-y)[Math.floor((a.length-1)/2)];
+      const steepest=Math.max(...drops.filter(([t])=>t<=result.fontsAt).map(([,d])=>d));const late=drops.filter(([t])=>t>result.fontsAt);
+      row.measurements.timeline={frame,steepest,lateSteepest:Math.max(...late.map(([,d])=>d))};
+      assert.ok(a.every(([,v],i)=>i===0||v<=a[i-1][1]),'the assembly reversed or restarted');
+      assert.ok(late.every(([,d])=>d<=steepest+1e-3),`the parts jumped when the fonts landed: ${JSON.stringify(late.filter(([,d])=>d>steepest+1e-3))}`);
+      const lastChange=drops.filter(([,d])=>d>0).at(-1)?.[0];row.measurements.timeline.lastChange=lastChange;
+      assert.ok(lastChange!==undefined&&lastChange>=720-2*frame&&lastChange<=720+2*frame,`the assembly last moved at ${lastChange} ms, not at the end of its 720 ms timeline`);
+      assertStill(still,'fonts during assembly');
+    });
     // B1 in flight: the resize keeps the share, neither restarts nor extends the sequence, and the page is still once it ends.
-    const sequence=async(kind,resize,row)=>{
+    const sequence=async(kind,resize,row,evidence=false)=>{
       const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'dark',reducedMotion:'no-preference'});const p=await context.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(7000);
       try{
         if(kind!=='intro')await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});
         else await p.addInitScript(()=>new MutationObserver((_r,o)=>{if(document.querySelector('.splash-intro')){window.__t0=performance.now();o.disconnect();}}).observe(document,{subtree:true,childList:true}));
         await p.addInitScript(resizeProbe);await p.addInitScript(holdFrames);
+
         const mark=selector=>p.evaluate(s=>{window.__t0=undefined;(s?document.querySelector(s):window).addEventListener(s?'click':'pointerup',()=>{window.__t0=performance.now();},{capture:true,once:true});},selector);
         if(kind==='intro')await p.goto(base,{waitUntil:'domcontentloaded'});
         else{await p.goto(base+(kind==='chip-off'?'/#install':'/'));await settled(p);await p.waitForTimeout(900);}
@@ -212,21 +248,53 @@ async function engineRun(name) {
         const result={kind,resized:resize};
         if(resize){
           await p.waitForFunction(at=>performance.now()-window.__t0>=at,{glide:400,intro:900,'chip-on':300,'chip-off':300}[kind]);
-          await p.evaluate(()=>{window.freezeFrames=true;});result.before=await p.evaluate(()=>window.__resizeProbe.share());result.at=await p.evaluate(()=>performance.now()-window.__t0);
+          await p.evaluate(()=>{window.freezeFrames=true;});result.before=await p.evaluate(()=>window.__resizeProbe.share());result.revealBefore=await p.evaluate(()=>window.__resizeProbe.reveal());result.at=await p.evaluate(()=>performance.now()-window.__t0);
           await p.setViewportSize({width:759,height:1000});result.after=await p.evaluate(()=>window.__resizeProbe.share());
           await p.evaluate(()=>{window.freezeFrames=false;window.heldFrames.splice(0).forEach(callback=>requestAnimationFrame(callback));});
         }
+        // Evidence only: screenshots taken while the sequence runs. Chromium paints view-transition snapshots into them; Firefox and
+        // WebKit screenshots show the live document, so their page-scene frames show the committed scheme.
+        if(evidence){result.frames=[];while(result.frames.length<24){const t=await p.evaluate(()=>performance.now()-window.__t0);if(t>2400)break;const path=`${dir}/${screenshotName(`${row.id}-frame-${String(result.frames.length).padStart(2,'0')}`)}.png`;await p.screenshot({path});row.artifacts.push(path);result.frames.push({t:Math.round(t),path,reveal:await p.evaluate(()=>window.__resizeProbe.reveal()),share:await p.evaluate(()=>window.__resizeProbe.share())});}}
         Object.assign(result,await p.evaluate(()=>window.__ended));result.still=await p.evaluate(()=>window.__resizeProbe.still(2000));
+        const path=`${dir}/${screenshotName(`${row.id}-${evidence?'evidence':resize?'resized':'baseline'}`)}.png`;await p.screenshot({path});row.artifacts.push(path);
+        Object.assign(result,{url:p.url(),viewport:p.viewportSize(),screenshot:path,transitions:await p.evaluate(()=>window.__transitions??null)});
         assert.deepEqual(errors,[],'page errors');return result;
       }catch(error){try{const path=`${dir}/${screenshotName(`${row.id}-${resize?'resized':'baseline'}-failure`)}.png`;await p.screenshot({path});row.artifacts.push(path);}catch{}throw error;}
       finally{await context.close();}
     };
     for(const kind of ['glide','intro','chip-on','chip-off'])await run(`resize-settle-in-flight-${kind}`,{},async(_p,_c,row)=>{
-      const baseline=await sequence(kind,false,row);const resized=await sequence(kind,true,row);row.measurements={baseline,resized};
+      const baseline=await sequence(kind,false,row);const resized=await sequence(kind,true,row);const evidence=await sequence(kind,true,row,true);row.measurements={baseline,resized,evidence};
       assert.ok(baseline.ended&&resized.ended,'the sequence did not finish within 6 s');
       if(kind==='glide')assert.ok(baseline.end>1000&&resized.end>1000,'a release without velocity starts no glide to compare');
       assert.ok(Math.abs(resized.after-resized.before)<1e-3,`share moved across the resize ${resized.before} → ${resized.after}`);
-      assert.ok(resized.end<=baseline.end+baseline.frame,`the resize extended the sequence: ${resized.end.toFixed(1)} ms against ${baseline.end.toFixed(1)} ms + ${baseline.frame.toFixed(1)} ms`);
+      const frame=baseline.frame;
+      if(kind==='glide'||kind==='intro'){
+        assert.ok(resized.end<=baseline.end+frame,`the resize extended the sequence: ${resized.end.toFixed(1)} ms against ${baseline.end.toFixed(1)} ms + ${frame.toFixed(1)} ms`);
+        assert.ok(resized.end>=baseline.end-2*frame,`the resize cut the sequence short: ${resized.end.toFixed(1)} ms against ${baseline.end.toFixed(1)} ms - ${(2*frame).toFixed(1)} ms`);
+      }else{
+        // A page scene starts once the engine has captured its snapshot, and that latency differs between page loads by tens of
+        // milliseconds (WebKit: hundreds), so the scene is compared on its own clock. Each reveal frame implies the scene's start as
+        // t - progress x 720 ms: a restart, a jump or a cut shows as a different implied start. The sequence then ends no later
+        // after its scene's deadline than the unresized one does, plus one frame, and not before the deadline.
+        const implied=r=>r.reveals.filter(([,q])=>q>.02&&q<.98).map(([t,q])=>t-q*720);const spread=list=>list.length?Math.max(...list)-Math.min(...list):0;
+        const after=resized.reveals.filter(([t])=>t>resized.at);const starts=implied(resized);const tolerance=2*Math.max(frame,resized.frame);
+        const deadline=r=>Math.min(...implied(r))+720;
+        row.measurements.reveal={baselineStarts:implied(baseline).map(Math.round),resizedStarts:starts.map(Math.round),revealBefore:resized.revealBefore,after,baselineDeadline:deadline(baseline),resizedDeadline:deadline(resized),tolerance,throwArrived:[baseline.arrived,resized.arrived]};
+        assert.ok(implied(baseline).length&&starts.length,'no page-scene reveal observed');
+        assert.ok(spread(implied(baseline))<=tolerance,`the unresized scene ran off its own clock: ${implied(baseline).map(Math.round)}`);
+        assert.ok(spread(starts)<=tolerance,`the resize moved the scene's clock: implied starts ${starts.map(Math.round)} (tolerance ${tolerance.toFixed(1)} ms)`);
+        assert.ok(resized.end>=deadline(resized)-frame,`the resize cut the scene short: ended ${resized.end.toFixed(1)} ms, deadline ${deadline(resized).toFixed(1)} ms`);
+        assert.ok(resized.end-deadline(resized)<=baseline.end-deadline(baseline)+frame,`the resize extended the scene: ended ${(resized.end-deadline(resized)).toFixed(1)} ms after its deadline against ${(baseline.end-deadline(baseline)).toFixed(1)} ms + ${frame.toFixed(1)} ms`);
+        // The snapshot itself must last: a skipped transition takes the outgoing page away however long its animation object runs.
+        const shown=r=>Math.max(...(r.transitions??[]).map(e=>e.finished??Infinity));
+        if(resized.transitions?.length){row.measurements.reveal.shownUntil=[shown(baseline),shown(resized)];
+          assert.ok(shown(resized)>=deadline(resized)-tolerance,`the page scene's snapshot ended at ${shown(resized)} ms, before its deadline ${deadline(resized).toFixed(1)} ms`);}
+        if(kind==='chip-on')assert.ok(Math.abs(resized.arrived-baseline.arrived)<=2*frame,`the resize moved the throw's arrival: ${resized.arrived?.toFixed(1)} ms against ${baseline.arrived?.toFixed(1)} ms`);
+        if(resized.revealBefore!==null){
+          assert.ok(after.length>0,`the page scene stopped at the resize (${resized.reveals.length} reveal frames, none after ${resized.at.toFixed(0)} ms)`);
+          assert.ok(after.every(([,q])=>q>=resized.revealBefore-.02),`the page scene restarted after the resize: ${resized.revealBefore} → ${after.map(([,q])=>q)}`);
+        }
+      }
       assertStill(resized.still,`${kind} after the sequence`);
     });
     await run('clipboard-unavailable-and-rejection',{},async(p)=>{

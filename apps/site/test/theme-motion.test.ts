@@ -62,9 +62,11 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     transitions.push({ transition, update, ready, finished });
     return transition;
   });
+  const clock = { now: 0 };
+  // An animation starts on the frame after it is created, as in the engines.
   const animate = vi.fn((): ThemeMotionAnimation => {
     const completion = deferred<void>();
-    const animation: ThemeMotionAnimation = { finished: completion.promise, cancel: vi.fn() };
+    const animation: ThemeMotionAnimation = { finished: completion.promise, ready: Promise.resolve(), startTime: clock.now + 16, cancel: vi.fn() };
     animations.push(animation);
     animationCompletions.push(completion);
     return animation;
@@ -75,6 +77,7 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     reducedMotion: reduced as unknown as MediaQueryList,
     startViewTransition,
     animate,
+    now: () => clock.now,
   } : {
     document: documentLike as unknown as Document,
     window: windowLike as unknown as Window,
@@ -93,6 +96,8 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
   };
   return {
     environment,
+    clock,
+    windowLike,
     root,
     system,
     reduced,
@@ -319,5 +324,104 @@ describe('theme controller ordering and subscriptions', () => {
     expect(heard).toEqual(['light:request', 'dark:storage']);
     unsubscribe(); controller.request('dark'); expect(heard).toHaveLength(2);
     controller.dispose();
+  });
+});
+
+// Every engine skips a root view transition when the viewport changes size, which cut the page wipe short mid-scene.
+describe('a viewport resize during the page scene', () => {
+  const resized = async () => {
+    const h = harness({ scene: true });
+    const controller = initializeTheme(h.environment);
+    const heard = vi.fn(); controller.subscribe(heard);
+    controller.request('light');
+    h.transitions[0]!.update();
+    h.transitions[0]!.ready.resolve(); await flush();
+    const committed = controller.generation;
+    h.clock.now = 300; h.windowLike.innerWidth = 759;
+    h.transitions[0]!.finished.resolve(); await flush();
+    return { h, controller, heard, committed };
+  };
+
+  it('resumes the wipe from its progress on the new viewport and ends at the original deadline', async () => {
+    const { h, controller, heard, committed } = await resized();
+    expect(h.startViewTransition).toHaveBeenCalledTimes(2);
+    expect(h.root.dataset.theme).toBe('dark');
+    expect(h.root.dataset['themeTransition']).toBe('');
+    expect(h.animations[0]!.cancel).toHaveBeenCalled();
+    h.animationCompletions[0]!.reject(new Error('cancelled')); await flush();
+    expect(h.transitions[1]!.transition.skipTransition).not.toHaveBeenCalled();
+    h.transitions[1]!.update();
+    expect(h.root.dataset.theme).toBe('light');
+    expect(controller.theme).toBe('light');
+    expect(controller.generation).toBe(committed);
+    expect(heard).toHaveBeenCalledTimes(1);
+    h.clock.now = 330;
+    h.transitions[1]!.ready.resolve(); await flush();
+    expect(h.animate).toHaveBeenLastCalledWith(h.root, [
+      { clipPath: 'polygon(-600px 0, -600px 0, 0 100%, 0 100%)' },
+      { clipPath: 'polygon(-600px 0, 759px 0, 1359px 100%, 0 100%)' },
+    ], { duration: 720, easing: 'linear', pseudoElement: '::view-transition-new(root)' });
+    expect(h.animations[1]!.startTime).toBe(16);
+    h.transitions[0]!.finished.resolve(); await flush();
+    expect(h.root.dataset['themeTransition']).toBe('');
+    h.clock.now = 720;
+    h.transitions[1]!.finished.resolve(); await flush();
+    expect(h.root.dataset['themeTransition']).toBeUndefined();
+    expect(h.root.dataset.theme).toBe('light');
+    expect(h.startViewTransition).toHaveBeenCalledTimes(2);
+  });
+
+  it('resumes again when the resumed snapshot is itself resized away', async () => {
+    const { h } = await resized();
+    h.transitions[1]!.update();
+    h.clock.now = 400; h.windowLike.innerWidth = 1100;
+    h.transitions[1]!.ready.reject(new Error('skipped')); await flush();
+    expect(h.startViewTransition).toHaveBeenCalledTimes(3);
+    expect(h.root.dataset.theme).toBe('dark');
+    h.transitions[2]!.update(); h.transitions[2]!.ready.resolve(); await flush();
+    expect(h.animations.at(-1)!.startTime).toBe(16);
+  });
+
+  it('ends a skip without a resize, or past the deadline, without resuming', async () => {
+    const h = harness({ scene: true });
+    const controller = initializeTheme(h.environment);
+    controller.request('light'); h.transitions[0]!.update(); h.transitions[0]!.ready.resolve(); await flush();
+    h.clock.now = 300; h.transitions[0]!.finished.resolve(); await flush();
+    expect(h.startViewTransition).toHaveBeenCalledTimes(1);
+    expect(h.root.dataset['themeTransition']).toBeUndefined();
+
+    controller.request('dark'); h.transitions[1]!.update(); h.transitions[1]!.ready.resolve(); await flush();
+    h.clock.now = 1100; h.windowLike.innerWidth = 759; h.transitions[1]!.finished.resolve(); await flush();
+    expect(h.startViewTransition).toHaveBeenCalledTimes(2);
+    expect(h.root.dataset.theme).toBe('dark');
+    expect(h.root.dataset['themeTransition']).toBeUndefined();
+  });
+
+  it('settles a resumed scene on the latest scheme on a new choice, reduced motion, hiding and storage', async () => {
+    const choice = await resized();
+    choice.controller.request('dark');
+    expect(choice.h.root.dataset.theme).toBe('light');
+    expect(choice.h.transitions[1]!.transition.skipTransition).toHaveBeenCalled();
+    choice.h.transitions[1]!.update();
+    expect(choice.h.root.dataset.theme).toBe('light');
+    choice.h.transitions[2]!.update();
+    expect(choice.h.root.dataset.theme).toBe('dark');
+
+    const reduced = await resized();
+    reduced.h.reduced.matches = true; reduced.h.reduced.dispatch('change', { matches: true } as unknown as Event);
+    expect(reduced.h.root.dataset.theme).toBe('light');
+    expect(reduced.h.root.dataset['themeTransition']).toBeUndefined();
+    reduced.h.transitions[1]!.update();
+    expect(reduced.h.root.dataset.theme).toBe('light');
+
+    const hidden = await resized();
+    hidden.h.documentLike.visibilityState = 'hidden'; hidden.h.documentLike.dispatch('visibilitychange', new Event('visibilitychange'));
+    expect(hidden.h.root.dataset.theme).toBe('light');
+    expect(hidden.h.root.dataset['themeTransition']).toBeUndefined();
+
+    const storage = await resized();
+    storage.h.page.dispatch('storage', { key: 'aion-site-theme', newValue: 'dark', storageArea: storage.h.environment.storage } as unknown as Event);
+    expect(storage.h.root.dataset.theme).toBe('dark');
+    expect(storage.h.root.dataset['themeTransition']).toBeUndefined();
   });
 });

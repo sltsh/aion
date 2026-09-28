@@ -20,6 +20,8 @@ export interface ThemeViewTransition {
 
 export interface ThemeMotionAnimation {
   readonly finished?: Promise<unknown>;
+  readonly ready?: Promise<unknown>;
+  startTime?: CSSNumberish | null;
   cancel: () => void;
 }
 
@@ -29,6 +31,7 @@ export interface ThemeMotionEnvironment {
   readonly reducedMotion?: MediaQueryList | null;
   readonly startViewTransition?: (update: () => void) => ThemeViewTransition;
   readonly animate?: (root: HTMLElement, keyframes: Keyframe[], options: KeyframeAnimationOptions) => ThemeMotionAnimation;
+  readonly now?: () => number;
 }
 
 export interface ThemeEnvironment {
@@ -81,8 +84,13 @@ interface MediaQueryLike extends EventSourceLike {
 interface ActiveThemeScene {
   generation: number;
   readonly theme: Theme;
+  readonly outgoing: Theme;
   transition: ThemeViewTransition | undefined;
   animation: ThemeMotionAnimation | undefined;
+  start: number | undefined;
+  duration: number;
+  width: number;
+  height: number;
 }
 
 const addListener = (target: EventSourceLike | null | undefined, type: string, listener: EventListener): void => {
@@ -188,6 +196,8 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
 
   const motionIsReduced = (): boolean => reducedMotion?.matches === true;
 
+  const now = (): number => environment.motion?.now?.() ?? (typeof performance !== 'undefined' ? performance.now() : Date.now());
+
   const releaseSuppression = (): void => {
     cancelSuppressionRelease = undefined;
     delete environment.root.dataset['themeSwap'];
@@ -216,11 +226,21 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
     for (const listener of subscribers) listener(theme, cause);
   };
 
+  // Swaps the painted scheme without a commit: a resumed scene shows its outgoing scheme for the snapshot, then the rendered one.
+  const paintScheme = (theme: Theme): void => {
+    cancelSuppressionRelease?.();
+    environment.root.dataset['themeSwap'] = '';
+    environment.root.dataset.theme = theme;
+    cancelSuppressionRelease = scheduleFrame(releaseSuppression);
+  };
+
   const clearSceneMarker = (): void => {
     delete environment.root.dataset['themeTransition'];
     delete environment.root.dataset['themeCssScene'];
     environment.root.style?.removeProperty('--site-theme-width');
     environment.root.style?.removeProperty('--site-theme-height');
+    environment.root.style?.removeProperty('--site-theme-delay');
+    if (renderedTheme !== undefined && environment.root.dataset.theme !== renderedTheme) paintScheme(renderedTheme);
   };
 
   const invalidateScene = (): void => {
@@ -255,12 +275,19 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
   const runSceneAnimation = (scene: ActiveThemeScene): void => {
     if (activeScene !== scene || scene.generation !== generation || disposed || motionIsReduced()) return;
     const { width, height } = viewport();
+    scene.start ??= now();
+    const elapsed = Math.max(0, now() - scene.start);
+    if (elapsed >= scene.duration) {
+      safeSkip(scene.transition);
+      finishScene(scene);
+      return;
+    }
     let animation: ThemeMotionAnimation | undefined;
     try {
       animation = rootAnimation([
         { clipPath: `polygon(${-height}px 0, ${-height}px 0, 0 100%, 0 100%)` },
         { clipPath: `polygon(${-height}px 0, ${width}px 0, ${width + height}px 100%, 0 100%)` },
-      ], { duration: sceneDuration(), easing: 'linear', pseudoElement: '::view-transition-new(root)' });
+      ], { duration: scene.duration, easing: 'linear', pseudoElement: '::view-transition-new(root)' });
     } catch {
       safeSkip(scene.transition);
       settleLatest();
@@ -271,6 +298,11 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
       settleLatest();
       return;
     }
+    // A resumed reveal shares the first one's start time on the document timeline, so it keeps the original deadline.
+    const anchor = (reveal: ThemeMotionAnimation): void => {
+      if (elapsed > 0) reveal.startTime = scene.start ?? null;
+      else watchPromise(reveal.ready, () => { if (typeof reveal.startTime === 'number') scene.start = reveal.startTime; }, () => {});
+    };
     // Firefox can accept the pseudoElement option without painting its clip.
     // The same scene expressed in CSS keeps the native snapshot transition.
     if (ownerWindow?.getComputedStyle(environment.root, '::view-transition-new(root)').clipPath === 'none') {
@@ -279,13 +311,96 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
       environment.root.style.setProperty('--site-theme-width', `${width}px`);
       environment.root.style.setProperty('--site-theme-height', `${height}px`);
       environment.root.dataset['themeCssScene'] = '';
+      const reveal = ownerDocument?.getAnimations?.().find((candidate) => (candidate.effect as KeyframeEffect | null)?.pseudoElement === '::view-transition-new(root)');
+      if (reveal) anchor(reveal);
+      else environment.root.style.setProperty('--site-theme-delay', `${-elapsed}ms`);
       return;
     }
     scene.animation = animation;
+    anchor(animation);
+    const transition = scene.transition;
     watchPromise(animation.finished, () => {}, () => {
-      safeSkip(scene.transition);
+      if (!current(scene, transition)) return;
+      safeSkip(transition);
       finishScene(scene);
     });
+  };
+
+  const current = (scene: ActiveThemeScene, transition: ThemeViewTransition | undefined): boolean =>
+    activeScene === scene && scene.transition === transition && scene.generation === generation && !disposed;
+
+  const resized = (scene: ActiveThemeScene): boolean => {
+    const { width, height } = viewport();
+    return width !== scene.width || height !== scene.height;
+  };
+
+  // Every engine skips a root view transition when the viewport changes size. A skip this controller did not ask for, before the
+  // scene's deadline, is resumed: the outgoing scheme is painted again for a new snapshot at the new size, and the reveal
+  // continues from the progress it had, so the scene still ends at its original deadline.
+  const resumable = (scene: ActiveThemeScene): boolean =>
+    ownerDocument?.visibilityState !== 'hidden' && !motionIsReduced() && resized(scene)
+    && (scene.start === undefined || now() < scene.start + scene.duration);
+
+  const startSceneTransition = (scene: ActiveThemeScene, resumed: boolean): void => {
+    const size = viewport();
+    scene.width = size.width;
+    scene.height = size.height;
+    scene.animation = undefined;
+    let transition: ThemeViewTransition | undefined;
+    const settleWithout = (): void => {
+      if (activeScene !== scene || scene.generation !== generation) return;
+      if (renderedTheme !== scene.theme || pendingStoredTheme !== undefined) apply(scene.theme);
+      invalidateScene();
+    };
+    try {
+      transition = startViewTransition(() => {
+        if (!current(scene, transition)) return;
+        if (resumed) paintScheme(renderedTheme);
+        else apply(scene.theme, 'request', scene);
+      });
+    } catch {
+      settleWithout();
+      return;
+    }
+    if (!transition) {
+      settleWithout();
+      return;
+    }
+    const started = transition;
+    scene.transition = started;
+    const resume = (): void => {
+      if (renderedTheme !== scene.theme) apply(scene.theme, 'request', scene);
+      delete environment.root.dataset['themeCssScene'];
+      paintScheme(scene.outgoing);
+      startSceneTransition(scene, true);
+    };
+    watchPromise(started.ready, () => {
+      if (current(scene, started)) runSceneAnimation(scene);
+    }, () => {
+      if (!current(scene, started)) return;
+      if (resumable(scene)) {
+        resume();
+        return;
+      }
+      if (renderedTheme !== scene.theme || pendingStoredTheme !== undefined) apply(scene.theme, 'request', scene);
+      safeSkip(started);
+      finishScene(scene);
+    });
+    watchPromise(started.finished, () => {
+      if (!current(scene, started)) return;
+      if (resumable(scene)) {
+        safeCancel(scene.animation);
+        resume();
+        return;
+      }
+      finishScene(scene);
+    }, () => {
+      if (!current(scene, started)) return;
+      safeCancel(scene.animation);
+      if (renderedTheme !== requestedTheme) apply(requestedTheme);
+      finishScene(scene);
+    });
+    if (!current(scene, started)) safeSkip(started);
   };
 
   const beginScene = (theme: Theme): void => {
@@ -295,43 +410,16 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
     const scene: ActiveThemeScene = {
       generation: sceneGeneration,
       theme,
+      outgoing: renderedTheme,
       transition: undefined,
       animation: undefined,
+      start: undefined,
+      duration: sceneDuration(),
+      width: 0,
+      height: 0,
     };
     activeScene = scene;
-
-    let transition: ThemeViewTransition | undefined;
-    try {
-      transition = startViewTransition(() => {
-        if (activeScene !== scene || disposed || scene.generation !== generation) return;
-        apply(scene.theme, 'request', scene);
-      });
-    } catch {
-      if (activeScene === scene && scene.generation === generation) {
-        if (renderedTheme !== theme || pendingStoredTheme !== undefined) apply(theme);
-        invalidateScene();
-      }
-      return;
-    }
-    if (!transition) {
-      if (renderedTheme !== theme || pendingStoredTheme !== undefined) apply(theme);
-      invalidateScene();
-      return;
-    }
-    scene.transition = transition;
-    watchPromise(transition.ready, () => runSceneAnimation(scene), () => {
-      if (activeScene !== scene || scene.generation !== generation || disposed) return;
-      if (renderedTheme !== theme || pendingStoredTheme !== undefined) apply(theme, 'request', scene);
-      safeSkip(transition);
-      finishScene(scene);
-    });
-    watchPromise(transition.finished, () => finishScene(scene), () => {
-      if (activeScene !== scene || scene.generation !== generation || disposed) return;
-      safeCancel(scene.animation);
-      if (renderedTheme !== requestedTheme) apply(requestedTheme);
-      finishScene(scene);
-    });
-    if (activeScene !== scene || scene.generation !== generation || disposed) safeSkip(transition);
+    startSceneTransition(scene, false);
   };
 
   const request = (next: Theme, { scene = 'wipe' }: { scene?: 'wipe' | 'none' } = {}): void => {

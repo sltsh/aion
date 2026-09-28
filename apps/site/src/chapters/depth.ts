@@ -26,7 +26,7 @@ export function mountDepth(root: HTMLElement): () => void {
   let built = false;
   let hovered = '';
   let focused = '';
-  const movers: HTMLElement[] = [];
+  const movers = new Map<number, { mover: HTMLElement; clone: HTMLElement; outline: HTMLElement; tag: HTMLElement }>();
   const widgets = ['.find-widget', '.hover-card'].map((selector) => editor.querySelector<HTMLElement>(selector));
   const originalVisibility = widgets.map((widget) => widget?.style.visibility ?? '');
   const originalBaseClip = base.style.clipPath;
@@ -43,7 +43,6 @@ export function mountDepth(root: HTMLElement): () => void {
   const place = (): void => { root.style.setProperty('--site-depth-scale', String(Math.min(1, Math.max(.1, (stage.clientWidth - 180) / 1244)))); };
   const measure = (): void => {
     if (disposed || !stage.clientWidth) return;
-    movers.splice(0).forEach((node) => node.remove());
     widgets.forEach((widget, index) => { if (widget) widget.style.visibility = originalVisibility[index] ?? ''; });
     base.style.clipPath = originalBaseClip;
     place();
@@ -62,6 +61,16 @@ export function mountDepth(root: HTMLElement): () => void {
       const label = root.querySelector<HTMLElement>(`[data-depth-part="${index}"]`);
       if (!element || !label) return;
       const rect = clip(element);
+      const outlineBox = { left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.width}px`, height: `${rect.height}px` };
+      const tagBox = { left: `${rect.x}px`, top: `${index === 1 ? rect.y + rect.height + 10 : rect.y - 34}px` };
+      // A re-measure (fonts arriving) moves the cut lines of the existing movers, so an assembly in flight keeps its transition.
+      const existing = movers.get(index);
+      if (existing) {
+        existing.clone.style.clipPath = rect.inset;
+        Object.assign(existing.outline.style, outlineBox);
+        Object.assign(existing.tag.style, tagBox);
+        return;
+      }
       const mover = root.ownerDocument.createElement('div');
       mover.className = 'depth-mover';
       mover.dataset['stratum'] = label.dataset['stratum'];
@@ -72,14 +81,14 @@ export function mountDepth(root: HTMLElement): () => void {
       clone.style.clipPath = rect.inset;
       const outline = root.ownerDocument.createElement('div');
       outline.className = 'depth-outline';
-      Object.assign(outline.style, { left: `${rect.x}px`, top: `${rect.y}px`, width: `${rect.width}px`, height: `${rect.height}px` });
+      Object.assign(outline.style, outlineBox);
       const tag = root.ownerDocument.createElement('div');
       tag.className = 'depth-tag';
       tag.innerHTML = label.innerHTML;
-      Object.assign(tag.style, { left: `${rect.x}px`, top: `${index === 1 ? rect.y + rect.height + 10 : rect.y - 34}px` });
+      Object.assign(tag.style, tagBox);
       mover.append(clone, outline, tag);
       frame.append(mover);
-      movers.push(mover);
+      movers.set(index, { mover, clone, outline, tag });
     });
     const code = editor.querySelector<HTMLElement>('.editor');
     if (code) base.style.clipPath = clip(code).inset;
@@ -108,12 +117,12 @@ export function mountDepth(root: HTMLElement): () => void {
   const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measureWidth);
   observer?.observe(stage);
   measure();
-  void root.ownerDocument.fonts?.ready.then(() => { built = false; measure(); });
+  void root.ownerDocument.fonts?.ready.then(measure);
   return () => {
     disposed = true;
     lifetime.abort();
     observer?.disconnect();
-    movers.forEach((node) => node.remove());
+    movers.forEach(({ mover }) => mover.remove());
     widgets.forEach((widget, index) => { if (widget) widget.style.visibility = originalVisibility[index] ?? ''; });
     base.style.clipPath = originalBaseClip;
     root.removeAttribute('data-depth-mounted');
