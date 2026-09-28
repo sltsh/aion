@@ -88,6 +88,7 @@ export function mountDepth(root: HTMLElement): () => void {
     position();
     highlight();
   };
+  root.setAttribute('data-depth-mounted', '');
   button.hidden = false;
   button.addEventListener('click', () => { apart = !apart; position(); }, { signal });
   root.querySelectorAll<HTMLElement>('.depth-ruler [data-stratum]').forEach((node) => {
@@ -114,6 +115,7 @@ export function mountDepth(root: HTMLElement): () => void {
     movers.forEach((node) => node.remove());
     widgets.forEach((widget, index) => { if (widget) widget.style.visibility = originalVisibility[index] ?? ''; });
     base.style.clipPath = originalBaseClip;
+    root.removeAttribute('data-depth-mounted');
     root.removeAttribute('data-depth-apart');
     button.hidden = true;
     button.setAttribute('aria-pressed', 'true');

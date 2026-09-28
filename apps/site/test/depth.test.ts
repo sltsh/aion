@@ -26,6 +26,8 @@ test('below 760px the stratum list replaces the exploded picture and motion is g
   expect(css).toContain('@media (prefers-reduced-motion: no-preference)');
   expect(css).toContain('var(--slt-motion-scene, 720ms)');
   expect(css).toContain('[data-highlight] .depth-outline');
+  expect(css).toContain('.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(1,calc(100cqw / 1244px))}');
+  expect(css).toContain('aspect-ratio:1244/686');
 });
 
 test('assembly, stratum focus and pointer highlighting dispose cleanly', async () => {
@@ -69,6 +71,7 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   deliverResize();
   expect(measured).toHaveBeenCalledTimes(initialMeasurements + 1);
   expect(button.hidden).toBe(false);
+  expect(root.attrs.has('data-depth-mounted')).toBe(true);
   button.dispatchEvent(new Event('click'));
   expect(button.attrs.get('aria-pressed')).toBe('true');
   button.dispatchEvent(new Event('click'));
@@ -89,6 +92,7 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   expect(part.attrs.has('data-highlight')).toBe(false);
   dispose();
   expect(button.hidden).toBe(true);
+  expect(root.attrs.has('data-depth-mounted')).toBe(false);
   expect(root.attrs.has('data-depth-apart')).toBe(false);
   button.dispatchEvent(new Event('click'));
   expect(button.attrs.get('aria-pressed')).toBe('true');
