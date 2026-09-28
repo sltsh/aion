@@ -72,7 +72,7 @@ const resizeProbe = () => {
         if (hadIntro && introRemoved === undefined && !document.querySelector('.splash-intro')) introRemoved = performance.now() - t0;
       });
       if (hadIntro) introObserver.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-intro'] });
-      let arrived; const observer = new MutationObserver(() => { const s = share(); if (s !== value) { value = s; changed = window.__paintTime ?? performance.now(); shares.push([changed - t0, s]); if (s >= .999) arrived ??= changed - t0; } });
+      let arrived; const observer = new MutationObserver(() => { const s = share(); if (s !== value) { value = s; changed = window.__paintTime ?? performance.now(); shares.push([changed - t0, s]); if (s >= 1) arrived ??= changed - t0; } });
       if (hero) observer.observe(hero, { attributes: true, attributeFilter: ['data-hero-share'] });
 
       let quiet = 0, calmSince, intervals = [], previous, seen = changed; const reveals = [], scenes = [];
