@@ -39,8 +39,8 @@ export function mountDepth(root: HTMLElement): () => void {
     button.setAttribute('aria-pressed', String(!apart));
     button.textContent = apart ? CONTENT.depth.putTogether : CONTENT.depth.takeApart;
     frame.style.left = `${apart ? 90 * scale : (stage.clientWidth - 1244 * scale) / 2}px`;
-    frame.style.top = `${(apart ? 176 : 20) * scale}px`;
-    stage.style.height = `${(apart ? 946 : 726) * scale}px`;
+    frame.style.top = `${(apart ? 200 : 20) * scale}px`;
+    stage.style.height = `${(apart ? 1010 : 726) * scale}px`;
     movers.forEach((mover, index) => { const part = PARTS[index]; if (part) mover.style.transform = apart ? `translate(${part.x}px,${part.y}px)` : 'translate(0,0)'; });
   };
   const measure = (): void => {
@@ -77,7 +77,7 @@ export function mountDepth(root: HTMLElement): () => void {
       const tag = root.ownerDocument.createElement('div');
       tag.className = 'depth-tag';
       tag.innerHTML = label.innerHTML;
-      Object.assign(tag.style, { left: `${rect.x}px`, top: `${rect.y - 34}px` });
+      Object.assign(tag.style, { left: `${rect.x}px`, top: `${index === 1 ? rect.y + rect.height + 10 : rect.y - 34}px` });
       mover.append(clone, outline, tag);
       frame.append(mover);
       movers.push(mover);
@@ -96,8 +96,14 @@ export function mountDepth(root: HTMLElement): () => void {
     node.addEventListener('focus', () => { focused = node.dataset['stratum'] ?? ''; highlight(); }, { signal });
     node.addEventListener('blur', () => { focused = ''; highlight(); }, { signal });
   });
-  view.addEventListener('resize', measure, { signal });
-  const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+  let measuredWidth = stage.clientWidth;
+  const measureWidth = (): void => {
+    if (stage.clientWidth === measuredWidth) return;
+    measuredWidth = stage.clientWidth;
+    measure();
+  };
+  view.addEventListener('resize', measureWidth, { signal });
+  const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measureWidth);
   observer?.observe(stage);
   measure();
   void root.ownerDocument.fonts?.ready.then(measure);

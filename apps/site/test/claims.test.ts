@@ -23,3 +23,14 @@ test('every card figure moves on hover only when motion is allowed', () => {
   expect(css).toContain('.claim-card:hover .claim-visual');
   expect(css.slice(0, css.indexOf('@media (prefers-reduced-motion: no-preference)'))).not.toContain('transition:');
 });
+
+ test('claims use the D8 three/two/one grid with flexible tracks and figures', () => {
+  const css = readFileSync(new URL('../src/styles/claims.css', import.meta.url), 'utf8');
+  expect(css).toContain('repeat(3,minmax(0,1fr))');
+  expect(css).toContain('@media (max-width: 1099px)');
+  expect(css).toContain('repeat(2,minmax(0,1fr))');
+  expect(css).toContain('@media (max-width: 599px)');
+  expect(css).toContain('grid-template-columns:minmax(0,1fr)');
+  expect(css).toContain('.claim-visual svg{display:block;width:100%');
+  expect(css).toContain('min-width:0;display:flex');
+});
