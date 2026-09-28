@@ -22,10 +22,6 @@
 html { scroll-padding-top: calc(var(--site-header) + 2rem); }
 body { margin: 0; background: var(--aion-bg-surface); color: var(--aion-fg-primary); font-family: 'Archivo', system-ui, sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 #app { max-width: var(--site-page); margin: auto; padding: 0 var(--site-gutter); }
-/* The package owns its own display above 600px; the host only adds its own phone-width collision rule. */
-@media (max-width: 599px) {
-  slt-site-mark { display: none; }
-}
 a { color: inherit; }
 button { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -40,7 +36,7 @@ p { color: var(--aion-fg-secondary); max-width: 64ch; }
 .note { font-size: 0.85rem; margin-top: 1rem; }
 .skip-link { position: fixed; left: 1rem; top: -5rem; z-index: 20; padding: 0.75rem; background: var(--aion-bg-raised); }
 .skip-link:focus { top: 0.5rem; }
-.site-head { height: var(--site-header); position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 2rem; background: var(--aion-bg-surface); border-bottom: 1px solid var(--aion-border-hairline); }
+.site-head { height: var(--site-header); position: relative; z-index: 10; display: flex; align-items: center; gap: 2rem; background: var(--aion-bg-surface); border-bottom: 1px solid var(--aion-border-hairline); }
 .mark { display: flex; align-items: center; flex: none; padding: 0.25rem; margin: -0.25rem; transition: background var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
 .mark:hover, .mark:focus-visible { background: var(--aion-bg-raised); }
 .theme-image { display: inline-block; }
@@ -260,27 +256,6 @@ code { font-family: 'Monaspace Neon', monospace; }
 @media (max-width: 340px) {
   .page-head { padding-bottom: 0; }
   .jump a { min-width: 0; justify-content: center; padding-inline: 0.1rem; text-align: center; overflow-wrap: anywhere; line-height: 1.2; }
-}
-@media (max-width: 520px) {
-  :root:has(.site-head:not([data-menu])) { --site-header: 7rem; }
-  .site-head:not([data-menu]) { display: grid; grid-template-columns: auto 1fr auto auto; grid-template-rows: 2.875rem 2.75rem; align-content: center; column-gap: 0.6rem; row-gap: 0.35rem; }
-  .site-head:not([data-menu]) .mark { grid-column: 1; grid-row: 1; }
-  .site-head:not([data-menu]) .theme-switch { grid-column: 3; grid-row: 1; }
-  .site-head:not([data-menu]) .source-link { grid-column: 4; grid-row: 1; }
-  .site-head:not([data-menu]) .site-nav { grid-column: 1 / -1; grid-row: 2; width: 100%; }
-  .site-head:not([data-menu]) .site-nav a { flex: 1; text-align: center; }
-  .site-head[data-menu] { justify-content: space-between; }
-  .site-head[data-menu] .menu-toggle { display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; margin-right: -0.5rem; padding: 0; color: var(--aion-fg-primary); background: none; border: 0; cursor: pointer; }
-  .site-head[data-menu] .menu-toggle:hover, .site-head[data-menu] .menu-toggle:focus-visible { color: var(--aion-gold-solid); }
-  .menu-toggle .icon { width: 1.4rem; height: 1.4rem; }
-  .menu-toggle[aria-expanded="false"] .icon:last-child, .menu-toggle[aria-expanded="true"] .icon:first-child { display: none; }
-  .site-head[data-menu] .site-menu { display: none; position: absolute; top: 100%; left: calc(-1 * var(--site-gutter)); right: calc(-1 * var(--site-gutter)); padding: 0.75rem var(--site-gutter) 1rem; background: var(--aion-bg-surface); border-bottom: 1px solid var(--aion-border-hairline); }
-  .site-head[data-menu="open"] .site-menu, .site-head[data-menu] .site-menu[data-disclosing] { display: grid; gap: 0.75rem; }
-  .site-menu[data-disclosing] { overflow: hidden; overflow-anchor: none; }
-  .site-head[data-menu] .site-nav { display: grid; gap: 0.25rem; margin: 0; }
-  .site-head[data-menu] .site-nav a { padding: 0 1rem; font-size: 1rem; border-bottom: 0; border-left: 2px solid transparent; }
-  .site-head[data-menu] .site-nav a[aria-current] { border-left-color: var(--aion-gold-solid); }
-  .site-head[data-menu] .site-controls { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0 0 0.3rem; border-top: 1px solid var(--aion-border-hairline); }
 }
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }

@@ -1,6 +1,10 @@
 import '@sltsh/aion-css/aion.css';
 import '@sltsh/site-mark/register';
 import './styles.css';
+import './styles/shell.css';
+import './styles/chip.css';
+import { mountChip } from './chip.js';
+import { mountRail } from './rail.js';
 import { initializeTheme, syncFavicons } from './theme.js';
 
 // A readable confirmation dwell, not an animation duration.
@@ -39,29 +43,28 @@ const animate = (target: HTMLElement, frames: Keyframe[], time = feedback): Anim
 const themeStorage = (): Storage | null => {
   try { return window.localStorage; } catch { return null; }
 };
-const disposeTheme = initializeTheme({
+const theme = initializeTheme({
   root,
-  control: document.querySelector<HTMLFieldSetElement>('[data-theme-switch]'),
-  inputs: document.querySelectorAll<HTMLInputElement>('[data-theme-choice]'),
+  storageEvents: window,
   media: window.matchMedia('(prefers-color-scheme: light)'),
   storage: themeStorage(),
   updateAssets: (theme) => syncFavicons(document.querySelectorAll<HTMLLinkElement>('link[data-theme-favicon]'), theme),
 });
 
+const chip = document.querySelector<HTMLButtonElement>('[data-scheme-chip]');
+const disposeChip = chip ? mountChip(chip, theme, null) : () => {};
+const rail = document.querySelector<HTMLElement>('.chapter-rail');
+const hero = document.getElementById('overview');
+const disposeRail = rail && hero ? mountRail(rail, hero) : () => {};
+
 document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((source) => {
   source.disabled = false;
 });
 
-const seam = document.querySelector<HTMLElement>('.stage-seam');
-const settleSeam = (): void => { if (seam) delete seam.dataset['scene']; };
-seam?.addEventListener('animationend', settleSeam, { signal });
-seam?.addEventListener('animationcancel', settleSeam, { signal });
-if (seam && canMove()) seam.dataset['scene'] = 'play';
-
 const siteHead = document.querySelector<HTMLElement>('.site-head');
 const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 const menu = document.querySelector<HTMLElement>('.site-menu');
-const phone = window.matchMedia('(max-width: 520px)');
+const phone = window.matchMedia('(max-width: 599px)');
 let menuEffect: Animation | undefined;
 let menuOpen = false;
 const settleMenu = (): void => {
@@ -210,7 +213,6 @@ void document.fonts.ready.then(scheduleNavigation);
 scheduleNavigation();
 
 const settleMotion = (): void => {
-  settleSeam();
   settleMenu();
   for (const effect of effects.values()) effect.cancel();
   effects.clear();
@@ -230,5 +232,5 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) settl
 window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
-  if (!event.persisted) { disposeTheme(); lifetime.abort(); }
+  if (!event.persisted) { disposeChip(); disposeRail(); theme.dispose(); lifetime.abort(); }
 }, { signal });

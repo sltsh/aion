@@ -49,16 +49,6 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     getComputedStyle: () => ({ getPropertyValue: (name: string) => name === '--slt-motion-scene' ? '720ms' : '' }),
   };
   const root = { dataset: {}, ownerDocument: documentLike } as unknown as HTMLElement;
-  const control = { hidden: true } as HTMLFieldSetElement;
-  const inputListeners = new Map<string, EventListener>();
-  const input = (value: string): HTMLInputElement => ({
-    value,
-    checked: false,
-    addEventListener: (_type: string, listener: EventListener) => { inputListeners.set(value, listener); },
-    removeEventListener: (_type: string, _listener: EventListener) => { inputListeners.delete(value); },
-  } as unknown as HTMLInputElement);
-  const dark = input('dark');
-  const light = input('light');
   const stored = new Map<string, string>();
   const writes: string[] = [];
   const assets: string[] = [];
@@ -92,8 +82,7 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
   };
   const environment: ThemeEnvironment = {
     root,
-    control,
-    inputs: [dark, light],
+    storageEvents: page,
     media: system as unknown as MediaQueryList,
     storage: {
       getItem: (key: string) => stored.get(key) ?? null,
@@ -102,17 +91,9 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     updateAssets: theme => assets.push(theme),
     motion,
   };
-  const click = (theme: 'dark' | 'light'): void => {
-    const choice = theme === 'dark' ? dark : light;
-    choice.checked = true;
-    inputListeners.get(theme)?.({ currentTarget: choice } as unknown as Event);
-  };
   return {
     environment,
     root,
-    control,
-    dark,
-    light,
     system,
     reduced,
     documentLike,
@@ -125,7 +106,6 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     writes,
     stored,
     assets,
-    click,
   };
 };
 
@@ -137,13 +117,13 @@ const flush = async (): Promise<void> => {
 describe('explicit theme Replace scenes', () => {
   it('runs the shared 720ms linear diagonal scene in both directions', async () => {
     const h = harness({ scene: true });
-    initializeTheme(h.environment);
+    const controller = initializeTheme(h.environment);
     expect(h.root.dataset.theme).toBe('dark');
 
-    h.click('light');
+    controller.request('light');
     expect(h.startViewTransition).toHaveBeenCalledTimes(1);
     expect(h.root.dataset.theme).toBe('dark');
-    expect(h.light.checked).toBe(false);
+    expect(controller.theme).toBe('dark');
     h.transitions[0]!.update();
     expect(h.root.dataset.theme).toBe('light');
     h.transitions[0]!.ready.resolve();
@@ -160,7 +140,7 @@ describe('explicit theme Replace scenes', () => {
     await flush();
     expect(h.root.dataset['themeTransition']).toBeUndefined();
 
-    h.click('dark');
+    controller.request('dark');
     expect(h.startViewTransition).toHaveBeenCalledTimes(2);
     h.transitions[1]!.update();
     expect(h.root.dataset.theme).toBe('dark');
@@ -168,43 +148,42 @@ describe('explicit theme Replace scenes', () => {
 
   it('commits system, unchanged, reduced and unsupported changes without a scene', () => {
     const h = harness();
-    initializeTheme(h.environment);
+    const controller = initializeTheme(h.environment);
     h.system.matches = true;
     h.system.dispatch('change', { matches: true } as unknown as Event);
     expect(h.root.dataset.theme).toBe('light');
     expect(h.startViewTransition).not.toHaveBeenCalled();
 
-    h.click('light');
+    controller.request('light');
     expect(h.root.dataset.theme).toBe('light');
     expect(h.writes).toEqual(['light']);
 
     const reduced = harness({ scene: true, reduced: true });
-    initializeTheme(reduced.environment);
-    reduced.click('light');
+    const reducedController = initializeTheme(reduced.environment);
+    reducedController.request('light');
     expect(reduced.root.dataset.theme).toBe('light');
     expect(reduced.startViewTransition).not.toHaveBeenCalled();
   });
 
-  it('lets the latest radio choice supersede a deferred callback', () => {
+  it('lets the latest request supersede a deferred callback', () => {
     const h = harness({ scene: true });
-    initializeTheme(h.environment);
-    h.click('light');
+    const controller = initializeTheme(h.environment);
+    controller.request('light');
     const first = h.transitions[0]!;
-    h.click('dark');
+    controller.request('dark');
 
     expect(first.transition.skipTransition).toHaveBeenCalledTimes(1);
     expect(h.root.dataset.theme).toBe('dark');
     expect(h.root.dataset['themeTransition']).toBeUndefined();
     first.update();
     expect(h.root.dataset.theme).toBe('dark');
-    expect(h.dark.checked).toBe(true);
-    expect(h.light.checked).toBe(false);
+    expect(controller.theme).toBe('dark');
   });
 
   it('settles ready rejection, animation failure, blocked storage and missing APIs', async () => {
     const rejected = harness({ scene: true });
-    initializeTheme(rejected.environment);
-    rejected.click('light');
+    const rejectedController = initializeTheme(rejected.environment);
+    rejectedController.request('light');
     rejected.transitions[0]!.ready.reject(new Error('ready'));
     await flush();
     expect(rejected.root.dataset.theme).toBe('light');
@@ -212,8 +191,8 @@ describe('explicit theme Replace scenes', () => {
 
     const broken = harness({ scene: true });
     broken.animate.mockImplementation(() => { throw new Error('animate'); });
-    initializeTheme(broken.environment);
-    broken.click('light');
+    const brokenController = initializeTheme(broken.environment);
+    brokenController.request('light');
     broken.transitions[0]!.update();
     broken.transitions[0]!.ready.resolve();
     await flush();
@@ -221,8 +200,8 @@ describe('explicit theme Replace scenes', () => {
     expect(broken.root.dataset['themeTransition']).toBeUndefined();
 
     const finished = harness({ scene: true });
-    initializeTheme(finished.environment);
-    finished.click('light');
+    const finishedController = initializeTheme(finished.environment);
+    finishedController.request('light');
     finished.transitions[0]!.update();
     finished.transitions[0]!.ready.resolve();
     await flush();
@@ -233,21 +212,30 @@ describe('explicit theme Replace scenes', () => {
     expect(finished.animations[0]!.cancel).toHaveBeenCalledTimes(1);
 
     const blocked = harness();
-    initializeTheme({ ...blocked.environment, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } } });
-    blocked.click('light');
+    const blockedController = initializeTheme({ ...blocked.environment, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } } });
+    blockedController.request('light');
     expect(blocked.root.dataset.theme).toBe('light');
 
     const unavailable = harness();
-    initializeTheme(unavailable.environment);
-    unavailable.click('light');
+    const unavailableController = initializeTheme(unavailable.environment);
+    unavailableController.request('light');
     expect(unavailable.root.dataset.theme).toBe('light');
     expect(unavailable.root.dataset['themeTransition']).toBeUndefined();
   });
 
+  it('does not notify a second commit when readiness rejects after the update callback', async () => {
+    const h = harness({ scene: true }); const controller = initializeTheme(h.environment);
+    const heard = vi.fn(); controller.subscribe(heard); controller.request('light');
+    h.transitions[0]!.update(); const committed = controller.generation;
+    h.transitions[0]!.ready.reject(new Error('snapshot failed')); await flush();
+    expect(controller.generation).toBe(committed); expect(heard).toHaveBeenCalledTimes(1);
+    expect(h.root.dataset['themeTransition']).toBeUndefined(); controller.dispose();
+  });
+
   it('settles synchronously when reduced motion or lifecycle interrupts a scene', () => {
     const h = harness({ scene: true });
-    const teardown = initializeTheme(h.environment);
-    h.click('light');
+    const controller = initializeTheme(h.environment);
+    controller.request('light');
     h.reduced.matches = true;
     h.reduced.dispatch('change', { matches: true } as unknown as Event);
     expect(h.root.dataset.theme).toBe('light');
@@ -255,22 +243,22 @@ describe('explicit theme Replace scenes', () => {
 
     h.reduced.matches = false;
     h.reduced.dispatch('change', { matches: false } as unknown as Event);
-    h.click('dark');
+    controller.request('dark');
     expect(h.root.dataset['themeTransition']).toBe('');
     h.documentLike.visibilityState = 'hidden';
     h.documentLike.dispatch('visibilitychange', new Event('visibilitychange'));
     expect(h.root.dataset.theme).toBe('dark');
 
     h.documentLike.visibilityState = 'visible';
-    h.click('light');
+    controller.request('light');
     expect(h.root.dataset['themeTransition']).toBe('');
     h.page.dispatch('pagehide', new Event('pagehide'));
     expect(h.root.dataset.theme).toBe('light');
     h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
     expect(h.root.dataset['themeTransition']).toBeUndefined();
 
-    h.click('dark');
-    teardown();
+    controller.request('dark');
+    controller.dispose();
     expect(h.root.dataset.theme).toBe('dark');
     expect(h.root.dataset['themeTransition']).toBeUndefined();
     h.system.dispatch('change', { matches: true } as unknown as Event);
@@ -278,11 +266,11 @@ describe('explicit theme Replace scenes', () => {
   });
   it('restores the latest stored choice and system following without replay', () => {
     const h = harness({ scene: true });
-    initializeTheme(h.environment);
+    const controller = initializeTheme(h.environment);
     h.stored.set('aion-site-theme', 'light');
     h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
     expect(h.root.dataset.theme).toBe('light');
-    expect(h.light.checked).toBe(true);
+    expect(controller.theme).toBe('light');
     expect(h.startViewTransition).not.toHaveBeenCalled();
     h.stored.delete('aion-site-theme');
     h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
@@ -291,4 +279,45 @@ describe('explicit theme Replace scenes', () => {
     expect(h.root.dataset.theme).toBe('light');
   });
 
+});
+
+
+describe('theme controller ordering and subscriptions', () => {
+  it('follows the system only without an explicit choice', () => {
+    const h = harness(); const controller = initializeTheme(h.environment);
+    h.system.dispatch('change', { matches: true } as unknown as Event);
+    expect(controller.theme).toBe('light');
+    controller.request('dark');
+    h.system.dispatch('change', { matches: true } as unknown as Event);
+    expect(controller.theme).toBe('dark');
+  });
+  it('honours storage changes, removal and invalid values without a scene', () => {
+    const h = harness({ scene: true }); const controller = initializeTheme(h.environment);
+    controller.request('light'); const pending = h.transitions[0]!;
+    h.page.dispatch('storage', { key: 'aion-site-theme', newValue: 'dark' } as unknown as Event);
+    pending.update(); expect(controller.theme).toBe('dark');
+    expect(pending.transition.skipTransition).toHaveBeenCalledTimes(1);
+    h.page.dispatch('storage', { key: 'aion-site-theme', newValue: 'invalid' } as unknown as Event);
+    expect(controller.theme).toBe('dark');
+    h.system.matches = true;
+    h.page.dispatch('storage', { key: 'aion-site-theme', newValue: null } as unknown as Event);
+    expect(controller.theme).toBe('light');
+    h.system.dispatch('change', { matches: false } as unknown as Event);
+    expect(controller.theme).toBe('dark');
+    expect(h.startViewTransition).toHaveBeenCalledTimes(1);
+  });
+  it('increments on requests and commits; subscribers run after the DOM update once per commit', () => {
+    const h = harness({ scene: true }); const controller = initializeTheme(h.environment);
+    const start = controller.generation; const heard: string[] = [];
+    const unsubscribe = controller.subscribe((theme, cause) => {
+      expect(h.root.dataset.theme).toBe(theme); heard.push(theme + ':' + cause);
+    });
+    controller.request('light'); expect(controller.generation).toBe(start + 1);
+    h.transitions[0]!.update(); expect(controller.generation).toBe(start + 2);
+    h.page.dispatch('storage', { key: 'aion-site-theme', newValue: 'dark' } as unknown as Event);
+    expect(controller.generation).toBe(start + 3);
+    expect(heard).toEqual(['light:request', 'dark:storage']);
+    unsubscribe(); controller.request('dark'); expect(heard).toHaveLength(2);
+    controller.dispose();
+  });
 });

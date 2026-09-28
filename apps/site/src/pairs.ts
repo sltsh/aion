@@ -16,4 +16,9 @@ export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; wher
   { fg: '--a-gold', bg: '--n-editor', floor: 3, where: 'dimension origin key' },
   { fg: '--n-text-secondary', bg: '--n-editor', floor: 4.5, where: 'dimension label' },
   { fg: '--status-error-text', bg: '--n-editor', floor: 4.5, where: 'dimension error label' },
+  { fg: '--n-text-primary', bg: '--n-editor', floor: 4.5, where: 'chip labels on their own scheme halves' },
+  { fg: '--a-gold', bg: '--n-editor', floor: 3, where: 'chip active gold key on each scheme half' },
+  { fg: '--aion-fg-secondary', bg: '--aion-bg-surface', floor: 4.5, where: 'rail and header navigation text' },
+  { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'rail current text and header path' },
+  { fg: '--aion-gold-solid', bg: '--aion-bg-surface', floor: 3, where: 'rail current gold key' },
 ];

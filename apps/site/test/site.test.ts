@@ -10,31 +10,12 @@ import { schemeStyles } from '../src/scheme.js';
 import { FLAGS } from '../src/flags.js';
 import { escapeAttr, escapeHtml } from '../src/render/html.js';
 import { landing, palette } from '../src/render/index.js';
-import { ANSI_SLOTS, GROUP_IDS, colourBlock, essentials, groups } from '../src/groups.js';
-import { INSTALL, UNRELEASED_NOTE } from '../src/content.js';
+import { ANSI_SLOTS, GROUP_IDS, colourBlock, groups } from '../src/groups.js';
+import { CHAPTERS } from '../src/content.js';
+import { renderHeader } from '../src/render/shell.js';
 import { gateSummary } from '../src/gate.js';
-import { renderHero } from '../src/samples/hero.js';
 import { swatch } from '../src/render/swatch.js';
 import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_KEY, themeBootstrap } from '../src/theme.js';
-
-it('renders one fixed SLT site mark outside the footer on both pages, hidden below the phone boundary', () => {
-  for (const html of [landing(FLAGS), palette()]) {
-    expect(html.match(/<slt-site-mark/g)).toHaveLength(1);
-    expect(html).toContain('<slt-site-mark></slt-site-mark>');
-    expect(html).not.toContain('placement=');
-    const footer = html.slice(html.indexOf('<footer'), html.indexOf('</footer>'));
-    expect(footer).not.toContain('slt-site-mark');
-    expect(footer).not.toContain('footer-site-mark');
-    expect(html).not.toContain('footer-site-mark');
-  }
-  const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-  expect(css).toMatch(/@media \(max-width: 599px\) \{\s*slt-site-mark \{ display: none; \}\s*\}/);
-  expect(css).not.toContain('slt-site-mark { display: block; }');
-  expect(css).not.toMatch(/@media \(min-width: 600px\)[\s\S]*slt-site-mark/);
-  // The mark is hidden below the phone boundary, so the toast no longer reserves space for it there.
-  expect(css).not.toContain('44px + 12px');
-  expect(readFileSync(join(root, 'src/main.ts'), 'utf8')).toContain("import '@sltsh/site-mark/register';");
-});
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
@@ -94,27 +75,7 @@ describe('curated colours', () => {
     }
   });
 
-  it('retains the compact essentials set on the homepage only', () => {
-    const rows = essentials();
-    expect(rows).toHaveLength(11);
-    expect(rows.slice(0, 4).map((row) => [row.label, row.variable])).toEqual([
-      ['Background', '--aion-bg-page'],
-      ['Surface', '--aion-bg-surface'],
-      ['Text', '--aion-fg-primary'],
-      ['Secondary text', '--aion-fg-secondary'],
-    ]);
-    expect(rows.slice(4).map((row) => [row.label, row.role, row.variable])).toEqual([
-      ['Gold', 'Primary accent', '--aion-gold-solid'],
-      ['Teal', 'Secondary accent', '--aion-teal-solid'],
-      ['Coral', 'Errors & variables', '--aion-coral-solid'],
-      ['Copper', 'Warnings & numbers', '--aion-copper-solid'],
-      ['Green', 'Success & strings', '--aion-green-solid'],
-      ['Blue', 'Links & functions', '--aion-blue-solid'],
-      ['Violet', 'Keywords & emphasis', '--aion-violet-solid'],
-    ]);
-    for (const row of rows) expect(landing(FLAGS)).toContain(swatch(row));
-    expect(palette()).not.toContain('id="essentials"');
-  });
+
 
   it('exposes the complete foundation roles needed for hierarchy and controls', () => {
     const foundations = groups().find((group) => group.id === 'foundations');
@@ -207,24 +168,9 @@ describe('curated colours', () => {
 });
 
 describe('the presentation pages', () => {
-  it('uses one hero lockup and a standalone header logo', () => {
-    expect(landing(FLAGS).match(/aion-lockup-horizontal/g)).toHaveLength(2);
-    expect(landing(FLAGS).split('</header>')[0]).not.toContain('aion-wordmark');
-    expect(landing(FLAGS)).toContain('src="/icon.png"');
-    expect(landing(FLAGS)).toContain('src="/icon-light.png"');
-    expect(landing(FLAGS)).toContain('data-theme-switch');
-    expect(landing(FLAGS)).toContain('type="radio" name="aion-theme" value="dark"');
-    expect(landing(FLAGS)).toContain('type="radio" name="aion-theme" value="light"');
-  });
 
-  it('replaces the manual inventory with essentials and a palette link', () => {
-    const html = landing(FLAGS);
-    expect(html).not.toContain('Selection, opaque');
-    expect(html).not.toContain('Any other app');
-    expect(html).toContain('id="essentials"');
-    expect(html).toContain('id="manual"');
-    expect(html).toContain('class="palette-link"');
-  });
+
+
 
   it('places matching dividers on the section boundaries', () => {
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
@@ -267,27 +213,9 @@ describe('the presentation pages', () => {
     expect(css).toContain('#accents .swatch-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }');
   });
 
-  it('provides active page and section navigation with matching targets', () => {
-    expect(palette()).toContain('href="#content" aria-current="page"');
-    for (const [html, ids] of [[landing(FLAGS), ['overview', 'essentials', 'install']], [palette(), [...GROUP_IDS]]] as const) {
-      for (const id of ids) {
-        expect(html).toContain(`data-section="${id}"`);
-        expect(html).toContain(`id="${id}"`);
-      }
-      expect(html).toContain('aria-label="Main navigation"');
-      expect(html).toContain('aria-label="Footer navigation"');
-      expect(html).toContain('role="status"');
-    }
-  });
 
-  it('uses local anchors for the homepage and a labelled GitHub icon', () => {
-    const html = landing(FLAGS);
-    expect(html).toContain('class="mark" href="#overview"');
-    for (const id of ['overview', 'essentials', 'install']) expect(html).toContain(`href="#${id}" data-section="${id}"`);
-    expect(html).toContain('aria-label="Aion on GitHub"');
-    expect(html).toContain('https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme');
-    expect(html).not.toContain('npm run pack:dev');
-  });
+
+
 
   it('keeps presentation links textual and gives each themed image a visible fallback label', () => {
     const html = landing(FLAGS);
@@ -300,7 +228,7 @@ describe('the presentation pages', () => {
   });
 
   it('makes copy controls honest until client enhancement runs', () => {
-    const html = landing(FLAGS);
+    const html = palette();
     expect(html).toContain('Hex values remain selectable. Copy when controls are available.');
     expect(palette()).toContain('Hex values remain selectable. Copy when controls are available.');
     expect(html.match(/data-copy/g)?.length).toBeGreaterThan(0);
@@ -325,117 +253,11 @@ describe('the presentation pages', () => {
     expect(css).toContain('.copy-status[data-status="error"] { border-color: var(--aion-status-error-solid); }');
   });
 
-  it('retains the code preview and excludes rivals and overlays', () => {
-    expect(landing(FLAGS)).toContain(renderHero());
-    for (const role of ['keyword', 'function', 'type', 'string', 'number', 'comment']) expect(renderHero()).toContain(`t-${role}`);
-    for (const text of ['one dark', 'ayu', 'nord', 'catppuccin', 'is-added', 'is-removed', 't-selected']) expect(landing(FLAGS).toLowerCase()).not.toContain(text);
-  });
-});
 
-describe('the continuity hero', () => {
-  const html = landing(FLAGS);
-  const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-  const rule = (selector: string): string => css.match(new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '';
-
-  it('stages copy before the code artifact in one two-column grid', () => {
-    const stage = html.slice(html.indexOf('<div class="stage">'), html.indexOf('id="essentials"'));
-    expect(html.match(/class="stage"/g)).toHaveLength(1);
-    expect(stage.indexOf('class="hero"')).toBeGreaterThan(-1);
-    expect(stage.indexOf('class="hero"')).toBeLessThan(stage.indexOf('class="editor"'));
-    expect(stage.indexOf('class="editor"')).toBeLessThan(stage.indexOf('class="stage-seam"'));
-    expect(rule('.stage')).toContain('grid-template-columns: minmax(0, 5fr) minmax(0, 7fr)');
-    expect(css).toContain('grid-template-areas: "copy" "seam" "artifact"');
-    expect(rule('.hero-brand')).not.toMatch(/margin: [^;]*auto/);
-    for (const selector of ['.stage', '.hero', '.hero-pitch', '.actions']) expect(rule(selector)).not.toMatch(/text-align: center|justify-content: center/);
-  });
-
-  it('draws one decorative seam keyed gold with a teal terminal', () => {
-    expect(html.match(/class="stage-seam"/g)).toHaveLength(1);
-    expect(html).toContain('<span class="stage-seam" aria-hidden="true"><span class="stage-terminal"></span></span>');
-    expect(rule('.stage-seam::before')).toContain('background: var(--aion-gold-solid)');
-    expect(rule('.stage-terminal')).toContain('background: var(--aion-teal-solid)');
-    expect(css.match(/clip-path/g)).toHaveLength(4);
-    expect(css).toContain('::view-transition-new(root) { z-index: 1; clip-path: none; }');
-    expect(css).not.toMatch(/gradient|box-shadow|text-shadow/);
-  });
-
-  it('keeps the scrollable code contained and reachable by keyboard', () => {
-    expect(rule('.editor')).toContain('min-width: 0');
-    expect(rule('.editor-body')).toContain('overflow-x: auto');
-    expect(html).toContain('class="editor-body" role="region" aria-label="gate.ts code sample" tabindex="0"');
-  });
-
-  it('uses a flat header rail without pill silhouettes', () => {
-    expect(css).not.toContain('999px');
-    expect(css).not.toContain('border-radius: 50%');
-    expect(css).not.toContain('border-radius: 5px');
-    expect(rule('.site-nav a')).toContain('min-height: 2.75rem');
-    expect(rule('.jump a')).toContain('min-height: 2.75rem');
-    expect(rule('.site-nav a[aria-current]')).toContain('border-bottom-color: var(--aion-gold-solid)');
-    expect(css).toMatch(/\.theme-switch \{ display: grid;[^}]*height: 2\.875rem/);
-    expect(rule('.theme-switch input:checked + span')).toContain('border-bottom-color: var(--aion-gold-solid)');
-    expect(html).toContain('aria-expanded="false" aria-controls="site-menu"');
-  });
-
-  it('keeps gold as the only filled action and marks the subordinate link by underline', () => {
-    const hero = html.slice(html.indexOf('<div class="actions">'), html.indexOf('</section>'));
-    expect(hero.match(/class="button"/g)).toHaveLength(1);
-    expect(hero).toContain('<a class="open-link" href="#essentials">Find your colours</a>');
-    expect(hero).not.toContain('button secondary');
-    expect(hero).not.toContain('class="icon"><path d="M5 12h14');
-    expect(css).not.toContain('.button.secondary');
-    expect(rule('.button')).toContain('background: var(--aion-gold-solid)');
-    expect(rule('.open-link')).toContain('text-decoration: underline');
-  });
-
-  it('keeps ordinary content complete around the bounded decorative scene', () => {
-    expect(css).toContain('@media (prefers-reduced-motion: no-preference) {\n  html { scroll-behavior: smooth; }');
-    expect(css.match(/@keyframes/g)).toHaveLength(3);
-    expect(css).not.toMatch(/animation-iteration-count|infinite/);
-    // The scene lives only on the decorative, aria-hidden seam, gated behind reduced motion so it never grants access to ordinary content.
-    for (const selector of ['h1', 'h2', 'p', 'body', '#app', '.hero', '.hero-pitch', '.editor', '.editor-body']) {
-      expect(rule(selector)).not.toMatch(/opacity: 0|visibility: hidden|clip:|transform:/);
-    }
-    const reducedMotionBlock = css.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
-    expect(reducedMotionBlock).toContain('transition: none;');
-    expect(reducedMotionBlock).not.toContain('.stage-seam');
-  });
-
-  it('owns the seam scene lifecycle in JavaScript so a live reduced-motion change never replays it', () => {
-    // Settled by default: only a JS-set data-scene="play" attribute starts the draw.
-    expect(rule('.stage-seam::before')).toContain('transform: scaleX(1)');
-    expect(css).toContain('.stage-seam[data-scene="play"]::before { animation: seam-draw var(--slt-motion-scene, 720ms)');
-    expect(css).not.toMatch(/@media \(prefers-reduced-motion: no-preference\) \{[\s\S]*stage-seam/);
-    const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
-    expect(client).toContain("matchMedia('(prefers-reduced-motion: reduce)')");
-    expect(client).toContain("delete seam.dataset['scene']");
-    expect(client).toContain("addEventListener('animationend', settleSeam");
-    expect(client).toContain("addEventListener('animationcancel', settleSeam");
-    expect(client.match(/seam.dataset\['scene'\] = 'play'/g)).toHaveLength(1);
-    expect(client).toContain('if (event.matches) settleMotion();');
-    expect(client).toContain("window.addEventListener('pagehide'");
-    expect(client).toContain('effect.cancel()');
-  });
-});
-
-describe('installation', () => {
-  for (const released of [false, true]) {
-    it(`copies usable commands with released=${released}`, () => {
-      const html = landing({ released });
-      for (const entry of INSTALL) {
-        const command = released || entry.id === 'vscode' ? entry.command : entry.localCommand;
-        expect(html).toContain(escapeHtml(entry.label));
-        expect(html).toContain(`data-text="${escapeAttr(command)}"`);
-        expect(html).toContain(`<code>${escapeHtml(command)}</code>`);
-      }
-      expect(html.includes(escapeHtml(UNRELEASED_NOTE))).toBe(!released);
-      expect(html).toContain('href="/downloads/aion.json" download="aion.json"');
-    });
-  }
 });
 
 describe('the family motion surfaces', () => {
-  const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
+  const css = readFileSync(join(root, 'src/styles.css'), 'utf8') + readFileSync(join(root, 'src/styles/shell.css'), 'utf8');
   const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
 
   it('keeps the incoming root wipe isolated from default snapshot animations', () => {
@@ -455,7 +277,7 @@ describe('the family motion surfaces', () => {
   });
 
   it('keeps icon replacement out of the swatch value layout', () => {
-    const html = landing(FLAGS);
+    const html = palette();
     expect(html).toMatch(/class="swatch-copy"[\s\S]*class="swatch-check"[\s\S]*class="swatch-meta"/);
     const meta = html.slice(html.indexOf('class="swatch-meta"')).split('</button>')[0];
     expect(meta).not.toContain('swatch-check');
@@ -463,55 +285,19 @@ describe('the family motion surfaces', () => {
 });
 
 describe('the persistent site theme', () => {
-  it('keeps the switch hidden before initialization and changes themes immediately', () => {
-    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-    expect(css).toContain('.theme-switch[hidden] { display: none; }');
-    expect(css).toContain('.theme-switch { border: 1px solid var(--aion-border-ui); }');
-    expect(css).toContain('.site-nav a, .theme-switch span { color: var(--aion-fg-secondary); font-size: 0.85rem; }');
-    expect(css).toContain('.site-nav a, .theme-switch span { font-size: 0.75rem; }');
-    expect(css).toContain('.theme-switch input:focus-visible + span');
-    expect(css).toContain('[data-theme-value] { display: none; }');
-    // Theme changes commit immediately: no selector that swaps a theme surface, asset, or value cross-fades.
-    for (const selector of ['body', '.theme-image img', '[data-theme-value]', ':root[data-theme="dark"] .theme-image [data-theme-asset="dark"], :root[data-theme="light"] .theme-image [data-theme-asset="light"]']) {
-      expect(css.match(new RegExp(`(?:^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\{([^}]*)\\}`))?.[1] ?? '').not.toContain('transition');
-    }
-    // A transitioned nav/control (e.g. .site-nav a[aria-current], .theme-switch input:checked + span) still eases
-    // on ordinary hover/focus, but theme.ts suppresses every transition for the swap's duration via this rule.
-    expect(css).toContain('.site-nav a { display: flex; align-items: center; min-height: 2.75rem; padding: 0 1rem; border-bottom: 2px solid transparent; text-decoration: none; transition:');
-    expect(css).toContain('.theme-switch input:checked + span { color: var(--aion-gold-solid); background: var(--aion-gold-subtle); border-bottom-color: var(--aion-gold-solid); }');
-    expect(css).toMatch(/\[data-theme-swap\] \*\s*\{\s*transition: none !important;\s*\}/);
-  });
-
-  it('suppresses transitions synchronously during a theme swap, then releases the marker after it paints', () => {
+  it('suppresses colour transitions during a request and releases the marker after paint', () => {
     vi.useFakeTimers();
     try {
-      const listeners = new Map<string, EventListener>();
       const root = { dataset: {} } as HTMLElement;
-      const control = { hidden: true } as HTMLFieldSetElement;
-      const lightInput = { value: 'light', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('light', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
-      const darkInput = { value: 'dark', checked: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as HTMLInputElement;
-      const media = { matches: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as MediaQueryList;
-      initializeTheme({ root, control, inputs: [darkInput, lightInput], media, storage: null, updateAssets: () => undefined });
+      const media = { matches: false, addEventListener: () => {}, removeEventListener: () => {} } as unknown as MediaQueryList;
+      const controller = initializeTheme({ root, media, storage: null, updateAssets: () => {} });
       expect(root.dataset['themeSwap']).toBe('');
-      vi.runAllTimers();
-      expect(root.dataset['themeSwap']).toBeUndefined();
-
-      listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
-      // The new theme, assets, and control state commit in the same tick the marker is set.
-      expect(root.dataset.theme).toBe('light');
+      vi.runAllTimers(); expect(root.dataset['themeSwap']).toBeUndefined();
+      controller.request('light'); expect(root.dataset.theme).toBe('light');
       expect(root.dataset['themeSwap']).toBe('');
-      vi.advanceTimersByTime(0);
-      expect(root.dataset['themeSwap']).toBeUndefined();
-
-      listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
-      listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
-      // A second swap before the first one's marker is released does not leave the earlier timer stranded.
-      expect(root.dataset['themeSwap']).toBe('');
-      vi.runAllTimers();
-      expect(root.dataset['themeSwap']).toBeUndefined();
-    } finally {
-      vi.useRealTimers();
-    }
+      controller.request('dark'); vi.runAllTimers(); expect(root.dataset['themeSwap']).toBeUndefined();
+      controller.dispose();
+    } finally { vi.useRealTimers(); }
   });
 
   it('renders both emitted values for every swatch and copy payload', () => {
@@ -538,53 +324,16 @@ describe('the persistent site theme', () => {
     expect(themeBootstrap()).toContain('data-theme-favicon');
   });
 
-  it('keeps system changes until a user choice, then persists safely', () => {
-    const listeners = new Map<string, EventListener>();
+  it('switches when persistence is blocked and synchronizes favicons', () => {
     const root = { dataset: {} } as HTMLElement;
-    const control = { hidden: true } as HTMLFieldSetElement;
-    const darkInput = { value: 'dark', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('dark', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
-    const lightInput = { value: 'light', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('light', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
-    const writes: string[] = [];
-    const media = {
-      matches: true,
-      addEventListener: (name: string, callback: EventListener) => listeners.set(name, callback),
-      removeEventListener: () => undefined,
-    } as unknown as MediaQueryList;
-    const assets: string[] = [];
-    initializeTheme({ root, control, inputs: [darkInput, lightInput], media, storage: { getItem: () => null, setItem: (_key, value) => writes.push(value) }, updateAssets: (theme) => assets.push(theme) });
-    expect(root.dataset.theme).toBe('light');
-    expect([darkInput.checked, lightInput.checked]).toEqual([false, true]);
-    listeners.get('change')!({ matches: false } as MediaQueryListEvent);
-    expect(root.dataset.theme).toBe('dark');
-    expect([darkInput.checked, lightInput.checked]).toEqual([true, false]);
-    listeners.get('change')!({ matches: true } as MediaQueryListEvent);
-    expect(root.dataset.theme).toBe('light');
-    listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
-    expect(root.dataset.theme).toBe('light');
-    expect(writes).toEqual(['light']);
-    listeners.get('change')!({ matches: false } as MediaQueryListEvent);
-    expect(root.dataset.theme).toBe('light');
-    expect(control.hidden).toBe(false);
-    expect([darkInput.checked, lightInput.checked]).toEqual([false, true]);
-    expect(assets).toEqual(['light', 'dark', 'light', 'light']);
-  });
-
-  it('switches safely when persistence writes fail and synchronizes favicon media', () => {
-    const listeners = new Map<string, EventListener>();
-    const root = { dataset: {} } as HTMLElement;
-    const control = { hidden: true } as HTMLFieldSetElement;
-    const darkInput = { value: 'dark', checked: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as HTMLInputElement;
-    const lightInput = { value: 'light', checked: false, addEventListener: (_name: string, callback: EventListener) => listeners.set('light', callback), removeEventListener: () => undefined } as unknown as HTMLInputElement;
-    const media = { matches: false, addEventListener: () => undefined, removeEventListener: () => undefined } as unknown as MediaQueryList;
-    initializeTheme({ root, control, inputs: [darkInput, lightInput], media, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } }, updateAssets: () => undefined });
-    listeners.get('light')!({ currentTarget: lightInput } as unknown as Event);
-    expect(root.dataset.theme).toBe('light');
-    expect([darkInput.checked, lightInput.checked]).toEqual([false, true]);
+    const media = { matches: false, addEventListener: () => {}, removeEventListener: () => {} } as unknown as MediaQueryList;
+    const controller = initializeTheme({ root, media, storage: { getItem: () => null, setItem: () => { throw new Error('blocked'); } }, updateAssets: () => {} });
+    controller.request('light'); expect(root.dataset.theme).toBe('light'); controller.dispose();
     const dark = { dataset: { themeFavicon: 'dark' }, media: '' } as unknown as HTMLLinkElement;
     const light = { dataset: { themeFavicon: 'light' }, media: '' } as unknown as HTMLLinkElement;
-    syncFavicons([dark, light], 'light');
-    expect([dark.media, light.media]).toEqual(['not all', 'all']);
+    syncFavicons([dark, light], 'light'); expect([dark.media, light.media]).toEqual(['not all', 'all']);
   });
+
 });
 
 describe('contrast and claims', () => {
@@ -596,8 +345,6 @@ describe('contrast and claims', () => {
     expect(summary.readingStates).toBe(readingStates().length);
     const decorated = rows.filter((row) => row.section === 'decorated' && row.state === 'pass');
     expect(summary.lowestDecorated).toBe(Math.min(...decorated.map((row) => row.ratio)).toFixed(2));
-    expect(landing(FLAGS)).toContain(String(summary.rowsMeasured));
-    expect(landing(FLAGS)).toContain(summary.lowestDecorated);
   });
 
   it('keeps teal and gold text readable on their actual website surfaces', () => {
@@ -690,5 +437,43 @@ describe('parity with the emitter', () => {
       }
     }
     expect(seen).toBeGreaterThan(0);
+  });
+});
+
+
+describe('the new page shell', () => {
+  for (const flags of [{ released: true }, { released: false }]) {
+    for (const html of [landing(flags), palette(flags)]) {
+      it(`renders an inline mark and one hidden named chip for released=${flags.released}`, () => {
+        expect(html.match(/<header class="site-head">/g)).toHaveLength(1);
+        expect(html.match(/<slt-site-mark placement="inline">/g)).toHaveLength(1);
+        expect(html).not.toContain('<slt-site-mark>');
+        expect(html).toMatch(/<button[^>]+role="switch"[^>]+aria-label="Light theme"[^>]+aria-checked="false"[^>]+hidden/);
+        expect(html.match(/role="switch"/g)).toHaveLength(1);
+        expect(html.slice(html.indexOf('<header'), html.indexOf('</header>'))).not.toContain('role="switch"');
+        expect(html).toContain('theme-image header-wordmark');
+        expect(html).not.toContain('data-theme-choice');
+      });
+    }
+  }
+  it('keeps picture chrome inert without ids, links, buttons or landmarks', () => {
+    const html = renderHeader('home', FLAGS, 'picture');
+    expect(html).toContain('inert'); expect(html).toContain('aria-hidden="true"');
+    expect(html).not.toMatch(/\bid=|<(?:header|nav|a|button)\b|\brole=/);
+  });
+  it('keys the chapter rail to its seven section targets in order', () => {
+    const html = landing(FLAGS); const rail = html.slice(html.indexOf('<nav class="chapter-rail"'));
+    expect(rail).toContain('aria-label="Chapters"');
+    expect([...rail.matchAll(/href="#([^"]+)"/g)].map((m) => m[1])).toEqual(CHAPTERS.map((chapter) => chapter.id));
+    for (const chapter of CHAPTERS) expect(html).toContain(`id="${chapter.id}"`);
+    expect(html).not.toContain('class="stage"'); expect(html).not.toContain('id="essentials"');
+    expect(html).toContain('href="#palette">Palette</a>');
+  });
+  it('draws each chip half from its own scheme and reserves the bottom of the body', () => {
+    const html = landing(FLAGS);
+    expect(html).toContain('data-chip-half data-theme="dark"'); expect(html).toContain('data-chip-half data-theme="light"');
+    expect(html).toContain('chip-half-dark chip-key');
+    const css = readFileSync(join(root, 'src/styles/chip.css'), 'utf8');
+    expect(css).toMatch(/body \{ padding-bottom: calc\(var\(--site-chip-size\) \+ var\(--site-chip-offset\)/);
   });
 });

@@ -1,6 +1,14 @@
 export const THEME_STORAGE_KEY = 'aion-site-theme';
 
 export type Theme = 'dark' | 'light';
+export type ThemeCause = 'request' | 'system' | 'storage' | 'restore';
+export interface ThemeController {
+  readonly theme: Theme;
+  readonly generation: number;
+  request(next: Theme, options?: { scene?: 'wipe' | 'none' }): void;
+  subscribe(listener: (theme: Theme, cause: ThemeCause) => void): () => void;
+  dispose(): void;
+}
 
 export interface ThemeViewTransition {
   readonly ready: Promise<unknown>;
@@ -23,10 +31,9 @@ export interface ThemeMotionEnvironment {
 
 export interface ThemeEnvironment {
   readonly root: HTMLElement;
-  readonly control: HTMLFieldSetElement | null;
-  readonly inputs: Iterable<HTMLInputElement>;
   readonly media: MediaQueryList;
   readonly storage: Pick<Storage, 'getItem' | 'setItem'> | null;
+  readonly storageEvents?: EventSourceLike;
   readonly updateAssets: (theme: Theme) => void;
   readonly motion?: ThemeMotionEnvironment;
 }
@@ -70,7 +77,7 @@ interface MediaQueryLike extends EventSourceLike {
 }
 
 interface ActiveThemeScene {
-  readonly generation: number;
+  generation: number;
   readonly theme: Theme;
   transition: ThemeViewTransition | undefined;
   animation: ThemeMotionAnimation | undefined;
@@ -110,9 +117,10 @@ const safeCancel = (animation: ThemeMotionAnimation | undefined): void => {
   }
 };
 
-export function initializeTheme(environment: ThemeEnvironment): () => void {
+export function initializeTheme(environment: ThemeEnvironment): ThemeController {
   let explicit = readTheme(environment.storage);
-  const inputs = [...environment.inputs];
+  const subscribers = new Set<(theme: Theme, cause: ThemeCause) => void>();
+  let requestedCause: ThemeCause = 'restore';
   let cancelSuppressionRelease: (() => void) | undefined;
   let disposed = false;
   let generation = 0;
@@ -193,16 +201,17 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     }
   };
 
-  const apply = (theme: Theme): void => {
+  const apply = (theme: Theme, cause: ThemeCause = requestedCause, scene?: ActiveThemeScene): void => {
+    generation += 1;
+    if (scene && activeScene === scene) scene.generation = generation;
     cancelSuppressionRelease?.();
     environment.root.dataset['themeSwap'] = '';
     environment.root.dataset.theme = theme;
     environment.updateAssets(theme);
-    for (const input of inputs) input.checked = input.value === theme;
-    if (environment.control) environment.control.hidden = false;
     renderedTheme = theme;
     persistPending(theme);
     cancelSuppressionRelease = scheduleFrame(releaseSuppression);
+    for (const listener of subscribers) listener(theme, cause);
   };
 
   const clearSceneMarker = (): void => {
@@ -225,9 +234,8 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
   };
 
   const settleLatest = (): void => {
-    generation += 1;
     invalidateScene();
-    apply(requestedTheme);
+    if (renderedTheme !== requestedTheme || pendingStoredTheme !== undefined) apply(requestedTheme);
   };
 
   const finishScene = (scene: ActiveThemeScene): void => {
@@ -279,7 +287,6 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
   };
 
   const beginScene = (theme: Theme): void => {
-    generation += 1;
     const sceneGeneration = generation;
     invalidateScene();
     environment.root.dataset['themeTransition'] = '';
@@ -294,25 +301,25 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     let transition: ThemeViewTransition | undefined;
     try {
       transition = startViewTransition(() => {
-        if (disposed || scene.generation !== generation) return;
-        apply(scene.theme);
+        if (activeScene !== scene || disposed || scene.generation !== generation) return;
+        apply(scene.theme, 'request', scene);
       });
     } catch {
       if (activeScene === scene && scene.generation === generation) {
-        apply(theme);
+        if (renderedTheme !== theme || pendingStoredTheme !== undefined) apply(theme);
         invalidateScene();
       }
       return;
     }
     if (!transition) {
-      apply(theme);
+      if (renderedTheme !== theme || pendingStoredTheme !== undefined) apply(theme);
       invalidateScene();
       return;
     }
     scene.transition = transition;
     watchPromise(transition.ready, () => runSceneAnimation(scene), () => {
       if (activeScene !== scene || scene.generation !== generation || disposed) return;
-      apply(theme);
+      if (renderedTheme !== theme || pendingStoredTheme !== undefined) apply(theme, 'request', scene);
       safeSkip(transition);
       finishScene(scene);
     });
@@ -325,48 +332,38 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     if (activeScene !== scene || scene.generation !== generation || disposed) safeSkip(transition);
   };
 
-  const setExplicitTheme = (event: Event): void => {
-    const input = event.currentTarget as HTMLInputElement | null;
-    if (!input || !isTheme(input.value)) return;
-    const next = input.value;
+  const request = (next: Theme, { scene = 'wipe' }: { scene?: 'wipe' | 'none' } = {}): void => {
+    if (disposed) return;
+    generation += 1;
     explicit = next;
     pendingStoredTheme = next;
     requestedTheme = next;
-    if (next === renderedTheme || motionIsReduced() || !supportsViewTransition() || !supportsRootAnimation()) {
-      generation += 1;
+    requestedCause = 'request';
+    if (scene === 'none' || next === renderedTheme || motionIsReduced() || !supportsViewTransition() || !supportsRootAnimation()) {
       invalidateScene();
       apply(next);
       return;
     }
-    // The browser checks the clicked radio before dispatching click. Keep the
-    // controls aligned with the currently rendered theme until the update
-    // callback commits the incoming state.
-    for (const choice of inputs) choice.checked = choice.value === renderedTheme;
     beginScene(next);
   };
 
-  const onSnapshotClick: EventListener = (event) => {
-    if (!activeScene || event.target !== environment.root || !(event instanceof MouseEvent)) return;
-    // Captured root content is excluded from hit-testing by the View Transition
-    // API. Route a real click at a visible radio back to that same control.
-    const input = inputs.find((choice) => {
-      if (choice.disabled || environment.control?.disabled || choice.closest('[inert]')) return false;
-      const box = choice.getBoundingClientRect();
-      return box.width > 0 && box.height > 0 && event.clientX >= box.left
-        && event.clientX <= box.right && event.clientY >= box.top && event.clientY <= box.bottom;
-    });
-    if (input) {
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      input.focus({ preventScroll: true });
-      input.click();
-    }
+  const onStorage: EventListener = (event) => {
+    const change = event as StorageEvent;
+    if (disposed || (change.key !== THEME_STORAGE_KEY && change.key !== null)) return;
+    if (change.storageArea && change.storageArea !== environment.storage) return;
+    if (change.newValue !== null && !isTheme(change.newValue)) return;
+    explicit = isTheme(change.newValue) ? change.newValue : undefined;
+    pendingStoredTheme = undefined;
+    requestedTheme = resolveTheme(explicit, environment.media.matches);
+    requestedCause = 'storage';
+    invalidateScene();
+    apply(requestedTheme);
   };
 
   const onSystemChange = (event: MediaQueryListEvent): void => {
     if (disposed || explicit !== undefined) return;
     requestedTheme = event.matches ? 'light' : 'dark';
-    generation += 1;
+    requestedCause = 'system';
     invalidateScene();
     apply(requestedTheme);
   };
@@ -398,32 +395,45 @@ export function initializeTheme(environment: ThemeEnvironment): () => void {
     }
     pendingStoredTheme = undefined;
     requestedTheme = resolveTheme(explicit, environment.media.matches);
-    settleLatest();
+    requestedCause = 'restore';
+    invalidateScene();
+    apply(requestedTheme);
   };
 
   requestedTheme = resolveTheme(explicit, environment.media.matches);
   apply(requestedTheme);
-  for (const input of inputs) input.addEventListener('click', setExplicitTheme);
   environment.media.addEventListener('change', onSystemChange);
   addMediaListener(reducedMotion, onReducedMotionChange);
   addListener(ownerDocument, 'visibilitychange', onVisibilityChange);
-  addListener(ownerDocument, 'click', onSnapshotClick);
+  const storageEvents = environment.storageEvents ?? ownerWindow;
+  addListener(storageEvents, 'storage', onStorage);
   addListener(ownerWindow, 'pagehide', onPageHide);
   addListener(ownerWindow, 'pageshow', onPageShow);
 
-  return () => {
+  const dispose = (): void => {
     if (disposed) return;
     settleLatest();
     disposed = true;
-    for (const input of inputs) input.removeEventListener('click', setExplicitTheme);
     environment.media.removeEventListener('change', onSystemChange);
     removeMediaListener(reducedMotion, onReducedMotionChange);
     removeListener(ownerDocument, 'visibilitychange', onVisibilityChange);
-    removeListener(ownerDocument, 'click', onSnapshotClick);
+    removeListener(storageEvents, 'storage', onStorage);
+    subscribers.clear();
     removeListener(ownerWindow, 'pagehide', onPageHide);
     removeListener(ownerWindow, 'pageshow', onPageShow);
     cancelSuppressionRelease?.();
     releaseSuppression();
     clearSceneMarker();
+  };
+  return {
+    get theme() { return renderedTheme; },
+    get generation() { return generation; },
+    request,
+    subscribe(listener) {
+      if (disposed) return () => {};
+      subscribers.add(listener);
+      return () => { subscribers.delete(listener); };
+    },
+    dispose,
   };
 }

@@ -1,0 +1,12 @@
+:root { --site-chip-size: 44px; --site-chip-offset: 20px; }
+body { padding-bottom: calc(var(--site-chip-size) + var(--site-chip-offset) + env(safe-area-inset-bottom)); }
+.scheme-chip { position: fixed; right: calc(var(--site-chip-offset) + env(safe-area-inset-right)); bottom: calc(var(--site-chip-offset) + env(safe-area-inset-bottom)); width: 104px; height: var(--site-chip-size); overflow: hidden; border: 0; padding: 0; background: none; color: var(--aion-fg-primary); cursor: pointer; z-index: 20; }
+.scheme-chip[hidden] { display: none; }
+.scheme-chip:focus-visible { outline: 2px solid var(--aion-border-focus); outline-offset: 5px; }
+.chip-half { position: absolute; inset: 0; display: flex; align-items: center; font: 500 12px 'Monaspace Neon', monospace; color: var(--n-text-primary); background: var(--n-editor); }
+.chip-half-dark { justify-content: flex-start; padding-left: 10px; clip-path: polygon(8px 0, 74px 0, 30px 100%, 0 100%, 0 8px); }
+.chip-half-light { justify-content: flex-end; padding-right: 10px; clip-path: polygon(74px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 30px 100%); }
+.chip-key::after { content: ''; position: absolute; height: 3px; bottom: 0; left: 0; right: 0; background: var(--a-gold); }
+.chip-seam { position: absolute; top: 0; bottom: 0; left: 52px; width: 1px; transform: skewX(-45deg); background: var(--aion-border-hairline); pointer-events: none; }
+@media (max-width: 599px) { :root { --site-chip-offset: 16px; } }
+@media (prefers-reduced-motion: reduce) { .chip-seam { animation: none; } }

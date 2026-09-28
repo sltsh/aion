@@ -1,3 +1,19 @@
+export const CHAPTERS = [
+  { id: 'depth', number: '01', title: 'Depth' },
+  { id: 'solved', number: '02', title: 'Solved' },
+  { id: 'rounded', number: '03', title: 'Rounded' },
+  { id: 'states', number: '04', title: 'States' },
+  { id: 'terminal', number: '05', title: 'Terminal' },
+  { id: 'palette', number: '06', title: 'Palette' },
+  { id: 'install', number: '', title: 'Install' },
+] as const;
+export const SHELL = {
+  skip: 'Skip to content', home: 'Aion home', menu: 'Menu', navigation: 'Main navigation',
+  footerNavigation: 'Footer navigation', chapters: 'Chapters', lightTheme: 'Light theme',
+  darkLabel: 'Aion', lightLabel: 'Light', github: 'Aion on GitHub',
+  navDepth: 'Depth', navProof: 'Proof', navInstall: 'Install', navPalette: 'Palette',
+  explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
+} as const;
 export const CONTENT = {
   pitch: "A theme for editors, terminals and the web.",
   heroDetail: "Gold accents. Cool surfaces. Familiar syntax. No italics.",
