@@ -3,9 +3,10 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dark, light } from '@sltsh/aion-css';
-import { buildPalette, checks, flatten, lightPalette, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch } from '@sltsh/aion-tokens';
+import { buildPalette, checks, flatten, lightPalette, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch, hex } from '@sltsh/aion-tokens';
 import { variables } from '@sltsh/aion-lab/variables';
 import { obsidianColors } from '@sltsh/aion-obsidian/colors';
+import { probeSurfaces } from '../src/chapters/probe.js';
 import { schemeStyles } from '../src/scheme.js';
 import { FLAGS } from '../src/flags.js';
 import { escapeAttr, escapeHtml } from '../src/render/html.js';
@@ -424,6 +425,8 @@ describe('parity with the emitter', () => {
         ...Object.values(variables(lightPalette)),
         ...Object.values(obsidianColors('dark')),
         ...Object.values(obsidianColors('light')),
+        ...[buildPalette(), lightPalette].flatMap(source =>
+          probeSurfaces(source).map(surface => hex(surface.background))),
       ].map((v) => v.toLowerCase()),
     );
     const pages = [

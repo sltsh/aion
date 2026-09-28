@@ -7,7 +7,7 @@ const output = process.env.EVIDENCE_DIR || '/tmp/aion-site-evidence';
 const filter = process.env.CASE_FILTER ? new RegExp(process.env.CASE_FILTER) : null;
 const widths = [1440,1280,1100,768,600,599,390,320];
 const opposite = theme => theme === 'dark' ? 'light' : 'dark';
-const { solveLightness } = await import('../../../../packages/tokens/dist/index.js');
+const { solveLightness, contrastEmitted, hexToOklch } = await import('../../../../packages/tokens/dist/index.js');
 await mkdir(output, {recursive:true});
 const settled = async page => {
   await page.waitForFunction(() => !document.documentElement.hasAttribute('data-intro') && !document.documentElement.hasAttribute('data-theme-transition'));
@@ -186,6 +186,20 @@ async function engineRun(name) {
     for(const [id,route,options] of [['deep','/#install',{reducedMotion:'no-preference'}],['reference','/palette.html',{reducedMotion:'no-preference'}],['reduced','/',{}]])await run(`splash-skipped-${id}`,options,async(p)=>{await p.goto(base+route,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),null);await settled(p);if(id==='reduced')assert.equal(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length),0);});
     await run('splash-blocked-client-timeout',{reducedMotion:'no-preference'},async(p,_c,row)=>{
       await p.route('**/assets/*.js',route=>route.abort());await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');const start=Date.now();await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'),{},{timeout:5000});row.measurements.releaseMs=Date.now()-start;assert.ok(row.measurements.releaseMs<=4100);assert.equal(await p.locator('#app').evaluate(e=>getComputedStyle(e).visibility),'visible');
+    });
+    for(const javaScriptEnabled of [false,true])for(const scheme of ['dark','light'])for(const width of [1440,390])await run(`solved-strip-${javaScriptEnabled?'client':'static'}-${scheme}-${width}`,{javaScriptEnabled,colorScheme:scheme,viewport:{width,height:1000}},async(p,_c,row,capture)=>{
+      await p.goto(base+'/#solved');if(javaScriptEnabled)await settled(p);else assert.equal(await p.evaluate(()=>document.fonts.status),'loaded');
+      const inspect=async(label)=>{
+        const tiles=await p.locator('.solved-strip:visible .solved-tile').evaluateAll(es=>es.map(e=>{const word=e.querySelector('.solved-word'),css=getComputedStyle(word);return {name:e.dataset.surface,word:word.textContent,fg:css.color,bg:css.backgroundColor,ratio:e.querySelector('.solved-ratio').textContent,worst:e.hasAttribute('data-worst')};}));
+        assert.deepEqual(tiles.map(t=>t.name),['editor','current line','selection','word highlight','selection + word highlight','hover widget','find match']);
+        const colour=value=>hexToOklch('#'+value.match(/[\d.]+/g).slice(0,3).map(n=>Math.round(Number(n)).toString(16).padStart(2,'0')).join(''));
+        for(const tile of tiles){tile.measured=contrastEmitted(colour(tile.fg),colour(tile.bg));assert.equal(tile.ratio,tile.measured.toFixed(2)+':1');}
+        const worst=tiles.reduce((a,b)=>b.measured<a.measured?b:a);assert.equal(tiles.filter(t=>t.worst).length,1);assert.equal(tiles.find(t=>t.worst).name,worst.name);
+        assert.ok((await p.locator('[data-solved-verdict]').innerText()).includes(worst.name));
+        row.measurements[label]=tiles;await overflow(p);await p.locator('#solved').scrollIntoViewIfNeeded();await capture(`${row.id}-${label}`);
+      };
+      await inspect('shipped');
+      if(javaScriptEnabled){await p.locator('[data-solved-accent="violet"]').click();await p.locator('[data-solved-lightness]').evaluate((e,s)=>{e.value=s==='dark'?e.min:e.max;e.dispatchEvent(new Event('input',{bubbles:true}));},scheme);await inspect('failing');assert.equal(await p.locator('[data-solved-verdict]').getAttribute('data-verdict'),'fail');}
     });
     await run('dimension-upright',{},async(p,_c,row,capture)=>{
       row.measurements.samples=[];
