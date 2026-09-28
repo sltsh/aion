@@ -56,8 +56,9 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     root.dataset['heroShare'] = String(p);
   };
   const measure = (): void => {
-    const box = root.getBoundingClientRect(); width = box.width; height = box.height;
+    width = root.getBoundingClientRect().width;
     for (const editor of root.querySelectorAll<HTMLElement>('.hero-editor')) editor.style.setProperty('--site-hero-scale', String(Math.max(0, width - 32) / 1244));
+    const box = root.getBoundingClientRect(); width = box.width; height = box.height;
     const editor = base.querySelector<HTMLElement>('.hero-editor');
     handleY = editor ? editor.getBoundingClientRect().top - box.top + (width <= 600 ? 26 : -30) : height * 0.6;
     handleY = Math.max(60, Math.min(height - 30, handleY));
@@ -159,6 +160,8 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   root.ownerDocument.addEventListener('visibilitychange', onHide);
   root.ownerDocument.defaultView?.addEventListener('pagehide', onPageHide);
   sync(); measure();
+  const sizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => { if (!disposed) measure(); });
+  sizeObserver?.observe(root);
   void root.ownerDocument.fonts?.ready.then(() => { if (!disposed) measure(); });
   return {
     throwAcross() {
@@ -170,7 +173,7 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     arrive() { if (disposed || interacted || arrived || controller.generation !== initialGeneration) return; arrived = true; p = 0; paint(); tween(0.42, 720, 'arrival'); },
     onScreen() { const box = root.getBoundingClientRect(); return box.bottom > 0 && box.top < (root.ownerDocument.defaultView?.innerHeight ?? Infinity); },
     dispose() {
-      if (disposed) return; disposed = true; stop(); endDrag(); unsubscribe();
+      if (disposed) return; disposed = true; stop(); endDrag(); unsubscribe(); sizeObserver?.disconnect();
       root.removeEventListener('pointerdown', onDown); root.removeEventListener('pointermove', onMove);
       root.removeEventListener('pointerup', onRelease); root.removeEventListener('pointercancel', onRelease);
       handle.removeEventListener('keydown', onKey); env.reducedMotion.removeEventListener('change', onReduced);

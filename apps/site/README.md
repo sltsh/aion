@@ -1,9 +1,9 @@
 # Aion site
 
-The public site at https://aion.slt.sh: a theme introduction and a curated palette.
-Both pages render at build time. JavaScript adds clipboard feedback, a persistent light/dark
-theme switch with explicit Dark and Light choices, and section-aware navigation; content
-and anchor links work without it.
+The public site at https://aion.slt.sh introduces the theme through six measured chapters:
+Depth, Solved, Rounded, States, Terminal and Palette, followed by installation for five targets.
+The homepage and the separate role-first palette reference render at build time. Text, links,
+current-scheme figures and installation commands remain available without JavaScript.
 
 ```bash
 npm run dev -w ./apps/site
@@ -11,53 +11,65 @@ npm run build -w ./apps/site
 npm test -w ./apps/site
 ```
 
-## Content
+## Structure
 
-The homepage shows the brand, code preview, compact essentials, installation, and a short contrast
-explanation. The palette page is a non-duplicative, role-first reference organized into five sections:
-expanded Foundations (surfaces, text hierarchy, functional boundaries, and focus), Accents (canonical
-hue names with solid, subtle, and border variants), Interface roles (status mappings and the portable blue link role),
-Syntax (core syntax mapping, comments, and punctuation), and Terminal (the complete ANSI palette in slot order).
-Swatches show readable names, roles, and hex values.
-Raw overlays and authored OKLCH tables belong in the linked package and
-design documentation, not the public palette.
+`src/render` owns the HTML and `src/content.ts` owns homepage copy. The hero shows the shared
+lab editor twice, with an inert opposite-scheme picture behind a draggable diagonal seam.
+The single live header, fixed scheme chip, chapter rail and mobile menu retain their own
+interaction boundaries. A first-visit splash can be skipped and releases the page when the
+client fails to load. Reduced motion settles animations immediately.
 
-`src/groups.ts` defines the public selection; both pages and their copy buttons use
-it. Every value comes from its named `@sltsh/aion-css` token. Tests check those pairings,
-complete ANSI coverage, both emitted values, and the absence of handwritten hex values.
+`src/chapters` owns the interactive chapters: editor strata, an accent's worst-surface probe,
+the emitted-byte rounding demonstration, valid renderer stacks, and syntax cross-highlighting.
+`src/measures.ts` calculates build-time figures and writes the JSON island; clients consume
+that island rather than running the full gate. `src/theme.ts` orders theme requests and
+synchronizes saved choices, system preference, cross-tab changes and page motion.
 
-`src/render` owns the HTML; `src/content.ts` owns installation copy. `src/theme.ts` keeps
-the root `data-theme` state synchronized with a saved choice or the system preference.
-`src/main.ts` tracks section positions to update navigation without changing browser history,
-and provides clipboard feedback for keyboard and pointer users. The palette navigation becomes
-a sticky horizontal bar on narrow screens.
+The site reads emitted CSS tokens, lab palette variables and Obsidian exports. Native reading
+stacks use the shared `stackBackground` and `orderStack` helpers. Contrast uses emitted bytes;
+the Rounded chapter deliberately shows continuous contrast beside the emitted result.
+`src/pairs.ts` lists the site's readable foreground/surface pairs. Examples that demonstrate
+a failing contrast ratio are labelled demonstrations rather than shipping readability claims.
 
-## Brand and downloads
+The `/palette.html` reference remains organized by foundations, accents, interface roles,
+syntax and terminal. `src/groups.ts` defines its selection and shared copy values. Swatches
+show emitted hex values; authored OKLCH tables belong in the design documentation.
 
-The header uses the standalone logo; the hero uses the horizontal lockup. Committed
-exports live in `public`; original artwork lives in the repository's `assets` directory.
+## Assets and installation
 
-The Vite plugin serves the generated terminal fragment in development and emits the same
-bytes at `/downloads/aion.json` in production. Build the terminal package before building
-the site. Tests verify parity with the generated fragment.
+Archivo and Monaspace Neon are bundled WOFF2 assets. Archivo's Latin variable subset covers
+weight 100–900 and width 62–125%; verify actual glyph rendering when replacing it.
+Wordmarks live in `public`, with original artwork in `assets`. The inline SLT mark stays dark
+in both hero layers. The hero and Depth chapter reuse the exported lab editor and scope flat
+site overrides without changing the lab's rendering.
 
-`released` controls whether the site presents npm installation or a local build. It is on, because the packages are published. VS Code always links to the Marketplace
-and shows its install command. The public site follows the system theme until a visitor
-chooses Light or Dark; that choice is stored locally and shared by both pages. The Windows
-Terminal download remains the dark Aion scheme. Tests exercise both emitted palettes.
+The Vite plugin serves the generated terminal fragment during development and emits identical
+bytes at `/downloads/aion.json`. The Windows Terminal download remains the dark Aion scheme.
+`released` selects published installation copy or local-build instructions; tests cover both.
+The public theme follows the system until a visitor chooses a scheme, then shares that choice
+between pages and tabs. Clipboard controls enhance selectable installation commands.
 
 ## Validation
 
-Run the root build, test, typecheck, and contrast gate. Browser checks should cover desktop
-and mobile layouts, copy and download actions, keyboard focus, and section highlighting
-when scrolling, clicking anchors, and loading a deep link. Numerical contrast checks do
-not replace native editor acceptance.
+Run `npm run verify`, `npm test` and `npm run typecheck` from the repository root. Build the
+site and run a production preview before the browser harness:
 
-Archivo and Monaspace Neon are bundled WOFF2 assets, loaded by `@font-face`; visitors do
-not need local font installations. Same-page navigation uses native anchors with smooth
-scrolling unless reduced motion is requested.
+```bash
+npm run preview -w ./apps/site -- --host 0.0.0.0 --port 4192
+PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs \
+SITE_URL=http://127.0.0.1:4192 EVIDENCE_DIR=/tmp/aion-site-evidence \
+node apps/site/test/browser/site.mjs
+```
 
-The site uses the Latin variable subset of Archivo from Google Fonts (v25), covering
-weight 100–900 and width 62–125%. The previous file was the Vietnamese subset and lacked
-most English letters. Verify actual rendered fonts in browser developer tools when
-replacing a font; a successful font request alone does not prove glyph coverage.
+The harness runs Chromium, Firefox and WebKit concurrently with separate engine directories.
+`BROWSER=chromium` selects one engine; `CASE_FILTER` is a regular expression for a focused
+retry. `motion.mjs` remains a compatibility entry point with the same environment contract.
+Every case writes pass/fail evidence and a screenshot; a failure does not suppress later cases.
+Retain the original run and put retries in a fresh evidence directory.
+
+The matrix covers both pages and schemes at 1440, 1280, 1100, 768, 600, 599, 390 and 320px,
+plus focused keyboard, splash, storage, motion, touch admission, resize and rail checks.
+Chromium verifies a native touch swipe through CDP. Firefox and WebKit verify an unprevented
+emulated touch press plus native scrolling because Playwright exposes only touch tap there.
+Browser results and the calculation gates are recorded separately in `PLAN.md`; neither
+establishes native VS Code or Obsidian acceptance. Owner visual approval remains separate.

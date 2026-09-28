@@ -551,3 +551,40 @@ reading states in §3.1 of `DESIGN.md`, not every state a renderer can produce.
 - Every shared claim agrees with the emitter. **Met: every table and every count in
   `DESIGN.md` and the three READMEs is generated, and a test rejects any hex in six
   documents that the token package does not emit.**
+
+## Site rebuild verification — 2026-09-28
+
+The six-chapter homepage, shared editor pictures, scheme chip, splash, native-state probes,
+installation tiles and separate palette reference are implemented. Task 12 started from
+`62a4f618f4c579801b3e20f36e4af4bc9af8922a` in `/tmp/aion-site-rebuild-task0`, branch
+`work/site-rebuild-task12`; its completion revision is recorded in the worker report for
+attempt `9d1d3898b5974d3282b3f7a5b0b2c69f`.
+
+**Browser verification:** Playwright 1.63.0, Chromium 153.0.8010.12, Firefox 155.0 and
+WebKit 26.6 each pass 53 cases. The production matrix covers both pages and schemes at
+1440, 1280, 1100, 768, 600, 599, 390 and 320px, with keyboard, storage, splash, reduced
+motion, resize, native-range, clipboard and rail checks. Each case retains screenshots
+and measurements. Chromium checks a native CDP touch swipe; Firefox and WebKit check
+unprevented touch admission plus native scrolling because Playwright exposes only tap.
+
+A cold mobile browser case found the hero measuring its height before assigning the scaled
+editor height. Measurement now sets the scale first and re-reads the box; a size observer
+tracks later intrinsic changes while preserving the seam share. Two focused regressions
+and affected cases in all three engines pass. Harness corrections separate fractional
+geometry from rounded DOM sizes, freeze the glide clock for resize measurement, guard
+blank-document storage, allow native focus scrolling to settle, and bound each case to 30s.
+The original Firefox run ended with a closed-target/browser error in its no-JavaScript case; the bounded retry completed it. A separate WebKit keyboard case recorded offscreen focus and a ResizeObserver notification warning; its final retry passed after waiting for native focus scrolling. These engine events are retained separately from the reproduced stale-height defect; their causes are not established.
+Original failures remain in `/tmp/aion-task12-evidence`; focused retries are in
+`/tmp/aion-task12-retry` and `/tmp/aion-task12-source-retry`. The combined 159-case result
+and review gallery are in `/tmp/aion-task12-review/summary.json` and `index.html`.
+
+**Calculations:** `npm run verify` passes 12,564 checks with zero failures, 5 exemptions
+and 64 informational rows; the root suite passes 505 tests (147 site tests), strict
+typecheck passes, and the production build passes. These results do not establish native
+VS Code or Obsidian acceptance. The renderer-stack native recheck listed above remains open.
+
+**Next:** primary source/rendered acceptance and owner visual review, then the authorized
+integration decision. Review links are served temporarily at
+`http://100.113.118.14:4193/` and `http://192.168.0.80:4193/`; the production preview uses
+port 4192 on both interfaces. Stop both review servers after the owner finishes. Merge,
+deployment and owner visual approval are not recorded as complete.

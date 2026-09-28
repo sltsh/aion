@@ -1,0 +1,142 @@
+// Production-browser checks. Each case retains its result and screenshot, including failures.
+import assert from 'node:assert/strict';
+import { mkdir, writeFile } from 'node:fs/promises';
+const engines = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const base = (process.env.SITE_URL || 'http://127.0.0.1:4192').replace(/\/$/, '');
+const output = process.env.EVIDENCE_DIR || '/tmp/aion-site-evidence';
+const filter = process.env.CASE_FILTER ? new RegExp(process.env.CASE_FILTER) : null;
+const widths = [1440,1280,1100,768,600,599,390,320];
+const opposite = theme => theme === 'dark' ? 'light' : 'dark';
+const { solveLightness } = await import('../../../../packages/tokens/dist/index.js');
+await mkdir(output, {recursive:true});
+const settled = async page => {
+  await page.waitForFunction(() => !document.documentElement.hasAttribute('data-intro') && !document.documentElement.hasAttribute('data-theme-transition'));
+  await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});
+};
+const themeState = async page => page.evaluate(()=>({theme:document.documentElement.dataset.theme,far:document.querySelector('[data-hero-far]')?.dataset.theme,share:Number(document.querySelector('[data-hero]')?.dataset.heroShare),checked:document.querySelector('[role="switch"]').getAttribute('aria-checked')}));
+const consistent = async (page, theme) => {
+  const state=await themeState(page);assert.equal(state.theme,theme);assert.equal(state.checked,String(theme==='light'));
+  if(state.far)assert.equal(state.far,opposite(theme));
+  const variants=await page.locator('[data-theme-value]').evaluateAll(es=>es.filter(e=>e.getClientRects().length&&!e.closest('[data-hero-far],.chip-half,.install-thumbnail')).map(e=>e.dataset.themeValue));
+  assert.ok(variants.every(value=>value===theme),`inactive scheme visible: ${variants}`);
+};
+const overflow = async page => assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth),0,'horizontal overflow');
+const screenshotName = id => id.replace(/[^a-z0-9-]/gi,'-');
+async function engineRun(name) {
+  const dir=`${output}/${name}`;await mkdir(dir,{recursive:true});const rows=[];let browser;
+  try {browser=await engines[name].launch();}catch(error){const result={browser:name,unavailable:String(error),rows};await writeFile(`${dir}/results.json`,JSON.stringify(result,null,2));return result;}
+  const version=browser.version();
+  async function run(id, options, action) {
+    const engineFilter=process.env[`CASE_FILTER_${name.toUpperCase()}`];if(engineFilter?!new RegExp(engineFilter).test(id):filter&&!filter.test(id))return;
+    const row={id,browser:name,version,passed:false,artifacts:[],measurements:{}};
+    const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'dark',reducedMotion:'reduce',...options});
+    const page=await context.newPage();const errors=[];context.on('page',p=>p.on('pageerror',e=>errors.push(e.message)));page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(7000);
+    const capture=async(label=id,fullPage=false)=>{const path=`${dir}/${screenshotName(label)}.png`;await page.screenshot({path,fullPage});row.artifacts.push(path);};
+    let deadline;
+    try {await Promise.race([action(page,context,row,capture),new Promise((_,reject)=>{deadline=setTimeout(()=>reject(new Error('Case exceeded30s')),30000);})]);assert.deepEqual(errors,[],'page errors');if(!row.artifacts.length)await capture();row.passed=true;}
+    catch(error){row.error=String(error.stack||error);row.pageErrors=errors;try{await capture(`${id}-failure`);}catch(captureError){row.captureError=String(captureError);}console.error(`${name}/${id}: FAIL ${error.message}`);}
+    finally{clearTimeout(deadline);rows.push(row);await context.close();await writeFile(`${dir}/results.json`,JSON.stringify({browser:name,version,rows},null,2));}
+  }
+  try {
+    for(const route of ['/', '/palette.html'])for(const scheme of ['dark','light'])for(const width of widths)await run(`${route==='/'?'home':'reference'}-${scheme}-${width}`,{viewport:{width,height:1000},colorScheme:scheme},async(p,_c,row,capture)=>{
+      await p.addInitScript(()=>{window.copies=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>window.copies.push(text)}});});
+      await p.goto(base+route);await settled(p);await overflow(p);await consistent(p,scheme);await capture(row.id,true);
+      const chip=await p.locator('[data-scheme-chip]').boundingBox();assert.ok(chip&&chip.x>=0&&chip.y>=0&&chip.x+chip.width<=width&&chip.y+chip.height<=1000);
+      if(width<600){const menu=p.locator('[data-menu-toggle]');await menu.click();assert.equal(await menu.getAttribute('aria-expanded'),'true');assert.equal(await p.locator('[data-scheme-chip]').isVisible(),false);assert.equal(await menu.locator('svg:visible').count(),1);await p.keyboard.press('Escape');assert.equal(await menu.getAttribute('aria-expanded'),'false');assert.ok(await menu.evaluate(e=>document.activeElement===e));}
+      if(route!=='/'){await p.locator('[data-copy]').first().click();assert.equal(await p.evaluate(()=>window.copies.length),1);return;}
+      row.measurements.hero=await p.locator('[data-hero]').evaluate(h=>{
+        const far=h.querySelector('[data-hero-far]'),headline=h.querySelector('.hero-headline'),font=getComputedStyle(headline);
+        const diffs=['.hero-headline','.hero-sub','.hero-actions','.hero-editor','.site-path'].map(sel=>{const a=h.querySelector('[data-hero-base]').querySelector(sel).getBoundingClientRect(),b=far.querySelector(sel).getBoundingClientRect();return {sel,delta:Math.max(...['x','y','width','height'].map(k=>Math.abs(a[k]-b[k])))};});
+        return {diffs,weight:font.fontWeight,lineHeight:parseFloat(font.lineHeight),fontSize:parseFloat(font.fontSize),shadows:[...h.querySelectorAll('.find-widget,.hover-card')].map(e=>getComputedStyle(e).boxShadow),clip:getComputedStyle(far).clipPath,seamTop:+h.querySelector('[data-hero-seam]').getAttribute('x1'),width:h.clientWidth,height:h.getBoundingClientRect().height,farIds:far.querySelectorAll('[id]').length};
+      });
+      const hero=row.measurements.hero;assert.ok(hero.diffs.every(d=>d.delta<1),JSON.stringify(hero.diffs));assert.equal(hero.weight,'800');assert.ok(Math.abs(hero.lineHeight/hero.fontSize-.94)<.02);assert.ok(hero.shadows.every(s=>s==='none'));assert.equal(hero.farIds,0);if(width===1440)assert.ok(hero.seamTop<hero.width,'rest seam misses header');assert.ok(Math.abs(Number([...hero.clip.matchAll(/(-?[\d.]+)px/g)].at(-1)?.[1])-hero.height)<.02,'clip height differs from measured hero');
+      assert.equal(await p.locator('.claims-grid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),width>=1100?3:width>=600?2:1);
+      assert.equal(await p.locator('[data-depth-stage]').isVisible(),width>=760);assert.equal(await p.locator('.depth-list').isVisible(),width<760);
+      if(width>=760){assert.equal(await p.locator('.depth-tag').count(),8);await p.locator('[data-depth-assemble]').click();await p.locator('[data-depth-assemble]').click();}else assert.equal(await p.locator('.depth-list>li').count(),4);
+      assert.equal(await p.locator('.solved-scale:visible').count(),1);await p.locator('[data-solved-accent="violet"]').click();
+      await p.locator('[data-solved-lightness]').evaluate((e,s)=>{e.value=s==='dark'?e.min:e.max;e.dispatchEvent(new Event('input',{bubbles:true}));},scheme);
+      assert.equal(await p.locator('[data-solved-verdict]').getAttribute('data-verdict'),'fail');await p.locator('[data-solved-hold]').check();assert.equal(await p.locator('[data-solved-verdict]').getAttribute('data-verdict'),'pass');
+      await p.locator('[data-rounded-find]').click();assert.deepEqual(await p.locator('[data-rounded-values]:visible [data-verdict]').evaluateAll(es=>es.map(e=>e.dataset.verdict)),['pass','fail']);
+      const state=p.locator('[data-state-scheme]:visible');assert.equal(await state.count(),1);assert.equal(await state.locator('[data-delta-visible]').count(),0);
+      const toggle=key=>state.locator(`[data-state-toggle="${key}"]`);await toggle('selection').click();assert.equal(await toggle('lineHighlight').isDisabled(),true);assert.ok((await p.locator('[data-state-reasons]').textContent()).length>0);
+      await toggle('addedWord').click();assert.equal(await toggle('addedLine').getAttribute('aria-pressed'),'true');assert.equal(await toggle('removedLine').isDisabled(),true);await toggle('addedLine').click();assert.equal(await toggle('addedWord').getAttribute('aria-pressed'),'false');
+      assert.equal(await state.locator('.states-code').evaluate(e=>getComputedStyle(e).fontSize),width<600?'16px':'22px');
+      assert.equal(await p.locator('[data-terminal-session]:visible').count(),2);assert.equal(await p.locator('[data-terminal-slot]:visible').count(),16);
+      assert.equal(await p.locator('.terminal-slots:visible').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),width<600?2:width<900?4:8);
+      assert.equal(await p.locator('[data-palette-column]:visible').count(),8);await p.locator('[data-palette-column]:visible').first().focus();assert.ok(await p.locator('[data-palette-token][data-linked]').count()>0);
+      if(width<600){const g=await p.locator('.palette-chart:visible').evaluate(e=>{const r=e.querySelector('.palette-columns').getBoundingClientRect(),f=e.querySelector('.palette-floor').getBoundingClientRect();return {actual:f.left,expected:r.left+r.width*+e.style.getPropertyValue('--site-floor-fraction')};});assert.ok(Math.abs(g.actual-g.expected)<.1,JSON.stringify(g));}
+      const geometry=await p.locator('[data-install-target]').evaluateAll(es=>es.map(e=>({top:e.getBoundingClientRect().top,thumbnail:e.querySelector('.install-thumbnail').getBoundingClientRect().top})));for(const x of geometry)for(const y of geometry)if(Math.abs(x.top-y.top)<1)assert.ok(Math.abs(x.thumbnail-y.thumbnail)<1,JSON.stringify(geometry));
+      const copy=p.locator('[data-install-target] [data-copy]');for(let i=0;i<5;i++)await copy.nth(i).click();assert.deepEqual(await p.evaluate(()=>window.copies),await p.locator('.install-command code').allTextContents());
+      await overflow(p);assert.equal(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length),0);
+    });
+    for(const scheme of ['dark','light'])await run(`no-js-${scheme}`,{javaScriptEnabled:false,colorScheme:scheme,viewport:{width:390,height:1000}},async(p,_c,row)=>{
+      await p.goto(base+'/#solved');await p.waitForTimeout(300);await overflow(p);
+      assert.equal(await p.locator('[data-hero-far]').isVisible(),false);assert.equal(await p.locator('[data-hero-handle]').isVisible(),false);assert.equal(await p.locator('[data-scheme-chip]').isVisible(),false);
+      const inputs=JSON.parse(await p.locator('#aion-measures').textContent())[scheme];
+      const L=Number(await p.locator('#solved input[type=range]:visible').inputValue());assert.ok(Math.abs(L-inputs.accents.gold[0])<1e-12,`no-JS shipped L sanitized: ${L} != ${inputs.accents.gold[0]}`);
+      const floor=solveLightness(inputs.comment[1],inputs.comment[2],inputs.editor,4.5,inputs.comment[0]>inputs.editor[0]?'up':'down');assert.ok(Math.abs(Number(await p.locator('#rounded input[type=range]:visible').inputValue())-floor)<1e-12);
+      assert.equal(await p.locator('.solved-scale:visible').count(),1);assert.equal(await p.locator('[data-copy]:not(:disabled)').count(),0);row.measurements={shipped:L,floor};
+    });
+    await run('hero-motion-storage-keyboard', {reducedMotion:'no-preference'},async(p,c,row)=>{
+      await c.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.goto(base);await settled(p);await p.waitForTimeout(750);
+      const q=await c.newPage();await q.goto(base+'/#install');await settled(q);
+      await p.locator('[data-scheme-chip]').click();await p.waitForTimeout(100);await q.locator('[data-scheme-chip]').click();await q.waitForFunction(()=>document.documentElement.dataset.theme==='light');await p.waitForTimeout(1000);await consistent(p,'light');await consistent(q,'light');assert.equal((await themeState(p)).share,0);
+      await p.locator('[data-scheme-chip]').evaluate(e=>{e.click();e.click();e.click();});await p.waitForTimeout(1600);await settled(p);await consistent(p,'dark');
+      await p.evaluate(()=>{window.wipes=[];const original=Element.prototype.animate;Element.prototype.animate=function(frames,options){if(this===document.documentElement)window.wipes.push(options);return original.call(this,frames,options);};});
+      const handle=p.locator('[data-hero-handle]');await handle.focus();await p.keyboard.press('End');await p.waitForFunction(()=>document.documentElement.dataset.theme==='light');await settled(p);await consistent(p,'light');
+      if(await p.evaluate(()=>typeof document.startViewTransition==='function'))assert.ok(await p.evaluate(()=>window.wipes.some(o=>o.pseudoElement==='::view-transition-new(root)'&&o.duration===720)),'missing scene wipe');
+      const box=await handle.boundingBox();await p.mouse.move(box.x+box.width/2,box.y+box.height/2);await p.mouse.down();await p.mouse.move(20,box.y+box.height/2);row.measurements.dragRelease=await themeState(p);await p.mouse.up();await p.waitForFunction(()=>document.documentElement.dataset.theme==='dark',{},{timeout:6000});await settled(p);await consistent(p,'dark');row.measurements={p:await themeState(p),q:await themeState(q)};
+    });
+    await run('resize-mid-glide-and-depth-motion',{reducedMotion:'no-preference',viewport:{width:768,height:1000}},async(p,_c,row)=>{
+      await p.addInitScript(()=>{const native=requestAnimationFrame;window.heldFrames=[];window.requestAnimationFrame=callback=>native(time=>{if(window.freezeFrames)window.heldFrames.push(callback);else callback(time);});});
+      await p.goto(base+'/#depth');await settled(p);await p.waitForTimeout(750);await p.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
+      const box=await p.locator('[data-hero-handle]').boundingBox();await p.mouse.move(box.x+box.width/2,box.y+box.height/2);await p.mouse.down();await p.mouse.move(box.x+box.width/2+25,box.y+box.height/2);await p.mouse.up();
+      await p.evaluate(()=>{window.freezeFrames=true;});const before=(await themeState(p)).share;await p.setViewportSize({width:759,height:1000});const after=(await themeState(p)).share;row.measurements={before,after};assert.ok(Math.abs(after-before)<.001,JSON.stringify(row.measurements));await p.evaluate(()=>{window.freezeFrames=false;window.heldFrames.splice(0).forEach(callback=>requestAnimationFrame(callback));});assert.equal(await p.locator('.depth-list').isVisible(),true);assert.equal(await p.locator('[data-depth-stage]').isVisible(),false);
+      await p.setViewportSize({width:1440,height:1000});await p.locator('#depth').scrollIntoViewIfNeeded();await p.waitForTimeout(800);
+      await p.evaluate(()=>{window.depthMutations=0;new MutationObserver(records=>window.depthMutations+=records.length).observe(document.querySelector('[data-depth-frame]'),{childList:true});});
+      await p.locator('[data-depth-assemble]').click();await p.waitForTimeout(120);const motion=await p.evaluate(()=>({mutations:window.depthMutations,duration:getComputedStyle(document.querySelector('.depth-mover')).transitionDuration,transforms:[...document.querySelectorAll('.depth-mover:not(.depth-base)')].map(e=>getComputedStyle(e).transform)}));assert.equal(motion.mutations,0);assert.equal(motion.duration,'0.72s');assert.ok(motion.transforms.some(t=>t!=='none'&&t!=='matrix(1, 0, 0, 1, 0, 0)'));row.measurements=motion;
+    });
+    await run('states-delta-motion-alignment',{reducedMotion:'no-preference',viewport:{width:1100,height:1000}},async(p,_c,row)=>{
+      await p.goto(base+'/#states');await settled(p);await p.waitForTimeout(750);await p.locator('[data-state-scheme]:visible [data-state-toggle="selection"]').click();await p.waitForTimeout(150);
+      assert.ok(await p.locator('[data-delta-visible]').count()>0);const bars=await p.locator('[data-state-scheme]:visible .states-meter-bar').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().top));assert.ok(Math.max(...bars)-Math.min(...bars)<1,JSON.stringify(bars));
+      row.measurements=await p.locator('[data-state-fill]').first().evaluate(e=>({duration:getComputedStyle(e).transitionDuration}));assert.equal(row.measurements.duration,'0.36s');await p.waitForTimeout(1900);assert.equal(await p.locator('[data-delta-visible]').count(),0);
+      await p.emulateMedia({reducedMotion:'reduce'});await p.locator('[data-state-scheme]:visible [data-state-toggle="selection"]').click();assert.equal(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length),0);
+    });
+    for(const width of [1440,390])await run(`keyboard-controls-${width}`,{viewport:{width,height:1000}},async(p,_c,row)=>{
+      await p.goto(base+'/#overview');await settled(p);
+      const expected=await p.locator('#content a[href],#content button,#content input,#content [tabindex="0"]').evaluateAll(es=>es.filter(e=>e.getClientRects().length&&!e.disabled&&!e.closest('[inert]')&&e.tabIndex>=0).map((e,i)=>{e.dataset.focusCase=String(i);return String(i);}));
+      await p.evaluate(()=>{document.activeElement?.blur();scrollTo(0,0);});const seen=[];
+      for(let i=0;i<expected.length+50&&seen.length<expected.length;i++){await p.keyboard.press('Tab');await p.waitForFunction(()=>{const r=document.activeElement.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;});const active=await p.evaluate(()=>{const e=document.activeElement,s=getComputedStyle(e),r=e.getBoundingClientRect();return {id:e.dataset.focusCase,outline:s.outlineStyle,width:parseFloat(s.outlineWidth),shadow:s.boxShadow,top:r.top,bottom:r.bottom};});if(active.id!==undefined){assert.ok(active.width>0&&active.outline!=='none'||active.shadow!=='none',`invisible focus ${JSON.stringify(active)}`);assert.ok(active.bottom>0&&active.top<1000,`focus outside viewport ${JSON.stringify(active)}`);assert.ok(!seen.includes(active.id),`control reached twice ${active.id}`);seen.push(active.id);}}
+      assert.deepEqual([...seen].sort(),[...expected].sort());row.measurements={controls:seen.length};
+    });
+    await run('rail-gutter-current-and-chip',{},async(p,_c,row)=>{
+      await p.goto(base+'/#states');await settled(p);
+      for(const width of [1440,1920]){await p.setViewportSize({width,height:1000});await p.locator('#states').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await p.waitForTimeout(100);const g=await p.evaluate(()=>{const rail=document.querySelector('.chapter-rail'),chip=document.querySelector('[data-scheme-chip]'),r=rail.getBoundingClientRect(),c=chip.getBoundingClientRect();return {gutter:document.querySelector('#depth').getBoundingClientRect().left,hidden:rail.hidden,current:rail.querySelector('[aria-current]')?.hash,overlap:!rail.hidden&&r.left<c.right&&r.right>c.left&&r.top<c.bottom&&r.bottom>c.top};});assert.equal(g.hidden,g.gutter<190);assert.equal(g.current,'#states');assert.equal(g.overlap,false);row.measurements[width]=g;}
+    });
+    await run('touch-outside-tab-scroll',{hasTouch:true,viewport:{width:390,height:1000}},async(p,c,row)=>{
+      await p.goto(base);await settled(p);const before=(await themeState(p)).share;
+      const prevented=await p.locator('[data-hero]').evaluate(e=>{const event=new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerType:'touch',pointerId:7,button:0,clientX:30,clientY:350});e.dispatchEvent(event);return event.defaultPrevented;});assert.equal(prevented,false);
+      if(name==='chromium'){const session=await c.newCDPSession(p);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:30,y:600}]});for(const y of [550,450,350,250])await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:30,y}]});await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await p.waitForTimeout(300);row.measurements.method='native CDP touch swipe';}
+      else{await p.mouse.wheel(0,350);await p.waitForTimeout(300);row.measurements.method='emulated touch admission plus native scroll (Playwright exposes touch tap only)';}
+      assert.ok(await p.evaluate(()=>scrollY)>0);assert.equal((await themeState(p)).share,before);
+    });
+    for(const width of [1440,390,320])for(const scheme of ['dark','light'])await run(`splash-labels-${scheme}-${width}`,{viewport:{width,height:1000},colorScheme:scheme,reducedMotion:'no-preference'},async(p,_c,row)=>{
+      await p.goto(base,{waitUntil:'domcontentloaded'});await p.waitForTimeout(1200);const boxes=await p.locator('.splash-intro__label').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {text:e.textContent,x:r.x,y:r.y,right:r.right,bottom:r.bottom};}));assert.equal(boxes.length,8);assert.ok(boxes.every(r=>r.x>=0&&r.y>=0&&r.right<=width&&r.bottom<=1000),JSON.stringify(boxes));assert.ok((await p.locator('.splash-intro__wordmark').getAttribute('src')).includes(scheme==='light'?'aion-wordmark.webp':'aion-wordmark-light.webp'));row.measurements={boxes};
+    });
+    await run('splash-first-skip-reload',{reducedMotion:'no-preference'},async(p,_c,row)=>{
+      await p.goto(base,{waitUntil:'domcontentloaded'});await p.waitForTimeout(200);assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');await p.keyboard.press('Escape');await settled(p);await p.reload({waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),null);row.measurements={session:await p.evaluate(()=>sessionStorage.getItem('aion-site-intro'))};
+    });
+    for(const [id,route,options] of [['deep','/#install',{reducedMotion:'no-preference'}],['reference','/palette.html',{reducedMotion:'no-preference'}],['reduced','/',{}]])await run(`splash-skipped-${id}`,options,async(p)=>{await p.goto(base+route,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),null);await settled(p);if(id==='reduced')assert.equal(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length),0);});
+    await run('splash-blocked-client-timeout',{reducedMotion:'no-preference'},async(p,_c,row)=>{
+      await p.route('**/assets/*.js',route=>route.abort());await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');const start=Date.now();await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'),{},{timeout:5000});row.measurements.releaseMs=Date.now()-start;assert.ok(row.measurements.releaseMs<=4100);assert.equal(await p.locator('#app').evaluate(e=>getComputedStyle(e).visibility),'visible');
+    });
+    await run('clipboard-unavailable-and-rejection',{},async(p)=>{
+      await p.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));await p.goto(base+'/#install');await settled(p);await p.locator('[data-install-target] [data-copy]').first().click();assert.match(await p.locator('.copy-status').textContent(),/unavailable|select/i);assert.equal(await p.locator('.install-command code').first().evaluate(e=>getComputedStyle(e).userSelect),'text');
+      await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('rejected');}}}));await p.locator('[data-install-target] [data-copy]').first().click();await p.waitForFunction(()=>document.querySelector('.copy-status').dataset.status==='error');assert.ok(await p.locator('.copy-status').isVisible());
+    });
+  }finally{await browser.close();}
+  const result={browser:name,version,passed:rows.every(r=>r.passed),cases:rows.length,failed:rows.filter(r=>!r.passed).map(r=>r.id),rows};await writeFile(`${dir}/results.json`,JSON.stringify(result,null,2));return result;
+}
+const names=process.env.BROWSER?[process.env.BROWSER]:['chromium','firefox','webkit'];
+for(const name of names)assert.ok(['chromium','firefox','webkit'].includes(name),`Unknown BROWSER ${name}`);
+const results=await Promise.all(names.map(engineRun));await writeFile(`${output}/results.json`,JSON.stringify(results.map(({rows,...summary})=>summary),null,2));console.log(JSON.stringify(results.map(({rows,...summary})=>summary),null,2));if(results.some(r=>!r.passed))process.exitCode=1;

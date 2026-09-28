@@ -36,7 +36,7 @@ function harness(reduce = false) {
   const labels = [new Node(), new Node()]; handle.querySelectorAll = () => labels;
   handle.closest = (selector) => selector.includes('data-hero-handle') ? handle : null;
   root.querySelector = (selector) => ({ '[data-hero-base]': base, '[data-hero-far]': far, '[data-hero-handle]': handle, '[data-hero-seam]': line, '[data-hero-seam-far]': farLine })[selector] ?? null;
-  let width = 800; root.getBoundingClientRect = () => ({ left: 0, top: 0, width, height: 600, bottom: 600, right: width });
+  let width = 800, height = 600; root.getBoundingClientRect = () => ({ left: 0, top: 0, width, height, bottom: height, right: width });
   const hero = mountHero(root as unknown as HTMLElement, controller, { now: () => time, raf: (callback) => { frames.set(++id, callback); return id; }, cancelRaf: (key) => { frames.delete(key); }, reducedMotion: reduced as unknown as MediaQueryList, resize });
   const advance = (amount: number) => { time += amount; const queued = [...frames.values()]; frames.clear(); queued.forEach((callback) => callback(time)); };
   const pointer = (type: string, x: number, target: Node = handle) => {
@@ -45,7 +45,7 @@ function harness(reduce = false) {
   };
   const key = (name: string) => handle.dispatchEvent(Object.assign(new Event('keydown', { cancelable: true }), { key: name }));
   const storage = (theme: 'light' | 'dark') => resize.dispatchEvent(Object.assign(new Event('storage'), { key: 'aion-site-theme', newValue: theme }));
-  return { root, base, far, handle, line, controller, request, hero, advance, pointer, key, storage, reduced, resize, frames, page, figure, setWidth: (next: number) => { width = next; } };
+  return { root, base, far, handle, line, controller, request, hero, advance, pointer, key, storage, reduced, resize, frames, page, figure, setWidth: (next: number) => { width = next; }, setHeight: (next: number) => { height = next; } };
 }
 
 describe('Diptych controller', () => {
@@ -122,4 +122,16 @@ it('keeps the editor unselectable and gates both far picture and seam on JavaScr
   expect(css).toContain('.js .hero-far, .js .hero-seam-svg, .js .hero-handle { display: block; }');
   const geometry = seamGeometry(0.5, 800, 600);
   expect(geometry.top).toBeLessThan(800); expect(geometry.top - 76).toBeGreaterThan(0);
+});
+
+it('measures the intrinsic height after setting editor scale, preserving share', () => {
+ const h=harness();h.hero.arrive();h.advance(720);const editor=new Node();
+ editor.style.setProperty=vi.fn(()=>{h.setHeight(750);});h.root.querySelectorAll=()=>[editor];
+ h.resize.dispatchEvent(new Event('resize'));
+ expect(h.root.dataset['heroShare']).toBe('0.42');expect(h.far.style.clipPath).toBe(seamGeometry(0.42,800,750).clip);h.hero.dispose();
+});
+it('observes later intrinsic size changes and disconnects on disposal', () => {
+ let deliver=()=>{};const disconnect=vi.fn();
+ vi.stubGlobal('ResizeObserver',class {constructor(callback:()=>void){deliver=callback;}observe(){}disconnect=disconnect;});
+ try {const h=harness();h.hero.arrive();h.advance(720);h.setHeight(790);deliver();expect(h.root.dataset['heroShare']).toBe('0.42');expect(h.far.style.clipPath).toBe(seamGeometry(0.42,800,790).clip);h.hero.dispose();expect(disconnect).toHaveBeenCalledOnce();}finally{vi.unstubAllGlobals();}
 });
