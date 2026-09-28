@@ -95,6 +95,8 @@ export interface OverlaySearch {
   readonly against: Oklch;
   /** Every gate the candidate has to pass: the reading states it joins, and any cue under it. */
   readonly accept: (candidate: Overlay) => boolean;
+  /** Optional renderer-specific visibility objective; the default retains emitted-key blending. */
+  readonly score?: (candidate: Overlay) => number;
   readonly lightness?: readonly [number, number];
   readonly chroma?: readonly [number, number];
   readonly alpha?: readonly [number, number];
@@ -102,7 +104,7 @@ export interface OverlaySearch {
 
 export interface OverlaySolution {
   readonly overlay: Overlay;
-  /** OKLab distance the overlay moves `against` by, read from the emitted bytes. */
+  /** Visibility under the supplied score, or emitted-key OKLab distance by default. */
   readonly distance: number;
 }
 
@@ -125,7 +127,8 @@ export function solveOverlay(search: OverlaySearch): OverlaySolution | null {
           const colour: Oklch = [round3(l), round3(c), hue];
           if (!inGamut(colour)) continue;
           const candidate: Overlay = { color: colour, alpha: round3(a) };
-          const distance = distanceEmitted(compositeEmitted(colour, candidate.alpha, search.against), search.against);
+          const distance = search.score?.(candidate) ??
+            distanceEmitted(compositeEmitted(colour, candidate.alpha, search.against), search.against);
           if (best !== null && distance <= best.distance) continue;
           if (!search.accept(candidate)) continue;
           best = { overlay: candidate, distance };

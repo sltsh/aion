@@ -107,561 +107,561 @@ composites it, with the foreground that reads worst on each. Generated from
 | State | Background | Worst foreground | Ratio |
 |---|---|---|---:|
 | editor | `#11151c` | comment | 6.95 |
-| editor + wordHighlight | `#0b1e5b` | comment | 5.91 |
-| editor + findMatchOther | `#272312` | comment | 5.98 |
-| editor + wordHighlight + findMatchOther | `#242837` | comment | 5.57 |
-| editor + selectionHighlight | `#0b1547` | comment | 6.58 |
-| editor + selectionHighlight + wordHighlight | `#071e72` | comment | 5.55 |
-| editor + selectionHighlight + findMatchOther | `#24232b` | comment | 5.91 |
-| editor + selectionHighlight + wordHighlight + findMatchOther | `#212845` | comment | 5.49 |
-| editor + findRange | `#091559` | comment | 6.32 |
-| editor + rangeHighlight | `#091559` | comment | 6.32 |
-| editor + fold | `#091559` | comment | 6.32 |
+| editor + wordHighlight | `#0b1f5c` | comment | 5.85 |
+| editor + findMatchOther | `#282412` | comment | 5.91 |
+| editor + wordHighlight + findMatchOther | `#242a39` | comment | 5.45 |
+| editor + selectionHighlight | `#091b59` | comment | 6.08 |
+| editor + selectionHighlight + wordHighlight | `#06227e` | comment | 5.19 |
+| editor + selectionHighlight + findMatchOther | `#232837` | comment | 5.58 |
+| editor + selectionHighlight + wordHighlight + findMatchOther | `#212c4d` | comment | 5.21 |
+| editor + findRange | `#091a57` | comment | 6.15 |
+| editor + rangeHighlight | `#091c59` | comment | 6.04 |
+| editor + fold | `#091a57` | comment | 6.15 |
 | editor + hover | `#0e243f` | comment | 5.94 |
-| editor + symbol | `#272312` | comment | 5.98 |
-| editor + strongWord | `#202629` | comment | 5.82 |
-| editor + stackFrame | `#1f1c11` | comment | 6.48 |
-| editor + focusedStackFrame | `#0a2316` | comment | 6.31 |
-| editor + bracketMatch | `#242011` | comment | 6.19 |
-| editor + commentRange | `#272312` | comment | 5.98 |
-| editor + activeCommentRange | `#272312` | comment | 5.98 |
-| editor + mergeCurrentHeader | `#0a2316` | comment | 6.31 |
-| editor + mergeIncomingHeader | `#09213d` | comment | 6.16 |
-| editor + mergeCommonHeader | `#091559` | comment | 6.32 |
+| editor + symbol | `#272211` | comment | 6.03 |
+| editor + strongWord | `#202529` | comment | 5.88 |
+| editor + stackFrame | `#1f1c10` | comment | 6.48 |
+| editor + focusedStackFrame | `#092216` | comment | 6.38 |
+| editor + bracketMatch | `#241f10` | comment | 6.24 |
+| editor + commentRange | `#272211` | comment | 6.03 |
+| editor + activeCommentRange | `#272211` | comment | 6.03 |
+| editor + mergeCurrentHeader | `#092216` | comment | 6.38 |
+| editor + mergeIncomingHeader | `#09203d` | comment | 6.21 |
+| editor + mergeCommonHeader | `#091a57` | comment | 6.15 |
 | editor + mergeChange | `#0e2e1d` | comment | 5.59 |
 | editor + mergeChangeWord | `#0e2e1d` | comment | 5.59 |
-| editor + searchMatch | `#272312` | comment | 5.98 |
+| editor + searchMatch | `#272211` | comment | 6.03 |
 | editor + covered | `#092918` | comment | 5.95 |
-| editor + uncovered | `#400d1b` | comment | 6.18 |
-| editor + unchangedCode | `#1a1e25` | comment | 6.35 |
-| editor + addedLine | `#0f1f1d` | comment | 6.47 |
-| editor + addedLine + wordHighlight | `#0a245b` | comment | 5.64 |
-| editor + addedLine + findMatchOther | `#262912` | comment | 5.67 |
-| editor + addedLine + wordHighlight + findMatchOther | `#232c37` | comment | 5.37 |
-| editor + addedLine + selectionHighlight | `#0a1b47` | comment | 6.33 |
-| editor + addedLine + selectionHighlight + wordHighlight | `#072272` | comment | 5.39 |
-| editor + addedLine + selectionHighlight + findMatchOther | `#23272b` | comment | 5.72 |
-| editor + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#212b45` | comment | 5.34 |
-| editor + findRange + addedLine | `#081f53` | comment | 6.00 |
-| editor + addedLine + rangeHighlight | `#081a5a` | comment | 6.11 |
-| editor + fold + addedLine | `#081f53` | comment | 6.00 |
-| editor + addedLine + hover | `#0d2a40` | comment | 5.61 |
-| editor + addedLine + symbol | `#262912` | comment | 5.67 |
-| editor + addedLine + strongWord | `#1f2b2a` | comment | 5.55 |
-| editor + stackFrame + addedLine | `#1b2514` | comment | 6.04 |
-| editor + focusedStackFrame + addedLine | `#092b18` | comment | 5.83 |
-| editor + addedLine + bracketMatch | `#232611` | comment | 5.88 |
-| editor + addedLine + commentRange | `#262912` | comment | 5.67 |
-| editor + addedLine + activeCommentRange | `#262912` | comment | 5.67 |
-| editor + mergeCurrentHeader + addedLine | `#092b18` | comment | 5.83 |
-| editor + mergeIncomingHeader + addedLine | `#082a3a` | comment | 5.69 |
-| editor + mergeCommonHeader + addedLine | `#081f53` | comment | 6.00 |
-| editor + addedLine + searchMatch | `#262912` | comment | 5.67 |
-| editor + addedLine + covered | `#082f19` | comment | 5.58 |
-| editor + addedLine + uncovered | `#3f131b` | comment | 6.05 |
-| editor + addedLine + addedWord | `#0d2b1e` | comment | 5.78 |
-| editor + addedLine + addedWord + wordHighlight | `#092b5c` | comment | 5.28 |
-| editor + addedLine + addedWord + findMatchOther | `#253013` | comment | 5.28 |
-| editor + addedLine + addedWord + wordHighlight + findMatchOther | `#233038` | comment | 5.15 |
-| editor + addedLine + addedWord + selectionHighlight | `#082348` | comment | 5.94 |
-| editor + addedLine + addedWord + selectionHighlight + wordHighlight | `#062673` | comment | 5.21 |
-| editor + addedLine + addedWord + selectionHighlight + findMatchOther | `#222b2c` | comment | 5.51 |
-| editor + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#212d46` | comment | 5.22 |
-| editor + findRange + addedLine + addedWord | `#072b4c` | comment | 5.47 |
-| editor + addedLine + rangeHighlight + addedWord | `#072652` | comment | 5.67 |
-| editor + fold + addedLine + addedWord | `#072b4c` | comment | 5.47 |
-| editor + addedLine + addedWord + hover | `#0c3040` | comment | 5.28 |
-| editor + addedLine + addedWord + symbol | `#253013` | comment | 5.28 |
-| editor + addedLine + addedWord + strongWord | `#1e322a` | comment | 5.17 |
-| editor + stackFrame + addedLine + addedWord | `#173017` | comment | 5.42 |
-| editor + focusedStackFrame + addedLine + addedWord | `#08351a` | comment | 5.20 |
-| editor + addedLine + bracketMatch + addedWord | `#1e3114` | comment | 5.31 |
-| editor + addedLine + addedWord + commentRange | `#253013` | comment | 5.28 |
-| editor + addedLine + addedWord + activeCommentRange | `#253013` | comment | 5.28 |
-| editor + mergeCurrentHeader + addedLine + addedWord | `#08351a` | comment | 5.20 |
-| editor + mergeIncomingHeader + addedLine + addedWord | `#073437` | comment | 5.13 |
-| editor + mergeCommonHeader + addedLine + addedWord | `#072b4c` | comment | 5.47 |
-| editor + addedLine + addedWord + searchMatch | `#253013` | comment | 5.28 |
-| editor + addedLine + addedWord + covered | `#073519` | comment | 5.21 |
-| editor + addedLine + addedWord + uncovered | `#3d1a1c` | comment | 5.86 |
-| editor + removedLine | `#2e1921` | comment | 6.25 |
-| editor + removedLine + wordHighlight | `#1b215d` | comment | 5.61 |
-| editor + removedLine + findMatchOther | `#392515` | comment | 5.51 |
-| editor + removedLine + wordHighlight + findMatchOther | `#2d2a39` | comment | 5.32 |
-| editor + removedLine + selectionHighlight | `#1e174a` | comment | 6.25 |
-| editor + removedLine + selectionHighlight + wordHighlight | `#122074` | comment | 5.38 |
-| editor + removedLine + selectionHighlight + findMatchOther | `#2f242d` | comment | 5.66 |
-| editor + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#282a46` | comment | 5.29 |
-| editor + findRange + removedLine | `#281954` | comment | 5.88 |
-| editor + removedLine + rangeHighlight | `#17175c` | comment | 6.08 |
-| editor + fold + removedLine | `#281954` | comment | 5.88 |
-| editor + removedLine + hover | `#1e2742` | comment | 5.61 |
-| editor + removedLine + symbol | `#392515` | comment | 5.51 |
-| editor + removedLine + strongWord | `#30282c` | comment | 5.45 |
-| editor + stackFrame + removedLine | `#3a1f18` | comment | 5.75 |
-| editor + focusedStackFrame + removedLine | `#29251c` | comment | 5.80 |
-| editor + removedLine + bracketMatch | `#362214` | comment | 5.72 |
-| editor + removedLine + commentRange | `#392515` | comment | 5.51 |
-| editor + removedLine + activeCommentRange | `#392515` | comment | 5.51 |
-| editor + mergeCurrentHeader + removedLine | `#29251c` | comment | 5.80 |
-| editor + mergeIncomingHeader + removedLine | `#28233d` | comment | 5.71 |
-| editor + mergeCommonHeader + removedLine | `#281954` | comment | 5.88 |
-| editor + removedLine + searchMatch | `#392515` | comment | 5.51 |
-| editor + removedLine + covered | `#192b1b` | comment | 5.69 |
-| editor + removedLine + uncovered | `#510f1e` | comment | 5.56 |
-| editor + removedLine + removedWord | `#481d25` | comment | 5.40 |
-| editor + removedLine + removedWord + wordHighlight | `#292360` | comment | 5.31 |
-| editor + removedLine + removedWord + findMatchOther | `#482817` | comment | 5.02 |
-| editor + removedLine + removedWord + wordHighlight + findMatchOther | `#362b3a` | comment | 5.11 |
-| editor + removedLine + removedWord + selectionHighlight | `#2f1a4d` | comment | 5.80 |
-| editor + removedLine + removedWord + selectionHighlight + wordHighlight | `#1b2176` | comment | 5.23 |
-| editor + removedLine + removedWord + selectionHighlight + findMatchOther | `#39262f` | comment | 5.35 |
-| editor + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2d2a48` | comment | 5.20 |
-| editor + findRange + removedLine + removedWord | `#431d50` | comment | 5.22 |
-| editor + removedLine + rangeHighlight + removedWord | `#351b56` | comment | 5.53 |
-| editor + fold + removedLine + removedWord | `#431d50` | comment | 5.22 |
-| editor + removedLine + removedWord + hover | `#2d2944` | comment | 5.28 |
-| editor + removedLine + removedWord + symbol | `#482817` | comment | 5.02 |
-| editor + removedLine + removedWord + strongWord | `#3e2a2e` | comment | 5.07 |
-| editor + stackFrame + removedLine + removedWord | `#52221e` | comment | 4.97 |
-| editor + focusedStackFrame + removedLine + removedWord | `#442721` | comment | 5.12 |
-| editor + removedLine + bracketMatch + removedWord | `#4f241b` | comment | 4.99 |
-| editor + removedLine + removedWord + commentRange | `#482817` | comment | 5.02 |
-| editor + removedLine + removedWord + activeCommentRange | `#482817` | comment | 5.02 |
-| editor + mergeCurrentHeader + removedLine + removedWord | `#442721` | comment | 5.12 |
-| editor + mergeIncomingHeader + removedLine + removedWord | `#43253d` | comment | 5.08 |
-| editor + mergeCommonHeader + removedLine + removedWord | `#431d50` | comment | 5.22 |
-| editor + removedLine + removedWord + searchMatch | `#482817` | comment | 5.02 |
-| editor + removedLine + removedWord + covered | `#282e1d` | comment | 5.33 |
-| editor + removedLine + removedWord + uncovered | `#611120` | comment | 4.96 |
-| editor + lineHighlight | `#21252d` | comment | 5.84 |
-| editor + lineHighlight + wordHighlight | `#142764` | comment | 5.31 |
+| editor + uncovered | `#400c1a` | comment | 6.21 |
+| editor + unchangedCode | `#191d25` | comment | 6.42 |
+| editor + addedLine | `#0e1f1d` | comment | 6.48 |
+| editor + addedLine + wordHighlight | `#09255c` | comment | 5.58 |
+| editor + addedLine + findMatchOther | `#262a13` | comment | 5.61 |
+| editor + addedLine + wordHighlight + findMatchOther | `#232e39` | comment | 5.25 |
+| editor + addedLine + selectionHighlight | `#07205a` | comment | 5.86 |
+| editor + addedLine + selectionHighlight + wordHighlight | `#05257e` | comment | 5.08 |
+| editor + addedLine + selectionHighlight + findMatchOther | `#222b38` | comment | 5.43 |
+| editor + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#212e4d` | comment | 5.11 |
+| editor + findRange + addedLine | `#072351` | comment | 5.83 |
+| editor + addedLine + rangeHighlight | `#072259` | comment | 5.78 |
+| editor + fold + addedLine | `#072351` | comment | 5.83 |
+| editor + addedLine + hover | `#0c2a3f` | comment | 5.63 |
+| editor + addedLine + symbol | `#252812` | comment | 5.74 |
+| editor + addedLine + strongWord | `#1e2b29` | comment | 5.57 |
+| editor + stackFrame + addedLine | `#1b2513` | comment | 6.04 |
+| editor + focusedStackFrame + addedLine | `#072a18` | comment | 5.90 |
+| editor + addedLine + bracketMatch | `#222511` | comment | 5.95 |
+| editor + addedLine + commentRange | `#252812` | comment | 5.74 |
+| editor + addedLine + activeCommentRange | `#252812` | comment | 5.74 |
+| editor + mergeCurrentHeader + addedLine | `#072a18` | comment | 5.90 |
+| editor + mergeIncomingHeader + addedLine | `#07293a` | comment | 5.75 |
+| editor + mergeCommonHeader + addedLine | `#072351` | comment | 5.83 |
+| editor + addedLine + searchMatch | `#252812` | comment | 5.74 |
+| editor + addedLine + covered | `#072f18` | comment | 5.59 |
+| editor + addedLine + uncovered | `#3e121b` | comment | 6.11 |
+| editor + addedLine + addedWord | `#0b2b1e` | comment | 5.79 |
+| editor + addedLine + addedWord + wordHighlight | `#082b5d` | comment | 5.27 |
+| editor + addedLine + addedWord + findMatchOther | `#243114` | comment | 5.24 |
+| editor + addedLine + addedWord + wordHighlight + findMatchOther | `#223139` | comment | 5.10 |
+| editor + addedLine + addedWord + selectionHighlight | `#05265a` | comment | 5.58 |
+| editor + addedLine + addedWord + selectionHighlight + wordHighlight | `#04287e` | comment | 4.96 |
+| editor + addedLine + addedWord + selectionHighlight + findMatchOther | `#212e38` | comment | 5.28 |
+| editor + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#20304d` | comment | 5.02 |
+| editor + findRange + addedLine + addedWord | `#052e4a` | comment | 5.34 |
+| editor + addedLine + rangeHighlight + addedWord | `#052d50` | comment | 5.33 |
+| editor + fold + addedLine + addedWord | `#052e4a` | comment | 5.34 |
+| editor + addedLine + addedWord + hover | `#0b3040` | comment | 5.28 |
+| editor + addedLine + addedWord + symbol | `#232f13` | comment | 5.37 |
+| editor + addedLine + addedWord + strongWord | `#1d312a` | comment | 5.23 |
+| editor + stackFrame + addedLine + addedWord | `#163015` | comment | 5.44 |
+| editor + focusedStackFrame + addedLine + addedWord | `#05341a` | comment | 5.28 |
+| editor + addedLine + bracketMatch + addedWord | `#1c3014` | comment | 5.39 |
+| editor + addedLine + addedWord + commentRange | `#232f13` | comment | 5.37 |
+| editor + addedLine + addedWord + activeCommentRange | `#232f13` | comment | 5.37 |
+| editor + mergeCurrentHeader + addedLine + addedWord | `#05341a` | comment | 5.28 |
+| editor + mergeIncomingHeader + addedLine + addedWord | `#053336` | comment | 5.21 |
+| editor + mergeCommonHeader + addedLine + addedWord | `#052e4a` | comment | 5.34 |
+| editor + addedLine + addedWord + searchMatch | `#232f13` | comment | 5.37 |
+| editor + addedLine + addedWord + covered | `#063519` | comment | 5.21 |
+| editor + addedLine + addedWord + uncovered | `#3c191c` | comment | 5.92 |
+| editor + removedLine | `#2e1820` | comment | 6.30 |
+| editor + removedLine + wordHighlight | `#1b215e` | comment | 5.60 |
+| editor + removedLine + findMatchOther | `#392615` | comment | 5.46 |
+| editor + removedLine + wordHighlight + findMatchOther | `#2e2b3a` | comment | 5.24 |
+| editor + removedLine + selectionHighlight | `#181c5c` | comment | 5.87 |
+| editor + removedLine + selectionHighlight + wordHighlight | `#0f237f` | comment | 5.09 |
+| editor + removedLine + selectionHighlight + findMatchOther | `#2c2839` | comment | 5.43 |
+| editor + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#272d4e` | comment | 5.08 |
+| editor + findRange + removedLine | `#271c52` | comment | 5.81 |
+| editor + removedLine + rangeHighlight | `#191e5b` | comment | 5.79 |
+| editor + fold + removedLine | `#271c52` | comment | 5.81 |
+| editor + removedLine + hover | `#1e2641` | comment | 5.67 |
+| editor + removedLine + symbol | `#382414` | comment | 5.58 |
+| editor + removedLine + strongWord | `#30272b` | comment | 5.50 |
+| editor + stackFrame + removedLine | `#3a1e16` | comment | 5.80 |
+| editor + focusedStackFrame + removedLine | `#27231b` | comment | 5.95 |
+| editor + removedLine + bracketMatch | `#352113` | comment | 5.79 |
+| editor + removedLine + commentRange | `#382414` | comment | 5.58 |
+| editor + removedLine + activeCommentRange | `#382414` | comment | 5.58 |
+| editor + mergeCurrentHeader + removedLine | `#27231b` | comment | 5.95 |
+| editor + mergeIncomingHeader + removedLine | `#27213c` | comment | 5.83 |
+| editor + mergeCommonHeader + removedLine | `#271c52` | comment | 5.81 |
+| editor + removedLine + searchMatch | `#382414` | comment | 5.58 |
+| editor + removedLine + covered | `#192b1a` | comment | 5.69 |
+| editor + removedLine + uncovered | `#510e1d` | comment | 5.58 |
+| editor + removedLine + removedWord | `#481b24` | comment | 5.48 |
+| editor + removedLine + removedWord + wordHighlight | `#292260` | comment | 5.35 |
+| editor + removedLine + removedWord + findMatchOther | `#492817` | comment | 4.99 |
+| editor + removedLine + removedWord + wordHighlight + findMatchOther | `#362c3b` | comment | 5.05 |
+| editor + removedLine + removedWord + selectionHighlight | `#261e5e` | comment | 5.58 |
+| editor + removedLine + removedWord + selectionHighlight + wordHighlight | `#162480` | comment | 4.99 |
+| editor + removedLine + removedWord + selectionHighlight + findMatchOther | `#342a3a` | comment | 5.19 |
+| editor + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2b2d4f` | comment | 5.02 |
+| editor + findRange + removedLine + removedWord | `#421f4e` | comment | 5.19 |
+| editor + removedLine + rangeHighlight + removedWord | `#362055` | comment | 5.34 |
+| editor + fold + removedLine + removedWord | `#421f4e` | comment | 5.19 |
+| editor + removedLine + removedWord + hover | `#2c2743` | comment | 5.40 |
+| editor + removedLine + removedWord + symbol | `#482616` | comment | 5.10 |
+| editor + removedLine + removedWord + strongWord | `#3e282d` | comment | 5.16 |
+| editor + stackFrame + removedLine + removedWord | `#52201c` | comment | 5.05 |
+| editor + focusedStackFrame + removedLine + removedWord | `#422520` | comment | 5.26 |
+| editor + removedLine + bracketMatch + removedWord | `#4e2319` | comment | 5.06 |
+| editor + removedLine + removedWord + commentRange | `#482616` | comment | 5.10 |
+| editor + removedLine + removedWord + activeCommentRange | `#482616` | comment | 5.10 |
+| editor + mergeCurrentHeader + removedLine + removedWord | `#422520` | comment | 5.26 |
+| editor + mergeIncomingHeader + removedLine + removedWord | `#42233b` | comment | 5.20 |
+| editor + mergeCommonHeader + removedLine + removedWord | `#421f4e` | comment | 5.19 |
+| editor + removedLine + removedWord + searchMatch | `#482616` | comment | 5.10 |
+| editor + removedLine + removedWord + covered | `#272c1c` | comment | 5.46 |
+| editor + removedLine + removedWord + uncovered | `#61101f` | comment | 4.98 |
+| editor + lineHighlight | `#20242c` | comment | 5.91 |
+| editor + lineHighlight + wordHighlight | `#132765` | comment | 5.30 |
 | editor + lineHighlight + findMatchOther | `#312d1c` | comment | 5.24 |
-| editor + lineHighlight + wordHighlight + findMatchOther | `#292e3d` | comment | 5.14 |
-| editor + lineHighlight + selectionHighlight | `#151f52` | comment | 5.91 |
-| editor + lineHighlight + selectionHighlight + wordHighlight | `#0d2478` | comment | 5.18 |
-| editor + lineHighlight + selectionHighlight + findMatchOther | `#2a2932` | comment | 5.46 |
-| editor + lineHighlight + selectionHighlight + wordHighlight + findMatchOther | `#252c49` | comment | 5.20 |
-| editor + lineHighlight + findRange | `#111d62` | comment | 5.80 |
-| editor + lineHighlight + rangeHighlight | `#111d62` | comment | 5.80 |
-| editor + lineHighlight + fold | `#111d62` | comment | 5.80 |
-| editor + lineHighlight + hover | `#172d48` | comment | 5.30 |
-| editor + lineHighlight + symbol | `#312d1c` | comment | 5.24 |
-| editor + lineHighlight + strongWord | `#292e32` | comment | 5.21 |
-| editor + lineHighlight + stackFrame | `#29261b` | comment | 5.75 |
-| editor + lineHighlight + focusedStackFrame | `#132b20` | comment | 5.73 |
-| editor + lineHighlight + bracketMatch | `#2e291b` | comment | 5.51 |
-| editor + lineHighlight + commentRange | `#312d1c` | comment | 5.24 |
-| editor + lineHighlight + activeCommentRange | `#312d1c` | comment | 5.24 |
-| editor + lineHighlight + mergeCurrentHeader | `#132b20` | comment | 5.73 |
-| editor + lineHighlight + mergeIncomingHeader | `#112946` | comment | 5.58 |
-| editor + lineHighlight + mergeCommonHeader | `#111d62` | comment | 5.80 |
-| editor + lineHighlight + mergeChange | `#173726` | comment | 4.96 |
-| editor + lineHighlight + mergeChangeWord | `#173726` | comment | 4.96 |
-| editor + lineHighlight + searchMatch | `#312d1c` | comment | 5.24 |
-| editor + lineHighlight + covered | `#123221` | comment | 5.31 |
-| editor + lineHighlight + uncovered | `#491625` | comment | 5.60 |
-| editor + lineHighlight + unchangedCode | `#252931` | comment | 5.54 |
-| editor + lineHighlight + addedLine | `#1d2d2c` | comment | 5.45 |
-| editor + lineHighlight + addedLine + wordHighlight | `#112c63` | comment | 5.10 |
-| editor + lineHighlight + addedLine + findMatchOther | `#2f311b` | comment | 5.06 |
-| editor + lineHighlight + addedLine + wordHighlight + findMatchOther | `#27313c` | comment | 5.02 |
-| editor + lineHighlight + addedLine + selectionHighlight | `#132451` | comment | 5.71 |
-| editor + lineHighlight + addedLine + selectionHighlight + wordHighlight | `#0c2778` | comment | 5.06 |
-| editor + lineHighlight + addedLine + selectionHighlight + findMatchOther | `#292c31` | comment | 5.33 |
-| editor + lineHighlight + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#242e49` | comment | 5.11 |
-| editor + lineHighlight + findRange + addedLine | `#0f265b` | comment | 5.51 |
-| editor + lineHighlight + addedLine + rangeHighlight | `#0f2161` | comment | 5.66 |
-| editor + lineHighlight + fold + addedLine | `#0f265b` | comment | 5.51 |
-| editor + lineHighlight + addedLine + hover | `#153248` | comment | 5.05 |
-| editor + lineHighlight + addedLine + symbol | `#2f311b` | comment | 5.06 |
-| editor + lineHighlight + addedLine + strongWord | `#263332` | comment | 4.98 |
-| editor + lineHighlight + stackFrame + addedLine | `#242e1c` | comment | 5.38 |
-| editor + lineHighlight + focusedStackFrame + addedLine | `#113221` | comment | 5.31 |
-| editor + lineHighlight + addedLine + bracketMatch | `#2b2e1a` | comment | 5.29 |
-| editor + lineHighlight + addedLine + commentRange | `#2f311b` | comment | 5.06 |
-| editor + lineHighlight + addedLine + activeCommentRange | `#2f311b` | comment | 5.06 |
-| editor + lineHighlight + mergeCurrentHeader + addedLine | `#113221` | comment | 5.31 |
-| editor + lineHighlight + mergeIncomingHeader + addedLine | `#0f3142` | comment | 5.19 |
-| editor + lineHighlight + mergeCommonHeader + addedLine | `#0f265b` | comment | 5.51 |
-| editor + lineHighlight + addedLine + searchMatch | `#2f311b` | comment | 5.06 |
-| editor + lineHighlight + addedLine + covered | `#103621` | comment | 5.08 |
-| editor + lineHighlight + addedLine + uncovered | `#471b24` | comment | 5.50 |
-| editor + lineHighlight + addedLine + addedWord | `#19362b` | comment | 4.98 |
-| editor + lineHighlight + addedLine + addedWord + wordHighlight | `#0f3163` | comment | 4.87 |
-| editor + lineHighlight + addedLine + addedWord + findMatchOther | `#2c371b` | comment | 4.78 |
-| editor + lineHighlight + addedLine + addedWord + wordHighlight + findMatchOther | `#26343c` | comment | 4.87 |
-| editor + lineHighlight + addedLine + addedWord + selectionHighlight | `#102a50` | comment | 5.43 |
-| editor + lineHighlight + addedLine + addedWord + selectionHighlight + wordHighlight | `#0a2a77` | comment | 4.96 |
-| editor + lineHighlight + addedLine + addedWord + selectionHighlight + findMatchOther | `#273031` | comment | 5.14 |
-| editor + lineHighlight + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#233048` | comment | 5.03 |
-| editor + lineHighlight + findRange + addedLine + addedWord | `#0d3153` | comment | 5.05 |
-| editor + lineHighlight + addedLine + rangeHighlight + addedWord | `#0d2c58` | comment | 5.26 |
-| editor + lineHighlight + fold + addedLine + addedWord | `#0d3153` | comment | 5.05 |
-| editor + lineHighlight + addedLine + addedWord + hover | `#133647` | comment | 4.85 |
-| editor + lineHighlight + addedLine + addedWord + symbol | `#2c371b` | comment | 4.78 |
-| editor + lineHighlight + addedLine + addedWord + strongWord | `#243831` | comment | 4.74 |
-| editor + lineHighlight + stackFrame + addedLine + addedWord | `#1e371e` | comment | 4.93 |
-| editor + lineHighlight + focusedStackFrame + addedLine + addedWord | `#0e3b22` | comment | 4.79 |
-| editor + lineHighlight + addedLine + bracketMatch + addedWord | `#24371c` | comment | 4.87 |
-| editor + lineHighlight + addedLine + addedWord + commentRange | `#2c371b` | comment | 4.78 |
-| editor + lineHighlight + addedLine + addedWord + activeCommentRange | `#2c371b` | comment | 4.78 |
-| editor + lineHighlight + mergeCurrentHeader + addedLine + addedWord | `#0e3b22` | comment | 4.79 |
-| editor + lineHighlight + mergeIncomingHeader + addedLine + addedWord | `#0d3a3e` | comment | 4.72 |
-| editor + lineHighlight + mergeCommonHeader + addedLine + addedWord | `#0d3153` | comment | 5.05 |
-| editor + lineHighlight + addedLine + addedWord + searchMatch | `#2c371b` | comment | 4.78 |
-| editor + lineHighlight + addedLine + addedWord + covered | `#0e3b20` | comment | 4.79 |
-| editor + lineHighlight + addedLine + addedWord + uncovered | `#452024` | comment | 5.37 |
-| editor + lineHighlight + removedLine | `#3c262f` | comment | 5.28 |
-| editor + lineHighlight + removedLine + wordHighlight | `#222865` | comment | 5.12 |
-| editor + lineHighlight + removedLine + findMatchOther | `#412d1d` | comment | 4.93 |
-| editor + lineHighlight + removedLine + wordHighlight + findMatchOther | `#322e3d` | comment | 5.01 |
-| editor + lineHighlight + removedLine + selectionHighlight | `#272053` | comment | 5.63 |
-| editor + lineHighlight + removedLine + selectionHighlight + wordHighlight | `#172579` | comment | 5.06 |
-| editor + lineHighlight + removedLine + selectionHighlight + findMatchOther | `#352a33` | comment | 5.22 |
-| editor + lineHighlight + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#2b2d49` | comment | 5.07 |
-| editor + lineHighlight + findRange + removedLine | `#2e205c` | comment | 5.40 |
-| editor + lineHighlight + removedLine + rangeHighlight | `#1e1d63` | comment | 5.66 |
-| editor + lineHighlight + fold + removedLine | `#2e205c` | comment | 5.40 |
-| editor + lineHighlight + removedLine + hover | `#262e4a` | comment | 5.08 |
-| editor + lineHighlight + removedLine + symbol | `#412d1d` | comment | 4.93 |
-| editor + lineHighlight + removedLine + strongWord | `#382f34` | comment | 4.91 |
-| editor + lineHighlight + stackFrame + removedLine | `#432720` | comment | 5.15 |
-| editor + lineHighlight + focusedStackFrame + removedLine | `#302b24` | comment | 5.33 |
-| editor + lineHighlight + removedLine + bracketMatch | `#3e2a1c` | comment | 5.14 |
-| editor + lineHighlight + removedLine + commentRange | `#412d1d` | comment | 4.93 |
-| editor + lineHighlight + removedLine + activeCommentRange | `#412d1d` | comment | 4.93 |
-| editor + lineHighlight + mergeCurrentHeader + removedLine | `#302b24` | comment | 5.33 |
-| editor + lineHighlight + mergeIncomingHeader + removedLine | `#2e2a44` | comment | 5.21 |
-| editor + lineHighlight + mergeCommonHeader + removedLine | `#2e205c` | comment | 5.40 |
-| editor + lineHighlight + removedLine + searchMatch | `#412d1d` | comment | 4.93 |
-| editor + lineHighlight + removedLine + covered | `#213322` | comment | 5.11 |
-| editor + lineHighlight + removedLine + uncovered | `#5a1726` | comment | 5.04 |
-| editor + lineHighlight + removedLine + removedWord | `#542731` | comment | 4.66 |
-| editor + lineHighlight + removedLine + removedWord + wordHighlight | `#302866` | comment | 4.92 |
-| editor + lineHighlight + removedLine + removedWord + findMatchOther | `#502e1e` | comment | 4.56 |
-| editor + lineHighlight + removedLine + removedWord + wordHighlight + findMatchOther | `#3a2e3e` | comment | 4.87 |
-| editor + lineHighlight + removedLine + removedWord + selectionHighlight | `#372054` | comment | 5.33 |
-| editor + lineHighlight + removedLine + removedWord + selectionHighlight + wordHighlight | `#202579` | comment | 4.98 |
-| editor + lineHighlight + removedLine + removedWord + selectionHighlight + findMatchOther | `#3e2a33` | comment | 5.04 |
-| editor + lineHighlight + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#302d49` | comment | 5.00 |
-| editor + lineHighlight + findRange + removedLine + removedWord | `#482256` | comment | 4.87 |
-| editor + lineHighlight + removedLine + rangeHighlight + removedWord | `#3b205c` | comment | 5.16 |
-| editor + lineHighlight + fold + removedLine + removedWord | `#482256` | comment | 4.87 |
-| editor + lineHighlight + removedLine + removedWord + hover | `#332e4b` | comment | 4.89 |
-| editor + lineHighlight + removedLine + removedWord + symbol | `#502e1e` | comment | 4.56 |
-| editor + lineHighlight + removedLine + removedWord + strongWord | `#453035` | comment | 4.62 |
-| editor + lineHighlight + stackFrame + removedLine + removedWord | `#5a2825` | comment | 4.52 |
-| editor + lineHighlight + focusedStackFrame + removedLine + removedWord | `#4a2c28` | comment | 4.75 |
-| editor + lineHighlight + removedLine + bracketMatch + removedWord | `#562b21` | comment | 4.53 |
-| editor + lineHighlight + removedLine + removedWord + commentRange | `#502e1e` | comment | 4.56 |
-| editor + lineHighlight + removedLine + removedWord + activeCommentRange | `#502e1e` | comment | 4.56 |
-| editor + lineHighlight + mergeCurrentHeader + removedLine + removedWord | `#4a2c28` | comment | 4.75 |
-| editor + lineHighlight + mergeIncomingHeader + removedLine + removedWord | `#482b42` | comment | 4.70 |
-| editor + lineHighlight + mergeCommonHeader + removedLine + removedWord | `#482256` | comment | 4.87 |
-| editor + lineHighlight + removedLine + removedWord + searchMatch | `#502e1e` | comment | 4.56 |
-| editor + lineHighlight + removedLine + removedWord + covered | `#2e3324` | comment | 4.94 |
-| editor + lineHighlight + removedLine + removedWord + uncovered | `#681727` | comment | 4.59 |
-| editor + selection | `#0b2d5f` | comment | 5.13 |
-| editor + selection + wordHighlight | `#072c7f` | comment | 4.76 |
-| editor + selection + findMatchOther | `#24313a` | comment | 5.07 |
-| editor + selection + wordHighlight + findMatchOther | `#21314d` | comment | 4.95 |
-| editor + selection + selectionHighlight | `#072472` | comment | 5.31 |
-| editor + selection + selectionHighlight + wordHighlight | `#05278a` | comment | 4.80 |
-| editor + selection + selectionHighlight + findMatchOther | `#212c45` | comment | 5.28 |
-| editor + selection + selectionHighlight + wordHighlight + findMatchOther | `#202e54` | comment | 5.05 |
-| editor + selection + findRange | `#06217b` | comment | 5.28 |
-| editor + selection + rangeHighlight | `#06217b` | comment | 5.28 |
-| editor + selection + fold | `#06217b` | comment | 5.28 |
-| editor + selection + hover | `#0b3264` | comment | 4.82 |
-| editor + selection + symbol | `#24313a` | comment | 5.07 |
-| editor + selection + strongWord | `#1d334e` | comment | 4.88 |
-| editor + selection + stackFrame | `#1b2b39` | comment | 5.50 |
-| editor + selection + focusedStackFrame | `#07303b` | comment | 5.34 |
-| editor + selection + bracketMatch | `#212e39` | comment | 5.27 |
-| editor + selection + commentRange | `#24313a` | comment | 5.07 |
-| editor + selection + activeCommentRange | `#24313a` | comment | 5.07 |
-| editor + selection + mergeCurrentHeader | `#07303b` | comment | 5.34 |
-| editor + selection + mergeIncomingHeader | `#062d5f` | comment | 5.16 |
-| editor + selection + mergeCommonHeader | `#06217b` | comment | 5.28 |
-| editor + selection + mergeChange | `#0b3b42` | comment | 4.65 |
-| editor + selection + mergeChangeWord | `#0b3b42` | comment | 4.65 |
-| editor + selection + searchMatch | `#24313a` | comment | 5.07 |
-| editor + selection + covered | `#06363d` | comment | 4.98 |
-| editor + selection + uncovered | `#3c1b43` | comment | 5.58 |
-| editor + selection + unchangedCode | `#162f54` | comment | 5.09 |
-| editor + selection + addedLine | `#0a3458` | comment | 4.85 |
-| editor + selection + addedLine + wordHighlight | `#07307c` | comment | 4.63 |
-| editor + selection + addedLine + findMatchOther | `#233636` | comment | 4.83 |
-| editor + selection + addedLine + wordHighlight + findMatchOther | `#21334b` | comment | 4.87 |
-| editor + selection + addedLine + selectionHighlight | `#07296e` | comment | 5.15 |
-| editor + selection + addedLine + selectionHighlight + wordHighlight | `#052988` | comment | 4.75 |
-| editor + selection + addedLine + selectionHighlight + findMatchOther | `#212f43` | comment | 5.14 |
-| editor + selection + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#202f52` | comment | 5.02 |
-| editor + selection + findRange + addedLine | `#052a71` | comment | 5.06 |
-| editor + selection + addedLine + rangeHighlight | `#052477` | comment | 5.23 |
-| editor + selection + fold + addedLine | `#052a71` | comment | 5.06 |
-| editor + selection + addedLine + hover | `#0a3560` | comment | 4.72 |
-| editor + selection + addedLine + symbol | `#233636` | comment | 4.83 |
-| editor + selection + addedLine + strongWord | `#1c374a` | comment | 4.71 |
-| editor + selection + stackFrame + addedLine | `#183237` | comment | 5.15 |
-| editor + selection + focusedStackFrame + addedLine | `#063738` | comment | 4.95 |
-| editor + selection + addedLine + bracketMatch | `#203235` | comment | 5.09 |
-| editor + selection + addedLine + commentRange | `#233636` | comment | 4.83 |
-| editor + selection + addedLine + activeCommentRange | `#233636` | comment | 4.83 |
-| editor + selection + mergeCurrentHeader + addedLine | `#063738` | comment | 4.95 |
-| editor + selection + mergeIncomingHeader + addedLine | `#053458` | comment | 4.87 |
-| editor + selection + mergeCommonHeader + addedLine | `#052a71` | comment | 5.06 |
-| editor + selection + addedLine + searchMatch | `#233636` | comment | 4.83 |
-| editor + selection + addedLine + covered | `#063a39` | comment | 4.77 |
-| editor + selection + addedLine + uncovered | `#3c1f3f` | comment | 5.47 |
-| editor + selection + addedLine + addedWord | `#093c50` | comment | 4.50 |
-| editor + selection + addedLine + addedWord + wordHighlight | `#063477` | comment | 4.52 |
-| editor + selection + addedLine + addedWord + findMatchOther | `#233a31` | comment | 4.64 |
-| editor + selection + addedLine + addedWord + wordHighlight + findMatchOther | `#213648` | comment | 4.73 |
-| editor + selection + addedLine + addedWord + selectionHighlight | `#062e69` | comment | 4.98 |
-| editor + selection + addedLine + addedWord + selectionHighlight + wordHighlight | `#052c85` | comment | 4.68 |
-| editor + selection + addedLine + addedWord + selectionHighlight + findMatchOther | `#213240` | comment | 5.00 |
-| editor + selection + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#203151` | comment | 4.93 |
-| editor + selection + findRange + addedLine + addedWord | `#043465` | comment | 4.74 |
-| editor + selection + addedLine + rangeHighlight + addedWord | `#042f6a` | comment | 4.93 |
-| editor + selection + fold + addedLine + addedWord | `#043465` | comment | 4.74 |
-| editor + selection + addedLine + addedWord + hover | `#0a3a5c` | comment | 4.50 |
-| editor + selection + addedLine + addedWord + symbol | `#233a31` | comment | 4.64 |
-| editor + selection + addedLine + addedWord + strongWord | `#1b3b46` | comment | 4.53 |
-| editor + selection + stackFrame + addedLine + addedWord | `#143b34` | comment | 4.68 |
-| editor + selection + focusedStackFrame + addedLine + addedWord | `#053f35` | comment | 4.51 |
-| editor + selection + addedLine + bracketMatch + addedWord | `#1b3b33` | comment | 4.64 |
-| editor + selection + addedLine + addedWord + commentRange | `#233a31` | comment | 4.64 |
-| editor + selection + addedLine + addedWord + activeCommentRange | `#233a31` | comment | 4.64 |
-| editor + selection + mergeCurrentHeader + addedLine + addedWord | `#053f35` | comment | 4.51 |
-| editor + selection + mergeIncomingHeader + addedLine + addedWord | `#043c50` | comment | 4.52 |
-| editor + selection + mergeCommonHeader + addedLine + addedWord | `#043465` | comment | 4.74 |
-| editor + selection + addedLine + addedWord + searchMatch | `#233a31` | comment | 4.64 |
-| editor + selection + addedLine + addedWord + covered | `#053f35` | comment | 4.51 |
-| editor + selection + addedLine + addedWord + uncovered | `#3b243a` | comment | 5.32 |
-| editor + selection + removedLine | `#292d59` | comment | 4.95 |
-| editor + selection + removedLine + wordHighlight | `#182c7c` | comment | 4.72 |
+| editor + lineHighlight + wordHighlight + findMatchOther | `#292f3e` | comment | 5.08 |
+| editor + lineHighlight + selectionHighlight | `#112362` | comment | 5.54 |
+| editor + lineHighlight + selectionHighlight + wordHighlight | `#0b2782` | comment | 4.91 |
+| editor + lineHighlight + selectionHighlight + findMatchOther | `#282d3c` | comment | 5.21 |
+| editor + lineHighlight + selectionHighlight + wordHighlight + findMatchOther | `#242f50` | comment | 5.00 |
+| editor + lineHighlight + findRange | `#112260` | comment | 5.62 |
+| editor + lineHighlight + rangeHighlight | `#112462` | comment | 5.50 |
+| editor + lineHighlight + fold | `#112260` | comment | 5.62 |
+| editor + lineHighlight + hover | `#162c48` | comment | 5.36 |
+| editor + lineHighlight + symbol | `#302b1b` | comment | 5.37 |
+| editor + lineHighlight + strongWord | `#282d32` | comment | 5.28 |
+| editor + lineHighlight + stackFrame | `#28251a` | comment | 5.83 |
+| editor + lineHighlight + focusedStackFrame | `#112a1f` | comment | 5.81 |
+| editor + lineHighlight + bracketMatch | `#2d281a` | comment | 5.58 |
+| editor + lineHighlight + commentRange | `#302b1b` | comment | 5.37 |
+| editor + lineHighlight + activeCommentRange | `#302b1b` | comment | 5.37 |
+| editor + lineHighlight + mergeCurrentHeader | `#112a1f` | comment | 5.81 |
+| editor + lineHighlight + mergeIncomingHeader | `#112846` | comment | 5.64 |
+| editor + lineHighlight + mergeCommonHeader | `#112260` | comment | 5.62 |
+| editor + lineHighlight + mergeChange | `#163626` | comment | 5.02 |
+| editor + lineHighlight + mergeChangeWord | `#163626` | comment | 5.02 |
+| editor + lineHighlight + searchMatch | `#302b1b` | comment | 5.37 |
+| editor + lineHighlight + covered | `#113121` | comment | 5.37 |
+| editor + lineHighlight + uncovered | `#491524` | comment | 5.64 |
+| editor + lineHighlight + unchangedCode | `#242830` | comment | 5.62 |
+| editor + lineHighlight + addedLine | `#1c2c2b` | comment | 5.53 |
+| editor + lineHighlight + addedLine + wordHighlight | `#112c64` | comment | 5.09 |
+| editor + lineHighlight + addedLine + findMatchOther | `#2e321b` | comment | 5.03 |
+| editor + lineHighlight + addedLine + wordHighlight + findMatchOther | `#28323e` | comment | 4.94 |
+| editor + lineHighlight + addedLine + selectionHighlight | `#0e2761` | comment | 5.39 |
+| editor + lineHighlight + addedLine + selectionHighlight + wordHighlight | `#092982` | comment | 4.83 |
+| editor + lineHighlight + addedLine + selectionHighlight + findMatchOther | `#262f3c` | comment | 5.14 |
+| editor + lineHighlight + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#233050` | comment | 4.96 |
+| editor + lineHighlight + findRange + addedLine | `#0e2a59` | comment | 5.34 |
+| editor + lineHighlight + addedLine + rangeHighlight | `#0f2961` | comment | 5.29 |
+| editor + lineHighlight + fold + addedLine | `#0e2a59` | comment | 5.34 |
+| editor + lineHighlight + addedLine + hover | `#143147` | comment | 5.12 |
+| editor + lineHighlight + addedLine + symbol | `#2d301a` | comment | 5.15 |
+| editor + lineHighlight + addedLine + strongWord | `#263231` | comment | 5.04 |
+| editor + lineHighlight + stackFrame + addedLine | `#232d1b` | comment | 5.46 |
+| editor + lineHighlight + focusedStackFrame + addedLine | `#0e3120` | comment | 5.40 |
+| editor + lineHighlight + addedLine + bracketMatch | `#2a2d19` | comment | 5.37 |
+| editor + lineHighlight + addedLine + commentRange | `#2d301a` | comment | 5.15 |
+| editor + lineHighlight + addedLine + activeCommentRange | `#2d301a` | comment | 5.15 |
+| editor + lineHighlight + mergeCurrentHeader + addedLine | `#0e3120` | comment | 5.40 |
+| editor + lineHighlight + mergeIncomingHeader + addedLine | `#0e3042` | comment | 5.25 |
+| editor + lineHighlight + mergeCommonHeader + addedLine | `#0e2a59` | comment | 5.34 |
+| editor + lineHighlight + addedLine + searchMatch | `#2d301a` | comment | 5.15 |
+| editor + lineHighlight + addedLine + covered | `#0f3620` | comment | 5.09 |
+| editor + lineHighlight + addedLine + uncovered | `#461a23` | comment | 5.57 |
+| editor + lineHighlight + addedLine + addedWord | `#17352a` | comment | 5.06 |
+| editor + lineHighlight + addedLine + addedWord + wordHighlight | `#0e3164` | comment | 4.86 |
+| editor + lineHighlight + addedLine + addedWord + findMatchOther | `#2b371b` | comment | 4.79 |
+| editor + lineHighlight + addedLine + addedWord + wordHighlight + findMatchOther | `#26353e` | comment | 4.81 |
+| editor + lineHighlight + addedLine + addedWord + selectionHighlight | `#0c2c61` | comment | 5.15 |
+| editor + lineHighlight + addedLine + addedWord + selectionHighlight + wordHighlight | `#082c82` | comment | 4.72 |
+| editor + lineHighlight + addedLine + addedWord + selectionHighlight + findMatchOther | `#25323c` | comment | 4.99 |
+| editor + lineHighlight + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#223250` | comment | 4.87 |
+| editor + lineHighlight + findRange + addedLine + addedWord | `#0b3450` | comment | 4.92 |
+| editor + lineHighlight + addedLine + rangeHighlight + addedWord | `#0c3357` | comment | 4.91 |
+| editor + lineHighlight + fold + addedLine + addedWord | `#0b3450` | comment | 4.92 |
+| editor + lineHighlight + addedLine + addedWord + hover | `#113647` | comment | 4.86 |
+| editor + lineHighlight + addedLine + addedWord + symbol | `#2a351a` | comment | 4.92 |
+| editor + lineHighlight + addedLine + addedWord + strongWord | `#233731` | comment | 4.80 |
+| editor + lineHighlight + stackFrame + addedLine + addedWord | `#1d361c` | comment | 5.00 |
+| editor + lineHighlight + focusedStackFrame + addedLine + addedWord | `#0b3a20` | comment | 4.87 |
+| editor + lineHighlight + addedLine + bracketMatch + addedWord | `#23361a` | comment | 4.95 |
+| editor + lineHighlight + addedLine + addedWord + commentRange | `#2a351a` | comment | 4.92 |
+| editor + lineHighlight + addedLine + addedWord + activeCommentRange | `#2a351a` | comment | 4.92 |
+| editor + lineHighlight + mergeCurrentHeader + addedLine + addedWord | `#0b3a20` | comment | 4.87 |
+| editor + lineHighlight + mergeIncomingHeader + addedLine + addedWord | `#0b393d` | comment | 4.79 |
+| editor + lineHighlight + mergeCommonHeader + addedLine + addedWord | `#0b3450` | comment | 4.92 |
+| editor + lineHighlight + addedLine + addedWord + searchMatch | `#2a351a` | comment | 4.92 |
+| editor + lineHighlight + addedLine + addedWord + covered | `#0c3b20` | comment | 4.80 |
+| editor + lineHighlight + addedLine + addedWord + uncovered | `#431f23` | comment | 5.47 |
+| editor + lineHighlight + removedLine | `#3a252d` | comment | 5.38 |
+| editor + lineHighlight + removedLine + wordHighlight | `#212865` | comment | 5.13 |
+| editor + lineHighlight + removedLine + findMatchOther | `#402e1d` | comment | 4.91 |
+| editor + lineHighlight + removedLine + wordHighlight + findMatchOther | `#31303e` | comment | 4.92 |
+| editor + lineHighlight + removedLine + selectionHighlight | `#1e2362` | comment | 5.42 |
+| editor + lineHighlight + removedLine + selectionHighlight + wordHighlight | `#122782` | comment | 4.87 |
+| editor + lineHighlight + removedLine + selectionHighlight + findMatchOther | `#302d3c` | comment | 5.10 |
+| editor + lineHighlight + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#282f50` | comment | 4.95 |
+| editor + lineHighlight + findRange + removedLine | `#2e2359` | comment | 5.32 |
+| editor + lineHighlight + removedLine + rangeHighlight | `#1f2562` | comment | 5.32 |
+| editor + lineHighlight + fold + removedLine | `#2e2359` | comment | 5.32 |
+| editor + lineHighlight + removedLine + hover | `#242d48` | comment | 5.17 |
+| editor + lineHighlight + removedLine + symbol | `#3f2c1c` | comment | 5.03 |
+| editor + lineHighlight + removedLine + strongWord | `#362e32` | comment | 5.01 |
+| editor + lineHighlight + stackFrame + removedLine | `#41261e` | comment | 5.25 |
+| editor + lineHighlight + focusedStackFrame + removedLine | `#2e2a23` | comment | 5.42 |
+| editor + lineHighlight + removedLine + bracketMatch | `#3c291b` | comment | 5.23 |
+| editor + lineHighlight + removedLine + commentRange | `#3f2c1c` | comment | 5.03 |
+| editor + lineHighlight + removedLine + activeCommentRange | `#3f2c1c` | comment | 5.03 |
+| editor + lineHighlight + mergeCurrentHeader + removedLine | `#2e2a23` | comment | 5.42 |
+| editor + lineHighlight + mergeIncomingHeader + removedLine | `#2e2843` | comment | 5.32 |
+| editor + lineHighlight + mergeCommonHeader + removedLine | `#2e2359` | comment | 5.32 |
+| editor + lineHighlight + removedLine + searchMatch | `#3f2c1c` | comment | 5.03 |
+| editor + lineHighlight + removedLine + covered | `#1f3221` | comment | 5.20 |
+| editor + lineHighlight + removedLine + uncovered | `#581625` | comment | 5.13 |
+| editor + lineHighlight + removedLine + removedWord | `#52262f` | comment | 4.76 |
+| editor + lineHighlight + removedLine + removedWord + wordHighlight | `#2f2866` | comment | 4.94 |
+| editor + lineHighlight + removedLine + removedWord + findMatchOther | `#4f2e1e` | comment | 4.58 |
+| editor + lineHighlight + removedLine + removedWord + wordHighlight + findMatchOther | `#3a303f` | comment | 4.77 |
+| editor + lineHighlight + removedLine + removedWord + selectionHighlight | `#2b2463` | comment | 5.20 |
+| editor + lineHighlight + removedLine + removedWord + selectionHighlight + wordHighlight | `#192783` | comment | 4.81 |
+| editor + lineHighlight + removedLine + removedWord + selectionHighlight + findMatchOther | `#372d3d` | comment | 4.97 |
+| editor + lineHighlight + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2d2f50` | comment | 4.89 |
+| editor + lineHighlight + findRange + removedLine + removedWord | `#482554` | comment | 4.79 |
+| editor + lineHighlight + removedLine + rangeHighlight + removedWord | `#3b265b` | comment | 4.94 |
+| editor + lineHighlight + fold + removedLine + removedWord | `#482554` | comment | 4.79 |
+| editor + lineHighlight + removedLine + removedWord + hover | `#322d49` | comment | 4.97 |
+| editor + lineHighlight + removedLine + removedWord + symbol | `#4e2c1d` | comment | 4.69 |
+| editor + lineHighlight + removedLine + removedWord + strongWord | `#442e33` | comment | 4.74 |
+| editor + lineHighlight + stackFrame + removedLine + removedWord | `#582722` | comment | 4.62 |
+| editor + lineHighlight + focusedStackFrame + removedLine + removedWord | `#482a27` | comment | 4.88 |
+| editor + lineHighlight + removedLine + bracketMatch + removedWord | `#532a20` | comment | 4.64 |
+| editor + lineHighlight + removedLine + removedWord + commentRange | `#4e2c1d` | comment | 4.69 |
+| editor + lineHighlight + removedLine + removedWord + activeCommentRange | `#4e2c1d` | comment | 4.69 |
+| editor + lineHighlight + mergeCurrentHeader + removedLine + removedWord | `#482a27` | comment | 4.88 |
+| editor + lineHighlight + mergeIncomingHeader + removedLine + removedWord | `#482941` | comment | 4.78 |
+| editor + lineHighlight + mergeCommonHeader + removedLine + removedWord | `#482554` | comment | 4.79 |
+| editor + lineHighlight + removedLine + removedWord + searchMatch | `#4e2c1d` | comment | 4.69 |
+| editor + lineHighlight + removedLine + removedWord + covered | `#2d3222` | comment | 5.02 |
+| editor + lineHighlight + removedLine + removedWord + uncovered | `#671626` | comment | 4.64 |
+| editor + selection | `#0a2c5f` | comment | 5.19 |
+| editor + selection + wordHighlight | `#072c81` | comment | 4.73 |
+| editor + selection + findMatchOther | `#24323b` | comment | 5.01 |
+| editor + selection + wordHighlight + findMatchOther | `#22324f` | comment | 4.88 |
+| editor + selection + selectionHighlight | `#05277d` | comment | 5.01 |
+| editor + selection + selectionHighlight + wordHighlight | `#042991` | comment | 4.61 |
+| editor + selection + selectionHighlight + findMatchOther | `#212f4d` | comment | 5.06 |
+| editor + selection + selectionHighlight + wordHighlight + findMatchOther | `#203059` | comment | 4.90 |
+| editor + selection + findRange | `#05277c` | comment | 5.03 |
+| editor + selection + rangeHighlight | `#05297e` | comment | 4.91 |
+| editor + selection + fold | `#05277c` | comment | 5.03 |
+| editor + selection + hover | `#0a3164` | comment | 4.88 |
+| editor + selection + symbol | `#23303a` | comment | 5.13 |
+| editor + selection + strongWord | `#1c324e` | comment | 4.94 |
+| editor + selection + stackFrame | `#1b2a39` | comment | 5.56 |
+| editor + selection + focusedStackFrame | `#052f3b` | comment | 5.41 |
+| editor + selection + bracketMatch | `#202d39` | comment | 5.34 |
+| editor + selection + commentRange | `#23303a` | comment | 5.13 |
+| editor + selection + activeCommentRange | `#23303a` | comment | 5.13 |
+| editor + selection + mergeCurrentHeader | `#052f3b` | comment | 5.41 |
+| editor + selection + mergeIncomingHeader | `#052d62` | comment | 5.12 |
+| editor + selection + mergeCommonHeader | `#05277c` | comment | 5.03 |
+| editor + selection + mergeChange | `#0a3b42` | comment | 4.65 |
+| editor + selection + mergeChangeWord | `#0a3b42` | comment | 4.65 |
+| editor + selection + searchMatch | `#23303a` | comment | 5.13 |
+| editor + selection + covered | `#05363d` | comment | 4.98 |
+| editor + selection + uncovered | `#3c1a43` | comment | 5.62 |
+| editor + selection + unchangedCode | `#142d54` | comment | 5.21 |
+| editor + selection + addedLine | `#083358` | comment | 4.91 |
+| editor + selection + addedLine + wordHighlight | `#06307d` | comment | 4.62 |
+| editor + selection + addedLine + findMatchOther | `#223636` | comment | 4.84 |
+| editor + selection + addedLine + wordHighlight + findMatchOther | `#21344d` | comment | 4.80 |
+| editor + selection + addedLine + selectionHighlight | `#042b79` | comment | 4.91 |
+| editor + selection + addedLine + selectionHighlight + wordHighlight | `#042b8f` | comment | 4.57 |
+| editor + selection + addedLine + selectionHighlight + findMatchOther | `#20314a` | comment | 4.99 |
+| editor + selection + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#203158` | comment | 4.86 |
+| editor + selection + findRange + addedLine | `#042f71` | comment | 4.84 |
+| editor + selection + addedLine + rangeHighlight | `#042d7a` | comment | 4.80 |
+| editor + selection + fold + addedLine | `#042f71` | comment | 4.84 |
+| editor + selection + addedLine + hover | `#093560` | comment | 4.72 |
+| editor + selection + addedLine + symbol | `#213435` | comment | 4.97 |
+| editor + selection + addedLine + strongWord | `#1b364a` | comment | 4.77 |
+| editor + selection + stackFrame + addedLine | `#173137` | comment | 5.21 |
+| editor + selection + focusedStackFrame + addedLine | `#043638` | comment | 5.02 |
+| editor + selection + addedLine + bracketMatch | `#1e3134` | comment | 5.17 |
+| editor + selection + addedLine + commentRange | `#213435` | comment | 4.97 |
+| editor + selection + addedLine + activeCommentRange | `#213435` | comment | 4.97 |
+| editor + selection + mergeCurrentHeader + addedLine | `#043638` | comment | 5.02 |
+| editor + selection + mergeIncomingHeader + addedLine | `#04345b` | comment | 4.85 |
+| editor + selection + mergeCommonHeader + addedLine | `#042f71` | comment | 4.84 |
+| editor + selection + addedLine + searchMatch | `#213435` | comment | 4.97 |
+| editor + selection + addedLine + covered | `#043a39` | comment | 4.78 |
+| editor + selection + addedLine + uncovered | `#3a1e3e` | comment | 5.56 |
+| editor + selection + addedLine + addedWord | `#063b4f` | comment | 4.57 |
+| editor + selection + addedLine + addedWord + wordHighlight | `#053478` | comment | 4.51 |
+| editor + selection + addedLine + addedWord + findMatchOther | `#213b31` | comment | 4.60 |
+| editor + selection + addedLine + addedWord + wordHighlight + findMatchOther | `#21374a` | comment | 4.67 |
+| editor + selection + addedLine + addedWord + selectionHighlight | `#032f74` | comment | 4.80 |
+| editor + selection + addedLine + addedWord + selectionHighlight + wordHighlight | `#032d8c` | comment | 4.54 |
+| editor + selection + addedLine + addedWord + selectionHighlight + findMatchOther | `#1f3447` | comment | 4.87 |
+| editor + selection + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#1f3356` | comment | 4.79 |
+| editor + selection + findRange + addedLine + addedWord | `#033864` | comment | 4.55 |
+| editor + selection + addedLine + rangeHighlight + addedWord | `#03366c` | comment | 4.57 |
+| editor + selection + fold + addedLine + addedWord | `#033864` | comment | 4.55 |
+| editor + selection + addedLine + addedWord + hover | `#08395b` | comment | 4.57 |
+| editor + selection + addedLine + addedWord + symbol | `#203930` | comment | 4.73 |
+| editor + selection + addedLine + addedWord + strongWord | `#1a3a45` | comment | 4.60 |
+| editor + selection + stackFrame + addedLine + addedWord | `#133a34` | comment | 4.74 |
+| editor + selection + focusedStackFrame + addedLine + addedWord | `#033e35` | comment | 4.58 |
+| editor + selection + addedLine + bracketMatch + addedWord | `#193a31` | comment | 4.72 |
+| editor + selection + addedLine + addedWord + commentRange | `#203930` | comment | 4.73 |
+| editor + selection + addedLine + addedWord + activeCommentRange | `#203930` | comment | 4.73 |
+| editor + selection + mergeCurrentHeader + addedLine + addedWord | `#033e35` | comment | 4.58 |
+| editor + selection + mergeIncomingHeader + addedLine + addedWord | `#033c52` | comment | 4.50 |
+| editor + selection + mergeCommonHeader + addedLine + addedWord | `#033864` | comment | 4.55 |
+| editor + selection + addedLine + addedWord + searchMatch | `#203930` | comment | 4.73 |
+| editor + selection + addedLine + addedWord + covered | `#033e34` | comment | 4.58 |
+| editor + selection + addedLine + addedWord + uncovered | `#392339` | comment | 5.42 |
+| editor + selection + removedLine | `#282b58` | comment | 5.06 |
+| editor + selection + removedLine + wordHighlight | `#182b7d` | comment | 4.75 |
 | editor + selection + removedLine + findMatchOther | `#363136` | comment | 4.84 |
-| editor + selection + removedLine + wordHighlight + findMatchOther | `#2c314b` | comment | 4.84 |
-| editor + selection + removedLine + selectionHighlight | `#1b246e` | comment | 5.24 |
-| editor + selection + removedLine + selectionHighlight + wordHighlight | `#102788` | comment | 4.79 |
-| editor + selection + removedLine + selectionHighlight + findMatchOther | `#2d2c43` | comment | 5.14 |
-| editor + selection + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#272e52` | comment | 4.99 |
-| editor + selection + findRange + removedLine | `#252371` | comment | 5.13 |
-| editor + selection + removedLine + rangeHighlight | `#152178` | comment | 5.25 |
-| editor + selection + fold + removedLine | `#252371` | comment | 5.13 |
-| editor + selection + removedLine + hover | `#1c3261` | comment | 4.76 |
-| editor + selection + removedLine + symbol | `#363136` | comment | 4.84 |
-| editor + selection + removedLine + strongWord | `#2d334b` | comment | 4.73 |
-| editor + selection + stackFrame + removedLine | `#372b39` | comment | 5.09 |
-| editor + selection + focusedStackFrame + removedLine | `#26303b` | comment | 5.09 |
-| editor + selection + removedLine + bracketMatch | `#332e35` | comment | 5.04 |
-| editor + selection + removedLine + commentRange | `#363136` | comment | 4.84 |
-| editor + selection + removedLine + activeCommentRange | `#363136` | comment | 4.84 |
-| editor + selection + mergeCurrentHeader + removedLine | `#26303b` | comment | 5.09 |
-| editor + selection + mergeIncomingHeader + removedLine | `#252d59` | comment | 4.99 |
-| editor + selection + mergeCommonHeader + removedLine | `#252371` | comment | 5.13 |
-| editor + selection + removedLine + searchMatch | `#363136` | comment | 4.84 |
-| editor + selection + removedLine + covered | `#17363a` | comment | 4.91 |
-| editor + selection + removedLine + uncovered | `#4e1b3f` | comment | 5.14 |
-| editor + selection + removedLine + removedWord | `#442d54` | comment | 4.56 |
-| editor + selection + removedLine + removedWord + wordHighlight | `#272c79` | comment | 4.63 |
+| editor + selection + removedLine + wordHighlight + findMatchOther | `#2c314d` | comment | 4.83 |
+| editor + selection + removedLine + selectionHighlight | `#152679` | comment | 5.04 |
+| editor + selection + removedLine + selectionHighlight + wordHighlight | `#0d288f` | comment | 4.65 |
+| editor + selection + removedLine + selectionHighlight + findMatchOther | `#2a2e4a` | comment | 5.03 |
+| editor + selection + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#253058` | comment | 4.86 |
+| editor + selection + findRange + removedLine | `#242771` | comment | 4.98 |
+| editor + selection + removedLine + rangeHighlight | `#16287a` | comment | 4.93 |
+| editor + selection + fold + removedLine | `#242771` | comment | 4.98 |
+| editor + selection + removedLine + hover | `#1b3060` | comment | 4.87 |
+| editor + selection + removedLine + symbol | `#352f35` | comment | 4.96 |
+| editor + selection + removedLine + strongWord | `#2d314a` | comment | 4.84 |
+| editor + selection + stackFrame + removedLine | `#362a38` | comment | 5.17 |
+| editor + selection + focusedStackFrame + removedLine | `#242e3a` | comment | 5.23 |
+| editor + selection + removedLine + bracketMatch | `#322c34` | comment | 5.17 |
+| editor + selection + removedLine + commentRange | `#352f35` | comment | 4.96 |
+| editor + selection + removedLine + activeCommentRange | `#352f35` | comment | 4.96 |
+| editor + selection + mergeCurrentHeader + removedLine | `#242e3a` | comment | 5.23 |
+| editor + selection + mergeIncomingHeader + removedLine | `#242c5b` | comment | 5.03 |
+| editor + selection + mergeCommonHeader + removedLine | `#242771` | comment | 4.98 |
+| editor + selection + removedLine + searchMatch | `#352f35` | comment | 4.96 |
+| editor + selection + removedLine + covered | `#163539` | comment | 4.98 |
+| editor + selection + removedLine + uncovered | `#4e193e` | comment | 5.21 |
+| editor + selection + removedLine + removedWord | `#432b53` | comment | 4.67 |
+| editor + selection + removedLine + removedWord + wordHighlight | `#262b7a` | comment | 4.67 |
 | editor + selection + removedLine + removedWord + findMatchOther | `#463133` | comment | 4.57 |
-| editor + selection + removedLine + removedWord + wordHighlight + findMatchOther | `#353149` | comment | 4.73 |
-| editor + selection + removedLine + removedWord + selectionHighlight | `#2c246b` | comment | 5.08 |
-| editor + selection + removedLine + removedWord + selectionHighlight + wordHighlight | `#1a2786` | comment | 4.76 |
-| editor + selection + removedLine + removedWord + selectionHighlight + findMatchOther | `#382c41` | comment | 4.97 |
-| editor + selection + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2d2e51` | comment | 4.92 |
-| editor + selection + findRange + removedLine + removedWord | `#412568` | comment | 4.73 |
-| editor + selection + removedLine + rangeHighlight + removedWord | `#34236e` | comment | 4.95 |
-| editor + selection + fold + removedLine + removedWord | `#412568` | comment | 4.73 |
-| editor + selection + removedLine + removedWord + hover | `#2a325e` | comment | 4.65 |
-| editor + selection + removedLine + removedWord + symbol | `#463133` | comment | 4.57 |
-| editor + selection + removedLine + removedWord + strongWord | `#3c3348` | comment | 4.54 |
-| editor + selection + stackFrame + removedLine + removedWord | `#502c39` | comment | 4.53 |
-| editor + selection + focusedStackFrame + removedLine + removedWord | `#42303b` | comment | 4.65 |
-| editor + selection + removedLine + bracketMatch + removedWord | `#4d2e36` | comment | 4.54 |
-| editor + selection + removedLine + removedWord + commentRange | `#463133` | comment | 4.57 |
-| editor + selection + removedLine + removedWord + activeCommentRange | `#463133` | comment | 4.57 |
-| editor + selection + mergeCurrentHeader + removedLine + removedWord | `#42303b` | comment | 4.65 |
-| editor + selection + mergeIncomingHeader + removedLine + removedWord | `#412d54` | comment | 4.62 |
-| editor + selection + mergeCommonHeader + removedLine + removedWord | `#412568` | comment | 4.73 |
-| editor + selection + removedLine + removedWord + searchMatch | `#463133` | comment | 4.57 |
-| editor + selection + removedLine + removedWord + covered | `#253637` | comment | 4.80 |
-| editor + selection + removedLine + removedWord + uncovered | `#5e1b3c` | comment | 4.70 |
-| editor + inactiveSelection | `#191d24` | comment | 6.42 |
-| editor + inactiveSelection + wordHighlight | `#0f235f` | comment | 5.60 |
-| editor + inactiveSelection + findMatchOther | `#2c2816` | comment | 5.61 |
-| editor + inactiveSelection + wordHighlight + findMatchOther | `#262b3a` | comment | 5.36 |
-| editor + inactiveSelection + selectionHighlight | `#101a4c` | comment | 6.26 |
-| editor + inactiveSelection + selectionHighlight + wordHighlight | `#0a2175` | comment | 5.37 |
-| editor + inactiveSelection + selectionHighlight + findMatchOther | `#27262e` | comment | 5.69 |
-| editor + inactiveSelection + selectionHighlight + wordHighlight + findMatchOther | `#232a47` | comment | 5.34 |
-| editor + inactiveSelection + findRange | `#0d195d` | comment | 6.07 |
-| editor + inactiveSelection + rangeHighlight | `#0d195d` | comment | 6.07 |
-| editor + inactiveSelection + fold | `#0d195d` | comment | 6.07 |
-| editor + inactiveSelection + hover | `#132944` | comment | 5.59 |
-| editor + inactiveSelection + symbol | `#2c2816` | comment | 5.61 |
-| editor + inactiveSelection + strongWord | `#242a2d` | comment | 5.53 |
-| editor + inactiveSelection + stackFrame | `#242116` | comment | 6.12 |
-| editor + inactiveSelection + focusedStackFrame | `#0e271b` | comment | 6.03 |
-| editor + inactiveSelection + bracketMatch | `#292516` | comment | 5.82 |
-| editor + inactiveSelection + commentRange | `#2c2816` | comment | 5.61 |
-| editor + inactiveSelection + activeCommentRange | `#2c2816` | comment | 5.61 |
-| editor + inactiveSelection + mergeCurrentHeader | `#0e271b` | comment | 6.03 |
-| editor + inactiveSelection + mergeIncomingHeader | `#0d2541` | comment | 5.88 |
-| editor + inactiveSelection + mergeCommonHeader | `#0d195d` | comment | 6.07 |
-| editor + inactiveSelection + mergeChange | `#123321` | comment | 5.25 |
-| editor + inactiveSelection + mergeChangeWord | `#123321` | comment | 5.25 |
-| editor + inactiveSelection + searchMatch | `#2c2816` | comment | 5.61 |
-| editor + inactiveSelection + covered | `#0e2e1c` | comment | 5.60 |
-| editor + inactiveSelection + uncovered | `#451120` | comment | 5.90 |
-| editor + inactiveSelection + unchangedCode | `#20242b` | comment | 5.92 |
-| editor + inactiveSelection + addedLine | `#162624` | comment | 5.97 |
-| editor + inactiveSelection + addedLine + wordHighlight | `#0d285f` | comment | 5.37 |
-| editor + inactiveSelection + addedLine + findMatchOther | `#2a2d16` | comment | 5.37 |
-| editor + inactiveSelection + addedLine + wordHighlight + findMatchOther | `#252e3a` | comment | 5.22 |
-| editor + inactiveSelection + addedLine + selectionHighlight | `#0e204c` | comment | 6.00 |
-| editor + inactiveSelection + addedLine + selectionHighlight + wordHighlight | `#092575` | comment | 5.21 |
-| editor + inactiveSelection + addedLine + selectionHighlight + findMatchOther | `#262a2e` | comment | 5.49 |
-| editor + inactiveSelection + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#232d47` | comment | 5.19 |
-| editor + inactiveSelection + findRange + addedLine | `#0c2256` | comment | 5.79 |
-| editor + inactiveSelection + addedLine + rangeHighlight | `#0b1d5d` | comment | 5.92 |
-| editor + inactiveSelection + fold + addedLine | `#0c2256` | comment | 5.79 |
-| editor + inactiveSelection + addedLine + hover | `#112e44` | comment | 5.33 |
-| editor + inactiveSelection + addedLine + symbol | `#2a2d16` | comment | 5.37 |
-| editor + inactiveSelection + addedLine + strongWord | `#232f2d` | comment | 5.27 |
-| editor + inactiveSelection + stackFrame + addedLine | `#202a18` | comment | 5.68 |
-| editor + inactiveSelection + focusedStackFrame + addedLine | `#0c2f1c` | comment | 5.55 |
-| editor + inactiveSelection + addedLine + bracketMatch | `#272a16` | comment | 5.59 |
-| editor + inactiveSelection + addedLine + commentRange | `#2a2d16` | comment | 5.37 |
-| editor + inactiveSelection + addedLine + activeCommentRange | `#2a2d16` | comment | 5.37 |
-| editor + inactiveSelection + mergeCurrentHeader + addedLine | `#0c2f1c` | comment | 5.55 |
-| editor + inactiveSelection + mergeIncomingHeader + addedLine | `#0c2d3e` | comment | 5.47 |
-| editor + inactiveSelection + mergeCommonHeader + addedLine | `#0c2256` | comment | 5.79 |
-| editor + inactiveSelection + addedLine + searchMatch | `#2a2d16` | comment | 5.37 |
-| editor + inactiveSelection + addedLine + covered | `#0c331c` | comment | 5.30 |
-| editor + inactiveSelection + addedLine + uncovered | `#431720` | comment | 5.78 |
-| editor + inactiveSelection + addedLine + addedWord | `#133124` | comment | 5.35 |
-| editor + inactiveSelection + addedLine + addedWord + wordHighlight | `#0c2e5f` | comment | 5.08 |
-| editor + inactiveSelection + addedLine + addedWord + findMatchOther | `#293416` | comment | 5.00 |
-| editor + inactiveSelection + addedLine + addedWord + wordHighlight + findMatchOther | `#24323a` | comment | 5.01 |
-| editor + inactiveSelection + addedLine + addedWord + selectionHighlight | `#0c274c` | comment | 5.66 |
-| editor + inactiveSelection + addedLine + addedWord + selectionHighlight + wordHighlight | `#082875` | comment | 5.08 |
-| editor + inactiveSelection + addedLine + addedWord + selectionHighlight + findMatchOther | `#242e2e` | comment | 5.30 |
-| editor + inactiveSelection + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#222e47` | comment | 5.15 |
-| editor + inactiveSelection + findRange + addedLine + addedWord | `#0a2d4e` | comment | 5.33 |
-| editor + inactiveSelection + addedLine + rangeHighlight + addedWord | `#092954` | comment | 5.48 |
-| editor + inactiveSelection + fold + addedLine + addedWord | `#0a2d4e` | comment | 5.33 |
-| editor + inactiveSelection + addedLine + addedWord + hover | `#0f3444` | comment | 5.00 |
-| editor + inactiveSelection + addedLine + addedWord + symbol | `#293416` | comment | 5.00 |
-| editor + inactiveSelection + addedLine + addedWord + strongWord | `#21352d` | comment | 4.95 |
-| editor + inactiveSelection + stackFrame + addedLine + addedWord | `#1b341a` | comment | 5.14 |
-| editor + inactiveSelection + focusedStackFrame + addedLine + addedWord | `#0a381e` | comment | 5.00 |
-| editor + inactiveSelection + addedLine + bracketMatch + addedWord | `#213419` | comment | 5.08 |
-| editor + inactiveSelection + addedLine + addedWord + commentRange | `#293416` | comment | 5.00 |
-| editor + inactiveSelection + addedLine + addedWord + activeCommentRange | `#293416` | comment | 5.00 |
-| editor + inactiveSelection + mergeCurrentHeader + addedLine + addedWord | `#0a381e` | comment | 5.00 |
-| editor + inactiveSelection + mergeIncomingHeader + addedLine + addedWord | `#0a363a` | comment | 4.98 |
-| editor + inactiveSelection + mergeCommonHeader + addedLine + addedWord | `#0a2d4e` | comment | 5.33 |
-| editor + inactiveSelection + addedLine + addedWord + searchMatch | `#293416` | comment | 5.00 |
-| editor + inactiveSelection + addedLine + addedWord + covered | `#0a391c` | comment | 4.94 |
-| editor + inactiveSelection + addedLine + addedWord + uncovered | `#411d20` | comment | 5.62 |
-| editor + inactiveSelection + removedLine | `#352028` | comment | 5.75 |
-| editor + inactiveSelection + removedLine + wordHighlight | `#1f2561` | comment | 5.34 |
-| editor + inactiveSelection + removedLine + findMatchOther | `#3d2a19` | comment | 5.17 |
-| editor + inactiveSelection + removedLine + wordHighlight + findMatchOther | `#302d3b` | comment | 5.10 |
-| editor + inactiveSelection + removedLine + selectionHighlight | `#221c4f` | comment | 5.93 |
-| editor + inactiveSelection + removedLine + selectionHighlight + wordHighlight | `#142277` | comment | 5.23 |
-| editor + inactiveSelection + removedLine + selectionHighlight + findMatchOther | `#322730` | comment | 5.44 |
-| editor + inactiveSelection + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#292b48` | comment | 5.21 |
-| editor + inactiveSelection + findRange + removedLine | `#2b1c58` | comment | 5.66 |
-| editor + inactiveSelection + removedLine + rangeHighlight | `#1b1a5f` | comment | 5.87 |
-| editor + inactiveSelection + fold + removedLine | `#2b1c58` | comment | 5.66 |
-| editor + inactiveSelection + removedLine + hover | `#222a46` | comment | 5.37 |
-| editor + inactiveSelection + removedLine + symbol | `#3d2a19` | comment | 5.17 |
-| editor + inactiveSelection + removedLine + strongWord | `#342c30` | comment | 5.15 |
-| editor + inactiveSelection + stackFrame + removedLine | `#3e231c` | comment | 5.46 |
-| editor + inactiveSelection + focusedStackFrame + removedLine | `#2c2820` | comment | 5.58 |
-| editor + inactiveSelection + removedLine + bracketMatch | `#3a2618` | comment | 5.43 |
-| editor + inactiveSelection + removedLine + commentRange | `#3d2a19` | comment | 5.17 |
-| editor + inactiveSelection + removedLine + activeCommentRange | `#3d2a19` | comment | 5.17 |
-| editor + inactiveSelection + mergeCurrentHeader + removedLine | `#2c2820` | comment | 5.58 |
-| editor + inactiveSelection + mergeIncomingHeader + removedLine | `#2b2640` | comment | 5.49 |
-| editor + inactiveSelection + mergeCommonHeader + removedLine | `#2b1c58` | comment | 5.66 |
-| editor + inactiveSelection + removedLine + searchMatch | `#3d2a19` | comment | 5.17 |
-| editor + inactiveSelection + removedLine + covered | `#1d2f1f` | comment | 5.40 |
-| editor + inactiveSelection + removedLine + uncovered | `#551322` | comment | 5.31 |
-| editor + inactiveSelection + removedLine + removedWord | `#4e222b` | comment | 5.03 |
-| editor + inactiveSelection + removedLine + removedWord + wordHighlight | `#2c2663` | comment | 5.10 |
-| editor + inactiveSelection + removedLine + removedWord + findMatchOther | `#4c2b1b` | comment | 4.78 |
-| editor + inactiveSelection + removedLine + removedWord + wordHighlight + findMatchOther | `#382d3c` | comment | 4.96 |
-| editor + inactiveSelection + removedLine + removedWord + selectionHighlight | `#331d50` | comment | 5.57 |
-| editor + inactiveSelection + removedLine + removedWord + selectionHighlight + wordHighlight | `#1d2377` | comment | 5.12 |
-| editor + inactiveSelection + removedLine + removedWord + selectionHighlight + findMatchOther | `#3c2831` | comment | 5.18 |
-| editor + inactiveSelection + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2f2b48` | comment | 5.12 |
-| editor + inactiveSelection + findRange + removedLine + removedWord | `#461f53` | comment | 5.05 |
-| editor + inactiveSelection + removedLine + rangeHighlight + removedWord | `#391d59` | comment | 5.34 |
-| editor + inactiveSelection + fold + removedLine + removedWord | `#461f53` | comment | 5.05 |
-| editor + inactiveSelection + removedLine + removedWord + hover | `#302b47` | comment | 5.11 |
-| editor + inactiveSelection + removedLine + removedWord + symbol | `#4c2b1b` | comment | 4.78 |
-| editor + inactiveSelection + removedLine + removedWord + strongWord | `#412d31` | comment | 4.85 |
-| editor + inactiveSelection + stackFrame + removedLine + removedWord | `#562521` | comment | 4.75 |
-| editor + inactiveSelection + focusedStackFrame + removedLine + removedWord | `#472925` | comment | 4.95 |
-| editor + inactiveSelection + removedLine + bracketMatch + removedWord | `#52271e` | comment | 4.79 |
-| editor + inactiveSelection + removedLine + removedWord + commentRange | `#4c2b1b` | comment | 4.78 |
-| editor + inactiveSelection + removedLine + removedWord + activeCommentRange | `#4c2b1b` | comment | 4.78 |
-| editor + inactiveSelection + mergeCurrentHeader + removedLine + removedWord | `#472925` | comment | 4.95 |
-| editor + inactiveSelection + mergeIncomingHeader + removedLine + removedWord | `#46273f` | comment | 4.92 |
-| editor + inactiveSelection + mergeCommonHeader + removedLine + removedWord | `#461f53` | comment | 5.05 |
-| editor + inactiveSelection + removedLine + removedWord + searchMatch | `#4c2b1b` | comment | 4.78 |
-| editor + inactiveSelection + removedLine + removedWord + covered | `#2b3020` | comment | 5.16 |
-| editor + inactiveSelection + removedLine + removedWord + uncovered | `#641424` | comment | 4.79 |
+| editor + selection + removedLine + removedWord + wordHighlight + findMatchOther | `#34314b` | comment | 4.73 |
+| editor + selection + removedLine + removedWord + selectionHighlight | `#232677` | comment | 4.94 |
+| editor + selection + removedLine + removedWord + selectionHighlight + wordHighlight | `#15288e` | comment | 4.62 |
+| editor + selection + removedLine + removedWord + selectionHighlight + findMatchOther | `#332e49` | comment | 4.90 |
+| editor + selection + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2a3057` | comment | 4.81 |
+| editor + selection + findRange + removedLine + removedWord | `#3f2868` | comment | 4.66 |
+| editor + selection + removedLine + rangeHighlight + removedWord | `#34296f` | comment | 4.72 |
+| editor + selection + fold + removedLine + removedWord | `#3f2868` | comment | 4.66 |
+| editor + selection + removedLine + removedWord + hover | `#29305d` | comment | 4.77 |
+| editor + selection + removedLine + removedWord + symbol | `#452f32` | comment | 4.68 |
+| editor + selection + removedLine + removedWord + strongWord | `#3b3147` | comment | 4.65 |
+| editor + selection + stackFrame + removedLine + removedWord | `#4e2a38` | comment | 4.66 |
+| editor + selection + focusedStackFrame + removedLine + removedWord | `#3f2e3a` | comment | 4.80 |
+| editor + selection + removedLine + bracketMatch + removedWord | `#4b2c35` | comment | 4.67 |
+| editor + selection + removedLine + removedWord + commentRange | `#452f32` | comment | 4.68 |
+| editor + selection + removedLine + removedWord + activeCommentRange | `#452f32` | comment | 4.68 |
+| editor + selection + mergeCurrentHeader + removedLine + removedWord | `#3f2e3a` | comment | 4.80 |
+| editor + selection + mergeIncomingHeader + removedLine + removedWord | `#3f2c55` | comment | 4.69 |
+| editor + selection + mergeCommonHeader + removedLine + removedWord | `#3f2868` | comment | 4.66 |
+| editor + selection + removedLine + removedWord + searchMatch | `#452f32` | comment | 4.68 |
+| editor + selection + removedLine + removedWord + covered | `#243536` | comment | 4.87 |
+| editor + selection + removedLine + removedWord + uncovered | `#5e193b` | comment | 4.76 |
+| editor + inactiveSelection | `#181c23` | comment | 6.49 |
+| editor + inactiveSelection + wordHighlight | `#0f2360` | comment | 5.58 |
+| editor + inactiveSelection + findMatchOther | `#2c2817` | comment | 5.61 |
+| editor + inactiveSelection + wordHighlight + findMatchOther | `#272d3b` | comment | 5.24 |
+| editor + inactiveSelection + selectionHighlight | `#0c1e5d` | comment | 5.87 |
+| editor + inactiveSelection + selectionHighlight + wordHighlight | `#082480` | comment | 5.07 |
+| editor + inactiveSelection + selectionHighlight + findMatchOther | `#252a39` | comment | 5.43 |
+| editor + inactiveSelection + selectionHighlight + wordHighlight + findMatchOther | `#222d4f` | comment | 5.13 |
+| editor + inactiveSelection + findRange | `#0d1e5b` | comment | 5.90 |
+| editor + inactiveSelection + rangeHighlight | `#0d205d` | comment | 5.78 |
+| editor + inactiveSelection + fold | `#0d1e5b` | comment | 5.90 |
+| editor + inactiveSelection + hover | `#122843` | comment | 5.66 |
+| editor + inactiveSelection + symbol | `#2b2616` | comment | 5.74 |
+| editor + inactiveSelection + strongWord | `#24292d` | comment | 5.58 |
+| editor + inactiveSelection + stackFrame | `#232015` | comment | 6.19 |
+| editor + inactiveSelection + focusedStackFrame | `#0d261a` | comment | 6.10 |
+| editor + inactiveSelection + bracketMatch | `#282315` | comment | 5.95 |
+| editor + inactiveSelection + commentRange | `#2b2616` | comment | 5.74 |
+| editor + inactiveSelection + activeCommentRange | `#2b2616` | comment | 5.74 |
+| editor + inactiveSelection + mergeCurrentHeader | `#0d261a` | comment | 6.10 |
+| editor + inactiveSelection + mergeIncomingHeader | `#0d2441` | comment | 5.93 |
+| editor + inactiveSelection + mergeCommonHeader | `#0d1e5b` | comment | 5.90 |
+| editor + inactiveSelection + mergeChange | `#123221` | comment | 5.31 |
+| editor + inactiveSelection + mergeChangeWord | `#123221` | comment | 5.31 |
+| editor + inactiveSelection + searchMatch | `#2b2616` | comment | 5.74 |
+| editor + inactiveSelection + covered | `#0d2d1c` | comment | 5.66 |
+| editor + inactiveSelection + uncovered | `#44101f` | comment | 5.96 |
+| editor + inactiveSelection + unchangedCode | `#1e222a` | comment | 6.06 |
+| editor + inactiveSelection + addedLine | `#152523` | comment | 6.04 |
+| editor + inactiveSelection + addedLine + wordHighlight | `#0d2860` | comment | 5.36 |
+| editor + inactiveSelection + addedLine + findMatchOther | `#2a2e17` | comment | 5.32 |
+| editor + inactiveSelection + addedLine + wordHighlight + findMatchOther | `#25303b` | comment | 5.10 |
+| editor + inactiveSelection + addedLine + selectionHighlight | `#0b235d` | comment | 5.65 |
+| editor + inactiveSelection + addedLine + selectionHighlight + wordHighlight | `#082780` | comment | 4.95 |
+| editor + inactiveSelection + addedLine + selectionHighlight + findMatchOther | `#242d39` | comment | 5.29 |
+| editor + inactiveSelection + addedLine + selectionHighlight + wordHighlight + findMatchOther | `#222f4f` | comment | 5.03 |
+| editor + inactiveSelection + findRange + addedLine | `#0b2754` | comment | 5.57 |
+| editor + inactiveSelection + addedLine + rangeHighlight | `#0b255d` | comment | 5.56 |
+| editor + inactiveSelection + fold + addedLine | `#0b2754` | comment | 5.57 |
+| editor + inactiveSelection + addedLine + hover | `#102d43` | comment | 5.40 |
+| editor + inactiveSelection + addedLine + symbol | `#292c16` | comment | 5.44 |
+| editor + inactiveSelection + addedLine + strongWord | `#222e2d` | comment | 5.33 |
+| editor + inactiveSelection + stackFrame + addedLine | `#1e2917` | comment | 5.76 |
+| editor + inactiveSelection + focusedStackFrame + addedLine | `#0b2e1b` | comment | 5.62 |
+| editor + inactiveSelection + addedLine + bracketMatch | `#262915` | comment | 5.66 |
+| editor + inactiveSelection + addedLine + commentRange | `#292c16` | comment | 5.44 |
+| editor + inactiveSelection + addedLine + activeCommentRange | `#292c16` | comment | 5.44 |
+| editor + inactiveSelection + mergeCurrentHeader + addedLine | `#0b2e1b` | comment | 5.62 |
+| editor + inactiveSelection + mergeIncomingHeader + addedLine | `#0b2c3e` | comment | 5.53 |
+| editor + inactiveSelection + mergeCommonHeader + addedLine | `#0b2754` | comment | 5.57 |
+| editor + inactiveSelection + addedLine + searchMatch | `#292c16` | comment | 5.44 |
+| editor + inactiveSelection + addedLine + covered | `#0b321c` | comment | 5.37 |
+| editor + inactiveSelection + addedLine + uncovered | `#42161f` | comment | 5.84 |
+| editor + inactiveSelection + addedLine + addedWord | `#113023` | comment | 5.43 |
+| editor + inactiveSelection + addedLine + addedWord + wordHighlight | `#0b2e60` | comment | 5.07 |
+| editor + inactiveSelection + addedLine + addedWord + findMatchOther | `#283417` | comment | 5.01 |
+| editor + inactiveSelection + addedLine + addedWord + wordHighlight + findMatchOther | `#24333b` | comment | 4.95 |
+| editor + inactiveSelection + addedLine + addedWord + selectionHighlight | `#09295d` | comment | 5.37 |
+| editor + inactiveSelection + addedLine + addedWord + selectionHighlight + wordHighlight | `#062a80` | comment | 4.84 |
+| editor + inactiveSelection + addedLine + addedWord + selectionHighlight + findMatchOther | `#233039` | comment | 5.14 |
+| editor + inactiveSelection + addedLine + addedWord + selectionHighlight + wordHighlight + findMatchOther | `#21314f` | comment | 4.94 |
+| editor + inactiveSelection + findRange + addedLine + addedWord | `#09314c` | comment | 5.13 |
+| editor + inactiveSelection + addedLine + rangeHighlight + addedWord | `#093054` | comment | 5.11 |
+| editor + inactiveSelection + fold + addedLine + addedWord | `#09314c` | comment | 5.13 |
+| editor + inactiveSelection + addedLine + addedWord + hover | `#0e3343` | comment | 5.07 |
+| editor + inactiveSelection + addedLine + addedWord + symbol | `#273216` | comment | 5.14 |
+| editor + inactiveSelection + addedLine + addedWord + strongWord | `#20342d` | comment | 5.02 |
+| editor + inactiveSelection + stackFrame + addedLine + addedWord | `#193319` | comment | 5.22 |
+| editor + inactiveSelection + focusedStackFrame + addedLine + addedWord | `#09371c` | comment | 5.07 |
+| editor + inactiveSelection + addedLine + bracketMatch + addedWord | `#1f3317` | comment | 5.17 |
+| editor + inactiveSelection + addedLine + addedWord + commentRange | `#273216` | comment | 5.14 |
+| editor + inactiveSelection + addedLine + addedWord + activeCommentRange | `#273216` | comment | 5.14 |
+| editor + inactiveSelection + mergeCurrentHeader + addedLine + addedWord | `#09371c` | comment | 5.07 |
+| editor + inactiveSelection + mergeIncomingHeader + addedLine + addedWord | `#09353a` | comment | 5.05 |
+| editor + inactiveSelection + mergeCommonHeader + addedLine + addedWord | `#09314c` | comment | 5.13 |
+| editor + inactiveSelection + addedLine + addedWord + searchMatch | `#273216` | comment | 5.14 |
+| editor + inactiveSelection + addedLine + addedWord + covered | `#09381c` | comment | 5.01 |
+| editor + inactiveSelection + addedLine + addedWord + uncovered | `#401c1f` | comment | 5.69 |
+| editor + inactiveSelection + removedLine | `#341e26` | comment | 5.87 |
+| editor + inactiveSelection + removedLine + wordHighlight | `#1e2461` | comment | 5.39 |
+| editor + inactiveSelection + removedLine + findMatchOther | `#3d2a18` | comment | 5.17 |
+| editor + inactiveSelection + removedLine + wordHighlight + findMatchOther | `#302d3c` | comment | 5.10 |
+| editor + inactiveSelection + removedLine + selectionHighlight | `#1b1f5f` | comment | 5.67 |
+| editor + inactiveSelection + removedLine + selectionHighlight + wordHighlight | `#102581` | comment | 4.98 |
+| editor + inactiveSelection + removedLine + selectionHighlight + findMatchOther | `#2e2a3b` | comment | 5.28 |
+| editor + inactiveSelection + removedLine + selectionHighlight + wordHighlight + findMatchOther | `#272e4f` | comment | 5.02 |
+| editor + inactiveSelection + findRange + removedLine | `#2a2055` | comment | 5.56 |
+| editor + inactiveSelection + removedLine + rangeHighlight | `#1c215e` | comment | 5.59 |
+| editor + inactiveSelection + fold + removedLine | `#2a2055` | comment | 5.56 |
+| editor + inactiveSelection + removedLine + hover | `#212944` | comment | 5.45 |
+| editor + inactiveSelection + removedLine + symbol | `#3c2817` | comment | 5.29 |
+| editor + inactiveSelection + removedLine + strongWord | `#332a2e` | comment | 5.28 |
+| editor + inactiveSelection + stackFrame + removedLine | `#3d211a` | comment | 5.58 |
+| editor + inactiveSelection + focusedStackFrame + removedLine | `#2a261e` | comment | 5.72 |
+| editor + inactiveSelection + removedLine + bracketMatch | `#392516` | comment | 5.50 |
+| editor + inactiveSelection + removedLine + commentRange | `#3c2817` | comment | 5.29 |
+| editor + inactiveSelection + removedLine + activeCommentRange | `#3c2817` | comment | 5.29 |
+| editor + inactiveSelection + mergeCurrentHeader + removedLine | `#2a261e` | comment | 5.72 |
+| editor + inactiveSelection + mergeIncomingHeader + removedLine | `#2a253f` | comment | 5.56 |
+| editor + inactiveSelection + mergeCommonHeader + removedLine | `#2a2055` | comment | 5.56 |
+| editor + inactiveSelection + removedLine + searchMatch | `#3c2817` | comment | 5.29 |
+| editor + inactiveSelection + removedLine + covered | `#1c2e1d` | comment | 5.48 |
+| editor + inactiveSelection + removedLine + uncovered | `#551220` | comment | 5.34 |
+| editor + inactiveSelection + removedLine + removedWord | `#4d2029` | comment | 5.14 |
+| editor + inactiveSelection + removedLine + removedWord + wordHighlight | `#2c2563` | comment | 5.14 |
+| editor + inactiveSelection + removedLine + removedWord + findMatchOther | `#4c2b1a` | comment | 4.79 |
+| editor + inactiveSelection + removedLine + removedWord + wordHighlight + findMatchOther | `#382e3d` | comment | 4.91 |
+| editor + inactiveSelection + removedLine + removedWord + selectionHighlight | `#282160` | comment | 5.41 |
+| editor + inactiveSelection + removedLine + removedWord + selectionHighlight + wordHighlight | `#182681` | comment | 4.89 |
+| editor + inactiveSelection + removedLine + removedWord + selectionHighlight + findMatchOther | `#362b3b` | comment | 5.10 |
+| editor + inactiveSelection + removedLine + removedWord + selectionHighlight + wordHighlight + findMatchOther | `#2c2e4f` | comment | 4.96 |
+| editor + inactiveSelection + findRange + removedLine + removedWord | `#442250` | comment | 5.02 |
+| editor + inactiveSelection + removedLine + rangeHighlight + removedWord | `#392358` | comment | 5.13 |
+| editor + inactiveSelection + fold + removedLine + removedWord | `#442250` | comment | 5.02 |
+| editor + inactiveSelection + removedLine + removedWord + hover | `#2f2a46` | comment | 5.18 |
+| editor + inactiveSelection + removedLine + removedWord + symbol | `#4b2919` | comment | 4.90 |
+| editor + inactiveSelection + removedLine + removedWord + strongWord | `#412b30` | comment | 4.95 |
+| editor + inactiveSelection + stackFrame + removedLine + removedWord | `#54231f` | comment | 4.88 |
+| editor + inactiveSelection + focusedStackFrame + removedLine + removedWord | `#442722` | comment | 5.12 |
+| editor + inactiveSelection + removedLine + bracketMatch + removedWord | `#51261c` | comment | 4.86 |
+| editor + inactiveSelection + removedLine + removedWord + commentRange | `#4b2919` | comment | 4.90 |
+| editor + inactiveSelection + removedLine + removedWord + activeCommentRange | `#4b2919` | comment | 4.90 |
+| editor + inactiveSelection + mergeCurrentHeader + removedLine + removedWord | `#442722` | comment | 5.12 |
+| editor + inactiveSelection + mergeIncomingHeader + removedLine + removedWord | `#44263e` | comment | 5.01 |
+| editor + inactiveSelection + mergeCommonHeader + removedLine + removedWord | `#442250` | comment | 5.02 |
+| editor + inactiveSelection + removedLine + removedWord + searchMatch | `#4b2919` | comment | 4.90 |
+| editor + inactiveSelection + removedLine + removedWord + covered | `#2a2f1f` | comment | 5.23 |
+| editor + inactiveSelection + removedLine + removedWord + uncovered | `#641322` | comment | 4.81 |
 | peekEditor | `#14181f` | comment | 6.76 |
-| peekEditor + wordHighlight | `#0c205c` | comment | 5.80 |
-| peekEditor + findMatchOther | `#292513` | comment | 5.83 |
-| peekEditor + wordHighlight + findMatchOther | `#242a38` | comment | 5.46 |
-| peekEditor + selectionHighlight | `#0d1749` | comment | 6.46 |
-| peekEditor + selectionHighlight + wordHighlight | `#092073` | comment | 5.45 |
-| peekEditor + selectionHighlight + findMatchOther | `#25242d` | comment | 5.83 |
-| peekEditor + selectionHighlight + wordHighlight + findMatchOther | `#232a46` | comment | 5.35 |
-| peekEditor + findRange | `#0a165b` | comment | 6.24 |
-| peekEditor + rangeHighlight | `#0a165b` | comment | 6.24 |
-| peekEditor + fold | `#0a165b` | comment | 6.24 |
-| peekEditor + lineHighlight | `#23272e` | comment | 5.70 |
-| peekEditor + lineHighlight + wordHighlight | `#152864` | comment | 5.25 |
-| peekEditor + lineHighlight + findMatchOther | `#322e1c` | comment | 5.17 |
-| peekEditor + lineHighlight + wordHighlight + findMatchOther | `#2a2e3d` | comment | 5.13 |
-| peekEditor + lineHighlight + selectionHighlight | `#172052` | comment | 5.85 |
-| peekEditor + lineHighlight + selectionHighlight + wordHighlight | `#0e2578` | comment | 5.14 |
-| peekEditor + lineHighlight + selectionHighlight + findMatchOther | `#2b2a32` | comment | 5.39 |
-| peekEditor + lineHighlight + selectionHighlight + wordHighlight + findMatchOther | `#262d49` | comment | 5.14 |
-| peekEditor + lineHighlight + findRange | `#121e62` | comment | 5.75 |
-| peekEditor + lineHighlight + rangeHighlight | `#121e62` | comment | 5.75 |
-| peekEditor + lineHighlight + fold | `#121e62` | comment | 5.75 |
-| peekEditor + selection | `#0d2f61` | comment | 5.00 |
-| peekEditor + selection + wordHighlight | `#092d81` | comment | 4.68 |
-| peekEditor + selection + findMatchOther | `#25333b` | comment | 4.94 |
-| peekEditor + selection + wordHighlight + findMatchOther | `#23314e` | comment | 4.92 |
-| peekEditor + selection + selectionHighlight | `#082674` | comment | 5.18 |
-| peekEditor + selection + selectionHighlight + wordHighlight | `#06288b` | comment | 4.74 |
-| peekEditor + selection + selectionHighlight + findMatchOther | `#222d46` | comment | 5.21 |
-| peekEditor + selection + selectionHighlight + wordHighlight + findMatchOther | `#212e54` | comment | 5.04 |
-| peekEditor + selection + findRange | `#07227c` | comment | 5.22 |
-| peekEditor + selection + rangeHighlight | `#07227c` | comment | 5.22 |
-| peekEditor + selection + fold | `#07227c` | comment | 5.22 |
-| peekEditor + inactiveSelection | `#1b1f27` | comment | 6.28 |
-| peekEditor + inactiveSelection + wordHighlight | `#102461` | comment | 5.52 |
-| peekEditor + inactiveSelection + findMatchOther | `#2d2918` | comment | 5.54 |
-| peekEditor + inactiveSelection + wordHighlight + findMatchOther | `#272c3b` | comment | 5.29 |
-| peekEditor + inactiveSelection + selectionHighlight | `#121b4e` | comment | 6.18 |
-| peekEditor + inactiveSelection + selectionHighlight + wordHighlight | `#0b2276` | comment | 5.31 |
-| peekEditor + inactiveSelection + selectionHighlight + findMatchOther | `#282730` | comment | 5.61 |
-| peekEditor + inactiveSelection + selectionHighlight + wordHighlight + findMatchOther | `#242b48` | comment | 5.27 |
-| peekEditor + inactiveSelection + findRange | `#0e1a5f` | comment | 5.99 |
-| peekEditor + inactiveSelection + rangeHighlight | `#0e1a5f` | comment | 5.99 |
-| peekEditor + inactiveSelection + fold | `#0e1a5f` | comment | 5.99 |
+| peekEditor + wordHighlight | `#0d215e` | comment | 5.72 |
+| peekEditor + findMatchOther | `#2a2614` | comment | 5.76 |
+| peekEditor + wordHighlight + findMatchOther | `#252b3a` | comment | 5.37 |
+| peekEditor + selectionHighlight | `#0a1c5b` | comment | 6.00 |
+| peekEditor + selectionHighlight + wordHighlight | `#07237f` | comment | 5.13 |
+| peekEditor + selectionHighlight + findMatchOther | `#242838` | comment | 5.56 |
+| peekEditor + selectionHighlight + wordHighlight + findMatchOther | `#222d4e` | comment | 5.14 |
+| peekEditor + findRange | `#0b1c59` | comment | 6.03 |
+| peekEditor + rangeHighlight | `#0b1e5b` | comment | 5.91 |
+| peekEditor + fold | `#0b1c59` | comment | 6.03 |
+| peekEditor + lineHighlight | `#22262e` | comment | 5.76 |
+| peekEditor + lineHighlight + wordHighlight | `#142866` | comment | 5.23 |
+| peekEditor + lineHighlight + findMatchOther | `#322e1d` | comment | 5.17 |
+| peekEditor + lineHighlight + wordHighlight + findMatchOther | `#2a303f` | comment | 5.01 |
+| peekEditor + lineHighlight + selectionHighlight | `#122463` | comment | 5.47 |
+| peekEditor + lineHighlight + selectionHighlight + wordHighlight | `#0b2783` | comment | 4.89 |
+| peekEditor + lineHighlight + selectionHighlight + findMatchOther | `#282d3d` | comment | 5.21 |
+| peekEditor + lineHighlight + selectionHighlight + wordHighlight + findMatchOther | `#242f50` | comment | 5.00 |
+| peekEditor + lineHighlight + findRange | `#122361` | comment | 5.55 |
+| peekEditor + lineHighlight + rangeHighlight | `#122563` | comment | 5.43 |
+| peekEditor + lineHighlight + fold | `#122361` | comment | 5.55 |
+| peekEditor + selection | `#0c2e61` | comment | 5.06 |
+| peekEditor + selection + wordHighlight | `#082d82` | comment | 4.67 |
+| peekEditor + selection + findMatchOther | `#25333c` | comment | 4.94 |
+| peekEditor + selection + wordHighlight + findMatchOther | `#223350` | comment | 4.82 |
+| peekEditor + selection + selectionHighlight | `#06287e` | comment | 4.95 |
+| peekEditor + selection + selectionHighlight + wordHighlight | `#052a92` | comment | 4.55 |
+| peekEditor + selection + selectionHighlight + findMatchOther | `#21304d` | comment | 5.01 |
+| peekEditor + selection + selectionHighlight + wordHighlight + findMatchOther | `#213159` | comment | 4.84 |
+| peekEditor + selection + findRange | `#06287d` | comment | 4.97 |
+| peekEditor + selection + rangeHighlight | `#062a7f` | comment | 4.85 |
+| peekEditor + selection + fold | `#06287d` | comment | 4.97 |
+| peekEditor + inactiveSelection | `#1b1f26` | comment | 6.28 |
+| peekEditor + inactiveSelection + wordHighlight | `#102561` | comment | 5.47 |
+| peekEditor + inactiveSelection + findMatchOther | `#2e2a18` | comment | 5.47 |
+| peekEditor + inactiveSelection + wordHighlight + findMatchOther | `#272e3c` | comment | 5.18 |
+| peekEditor + inactiveSelection + selectionHighlight | `#0e205f` | comment | 5.74 |
+| peekEditor + inactiveSelection + selectionHighlight + wordHighlight | `#092581` | comment | 5.01 |
+| peekEditor + inactiveSelection + selectionHighlight + findMatchOther | `#262b3b` | comment | 5.35 |
+| peekEditor + inactiveSelection + selectionHighlight + wordHighlight + findMatchOther | `#232e4f` | comment | 5.07 |
+| peekEditor + inactiveSelection + findRange | `#0e205c` | comment | 5.79 |
+| peekEditor + inactiveSelection + rangeHighlight | `#0e225e` | comment | 5.66 |
+| peekEditor + inactiveSelection + fold | `#0e205c` | comment | 5.79 |
 | hoverWidget | `#1e222a` | comment | 6.06 |
 | findMatch | `#463500` | comment | 4.51 |
 | findMatch + wordHighlight | `#463500` | comment | 4.51 |
@@ -790,8 +790,8 @@ VS Code draws these over syntax, so they must be translucent.
 | Token | Value | Alpha |
 |---|---|---|
 | selection | `#0153c963` | 39% |
-| find match, other | `#49380266` | 40% |
-| word highlight | `#032aa773` | 45% |
+| find match, other | `#4b3b0566` | 40% |
+| word highlight | `#052daa73` | 45% |
 | current line | `#3d414a5c` | 36% |
 | find match, current | `#463500` | solid |
 

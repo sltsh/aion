@@ -75,25 +75,34 @@ test.each(overlayPins)('$scheme $name stays within 5% of its constrained optimum
         return { base: surface === 'peekEditor' ? source.neutral.terminal : editor,
           layers: layers as StackLayer[] };
       });
+    const accepts = (candidate: Overlay): boolean => {
+      const next = { ...source, [owner]: { ...source[owner], [name]: candidate } } as StateSource;
+      const shift = distanceEmitted(compositeEmitted(candidate.color, candidate.alpha, editor), editor);
+      if (shift < 0.03 || ((owner === 'overlay' || source === LIGHT_SHIPPED) && shift >= selectionShift)) return false;
+      if (owner === 'overlay') {
+        const over = (base: Oklch) => compositeEmitted(candidate.color, candidate.alpha, base);
+        if (distanceEmitted(over(selected), over(editor)) <= selectionShift * 0.5) return false;
+      }
+      const plain = stackBackground(next, editor, orderStack(new Set<StackLayer>([name])));
+      if (distanceEmitted(plain, editor) < 0.03) return false;
+      const through = stackBackground(next, editor, orderStack(new Set<StackLayer>(['selection', name])));
+      if (distanceEmitted(through, plain) <= selectionShift * 0.5) return false;
+      return stacks.every(({ base, layers }) => {
+        const background = stackBackground(next, base, layers);
+        return foregrounds.every((colour) => contrastEmitted(colour, background) >= CONTRAST_FLOOR);
+      });
+    };
+    const score = (candidate: Overlay): number => {
+      const next = { ...source, [owner]: { ...source[owner], [name]: candidate } } as StateSource;
+      return distanceEmitted(stackBackground(next, editor, [name]), editor);
+    };
+    expect(accepts(shipped), `${name}: shipped colour violates its constraints`).toBe(true);
     const best = solveOverlay({
-      hues: [shipped.color[2]], against: editor,
-      lightness: [0, 1],
-      chroma: [0, 0.20], alpha: [0.05, 1],
-      accept: (candidate: Overlay): boolean => {
-        const next = { ...source, [owner]: { ...source[owner], [name]: candidate } } as StateSource;
-        const shift = distanceEmitted(compositeEmitted(candidate.color, candidate.alpha, editor), editor);
-        if (shift < 0.03 || shift >= selectionShift) return false;
-        const plain = stackBackground(next, editor, orderStack(new Set<StackLayer>([name])));
-        const through = stackBackground(next, editor, orderStack(new Set<StackLayer>(['selection', name])));
-        if (distanceEmitted(through, plain) <= selectionShift * 0.5) return false;
-        return stacks.every(({ base, layers }) => {
-          const background = stackBackground(next, base, layers);
-          return foregrounds.every((colour) => contrastEmitted(colour, background) >= CONTRAST_FLOOR);
-        });
-      },
+      hues: [shipped.color[2]], against: editor, lightness: [0, 1],
+      chroma: [0, 0.20], alpha: [0.05, 1], accept: accepts, score,
     });
     expect(best, `${name} has no solution`).not.toBeNull();
-    const actual = distanceEmitted(compositeEmitted(shipped.color, shipped.alpha, editor), editor);
+    const actual = score(shipped);
     expect(actual / best!.distance, `${name}: ${actual.toFixed(4)} / ${best!.distance.toFixed(4)}`)
       .toBeGreaterThanOrEqual(0.95);
   }, 20_000,
@@ -111,21 +120,25 @@ test('the light removed line stays within 5% of its constrained optimum', () => 
     .map((row) => row.name.split(' + ').slice(1) as StackLayer[]);
   const selected = compositeEmitted(source.overlay.selection.color, source.overlay.selection.alpha, editor);
   const selectionRatio = contrastEmitted(selected, editor);
+  const accepts = (candidate: Overlay): boolean => {
+    const line = (base: Oklch): Oklch => compositeEmitted(candidate.color, candidate.alpha, base);
+    const over = (base: Oklch): Oklch => compositeEmitted(word.color, word.alpha, line(base));
+    if (distanceEmitted(line(editor), editor) < 0.03 || contrastEmitted(line(editor), editor) <= 1.07 ||
+        contrastEmitted(over(editor), editor) <= contrastEmitted(line(editor), editor) ||
+        contrastEmitted(over(selected), over(editor)) <= 1 + (selectionRatio - 1) * 0.5) return false;
+    const next = { ...source, diffWash: { ...source.diffWash, removedLine: candidate } };
+    if (distanceEmitted(stackBackground(next, editor, ['removedLine']), editor) < 0.03) return false;
+    return stacks.every((layers) => foregrounds.every((colour) =>
+      contrastEmitted(colour, stackBackground(next, editor, layers)) >= CONTRAST_FLOOR));
+  };
+  const score = (candidate: Overlay): number => distanceEmitted(stackBackground(
+    { ...source, diffWash: { ...source.diffWash, removedLine: candidate } }, editor, ['removedLine']), editor);
+  expect(accepts(shipped), 'shipped removed line violates its constraints').toBe(true);
   const best = solveOverlay({
     hues: [shipped.color[2]], against: editor, lightness: [0, 1],
-    chroma: [0, 0.2], alpha: [0.05, 1],
-    accept: (candidate) => {
-      const line = (base: Oklch): Oklch => compositeEmitted(candidate.color, candidate.alpha, base);
-      const over = (base: Oklch): Oklch => compositeEmitted(word.color, word.alpha, line(base));
-      if (distanceEmitted(line(editor), editor) < 0.03 || contrastEmitted(line(editor), editor) <= 1.07 ||
-          contrastEmitted(over(editor), editor) <= contrastEmitted(line(editor), editor) ||
-          contrastEmitted(over(selected), over(editor)) <= 1 + (selectionRatio - 1) * 0.5) return false;
-      const next = { ...source, diffWash: { ...source.diffWash, removedLine: candidate } };
-      return stacks.every((layers) => foregrounds.every((colour) =>
-        contrastEmitted(colour, stackBackground(next, editor, layers)) >= CONTRAST_FLOOR));
-    },
+    chroma: [0, 0.2], alpha: [0.05, 1], accept: accepts, score,
   });
   expect(best, 'the light removed line has no solution').not.toBeNull();
-  const actual = distanceEmitted(compositeEmitted(shipped.color, shipped.alpha, editor), editor);
+  const actual = score(shipped);
   expect(actual / best!.distance).toBeGreaterThanOrEqual(0.95);
 }, 20_000);

@@ -616,6 +616,7 @@ const composited = (key: string): Oklch => {
 // text on top of it reads at, and the gate has to measure the tinted value.
 test('text keeps the floor on every decoration painted under it', () => {
   const groups: Record<string, Record<string, Oklch>> = {
+    code: readingForegrounds(),
     terminal: Object.fromEntries(ANSI_ORDER.filter((s) => s !== 'black').map((s) => [s, ansi[s]])),
     uiText: { primary: neutral.textPrimary, secondary: neutral.textSecondary },
   };
@@ -628,8 +629,8 @@ test('text keeps the floor on every decoration painted under it', () => {
     }
   }
   for (const key of alphaKeys()) {
-    const { reads } = OVER[key]!;
-    if (reads === 'none' || reads === 'code') continue;
+    const { reads, under } = OVER[key]!;
+    if (reads === 'none' || (reads === 'code' && under === 'editor.background')) continue;
     const background = composited(key);
     for (const [name, colour] of Object.entries(groups[reads]!)) {
       const ratio = contrastEmitted(colour, background);

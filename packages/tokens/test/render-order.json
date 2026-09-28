@@ -202,7 +202,7 @@
       "zIndex": 0,
       "className": "coverage-deco-inline coverage-deco-hit",
       "sourcePath": "src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts",
-      "sourceLine": 58,
+      "sourceLine": 400,
       "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts"
     },
     {
@@ -212,7 +212,7 @@
       "zIndex": 0,
       "className": "coverage-deco-inline coverage-deco-miss",
       "sourcePath": "src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts",
-      "sourceLine": 59,
+      "sourceLine": 400,
       "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/testing/browser/codeCoverageDecorations.ts"
     },
     {
@@ -652,7 +652,7 @@
         "sourcePath": "src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts",
         "sourceLines": [
           96,
-          123
+          121
         ],
         "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/workbench/contrib/mergeEditor/browser/view/editors/codeEditorView.ts"
       },
@@ -720,5 +720,17 @@
         "sourceUrl": "https://raw.githubusercontent.com/microsoft/vscode/4336606aa949efdcddb89b3db3e216562730b2bf/src/vs/editor/browser/widget/diffEditor/features/hideUnchangedRegionsFeature.ts"
       }
     ]
+  },
+  "compositor": {
+    "engine": "Chromium 153 / Skia",
+    "revision": "30ff12f0e3031c536b9b1e4dd073ffe7979f9ecc",
+    "sourceUrl": "https://raw.githubusercontent.com/google/skia/30ff12f0e3031c536b9b1e4dd073ffe7979f9ecc/src/core/SkColorPriv.h",
+    "functions": [
+      "SkPremultiplyARGBInline",
+      "SkAlpha255To256",
+      "SkPMSrcOver"
+    ],
+    "formula": "a=round(cssAlpha*255); channel=min(255,round(front*a/255)+floor(back*(256-a)/256))",
+    "evidence": "1112 editor/peek stack pixels matched in Chromium 153 at DPR 1; calculation and browser evidence, not native VS Code acceptance"
   }
 }

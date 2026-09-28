@@ -128,13 +128,13 @@ export type SecondaryDecorationName =
   | 'mergeChange' | 'mergeChangeWord' | 'searchMatch' | 'covered' | 'uncovered';
 
 // These fills are solved against the covered stacks in renderer order. Selection
-// highlight is authored at twice its painted alpha: VS Code halves it in CSS.
+// highlight has its parsed alpha halved by VS Code before CSS formatting.
 export const decoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: [0.320, 0.200, 264], alpha: 0.70 },
+  selectionHighlight: { color: [0.350, 0.200, 264], alpha: 0.950 },
   inactiveSelection: { color: neutral.border, alpha: 0.08 },
-  findRange: { color: [0.320, 0.200, 264], alpha: 0.50 },
-  rangeHighlight: { color: [0.320, 0.200, 264], alpha: 0.50 },
-  fold: { color: [0.320, 0.200, 264], alpha: 0.50 },
+  findRange: { color: [0.350, 0.200, 264], alpha: 0.450 },
+  rangeHighlight: { color: [0.360, 0.200, 264], alpha: 0.450 },
+  fold: { color: [0.350, 0.200, 264], alpha: 0.450 },
 };
 
 export const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
@@ -148,8 +148,8 @@ export const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
   activeCommentRange: { color: [0.350, 0.070, 90], alpha: 0.40 },
   unchangedCode: { color: neutral.hover, alpha: 0.3 },
   mergeCurrentHeader: { color: [0.280, 0.080, 148], alpha: 0.45 },
-  mergeIncomingHeader: { color: [0.300, 0.100, 255], alpha: 0.50 },
-  mergeCommonHeader: { color: [0.320, 0.200, 264], alpha: 0.50 },
+  mergeIncomingHeader: { color: [0.310, 0.110, 255], alpha: 0.450 },
+  mergeCommonHeader: { color: [0.350, 0.200, 264], alpha: 0.450 },
   mergeChange: { color: [0.370, 0.100, 148], alpha: 0.45 },
   mergeChangeWord: { color: [0.370, 0.100, 148], alpha: 0.45 },
   searchMatch: { color: [0.350, 0.070, 90], alpha: 0.40 },
@@ -182,8 +182,8 @@ export const overlay = {
   // The other matches take the same dark-wash treatment as the selection, for the same
   // reason: a pale gold at a low alpha is what the budget allows and it reads as nothing.
   // This is solved to keep the selection reading through it at half its plain-line shift.
-  findMatchOther: { color: [0.350, 0.070, 90], alpha: 0.40 },
-  wordHighlight: { color: [0.370, 0.200, 264], alpha: 0.45 },
+  findMatchOther: { color: [0.360, 0.070, 90], alpha: 0.400 },
+  wordHighlight: { color: [0.380, 0.200, 264], alpha: 0.450 },
   lineHighlight:  { color: neutral.hairline, alpha: 0.36 },
 } as const satisfies Record<string, Overlay>;
 

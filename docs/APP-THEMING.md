@@ -40,8 +40,8 @@ Do not introduce italics in editor syntax rules.
 | Focus | border.focus | `#e4c058` |
 | Link | fg.link | `#7db2f7` |
 | Caret | cursor | `#e4c058` |
-| Selection on main content | selection composited over neutral.editor | `#0b2d5f` |
-| Current line on main content | lineHighlight composited over neutral.editor | `#21252d` |
+| Selection on main content | selection composited over neutral.editor | `#0a2c5f` |
+| Current line on main content | lineHighlight composited over neutral.editor | `#20242c` |
 
 Use primary text for content, secondary for supporting labels, and dim text for tertiary
 information. Do not use the neutral ramp's muted / step 10 colour as ordinary text.
@@ -125,7 +125,7 @@ every terminal foreground/background combination passes contrast.
 
 ## Selection, hover and limited theme settings
 
-The selection and current-line values above are opaque results of Aion's overlays on
+The selection and current-line values above use the native CSS byte compositor on
 the main content background. They are useful where an app accepts only an opaque fill.
 They are not transferable overlay colours: do not apply transparency to them again.
 Use these fills at full opacity. On another surface they still produce the same colour,

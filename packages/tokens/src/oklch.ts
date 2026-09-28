@@ -70,10 +70,15 @@ export function compositeEmitted(over: Oklch, alpha: number, under: Oklch): Oklc
   return compositeChannels(over, Math.round(clamp(alpha) * 255) / 255, under);
 }
 
-// For CSS alpha derived after a theme key has already been parsed. The browser blends
-// that alpha directly; quantizing it as a fresh eight-bit theme key would change a byte.
+// CSS colours are premultiplied to bytes by Skia before source-over blending. The
+// destination uses a 256-step scale, so repeated layers differ from exact interpolation.
 export function compositeCssAlpha(over: Oklch, alpha: number, under: Oklch): Oklch {
-  return compositeChannels(over, clamp(alpha), under);
+  const a = Math.round(clamp(alpha) * 255);
+  const front = emittedChannels(over);
+  const back = emittedChannels(under);
+  const blend = front.map((v, i) => Math.min(255,
+    Math.round(v * a / 255) + Math.floor(back[i]! * (256 - a) / 256)));
+  return hexToOklch('#' + blend.map((v) => v.toString(16).padStart(2, '0')).join(''));
 }
 
 function compositeChannels(over: Oklch, a: number, under: Oklch): Oklch {

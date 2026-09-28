@@ -45,6 +45,7 @@ const shift = (value: Overlay): number =>
 
 test('the light selection is within 5% of the most visible blue the gate allows', () => {
   const shipped = LIGHT_SHIPPED.overlay.selection;
+  expect(passesGate('selection', shipped) && selectionCue(shipped), 'shipped selection violates its constraints').toBe(true);
   const best = solveOverlay({
     hues: [shipped.color[2]],
     against: editor,

@@ -306,6 +306,16 @@ test.each([['dark', SHIPPED], ['light', LIGHT_SHIPPED]] as const)(
   },
 );
 
+test('moved dark decorations clear visibility after native painting', () => {
+  const editor = SHIPPED.neutral.editor;
+  const names = [...Object.keys(SHIPPED.decoration), ...Object.keys(SHIPPED.secondaryDecoration)]
+    .filter((name) => name !== 'inactiveSelection' && name !== 'unchangedCode') as StackLayer[];
+  for (const name of names) {
+    expect(distanceEmitted(stackBackground(SHIPPED, editor, [name]), editor), name)
+      .toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+  }
+});
+
 test('every light editor decoration moves the editor far enough to be seen', () => {
   const editor = lightEditorNeutral.editor;
   for (const [name, value] of Object.entries(lightDecoration)) {

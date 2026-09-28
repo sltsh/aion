@@ -485,10 +485,17 @@ Tasks 1 to 11 are done.
 The renderer-stack re-solve below is **calculation; not yet checked natively**. The
 previous VS Code checks do not establish the appearance of these changed keys:
 
-The finer emitted-colour search resolves Light selection highlight's painted visibility
-while preserving the selection hierarchy and comment. Both raw-key visibility and the
-calculated CSS-alpha paint now pass their tests. This remains a calculation, not native
-editor acceptance.
+The native CSS compositor uses Skia's premultiplied byte source-over formula, verified
+against 1,112 Chromium editor/peek pixels before the palette repair. Exact interpolation
+had overstated the Light binding ratio (4.502 calculated versus 4.419 in Chromium).
+The corrected compositor required re-solving Light's selection and added-line wash,
+as well as the affected fills, with the comment fixed. Raw-key hierarchy and visibility,
+painted visibility and selection cues, and all covered contrast floors now pass.
+The inactive selection retains its earlier emitted colour and alpha. Five independent
+byte fixtures retain the binding editor/peek stacks and the selection-highlight alpha
+seam. The final palette also passed all 1,112 Chromium stack pixels with no helper mismatch
+and 12,232 foreground checks with no floor failure (worst 4.5046:1). These calculations
+and browser fixtures are not native VS Code acceptance.
 
 - **Dark:** `editor.findMatchHighlightBackground`, `editor.findRangeHighlightBackground`,
   `editor.focusedStackFrameHighlightBackground`, `editor.foldBackground`,
@@ -501,7 +508,8 @@ editor acceptance.
   `merge.incomingHeaderBackground`, `mergeEditor.change.background`,
   `mergeEditor.change.word.background`, `searchEditor.findMatchBackground`,
   `testing.coveredBackground`, `testing.uncoveredBackground`.
-- **Light:** `editor.findRangeHighlightBackground`, `editor.foldBackground`,
+- **Light:** `editor.selectionBackground`, `diffEditor.insertedLineBackground`,
+  `editor.findRangeHighlightBackground`, `editor.foldBackground`,
   `editor.rangeHighlightBackground`, `editor.selectionHighlightBackground`,
   `editor.wordHighlightBackground`, `diffEditor.removedLineBackground`.
 

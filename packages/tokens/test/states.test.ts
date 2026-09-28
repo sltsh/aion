@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { test, expect } from 'vitest';
 import {
   LIGHT_SHIPPED, SHIPPED, RENDER_ORDER, compositeCssAlpha, compositeEmitted,
-  covered, orderStack, paintedAlpha, producible, readingStates, stackBackground, stackName,
+  covered, hex, hexToOklch, orderStack, paintedAlpha, producible, readingStates, stackBackground, stackName,
 } from '../src/index.js';
 import type { StackLayer, StateSource } from '../src/index.js';
 
@@ -188,4 +188,32 @@ test('selection highlight uses the painted CSS alpha after byte parsing', () => 
     return compositeEmitted(value.color, name === 'selectionHighlight' ? value.alpha * 0.5 : value.alpha, under);
   }, source.neutral.editor);
   expect(painted).not.toEqual(rawHalf);
+});
+
+// Independent byte expectations recorded from Chromium 153, DPR 1, before palette repair.
+// These retain the binding stacks so a float interpolation cannot silently replace Skia.
+test.each([
+  { base: [246, 248, 253], layers: [
+    { rgb: [159, 206, 255], alpha: 0.35 }, { rgb: [0, 111, 40], alpha: 0.06 },
+    { rgb: [0, 111, 40], alpha: 0.03 }, { rgb: [215, 217, 220], alpha: 0.31 },
+  ], expected: [201, 219, 229] },
+  { base: [17, 21, 28], layers: [
+    { rgb: [1, 83, 201], alpha: 0.39 }, { rgb: [1, 104, 38], alpha: 0.12 },
+    { rgb: [1, 104, 38], alpha: 0.16 }, { rgb: [3, 42, 167], alpha: 0.45 },
+    { rgb: [73, 56, 2], alpha: 0.4 },
+  ], expected: [31, 52, 71] },
+  { base: [246, 248, 253], layers: [
+    { rgb: [159, 206, 255], alpha: 0.35 }, { rgb: [241, 206, 204], alpha: 0.5 },
+    { rgb: [170, 55, 60], alpha: 0.03 },
+  ], expected: [225, 214, 223] },
+  { base: [239, 242, 247], layers: [
+    { rgb: [159, 206, 255], alpha: 0.35 }, { rgb: [215, 217, 220], alpha: 0.31 },
+    { rgb: [146, 241, 246], alpha: 0.45 },
+  ], expected: [182, 232, 243] },
+  { base: [194, 232, 248], layers: [{ rgb: [159, 206, 255], alpha: 0.13 }],
+    expected: [189, 229, 249] },
+])('native premultiplied paint produces $expected', ({ base, layers, expected }) => {
+  const colour = (rgb: number[]) => hexToOklch('#' + rgb.map((v) => v.toString(16).padStart(2, '0')).join(''));
+  const result = layers.reduce((under, layer) => compositeCssAlpha(colour(layer.rgb), layer.alpha, under), colour(base));
+  expect([1, 3, 5].map((offset) => parseInt(hex(result).slice(offset, offset + 2), 16))).toEqual(expected);
 });

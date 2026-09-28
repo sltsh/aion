@@ -181,20 +181,21 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // stack. The selection remains the strongest reading cue, including through a word or
 // another find match.
 export const lightOverlay = {
-  selection: { color: gamutSafe(0.835, 0.085, 250, 'selection'), alpha: 0.35 },
+  selection: { color: [0.900, 0.050, 250], alpha: 0.700 },
   findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.40 },
-  wordHighlight: { color: gamutSafe(0.900, 0.090, 200, 'word highlight'), alpha: 0.45 },
+  wordHighlight: { color: [0.900, 0.100, 200], alpha: 0.450 },
   lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },
 } as const satisfies Record<string, Overlay>;
 
 // Find and folded ranges need a cyan hue to stay visible without hiding a selection on
 // a diff word. Selection highlight is halved by VS Code's CSS after its key is emitted.
 export const lightDecoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: [0.885, 0.004, 250], alpha: 0.610 },
-  inactiveSelection: { color: lightOverlay.selection.color, alpha: 0.25 },
-  findRange: { color: [0.930, 0.060, 210], alpha: 0.45 },
-  rangeHighlight: { color: [0.910, 0.000, 264], alpha: 0.50 },
-  fold: { color: [0.930, 0.060, 210], alpha: 0.45 },
+  selectionHighlight: { color: [0.910, 0.000, 250], alpha: 0.900 },
+  // Keep the inactive fill's emitted colour when re-solving the active selection.
+  inactiveSelection: { color: gamutSafe(0.835, 0.085, 250, 'inactive selection'), alpha: 0.25 },
+  findRange: { color: [0.920, 0.070, 210], alpha: 0.450 },
+  rangeHighlight: { color: [0.910, 0.040, 264], alpha: 0.500 },
+  fold: { color: [0.920, 0.070, 210], alpha: 0.450 },
 };
 
 export const lightSecondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
@@ -228,15 +229,14 @@ const LIGHT_DIFF_WASH_COLOR = {
   removed: lightAccents.coral,
 } as const;
 
-// Pale subtle fills moved the editor by less than 0.01 in OKLab and disappeared in a
-// rendered diff. Low-alpha solid accents make the line and changed word perceptible while
-// every syntax role stays above 4.5:1 and at least half the selection cue survives. The
-// removed line uses a pale red at higher opacity after accounting for native CSS alpha
-// rounding. Its search retains the existing diff visibility and selection-cue constraints.
+// The native byte compositor exhausts the comment budget on a selected added word.
+// A pale, more chromatic green line preserves its semantic hue and selection cue while
+// recovering luminance for the reading overlays. The word keeps the solid accent.
+// Both line searches retain the existing visibility and selection-cue constraints.
 export const lightDiffWash = {
-  addedLine: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.06 },
+  addedLine: { color: [0.890, 0.200, 148], alpha: 0.430 },
   addedWord: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.03 },
-  removedLine: { color: [0.880, 0.040, 22], alpha: 0.50 },
+  removedLine: { color: [0.890, 0.040, 22], alpha: 0.500 },
   removedWord: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.03 },
 } as const satisfies Record<string, Overlay>;
 
