@@ -158,8 +158,10 @@ describe('curated colours', () => {
   it('confirms successful copies in place and reserves the toast for errors', () => {
     const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
     const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-    expect(client).toContain("success ? 'Copied to clipboard'");
-    expect(client).toContain("'Could not copy. Select and copy the text instead.'");
+    expect(client).toContain('mountCopy(document, animate)');
+    const copyClient = readFileSync(join(root, 'src/chapters/copy.ts'), 'utf8');
+    expect(copyClient).toContain('success ? CONTENT.copy.success');
+    expect(copyClient).toContain('CONTENT.copy.failed');
     expect(css).toContain('.copy-button[data-copied] .copy-check { display: inline-flex; }');
     expect(css).toContain('.swatch[data-copied] .swatch-check { display: inline-flex; }');
     expect(css).toContain('.copy-check { display: none; color: var(--aion-status-success-solid); }');
@@ -237,10 +239,12 @@ describe('the presentation pages', () => {
     expect(css).toContain('.copy-button:disabled { color: var(--aion-fg-dim); border-color: var(--aion-border-divider); }');
     expect(css).toContain('.swatch:disabled .swatch-copy { display: none; }');
     const client = readFileSync(join(root, 'src/main.ts'), 'utf8');
-    expect(client).toContain("document.querySelectorAll<HTMLButtonElement>('[data-copy]')");
-    expect(client).toContain('source.disabled = false');
-    expect(client).toContain('const copiedTimers = new Map');
-    expect(client).toContain('clearTimeout(previous)');
+    expect(client).toContain('mountCopy(document, animate)');
+    const copyClient = readFileSync(join(root, 'src/chapters/copy.ts'), 'utf8');
+    expect(copyClient).toContain("root.querySelectorAll<HTMLButtonElement>('[data-copy]')");
+    expect(copyClient).toContain('source.disabled = false');
+    expect(copyClient).toContain('const copiedTimers = new Map');
+    expect(copyClient).toContain('clearTimeout(previous)');
   });
 
   it('keeps presentation structure open', () => {

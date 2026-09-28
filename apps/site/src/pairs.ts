@@ -1,5 +1,9 @@
 import type { Oklch, Palette } from '@sltsh/aion-tokens';
 export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; where: string }[] = [
+  { fg: '--n-text-primary', bg: '--n-editor', floor: 4.5, where: 'Palette file and chart labels; install tile name' },
+  { fg: '--n-text-secondary', bg: '--n-editor', floor: 4.5, where: 'Palette guides and uses; install channel' },
+  { fg: '--n-text-primary', bg: '--n-sidebar', floor: 4.5, where: 'install command and Copy label' },
+  { fg: '--aion-status-success-solid', bg: '--n-sidebar', floor: 4.5, where: 'install Copied state' },
   { fg: '--aion-status-success-text', bg: '--aion-bg-surface', floor: 4.5, where: 'States positive delta' },
   { fg: '--aion-status-error-text', bg: '--aion-bg-surface', floor: 4.5, where: 'States negative delta' },
   { fg: '--n-border', bg: '--n-sidebar', floor: 3, where: 'States toolbar control edge' },

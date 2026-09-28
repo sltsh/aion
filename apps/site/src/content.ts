@@ -15,6 +15,24 @@ export const SHELL = {
   explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
 } as const;
 export const CONTENT = {
+  copy: { label: 'Copy', copied: 'Copied', success: 'Copied to clipboard', unavailable: 'Copy is unavailable. Select and copy the text instead.', failed: 'Could not copy. Select and copy the text instead.' },
+  paletteChapter: {
+    title: 'Eight colours. One file.', lede: 'Each colour sits at its measured contrast against the editor. Point at a colour to see where it is used.', floor: 'floor 4.5:1', uses: 'in the file', fileName: 'src/tide.ts',
+    examples: { keyword: 'async', function: 'solve', type: 'Epoch', string: "'utf8'", number: '4.5', variable: 'entry', operator: '=>', comment: '// why' },
+    file: [
+      [['comment', '// predict the next high water']],
+      [['keyword', 'async function'], ['plain', ' '], ['function', 'predict'], ['plain', '('], ['variable', 'entry'], ['plain', ': '], ['type', 'Epoch'], ['plain', ') {']],
+      [['plain', '  '], ['keyword', 'const'], ['plain', ' '], ['variable', 'floor'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['number', '4.5'], ['plain', ';']],
+      [['plain', '  '], ['keyword', 'const'], ['plain', ' '], ['variable', 'next'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['keyword', 'await'], ['plain', ' '], ['function', 'solve'], ['plain', '('], ['variable', 'entry'], ['plain', ', '], ['string', "'utf8'"], ['plain', ');']],
+      [['plain', '  '], ['keyword', 'return'], ['plain', ' '], ['variable', 'next'], ['plain', ' '], ['operator', '??'], ['plain', ' '], ['number', '0'], ['plain', ';']],
+      [['plain', '}']],
+    ],
+  },
+  install: {
+    title: 'Pick where you read code.', scope: 'Every target here is generated from the same tokens and passes the same gate.',
+    preview: { vault: 'Vault', daily: 'Daily', notes: 'Aion notes', reading: 'Reading', heading: 'Solved, never chosen', body: 'The same tokens as the editor.', link: 'A link', tag: '#depth', subheading: 'Why the editor is the extreme', quote: 'Your code is the deepest thing on the screen.' },
+    cssCode: "@import '@sltsh/aion-css/aion.css';\n\n.panel {\n  background: var(--aion-bg-raised);\n  color: var(--aion-fg-primary);\n}",
+  },
   states: {
     title: 'Code remains legible with things on top of it.',
     lede: 'Select, search or diff. Stack the states VS Code can draw and watch each colour stay above the floor.',
@@ -138,26 +156,11 @@ export interface InstallEntry {
 }
 
 export const INSTALL: readonly InstallEntry[] = [
-  {
-    id: 'vscode', label: 'VS Code',
-    command: 'code --install-extension sltsh.aion-theme',
-    localCommand: 'code --install-extension sltsh.aion-theme',
-    note: 'Familiar syntax, gold focus accents, and no italics. Install the extension, then select Aion as your colour theme.',
-    action: 'Install from Marketplace', href: 'https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme',
-  },
-  {
-    id: 'terminal', label: 'Windows Terminal (dark scheme)',
-    command: '%LOCALAPPDATA%\\Microsoft\\Windows Terminal\\Fragments\\sltsh',
-    localCommand: '%LOCALAPPDATA%\\Microsoft\\Windows Terminal\\Fragments\\sltsh',
-    note: 'Save the file in this folder (create it if needed). Restart Terminal and choose Aion in Settings → Profiles → Appearance → Colour scheme.',
-    action: 'Download aion.json', href: '/downloads/aion.json',
-  },
-  {
-    id: 'css', label: 'CSS & Tailwind',
-    command: 'npm install @sltsh/aion-css', localCommand: 'npm run build',
-    note: 'The same palette for your own interfaces. CSS custom properties and a Tailwind theme, ready to use after a local build.',
-    action: 'CSS setup', href: 'https://github.com/sltsh/aion/tree/main/packages/css',
-  },
+  { id: 'vscode', label: 'VS Code', note: 'Marketplace', command: 'code --install-extension sltsh.aion-theme', localCommand: 'code --install-extension sltsh.aion-theme', action: 'Marketplace', href: 'https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme' },
+  { id: 'obsidian', label: 'Obsidian', note: 'Community themes', command: 'Settings / Appearance / Themes / Aion', localCommand: 'Settings / Appearance / Themes / Aion', action: 'Obsidian directory', href: 'https://obsidian.md/themes?search=Aion' },
+  { id: 'ovsx', label: 'Cursor, Windsurf, VSCodium', note: 'Open VSX', command: 'Search the extensions view for Aion', localCommand: 'Search the extensions view for Aion', action: 'Open VSX', href: 'https://open-vsx.org/extension/sltsh/aion-theme' },
+  { id: 'wt', label: 'Windows Terminal', note: 'aion.json', command: 'Add aion.json to the schemes in settings.json', localCommand: 'Add aion.json to the schemes in settings.json', action: 'Download aion.json', href: '/downloads/aion.json' },
+  { id: 'css', label: 'CSS / Tailwind', note: 'npm', command: 'npm install @sltsh/aion-css', localCommand: 'npm run build', action: 'CSS package', href: 'https://www.npmjs.com/package/@sltsh/aion-css' },
 ];
 
 export const UNRELEASED_NOTE =

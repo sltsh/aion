@@ -11,6 +11,10 @@ import './styles/depth.css';
 import './styles/probes.css';
 import './styles/states.css';
 import './styles/terminal.css';
+import './styles/palette-chapter.css';
+import './styles/install.css';
+import { mountPaletteChapter } from './chapters/palette.js';
+import { mountCopy } from './chapters/copy.js';
 import { mountStates } from './chapters/states.js';
 import { mountSolved } from './chapters/solved.js';
 import { mountRounded } from './chapters/rounded.js';
@@ -23,8 +27,6 @@ import { initializeTheme, syncFavicons } from './theme.js';
 import { isHomepagePath, runIntro, shouldPlayIntro } from './intro.js';
 import type { SchemeMeasures } from './measures.js';
 
-// A readable confirmation dwell, not an animation duration.
-const COPIED_MS = 2000;
 const root = document.documentElement;
 const lifetime = new AbortController();
 const { signal } = lifetime;
@@ -95,6 +97,8 @@ if (introEligible) {
   root.removeAttribute('data-intro');
   arriveIfCurrent();
 }
+const paletteRoot = document.querySelector<HTMLElement>('[data-palette-chapter]');
+const disposePalette = paletteRoot ? mountPaletteChapter(paletteRoot) : () => {};
 const depthRoot = document.querySelector<HTMLElement>('[data-depth]');
 const disposeDepth = depthRoot ? mountDepth(depthRoot) : () => {};
 const probeInputs = readProbeInputs(document);
@@ -110,9 +114,6 @@ const rail = document.querySelector<HTMLElement>('.chapter-rail');
 const hero = document.getElementById('overview');
 const disposeRail = rail && hero ? mountRail(rail, hero) : () => {};
 
-document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((source) => {
-  source.disabled = false;
-});
 
 const siteHead = document.querySelector<HTMLElement>('.site-head');
 const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
@@ -178,65 +179,7 @@ document.addEventListener('click', (event) => {
   if (control) animate(control, [{ transform: 'translateY(2px)' }, { transform: 'translateY(0)' }]);
 }, { signal });
 
-const status = document.querySelector<HTMLElement>('.copy-status');
-let statusTimer: ReturnType<typeof setTimeout> | undefined;
-const copiedTimers = new Map<HTMLElement, ReturnType<typeof setTimeout>>();
-let copyRequest = 0;
-const clearCopy = (source: HTMLElement): void => {
-  const previous = copiedTimers.get(source);
-  if (previous !== undefined) clearTimeout(previous);
-  copiedTimers.delete(source);
-  delete source.dataset['copied'];
-  delete source.dataset['copyStatus'];
-};
-const clearStatus = (): void => {
-  clearTimeout(statusTimer);
-  if (!status) return;
-  status.textContent = '';
-  status.removeAttribute('data-visible');
-  status.removeAttribute('data-status');
-};
-const announce = (message: string, visible: boolean, kind: 'success' | 'error'): void => {
-  clearStatus();
-  if (!status) return;
-  status.textContent = message;
-  status.toggleAttribute('data-visible', visible);
-  status.dataset['status'] = kind;
-  statusTimer = setTimeout(clearStatus, COPIED_MS);
-};
-const showCopyResult = (source: HTMLElement, success: boolean, unavailable = false): void => {
-  clearCopy(source);
-  source.dataset['copyStatus'] = success ? 'success' : 'error';
-  if (success) source.dataset['copied'] = 'true';
-  announce(success ? 'Copied to clipboard' : unavailable ? 'Copy is unavailable. Select and copy the text instead.' : 'Could not copy. Select and copy the text instead.', !success, success ? 'success' : 'error');
-  copiedTimers.set(source, setTimeout(() => clearCopy(source), COPIED_MS));
-  const indicator = source.querySelector<HTMLElement>('.copy-indicator, .swatch-copy');
-  if (indicator) animate(indicator, [{ transform: 'translateY(2px)' }, { transform: 'translateY(0)' }]);
-  const edge = source.querySelector<HTMLElement>('.swatch-chip') ?? source;
-  const styles = getComputedStyle(edge);
-  animate(edge, [
-    { borderColor: styles.getPropertyValue(success ? '--aion-status-success-solid' : '--aion-status-error-solid').trim() },
-    { borderColor: styles.borderColor },
-  ]);
-};
-
-document.addEventListener('click', (event) => {
-  if (!(event.target instanceof Element)) return;
-  const source = event.target.closest<HTMLElement>('[data-copy]');
-  if (!source || source.matches(':disabled')) return;
-  const scheme = root.dataset['theme'] === 'light' ? 'light' : 'dark';
-  const value = source.dataset['text'] ?? source.dataset[scheme] ?? source.dataset['dark'];
-  if (value === undefined) return;
-  const request = ++copyRequest;
-  for (const previous of copiedTimers.keys()) clearCopy(previous);
-  clearStatus();
-  const done = (success: boolean, unavailable = false): void => {
-    if (request === copyRequest && source.isConnected && !signal.aborted && !document.hidden) showCopyResult(source, success, unavailable);
-  };
-  if (!navigator.clipboard) { done(false, true); return; }
-  try { void navigator.clipboard.writeText(value).then(() => done(true), () => done(false)); }
-  catch { done(false); }
-}, { signal });
+const disposeCopy = mountCopy(document, animate);
 
 const tracked = [...document.querySelectorAll<HTMLAnchorElement>('[data-section]')].flatMap((anchor) => {
   const id = anchor.dataset['section'];
@@ -281,9 +224,6 @@ const settleMotion = (): void => {
 };
 const settlePage = (): void => {
   settleMotion();
-  ++copyRequest;
-  for (const source of copiedTimers.keys()) clearCopy(source);
-  clearStatus();
   if (navigationFrame !== undefined) cancelAnimationFrame(navigationFrame);
   navigationFrame = undefined;
 };
@@ -292,5 +232,5 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) settl
 window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
-  if (!event.persisted) { disposeDepth(); disposeSolved(); disposeRounded(); disposeStates(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
+  if (!event.persisted) { disposeCopy(); disposePalette(); disposeDepth(); disposeSolved(); disposeRounded(); disposeStates(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
 }, { signal });
