@@ -36,9 +36,9 @@
 .depth-stratum ul{list-style:none;padding:0;margin:0}
 .depth-stratum ul li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:12px}
 
-@media (prefers-reduced-motion: no-preference){.depth-mover{transition:transform var(--slt-motion-scene, 720ms) var(--slt-ease-out)}
-.depth-stage{transition:height var(--slt-motion-scene, 720ms) var(--slt-ease-out)}
-.depth-frame{transition:top var(--slt-motion-scene, 720ms) var(--slt-ease-out),left var(--slt-motion-scene, 720ms) var(--slt-ease-out)}
+@media (prefers-reduced-motion: no-preference){.depth-mover{transition:transform var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
+.depth-stage{transition:height var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
+.depth-frame{transition:top var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)),left var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
 }
 
 @media (max-width: 759px){.depth-chapter{padding:64px 0}

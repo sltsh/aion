@@ -23,7 +23,7 @@
 .claim-syntax i{width:14px;border:0}
 .claim-card:focus-visible{outline:2px solid var(--aion-border-focus);outline-offset:-2px}
 
-@media (prefers-reduced-motion: no-preference){.claim-visual{transition:transform var(--slt-motion-feedback) var(--slt-ease-out)}
+@media (prefers-reduced-motion: no-preference){.claim-visual{transition:transform var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
 .claim-card:hover .claim-visual,.claim-card:focus-visible .claim-visual{transform:translateY(-6px)}
 }
 
