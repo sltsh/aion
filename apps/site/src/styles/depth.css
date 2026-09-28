@@ -11,7 +11,7 @@
 .depth-ruler button:focus-visible,.depth-assemble:focus-visible{outline:2px solid var(--aion-border-focus);outline-offset:4px}
 .depth-stage{container-type:inline-size;position:relative;height:686px;overflow:hidden;margin-top:24px}
 .depth-chapter:not([data-depth-mounted]) .depth-stage{height:auto;aspect-ratio:1244/686;max-height:686px}
-.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(1,calc(100cqw / 1244px))}
+.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(var(--site-depth-scale,1),calc(100cqw / 1244px))}
 .depth-frame{position:absolute;width:1244px;height:686px;transform-origin:top left}
 .depth-base,.depth-mover{position:absolute;inset:0}
 .depth-frame .window{width:1244px;height:686px;margin:0;border-radius:0;box-shadow:none;overflow:hidden;--font-mono:var(--site-mono);--font-ui:var(--site-sans)}

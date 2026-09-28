@@ -1,5 +1,16 @@
 import { CONTENT } from '../content.js';
 
+const DEPTH_FRAME_WIDTH = 1244;
+const DEPTH_EXPLODED_LEFT = 90;
+const DEPTH_FIT_GUTTER = 180;
+export const DEPTH_SCALE = 1.1;
+
+export function fitDepthScale(columnWidth: number): number {
+  const fitted = Math.min(1, Math.max(.1, (columnWidth - DEPTH_FIT_GUTTER) / DEPTH_FRAME_WIDTH));
+  const columnBound = Math.max(0, columnWidth) / (DEPTH_FRAME_WIDTH + DEPTH_EXPLODED_LEFT);
+  return Math.min(fitted * DEPTH_SCALE, columnBound);
+}
+
 const PARTS = [
   { selector: '.vscode-title', x: 0, y: -156 },
   { selector: '.activity-bar', x: -80, y: 0 },
@@ -40,7 +51,7 @@ export function mountDepth(root: HTMLElement): () => void {
     button.setAttribute('aria-pressed', String(!apart));
     button.textContent = apart ? CONTENT.depth.putTogether : CONTENT.depth.takeApart;
   };
-  const place = (): void => { root.style.setProperty('--site-depth-scale', String(Math.min(1, Math.max(.1, (stage.clientWidth - 180) / 1244)))); };
+  const place = (): void => { root.style.setProperty('--site-depth-scale', String(fitDepthScale(stage.clientWidth))); };
   const measure = (): void => {
     if (disposed || !stage.clientWidth) return;
     widgets.forEach((widget, index) => { if (widget) widget.style.visibility = originalVisibility[index] ?? ''; });

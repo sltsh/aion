@@ -2,6 +2,27 @@ import { readFileSync } from 'node:fs';
 import { expect, test, vi } from 'vitest';
 import { renderDepth } from '../src/render/depth.js';
 import { measures } from '../src/measures.js';
+import { DEPTH_SCALE, fitDepthScale } from '../src/chapters/depth.js';
+
+test('the editor uses DEPTH_SCALE times its fitted size where the column allows it', () => {
+  for (const width of [1440, 1280, 1100, 768]) {
+    const fitted = Math.min(1, Math.max(.1, (width - 180) / 1244));
+    const bounded = Math.min(fitted * DEPTH_SCALE, width / (1244 + 90));
+    expect(fitDepthScale(width)).toBeCloseTo(bounded, 8);
+    expect(fitDepthScale(width)).toBeGreaterThan(fitted);
+  }
+});
+
+test('the scaled editor stays within its column when assembled and exploded', () => {
+  for (const width of [1440, 1280, 1100, 768]) {
+    const scale = fitDepthScale(width);
+    const assembledLeft = (width - 1244 * scale) / 2;
+    const explodedRight = (90 + 1244) * scale;
+    expect(assembledLeft).toBeGreaterThanOrEqual(0);
+    expect(assembledLeft + 1244 * scale).toBeLessThanOrEqual(width + 1e-8);
+    expect(explodedRight).toBeLessThanOrEqual(width + 1e-8);
+  }
+});
 
 for (const released of [false, true]) test(`the ruler and every part carry both schemes' ratios (${released})`, () => {
   const html = renderDepth({ released });
@@ -15,6 +36,7 @@ for (const released of [false, true]) test(`the ruler and every part carry both 
   for (const [index, part] of measures('dark').parts.entries()) expect(html).toContain(`data-depth-part="${index}" data-stratum="${part.stratum}"`);
   expect(html).toContain('class="depth-stratum-heading"><i style="background:var(--n-editor)');
   expect(html).toContain('data-depth-base');
+  expect(html).toContain(`style="--site-depth-scale:${DEPTH_SCALE}"`);
   expect(html).not.toContain('data-depth-apart');
   expect(html).toContain('aria-pressed="true"');
 });
@@ -26,7 +48,7 @@ test('below 760px the stratum list replaces the exploded picture and motion is g
   expect(css).toContain('@media (prefers-reduced-motion: no-preference)');
   expect(css).toContain('var(--slt-motion-scene, 720ms)');
   expect(css).toContain('[data-highlight] .depth-outline');
-  expect(css).toContain('.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(1,calc(100cqw / 1244px))}');
+  expect(css).toContain('.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(var(--site-depth-scale,1),calc(100cqw / 1244px))}');
   expect(css).toContain('aspect-ratio:1244/686');
 });
 
@@ -83,7 +105,7 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   deliverResize();
   deliverResize();
   expect(measured).toHaveBeenCalledTimes(assemblyMeasurements);
-  expect(root.style.get('--site-depth-scale')).toBe(String((1100 - 180) / 1244));
+  expect(root.style.get('--site-depth-scale')).toBe(String(fitDepthScale(1100)));
   ruler.dispatchEvent(new Event('pointerenter'));
   expect(part.attrs.has('data-highlight')).toBe(true);
   ruler.dispatchEvent(new Event('focus'));
