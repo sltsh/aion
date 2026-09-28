@@ -95,3 +95,11 @@ test('revealing a scheme redraws selected margins and disconnects the layout obs
   f.dispose();expect(disconnected).toBe(true);
  } finally {vi.unstubAllGlobals()}
 });
+
+
+test('file colour tokens are reachable by keyboard focus', () => {
+  const html = renderPaletteChapter({ released: true });
+  const tokens = [...html.matchAll(/<span[^>]*data-palette-token="[^"]+"[^>]*>/g)];
+  expect(tokens.length).toBeGreaterThan(0);
+  for (const [tag] of tokens) expect(tag).toContain('tabindex="0"');
+});

@@ -6,7 +6,7 @@ import { escapeHtml } from './html.js';
 export function renderPaletteChapter(flags: SiteFlags): string {
   const copy = CONTENT.paletteChapter;
   const chapter = CHAPTERS[5]!;
-  const file = copy.file.map((line) => `<div>${line.map(([role, text]) => `<span class="t-${role}"${role === 'plain' ? '' : ` data-palette-token="${role}"`}>${escapeHtml(text)}</span>`).join('')}</div>`).join('');
+  const file = copy.file.map((line) => `<div>${line.map(([role, text]) => `<span class="t-${role}"${role === 'plain' ? '' : ` data-palette-token="${role}" tabindex="0"`}>${escapeHtml(text)}</span>`).join('')}</div>`).join('');
   return `<section class="chapter palette-chapter" id="palette" aria-labelledby="palette-title" data-palette-chapter data-released="${flags.released}"><div class="palette-heading"><div><span class="chapter-eyebrow">${chapter.number} ${chapter.title}</span><h2 id="palette-title">${copy.title}</h2></div><p>${copy.lede}</p></div>
     ${(['dark', 'light'] as const).map((scheme) => {
       const rows = measures(scheme).syntax;
