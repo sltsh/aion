@@ -1,4 +1,4 @@
-import type { Theme, ThemeController } from './theme.js';
+import type { Theme, ThemeController, ThemeMotionAnimation } from './theme.js';
 
 export interface Hero {
   throwAcross(): Promise<'committed' | 'superseded'>;
@@ -59,14 +59,17 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
     stop(); displayed = theme; state(base, theme);
     if (incoming) incoming.hidden = true;
   };
-  const run = (from: number, to: number, duration: number, eased: boolean): void => {
-    stop(); const current = animation, start = clock.now();
+  const run = (from: number, to: number, duration: number, eased: boolean): ((scene?: ThemeMotionAnimation) => void) => {
+    stop(); const current = animation;
+    let start = clock.now(), anchored = false, resolved = false, scene: ThemeMotionAnimation | undefined;
     paint(from);
-    if (!incoming || !base) return;
+    if (!incoming || !base) return () => {};
     incoming.hidden = false;
     const tick = (time: number): void => {
       if (disposed || current !== animation) return;
       frame = undefined;
+      if (anchored) { anchored = false; start = time; }
+      if (typeof scene?.startTime === 'number') { start = scene.startTime; resolved = true; } else if (scene && !resolved && scene.playState !== 'idle') start = time;
       const fraction = Math.max(0, Math.min(1, (time - start) / duration));
       paint(from + (to - from) * (eased ? ease(fraction) : fraction));
       if (fraction === 1) {
@@ -78,6 +81,7 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
       frame = clock.raf(tick);
     };
     frame = clock.raf(tick);
+    return next => { if (current === animation) { anchored = true; scene = next; } };
   };
   const invalidateThrow = (): void => {
     ++operation;
@@ -100,8 +104,11 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
     }
     state(base, displayed); state(incoming, next);
     const onScreen = hero?.onScreen() === true;
-    run(0, 1, 720, onScreen);
-    if (!onScreen) { controller.request(next, { scene: 'wipe' }); return; }
+    const anchor = run(0, 1, 720, onScreen);
+    // Nothing paints between the click and the page scene's first frame, which some engines hold for
+    // several hundred milliseconds; the chip holds until the root animation's start resolves, up to several frames
+    // after it is created, and then follows it. A cancelled scene keeps the last start.
+    if (!onScreen) { controller.request(next, { scene: 'wipe', onSceneStart: anchor }); return; }
     throwing = true; const current = operation;
     const finishThrow = (result: 'committed' | 'superseded'): void => {
       if (disposed || current !== operation) return;

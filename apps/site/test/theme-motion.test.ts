@@ -157,6 +157,28 @@ describe('explicit theme Replace scenes', () => {
     expect(h.root.dataset.theme).toBe('dark');
   });
 
+  it('signals the scene start once its animation runs, never before ready or without a scene', async () => {
+    const h = harness({ scene: true });
+    const controller = initializeTheme(h.environment);
+    const started = vi.fn();
+    controller.request('light', { scene: 'wipe', onSceneStart: started });
+    h.transitions[0]!.update();
+    expect(started).not.toHaveBeenCalled();
+    h.transitions[0]!.ready.resolve();
+    await flush();
+    expect(started).toHaveBeenCalledOnce();
+    expect(started).toHaveBeenCalledWith(h.animations[0]);
+
+    const skipped = vi.fn();
+    const rejected = harness({ scene: true });
+    initializeTheme(rejected.environment).request('light', { scene: 'wipe', onSceneStart: skipped });
+    rejected.transitions[0]!.ready.reject(new Error('ready'));
+    await flush();
+    const unsupported = harness();
+    initializeTheme(unsupported.environment).request('light', { scene: 'wipe', onSceneStart: skipped });
+    expect(skipped).not.toHaveBeenCalled();
+  });
+
   it('commits system, unchanged, reduced and unsupported changes without a scene', () => {
     const h = harness();
     const controller = initializeTheme(h.environment);

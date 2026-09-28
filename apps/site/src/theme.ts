@@ -7,9 +7,14 @@ export type ThemeCause = 'request' | 'system' | 'storage' | 'restore';
 export interface ThemeController {
   readonly theme: Theme;
   readonly generation: number;
-  request(next: Theme, options?: { scene?: 'wipe' | 'none' }): void;
+  request(next: Theme, options?: ThemeRequestOptions): void;
   subscribe(listener: (theme: Theme, cause: ThemeCause) => void): () => void;
   dispose(): void;
+}
+
+export interface ThemeRequestOptions {
+  readonly scene?: 'wipe' | 'none';
+  readonly onSceneStart?: (animation?: ThemeMotionAnimation) => void;
 }
 
 export interface ThemeViewTransition {
@@ -19,6 +24,8 @@ export interface ThemeViewTransition {
 }
 
 export interface ThemeMotionAnimation {
+  readonly startTime?: CSSNumberish | null;
+  readonly playState?: AnimationPlayState;
   readonly finished?: Promise<unknown>;
   cancel: () => void;
 }
@@ -81,6 +88,7 @@ interface MediaQueryLike extends EventSourceLike {
 interface ActiveThemeScene {
   generation: number;
   readonly theme: Theme;
+  readonly onStart: ((animation?: ThemeMotionAnimation) => void) | undefined;
   transition: ThemeViewTransition | undefined;
   animation: ThemeMotionAnimation | undefined;
 }
@@ -279,9 +287,11 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
       environment.root.style.setProperty('--site-theme-width', `${width}px`);
       environment.root.style.setProperty('--site-theme-height', `${height}px`);
       environment.root.dataset['themeCssScene'] = '';
+      scene.onStart?.();
       return;
     }
     scene.animation = animation;
+    scene.onStart?.(animation);
     const transition = scene.transition;
     watchPromise(animation.finished, () => {}, () => {
       if (activeScene !== scene || scene.generation !== generation || disposed) return;
@@ -290,13 +300,14 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
     });
   };
 
-  const beginScene = (theme: Theme): void => {
+  const beginScene = (theme: Theme, onStart?: (animation?: ThemeMotionAnimation) => void): void => {
     const sceneGeneration = generation;
     invalidateScene();
     environment.root.dataset['themeTransition'] = '';
     const scene: ActiveThemeScene = {
       generation: sceneGeneration,
       theme,
+      onStart,
       transition: undefined,
       animation: undefined,
     };
@@ -336,7 +347,7 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
     if (activeScene !== scene || scene.generation !== generation || disposed) safeSkip(transition);
   };
 
-  const request = (next: Theme, { scene = 'wipe' }: { scene?: 'wipe' | 'none' } = {}): void => {
+  const request = (next: Theme, { scene = 'wipe', onSceneStart }: ThemeRequestOptions = {}): void => {
     if (disposed) return;
     generation += 1;
     explicit = next;
@@ -348,7 +359,7 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
       apply(next);
       return;
     }
-    beginScene(next);
+    beginScene(next, onSceneStart);
   };
 
   const onStorage: EventListener = (event) => {

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { mountChip, type ChipEnvironment, type Hero } from '../src/chip.js';
 import type { Theme, ThemeCause, ThemeController } from '../src/theme.js';
@@ -30,7 +31,7 @@ function harness(onScreen = false, supported = true) {
   button.querySelector = selector => selector === '[data-chip-base]' ? base : selector === '[data-chip-incoming]' ? incoming : null;
   const listeners = new Set<(theme: Theme, cause: ThemeCause) => void>();
   const publish = (next: Theme, cause: ThemeCause = 'request') => { theme = next; listeners.forEach(listener => listener(next, cause)); };
-  const request = vi.fn((next: Theme) => publish(next));
+  const request = vi.fn((next: Theme, _options?: { scene?: 'wipe' | 'none'; onSceneStart?: (animation?: { readonly startTime?: CSSNumberish | null; readonly playState?: AnimationPlayState }) => void }) => publish(next));
   const controller: ThemeController = { get theme() { return theme; }, generation: 0, request, subscribe: listener => { listeners.add(listener); return () => { listeners.delete(listener); }; }, dispose: vi.fn() };
   const hero: Hero = { onScreen: () => onScreen, throwAcross: vi.fn(() => new Promise<'committed' | 'superseded'>(resolve => { resolveThrow = resolve; })), cancelThrow: vi.fn(() => resolveThrow?.('superseded')), arrive: vi.fn(), dispose: vi.fn() };
   const environment: ChipEnvironment = { now: () => time, raf: callback => { frames.set(++id, callback); stale.push(callback); return id; }, cancelRaf: key => { frames.delete(key); }, reducedMotion: reduced as unknown as MediaQueryList, supportsViewTransitions: supported };
@@ -44,9 +45,31 @@ function harness(onScreen = false, supported = true) {
 describe('chip local wipe', () => {
   it('off screen starts on the click and runs 720 ms linear alongside its own theme notification', () => {
     const h = harness(); h.press();
-    expect(h.request).toHaveBeenCalledWith('light', { scene: 'wipe' }); expect(h.progress()).toBe(0); expect(h.incoming.hidden).toBe(false);
+    expect(h.request).toHaveBeenCalledWith('light', expect.objectContaining({ scene: 'wipe' })); expect(h.progress()).toBe(0); expect(h.incoming.hidden).toBe(false);
     h.advance(180); expect(h.progress()).toBe(.25); h.advance(180); expect(h.progress()).toBe(.5);
     h.advance(180); expect(h.progress()).toBe(.75); h.advance(180); expect(h.incoming.hidden).toBe(true); expect(h.base.dataset['chipState']).toBe('light'); h.dispose();
+  });
+  it('off screen restarts its 720 ms clock on the page scene\'s first frame', () => {
+    const h = harness(); h.press(); h.advance(300); expect(h.progress()).toBeCloseTo(300 / 720, 7);
+    const options = h.request.mock.calls[0]![1]!; options.onSceneStart!();
+    h.advance(16); expect(h.progress()).toBe(0); h.advance(180); expect(h.progress()).toBe(.25); h.advance(360); expect(h.progress()).toBe(.75);
+    h.advance(180); expect(h.incoming.hidden).toBe(true); expect(h.base.dataset['chipState']).toBe('light');
+    options.onSceneStart!(); expect(h.frames.size).toBe(0); h.dispose();
+  });
+  it('off screen follows the page scene animation\'s resolved start and keeps it once cancelled', () => {
+    const h = harness(); h.press(); h.advance(300);
+    const scene: { startTime: number | null } = { startTime: null }; h.request.mock.calls[0]![1]!.onSceneStart!(scene);
+    h.advance(16); expect(h.progress()).toBe(0); h.advance(16); expect(h.progress()).toBe(0); scene.startTime = 332 + 16; h.advance(16); expect(h.progress()).toBe(0);
+    h.advance(180); expect(h.progress()).toBeCloseTo(180 / 720, 7); scene.startTime = null; h.advance(180); expect(h.progress()).toBeCloseTo(360 / 720, 7);
+    h.advance(360); expect(h.incoming.hidden).toBe(true); h.dispose();
+  });
+  it('off screen runs on from its hold when the scene is cancelled before its start resolves', () => {
+    const h = harness(); h.press(); h.request.mock.calls[0]![1]!.onSceneStart!({ startTime: null, playState: 'running' });
+    h.advance(16); h.advance(16); expect(h.progress()).toBe(0);
+    h.dispose();
+    const g = harness(); g.press(); const pending: { startTime: null; playState: AnimationPlayState } = { startTime: null, playState: 'running' };
+    g.request.mock.calls[0]![1]!.onSceneStart!(pending); g.advance(16); pending.playState = 'idle'; g.advance(180); expect(g.progress()).toBe(.25);
+    g.advance(540); expect(g.incoming.hidden).toBe(true); g.dispose();
   });
   it('on screen starts on the click, follows the throw curve and is complete at its commit', () => {
     const h = harness(true); h.press(); expect(h.progress()).toBe(0); expect(h.request).not.toHaveBeenCalled();
@@ -103,5 +126,12 @@ describe('chip local wipe', () => {
   });
   it('renders an opaque base and one incoming state without the diagnosed hairline', () => {
     const html = renderChip(); expect(html).toContain('data-chip-base'); expect(html).toContain('data-chip-incoming'); expect(html).not.toContain('chip-seam');
+  });
+  it('keeps the incoming dark backing out from under the light half the wipe crosses', () => {
+    const css = readFileSync(new URL('../src/styles/chip.css', import.meta.url), 'utf8');
+    const seam = /\.chip-half-light \{[^}]*clip-path: polygon\(calc\(50% \+ (\d+)px\) 0, 100% 0, 100% 100%, calc\(50% - (\d+)px\) 100%\)/.exec(css);
+    const backing = /\[data-chip-incoming\] \.chip-half-dark \{ clip-path: polygon\(0 0, calc\(50% \+ (\d+)px\) 0, calc\(50% - (\d+)px\) 100%, 0 100%\); \}/.exec(css);
+    expect(seam).not.toBeNull(); expect(backing).not.toBeNull();
+    expect(Number(backing![1]) - Number(seam![1])).toBe(1); expect(Number(seam![2]) - Number(backing![2])).toBe(1);
   });
 });

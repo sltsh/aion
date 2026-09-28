@@ -9,6 +9,9 @@ body { padding-bottom: calc(var(--site-chip-size) + var(--site-chip-offset) + en
 /* The dark half is an opaque backing; one clipped light half leaves no transparent seam. */
 .chip-half-dark { justify-content: flex-start; padding-left: 12px; }
 .chip-half-light { justify-content: flex-end; padding-right: 12px; clip-path: polygon(calc(50% + 26px) 0, 100% 0, 100% 100%, calc(50% - 26px) 100%); }
+/* Engines that clip each child separately darken a full backing along the moving edge; the incoming backing
+   stops one pixel past the seam, so it still closes the seam but never lies under the wipe's light half. */
+[data-chip-incoming] .chip-half-dark { clip-path: polygon(0 0, calc(50% + 27px) 0, calc(50% - 25px) 100%, 0 100%); }
 .chip-key::after { content: ''; position: absolute; height: 3px; bottom: 0; left: 0; right: 0; background: var(--a-gold); }
 ::view-transition-group(aion-chip) { animation: none; }
 ::view-transition-old(aion-chip) { display: none; }
