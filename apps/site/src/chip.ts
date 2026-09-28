@@ -59,9 +59,9 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
     stop(); displayed = theme; state(base, theme);
     if (incoming) incoming.hidden = true;
   };
-  const run = (from: number, to: number, duration: number, eased: boolean): ((scene?: ThemeMotionAnimation) => void) => {
+  const run = (from: number, to: number, duration: number, eased: boolean, at = clock.now()): ((scene?: ThemeMotionAnimation) => void) => {
     stop(); const current = animation;
-    let start = clock.now(), anchored = false, resolved = false, scene: ThemeMotionAnimation | undefined;
+    let start = at, anchored = false, resolved = false, scene: ThemeMotionAnimation | undefined;
     paint(from);
     if (!incoming || !base) return () => {};
     incoming.hidden = false;
@@ -104,18 +104,21 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
     }
     state(base, displayed); state(incoming, next);
     const onScreen = hero?.onScreen() === true;
-    const anchor = run(0, 1, 720, onScreen);
+    const at = clock.now();
     // Nothing paints between the click and the page scene's first frame, which some engines hold for
     // several hundred milliseconds; the chip holds until the root animation's start resolves, up to several frames
     // after it is created, and then follows it. A cancelled scene keeps the last start.
-    if (!onScreen) { controller.request(next, { scene: 'wipe', onSceneStart: anchor }); return; }
+    if (!onScreen) { controller.request(next, { scene: 'wipe', onSceneStart: run(0, 1, 720, false, at) }); return; }
     throwing = true; const current = operation;
+    // The hero reads its clock as the throw starts; the chip shares that instant rather than its own paint's.
+    const thrown = hero!.throwAcross();
+    run(0, 1, 720, true, at);
     const finishThrow = (result: 'committed' | 'superseded'): void => {
       if (disposed || current !== operation) return;
       throwing = false; expected = undefined; settle(controller.theme);
       if (result === 'committed') paint(1);
     };
-    void hero!.throwAcross().then(finishThrow, () => finishThrow('superseded'));
+    void thrown.then(finishThrow, () => finishThrow('superseded'));
   };
   // Root snapshots exclude captured controls from hit-testing; route their chip
   // coordinates back to the live button so the latest choice remains operable.
