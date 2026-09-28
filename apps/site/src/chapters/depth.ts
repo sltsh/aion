@@ -2,12 +2,13 @@ import { CONTENT } from '../content.js';
 
 const DEPTH_FRAME_WIDTH = 1244;
 const DEPTH_EXPLODED_LEFT = 90;
+const DEPTH_EXPLODED_RIGHT = 52;
 const DEPTH_FIT_GUTTER = 180;
 export const DEPTH_SCALE = 1.1;
 
 export function fitDepthScale(columnWidth: number): number {
   const fitted = Math.min(1, Math.max(.1, (columnWidth - DEPTH_FIT_GUTTER) / DEPTH_FRAME_WIDTH));
-  const columnBound = Math.max(0, columnWidth) / (DEPTH_FRAME_WIDTH + DEPTH_EXPLODED_LEFT);
+  const columnBound = Math.max(0, columnWidth) / (DEPTH_FRAME_WIDTH + DEPTH_EXPLODED_LEFT + DEPTH_EXPLODED_RIGHT);
   return Math.min(fitted * DEPTH_SCALE, columnBound);
 }
 

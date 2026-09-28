@@ -187,6 +187,29 @@ async function engineRun(name) {
     await run('splash-blocked-client-timeout',{reducedMotion:'no-preference'},async(p,_c,row)=>{
       await p.route('**/assets/*.js',route=>route.abort());await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');const start=Date.now();await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'),{},{timeout:5000});row.measurements.releaseMs=Date.now()-start;assert.ok(row.measurements.releaseMs<=4100);assert.equal(await p.locator('#app').evaluate(e=>getComputedStyle(e).visibility),'visible');
     });
+    for(const javaScriptEnabled of [false,true])for(const scheme of ['dark','light'])await run(`depth-scale-${javaScriptEnabled?'client':'static'}-${scheme}`,{javaScriptEnabled,colorScheme:scheme},async(p,_c,row,capture)=>{
+      row.measurements.widths=[];
+      for(const width of [1440,1280,1100,768,760,759]){
+        await p.setViewportSize({width,height:1000});await p.goto(base+'/#depth');if(javaScriptEnabled)await settled(p);
+        await overflow(p);assert.equal(await p.locator('[data-depth-stage]').isVisible(),width>=760);assert.equal(await p.locator('.depth-list').isVisible(),width<760);
+        if(width<760)continue;
+        const inspect=async(state)=>{
+          const geometry=await p.evaluate(()=>{
+            const stage=document.querySelector('[data-depth-stage]'),frame=document.querySelector('[data-depth-frame]'),bounds=stage.getBoundingClientRect();
+            const apart=document.querySelector('[data-depth]').hasAttribute('data-depth-apart');
+            const nodes=apart?[...document.querySelectorAll('.depth-outline,.depth-tag'),document.querySelector('[data-depth-base] .editor')]:[frame];
+            return {stage:{left:bounds.left,right:bounds.right,top:bounds.top,bottom:bounds.bottom,width:bounds.width},frameWidth:frame.getBoundingClientRect().width,parts:nodes.filter(Boolean).map(e=>{const r=e.getBoundingClientRect();return {name:e.className,left:r.left,right:r.right,top:r.top,bottom:r.bottom};})};
+          });
+          for(const part of geometry.parts){assert.ok(part.left>=geometry.stage.left-.5&&part.right<=geometry.stage.right+.5,`${width} ${state}: clipped horizontal ${JSON.stringify(part)} in ${JSON.stringify(geometry.stage)}`);assert.ok(part.top>=geometry.stage.top-.5&&part.bottom<=geometry.stage.bottom+.5,`${width} ${state}: clipped vertical ${JSON.stringify(part)}`);}
+          row.measurements.widths.push({width,state,...geometry});await p.locator('#depth').scrollIntoViewIfNeeded();await capture(`${row.id}-${width}-${state}`);
+        };
+        await inspect(javaScriptEnabled?'exploded':'assembled');
+        if(javaScriptEnabled){
+          for(const button of await p.locator('.depth-ruler button').all()){await button.focus();const stratum=await button.getAttribute('data-stratum');assert.ok(await p.locator(`[data-depth-frame] [data-stratum="${stratum}"][data-highlight]`).count()>0);}
+          await p.locator('[data-depth-assemble]').click();await inspect('assembled');
+        }
+      }
+    });
     for(const javaScriptEnabled of [false,true])for(const scheme of ['dark','light'])for(const width of [1440,390])await run(`solved-strip-${javaScriptEnabled?'client':'static'}-${scheme}-${width}`,{javaScriptEnabled,colorScheme:scheme,viewport:{width,height:1000}},async(p,_c,row,capture)=>{
       await p.goto(base+'/#solved');if(javaScriptEnabled)await settled(p);else assert.equal(await p.evaluate(()=>document.fonts.status),'loaded');
       const inspect=async(label)=>{

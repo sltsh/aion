@@ -7,7 +7,7 @@ import { DEPTH_SCALE, fitDepthScale } from '../src/chapters/depth.js';
 test('the editor uses DEPTH_SCALE times its fitted size where the column allows it', () => {
   for (const width of [1440, 1280, 1100, 768]) {
     const fitted = Math.min(1, Math.max(.1, (width - 180) / 1244));
-    const bounded = Math.min(fitted * DEPTH_SCALE, width / (1244 + 90));
+    const bounded = Math.min(fitted * DEPTH_SCALE, width / (1244 + 90 + 52));
     expect(fitDepthScale(width)).toBeCloseTo(bounded, 8);
     expect(fitDepthScale(width)).toBeGreaterThan(fitted);
   }
@@ -17,7 +17,7 @@ test('the scaled editor stays within its column when assembled and exploded', ()
   for (const width of [1440, 1280, 1100, 768]) {
     const scale = fitDepthScale(width);
     const assembledLeft = (width - 1244 * scale) / 2;
-    const explodedRight = (90 + 1244) * scale;
+    const explodedRight = (90 + 1244 + 52) * scale;
     expect(assembledLeft).toBeGreaterThanOrEqual(0);
     expect(assembledLeft + 1244 * scale).toBeLessThanOrEqual(width + 1e-8);
     expect(explodedRight).toBeLessThanOrEqual(width + 1e-8);
@@ -48,7 +48,7 @@ test('below 760px the stratum list replaces the exploded picture and motion is g
   expect(css).toContain('@media (prefers-reduced-motion: no-preference)');
   expect(css).toContain('var(--slt-motion-scene, 720ms)');
   expect(css).toContain('[data-highlight] .depth-outline');
-  expect(css).toContain('.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(var(--site-depth-scale,1),calc(100cqw / 1244px))}');
+  expect(css).toContain('.depth-chapter:not([data-depth-mounted]) .depth-frame{zoom:min(var(--site-depth-scale,1),tan(atan2(100cqw,1244px)))}');
   expect(css).toContain('aspect-ratio:1244/686');
 });
 
