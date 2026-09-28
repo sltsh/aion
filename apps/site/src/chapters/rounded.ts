@@ -35,7 +35,7 @@ export function mountRounded(root: HTMLElement, controller: ThemeController, inp
     const floor=roundedFloor(base,background);slider.min=String(Math.max(0,floor-0.02));slider.max=String(Math.min(1,floor+0.02));slider.value=String(floor);
     flip=roundedFlip(base,background);find.disabled=flip===null;draw();
   };
-  slider.disabled=false;
+  slider.hidden=false;slider.disabled=false;
   slider.addEventListener('input',draw,{signal});
   slider.addEventListener('keydown',event=>{const next=roundedStep(event.key,Number(slider.value));if(next===null)return;event.preventDefault();slider.value=String(Math.max(Number(slider.min),Math.min(Number(slider.max),next)));draw();},{signal});
   find.addEventListener('click',()=>{if(flip!==null){slider.value=String(flip);draw();}},{signal});

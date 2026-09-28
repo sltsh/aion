@@ -35,7 +35,7 @@ export function mountSolved(root: HTMLElement, controller: ThemeController, inpu
     slider.value=String(base[0]); root.querySelectorAll<HTMLButtonElement>('[data-solved-accent]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset['solvedAccent']===selected.accent))); draw();
   };
   root.querySelectorAll<HTMLButtonElement>('[data-solved-accent]').forEach(button=>{button.disabled=false;button.addEventListener('click',()=>{selected=SOLVED_CHIPS.find(chip=>chip.accent===button.dataset['solvedAccent'])!;reset();},{signal});});
-  slider.disabled=false;hold.disabled=false;
+  slider.hidden=false;slider.disabled=false;hold.disabled=false;
   slider.addEventListener('input',draw,{signal});hold.addEventListener('change',draw,{signal});
   root.ownerDocument?.defaultView?.addEventListener('resize',draw,{signal});
   const unsubscribe=controller.subscribe(reset); reset();
