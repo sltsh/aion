@@ -1,3 +1,28 @@
+export const CONTENT = {
+  pitch: "A theme for editors, terminals and the web.",
+  heroDetail: "Gold accents. Cool surfaces. Familiar syntax. No italics.",
+  editorNote: "Familiar syntax. No italics.",
+  paletteNote: "One palette, every surface.",
+  essentialsTitle: "Make it yours.",
+  essentialsIntro: "The essentials for bringing Aion to another app.",
+  copyHint: "Hex values remain selectable. Copy when controls are available.",
+  paletteLink: "Colour roles, terminal colours, and everything you need to get started.",
+  installTitle: "Aion, in your workspace.",
+  installIntro: "Choose your app. Bring the same colours with you.",
+  packagePrompt: "Working directly with colour?",
+  releasedCssNote: "The same palette for your own interfaces. CSS custom properties and a Tailwind theme, ready to import.",
+  gateTitle: "Colour with a purpose.",
+  gateIntro: "Readable text, clear focus, and decorations that keep code legible.",
+  gateScope: "Aion checks contrast across a named set of reading states. It doesn’t claim to cover every state an app can produce.",
+  footerPitch: "Gold, teal, and room to focus.",
+  sourceLicense: "Aion source: MIT licensed.",
+  fontLicense: "Archivo & Monaspace Neon · SIL Open Font License 1.1",
+  footerDesignHint: "The thinking behind the theme",
+  footerPaletteHint: "Find your colours",
+  footerSourceHint: "Source & contributions",
+  editorDepth: { dark: "The editor is the darkest surface.", light: "The editor is the lightest surface." },
+} as const;
+
 export interface InstallEntry {
   readonly id: string;
   readonly label: string;
@@ -34,4 +59,4 @@ export const INSTALL: readonly InstallEntry[] = [
 export const UNRELEASED_NOTE =
   'The terminal download is ready. VS Code and npm packages await the first release. For the local CSS build, clone the repository and run npm install first.';
 
-export const PITCH = 'A theme for editors, terminals and the web.';
+export const PITCH = CONTENT.pitch;

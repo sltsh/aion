@@ -6,6 +6,10 @@ const root = JSON.parse(readFileSync('package.json', 'utf8')) as {
 };
 const site = JSON.parse(readFileSync('apps/site/package.json', 'utf8')) as {
   scripts: Record<string, string>;
+  dependencies: Record<string, string>;
+};
+const obsidian = JSON.parse(readFileSync('packages/obsidian/package.json', 'utf8')) as {
+  scripts: Record<string, string>;
 };
 const lab = JSON.parse(readFileSync('apps/lab/package.json', 'utf8')) as {
   exports: Record<string, string | { types: string; default: string }>;
@@ -30,9 +34,11 @@ describe('a clean checkout', () => {
   });
 
   it('prepares generated entries before an isolated site build or typecheck', () => {
-    const prepare = 'npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab';
+    const prepare = 'npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab && npm run build:colors -w @sltsh/aion-obsidian';
     expect(site.scripts['prebuild']).toBe(prepare);
     expect(site.scripts['pretypecheck']).toBe(prepare);
+    expect(site.dependencies['@sltsh/aion-obsidian']).toBe('*');
+    expect(obsidian.scripts['build:colors']).toBe('tsc -p tsconfig.build.json');
   });
 
   it('loads the shared renderer from generated JavaScript rather than TypeScript source', () => {

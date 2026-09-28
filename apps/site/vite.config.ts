@@ -4,11 +4,15 @@ import { defineConfig } from 'vite';
 import { FLAGS } from './src/flags.js';
 import { landing, palette } from './src/render/index.js';
 import { themeBootstrap } from './src/theme.js';
+import { measureIsland } from './src/measures.js';
+import { schemeStyles } from './src/scheme.js';
 
 const MARKERS: Record<string, () => string> = {
   '<!--@aion:landing-->': () => landing(FLAGS),
   '<!--@aion:palette-->': palette,
   '<!--@aion:theme-bootstrap-->': themeBootstrap,
+  '<!--@aion:scheme-->': schemeStyles,
+  '<!--@aion:measures-->': measureIsland,
 };
 
 export default defineConfig({

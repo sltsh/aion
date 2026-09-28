@@ -5,17 +5,18 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab",
+    "prebuild": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab && npm run build:colors -w @sltsh/aion-obsidian",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "pretypecheck": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab",
+    "pretypecheck": "npm run build -w @sltsh/aion-tokens && npm run build -w @sltsh/aion-css && npm run build:render -w @sltsh/aion-lab && npm run build:colors -w @sltsh/aion-obsidian",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@sltsh/aion-css": "*",
     "@sltsh/aion-lab": "*",
     "@sltsh/aion-tokens": "*",
-    "@sltsh/site-mark": "0.1.1"
+    "@sltsh/site-mark": "0.1.1",
+    "@sltsh/aion-obsidian": "*"
   }
 }

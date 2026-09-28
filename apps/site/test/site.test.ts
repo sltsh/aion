@@ -3,7 +3,10 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dark, light } from '@sltsh/aion-css';
-import { checks, flatten, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch } from '@sltsh/aion-tokens';
+import { buildPalette, checks, flatten, lightPalette, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch } from '@sltsh/aion-tokens';
+import { variables } from '@sltsh/aion-lab/variables';
+import { obsidianColors } from '@sltsh/aion-obsidian/colors';
+import { schemeStyles } from '../src/scheme.js';
 import { FLAGS } from '../src/flags.js';
 import { escapeAttr, escapeHtml } from '../src/render/html.js';
 import { landing, palette } from '../src/render/index.js';
@@ -640,10 +643,14 @@ describe('the source guards', () => {
     }
   });
 
-  it('reads only variables the CSS package emits, the site declares, or the shared motion contract names', () => {
-    const css = readFileSync(join(root, 'src/styles.css'), 'utf8');
-    const emitted = new Set(Object.keys(dark()));
-    const declared = new Set(css.match(/--site-[a-z0-9-]+/g) ?? []);
+  it('reads only variables the CSS package, lab map, Obsidian, site or motion contract names', () => {
+    const css = sources().filter((file) => file.endsWith('.css')).map((file) => readFileSync(file, 'utf8')).join('\n');
+    const emitted = new Set([...Object.keys(dark()), ...Object.keys(variables(buildPalette())), ...Object.keys(obsidianColors('dark'))]);
+    const declarations = sources().map((file) => readFileSync(file, 'utf8')).join('\n');
+    const declared = new Set([
+      ...[...declarations.matchAll(/(--site-[a-z0-9-]+)\s*:/g)].map((match) => match[1]),
+      ...[...declarations.matchAll(/setProperty\(['"](--site-[a-z0-9-]+)['"]/g)].map((match) => match[1]),
+    ]);
     const sharedMotion = new Set(['--slt-motion-feedback', '--slt-motion-disclosure', '--slt-motion-scene', '--slt-ease-out']);
     const read = css.match(/var\((--[a-z0-9-]+)/g) ?? [];
     expect(read.length).toBeGreaterThan(0);
@@ -662,12 +669,18 @@ describe('parity with the emitter', () => {
         ...Object.values(light()),
         ...Object.values(flatten(semantic)),
         ...Object.values(flatten(semanticLight)),
+        ...Object.values(variables(buildPalette())),
+        ...Object.values(variables(lightPalette)),
+        ...Object.values(obsidianColors('dark')),
+        ...Object.values(obsidianColors('light')),
       ].map((v) => v.toLowerCase()),
     );
     const pages = [
       landing(FLAGS),
       landing({ released: true }),
+      landing({ released: false }),
       palette(),
+      schemeStyles(),
     ];
     let seen = 0;
     for (const page of pages) {
