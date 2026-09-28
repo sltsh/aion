@@ -113,7 +113,7 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
   // Root snapshots exclude captured controls from hit-testing; route their chip
   // coordinates back to the live button so the latest choice remains operable.
   const snapshotPress = (event: MouseEvent): void => {
-    if (event.target !== document.documentElement || !document.documentElement.hasAttribute('data-theme-transition')) return;
+    if (!document.documentElement.hasAttribute('data-theme-transition') || button.contains(event.target as Node)) return;
     const rect = button.getBoundingClientRect();
     if (button.hidden || rect.width <= 0 || event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
     event.preventDefault(); event.stopImmediatePropagation(); press();

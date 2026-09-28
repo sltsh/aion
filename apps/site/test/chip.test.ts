@@ -9,6 +9,7 @@ class Node extends EventTarget {
   ownerDocument!: Document; focus = vi.fn();
   setAttribute(name: string, value: string) { this.attributes.set(name, value); }
   getAttribute(name: string) { return this.attributes.get(name); }
+  contains(node: unknown) { return node === this; }
   querySelector(_selector: string): Node | null { return null; }
   querySelectorAll(_selector: string): Node[] { return []; }
   getBoundingClientRect() { return { left: 0, right: 144, top: 0, bottom: 52, width: 144, height: 52 }; }
@@ -22,7 +23,7 @@ function harness(onScreen = false, supported = true) {
   let time = 0, id = 0, theme: Theme = 'dark', resolveThrow: ((result: 'committed' | 'superseded') => void) | undefined;
   const frames = new Map<number, (time: number) => void>(), stale: Array<(time: number) => void> = [];
   const reduced = Object.assign(new EventTarget(), { matches: false });
-  const document = Object.assign(new EventTarget(), { hidden: false, defaultView: { matchMedia: () => reduced }, documentElement: { hasAttribute: () => false } });
+  const document = Object.assign(new EventTarget(), { scene: false, hidden: false, defaultView: { matchMedia: () => reduced }, documentElement: { hasAttribute: () => document.scene } });
   const button = new Node(), base = new Node(), incoming = new Node();
   button.ownerDocument = document as unknown as Document;
   base.querySelectorAll = incoming.querySelectorAll = () => ['dark', 'light'].map(scheme => Object.assign(new Node(), { dataset: { theme: scheme } }));
@@ -86,6 +87,16 @@ describe('chip local wipe', () => {
     const h = harness(true); h.press(); const obsolete = h.stale[0]!; h.document.hidden = true; h.document.dispatchEvent(new Event('visibilitychange')); obsolete(720); await Promise.resolve();
     expect(h.frames.size).toBe(0); expect(h.incoming.hidden).toBe(true); expect(h.hero.cancelThrow).toHaveBeenCalledOnce(); h.dispose();
     const disposed = harness(true); disposed.press(); const late = disposed.stale[0]!; disposed.dispose(); late(720); await Promise.resolve(); expect(disposed.frames.size).toBe(0); expect(disposed.request).not.toHaveBeenCalled();
+  });
+  it('routes scene clicks retargeted outside the live chip to the latest choice only once', () => {
+    const h = harness(); h.press(); h.advance(180); h.document.scene = true;
+    const click = Object.assign(new Event('click', { cancelable: true }), { clientX: 72, clientY: 26 });
+    h.document.dispatchEvent(click);
+    expect(click.defaultPrevented).toBe(true); expect(h.request).toHaveBeenCalledTimes(2);
+    expect(h.controller.theme).toBe('dark'); h.advance(720);
+    const direct = Object.assign(new Event('click', { cancelable: true }), { clientX: 72, clientY: 26 });
+    Object.defineProperty(direct, 'target', { value: h.button }); h.document.dispatchEvent(direct);
+    expect(direct.defaultPrevented).toBe(false); expect(h.request).toHaveBeenCalledTimes(2); h.dispose();
   });
   it('without View Transitions commits immediately without a chip wipe or hero throw', () => {
     const h = harness(true, false); h.press(); expect(h.request).toHaveBeenCalledWith('light', { scene: 'none' }); expect(h.hero.throwAcross).not.toHaveBeenCalled(); expect(h.frames.size).toBe(0); expect(h.base.dataset['chipState']).toBe('light'); h.dispose();
