@@ -26,6 +26,9 @@ export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; wher
   { fg: '--aion-status-success-text', bg: '--aion-bg-raised', floor: 4.5, where: 'Solved and Rounded passing verdict' },
   { fg: '--aion-status-error-text', bg: '--aion-bg-raised', floor: 4.5, where: 'Solved and Rounded failing verdict' },
 
+  { fg: '--aion-blue-solid', bg: '--aion-bg-raised', floor: 4.5, where: 'Rounded exact channel figure' },
+  { fg: '--aion-teal-solid', bg: '--aion-bg-raised', floor: 4.5, where: 'Rounded byte channel figure' },
+  { fg: '--aion-gold-solid', bg: '--aion-bg-raised', floor: 4.5, where: 'Rounded gap figure' },
   { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'claim card text, Depth part tags and ruler labels' },
   { fg: '--aion-fg-secondary', bg: '--aion-bg-surface', floor: 4.5, where: 'claim card descriptions and ruler ratios' },
   { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'page and headings' },

@@ -930,6 +930,14 @@ async function engineRun(name) {
       await p.setViewportSize({width:1440,height:1000});await p.goto(base+'/palette.html');await settled(p);
       const paletteNav=p.locator('header.site-head .site-nav [aria-current]');assert.equal(await paletteNav.count(),1);assert.equal(await paletteNav.textContent(),'Palette');assert.equal(await paletteNav.getAttribute('aria-current'),'page');await capture(`nav-current-${scheme}-palette`);
     });
+    for(const scheme of ['dark','light'])await run(`rounded-spacing-colour-${scheme}`,{colorScheme:scheme},async(p,_c,row,capture)=>{
+      await p.goto(base+'/#rounded');await settled(p);
+      const m=await p.evaluate(()=>{const visible=[...document.querySelectorAll('[data-rounded-values]')].find(e=>e.getClientRects().length);const css=(e,k)=>getComputedStyle(e)[k];const channels=visible.querySelector('.rounded-channels'),channel=visible.querySelector('.rounded-channel');
+        return {channelGap:parseFloat(css(channels,'columnGap')),rowGap:parseFloat(css(channel,'rowGap')),exact:css(visible.querySelector('.channel-exact'),'color'),byte:css(visible.querySelector('.channel-byte'),'color'),gap:css(visible.querySelector('.rounded-gap b'),'color')};});
+      row.measurements=m;assert.ok(m.channelGap>0,`channel gap ${m.channelGap}`);assert.ok(m.rowGap>4,`row gap ${m.rowGap}`);
+      assert.equal(new Set([m.exact,m.byte,m.gap]).size,3,`figure colours ${m.exact} ${m.byte} ${m.gap}`);
+      await p.locator('#rounded').scrollIntoViewIfNeeded();await capture(`rounded-spacing-colour-${scheme}`);
+    });
     await run('clipboard-unavailable-and-rejection',{},async(p)=>{
       await p.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));await p.goto(base+'/#install');await settled(p);await p.locator('[data-install-target] [data-copy]').first().click();assert.match(await p.locator('.copy-status').textContent(),/unavailable|select/i);assert.equal(await p.locator('.install-command code').first().evaluate(e=>getComputedStyle(e).userSelect),'text');
       await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('rejected');}}}));await p.locator('[data-install-target] [data-copy]').first().click();await p.waitForFunction(()=>document.querySelector('.copy-status').dataset.status==='error');assert.ok(await p.locator('.copy-status').isVisible());

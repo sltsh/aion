@@ -18,7 +18,7 @@ export function roundedView(base: Oklch, background: Oklch, L: number, showHex =
   const verdict=(ratio:number):string=>`<span data-verdict="${ratio>=4.5?'pass':'fail'}">${ratio>=4.5?copy.pass:copy.fail}</span>`;
   return `<div class="rounded-channels">${channelRows(colour).map(row=>`<div class="rounded-channel"><b>${row.name}</b><span class="channel-exact">${row.exact.toFixed(2)}</span><span>${copy.directions[row.direction]}</span><b class="channel-byte">${row.byte}</b></div>`).join('')}</div>
     ${showHex?`<div class="rounded-hex"><i style="background:${hex(colour)}" aria-hidden="true"></i>${hex(colour)}</div>`:''}
-    <div class="rounded-pair"><div><span>${copy.exact}</span><b>${exact.toFixed(3)}<small>:1</small></b>${verdict(exact)}</div><div class="rounded-gap"><span>${copy.gap}</span><b>${gap>=0?'+':'−'}${Math.abs(gap).toFixed(3)}</b></div><div><span>${copy.screen}</span><b>${emitted.toFixed(3)}<small>:1</small></b>${verdict(emitted)}</div></div>
+    <div class="rounded-pair"><div><span>${copy.exact}</span><b data-ratio="${exact>=4.5?'pass':'fail'}">${exact.toFixed(3)}<small>:1</small></b>${verdict(exact)}</div><div class="rounded-gap"><span>${copy.gap}</span><b>${gap>=0?'+':'−'}${Math.abs(gap).toFixed(3)}</b></div><div><span>${copy.screen}</span><b data-ratio="${emitted>=4.5?'pass':'fail'}">${emitted.toFixed(3)}<small>:1</small></b>${verdict(emitted)}</div></div>
     <p class="rounded-note">${exact>=4.5&&emitted<4.5?copy.flipNote:exact<4.5&&emitted>=4.5?copy.helpNote:copy.dragNote}</p>`;
 }
 export function mountRounded(root: HTMLElement, controller: ThemeController, inputs: ProbeInputs): () => void {

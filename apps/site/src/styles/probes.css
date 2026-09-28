@@ -34,11 +34,12 @@
 .rounded-steps li{padding:10px 0}
 .rounded-steps b{color:var(--aion-fg-primary)}
 .rounded-controls button{min-height:44px;padding:10px 16px;background:none;border:1px solid var(--aion-border-ui);color:var(--aion-fg-primary);font:14px var(--site-sans);cursor:pointer}
-.rounded-demo{border:1px solid var(--aion-border-hairline);padding:24px;min-width:0}
-.rounded-channels{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--aion-border-hairline)}
-.rounded-channel{display:flex;flex-direction:column;gap:4px;padding:14px 12px;border-left:1px solid var(--aion-border-hairline);font:12px var(--site-mono);color:var(--aion-fg-secondary)}
-.rounded-channel:first-child{border-left:0}
-.rounded-channel b,.channel-exact{color:var(--aion-fg-primary)}
+.rounded-demo{--site-rounded-channel-gap:12px;--site-rounded-row-gap:10px;border:1px solid var(--aion-border-hairline);padding:24px;min-width:0}
+.rounded-channels{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--site-rounded-channel-gap)}
+.rounded-channel{display:flex;flex-direction:column;gap:var(--site-rounded-row-gap);padding:14px 12px;border:1px solid var(--aion-border-hairline);font:12px var(--site-mono);color:var(--aion-fg-secondary)}
+.rounded-channel b{color:var(--aion-fg-primary)}
+.rounded-channel .channel-exact{color:var(--aion-blue-solid)}
+.rounded-channel .channel-byte{color:var(--aion-teal-solid)}
 .channel-exact,.channel-byte{font-size:22px}
 .rounded-hex{display:flex;gap:12px;align-items:center;margin-top:18px;font:16px var(--site-mono)}
 .rounded-hex i{width:40px;height:40px;border:1px solid var(--aion-border-hairline)}
@@ -46,7 +47,9 @@
 .rounded-pair>div{display:flex;flex-direction:column;gap:8px}
 .rounded-pair>div>b{font-size:clamp(22px,3vw,40px);line-height:1}
 .rounded-pair small{font-size:16px}
-.rounded-pair .rounded-gap b{font-size:16px}
+.rounded-pair .rounded-gap b{font-size:16px;color:var(--aion-gold-solid)}
+.rounded-pair [data-ratio="pass"]{color:var(--aion-status-success-text)}
+.rounded-pair [data-ratio="fail"]{color:var(--aion-status-error-text)}
 .probe-chapter .rounded-note{font:13px/1.5 var(--site-mono)}
 @media (min-width: 1100px){.probe-chapter{grid-template-columns:380px minmax(0,1fr);gap:56px}.solved-controls{position:sticky;top:48px}}
 @media (max-width: 599px){.probe-chapter{margin-top:64px;padding:40px 16px;gap:32px}.probe-chapter h2{font-size:34px}.rounded-demo{padding:16px}.rounded-channel{padding:12px 8px}.channel-exact,.channel-byte{font-size:14px}.rounded-pair{grid-template-columns:1fr 1fr;gap:12px}.rounded-pair .rounded-gap{grid-column:1/-1;order:3}}

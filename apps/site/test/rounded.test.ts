@@ -30,3 +30,27 @@ test('client opens at the floor, finds a flip, handles page steps and resets on 
  scheme='light';notify();expect(Number(slider.value)).toBe(roundedFloor(inputs.light.comment,inputs.light.neutral.editor));
  dispose();const previous=slider.value;find.dispatchEvent(new Event('click'));expect(slider.value).toBe(previous);
 });
+
+const css=readFileSync(new URL('../src/styles/probes.css',import.meta.url),'utf8');
+const rule=(selector:string):string=>{const at=css.split('\n').find(line=>line.startsWith(`${selector}{`));expect(at,selector).toBeDefined();return at!;};
+const colourOf=(selector:string):string=>{const match=/(?:^|[{;])color:var\((--aion-[a-z-]+)\)/.exec(rule(selector));expect(match,`${selector} colour`).not.toBeNull();return match![1]!;};
+test('exact, byte and gap figures take distinct paired colours',async()=>{
+ const {SITE_PAIRS}=await import('../src/pairs.js');
+ const {dark,light}=await import('@sltsh/aion-css');
+ const {hexToOklch}=await import('@sltsh/aion-tokens');
+ for(const released of [true,false]) expect(renderRounded({released})).toContain('class="channel-exact"');
+ const figures={exact:colourOf('.rounded-channel .channel-exact'),byte:colourOf('.rounded-channel .channel-byte'),gap:colourOf('.rounded-pair .rounded-gap b')};
+ expect(new Set(Object.values(figures)).size).toBe(3);
+ for(const [name,fg] of Object.entries(figures)){
+  const pair=SITE_PAIRS.find(p=>p.fg===fg&&p.bg==='--aion-bg-raised'&&p.where.startsWith('Rounded')&&p.where.includes(name));
+  expect(pair,`${name} ${fg} paired on raised`).toBeDefined();
+  for(const values of [dark(),light()]){expect(contrastEmitted(hexToOklch(values[fg]!),hexToOklch(values['--aion-bg-raised']!)),`${name} ${fg}`).toBeGreaterThanOrEqual(4.5);}
+ }
+});
+test('the right column spaces its channels',()=>{
+ const px=(name:string):number=>{const match=new RegExp(`${name}:(\\d+)px`).exec(css);expect(match,name).not.toBeNull();return Number(match![1]);};
+ expect(rule('.rounded-channels')).toMatch(/gap:var\(--site-rounded-channel-gap\)/);
+ expect(rule('.rounded-channel')).toMatch(/gap:var\(--site-rounded-row-gap\)/);
+ expect(px('--site-rounded-channel-gap')).toBeGreaterThan(0);
+ expect(px('--site-rounded-row-gap')).toBeGreaterThan(4);
+});
