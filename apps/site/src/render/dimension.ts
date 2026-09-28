@@ -8,9 +8,11 @@ export function dimensionLine(o: {
   const angle = Math.atan2(o.y1 - o.y0, o.x1 - o.x0) * 180 / Math.PI;
   const key = Math.min(14, length / 4);
   const labelWidth = (o.label?.length ?? 0) * 7 + 12;
-  const gap = Boolean(o.label) && o.gap !== false && labelWidth <= length - key - 16;
+  const radians = angle * Math.PI / 180;
+  const labelExtent = Math.abs(Math.cos(radians)) * labelWidth + Math.abs(Math.sin(radians)) * 24;
+  const gap = Boolean(o.label) && o.gap !== false && labelExtent <= length - key - 16;
   const middle = length / 2;
-  const structure = gap ? `M${key} 0H${middle - labelWidth / 2}M${middle + labelWidth / 2} 0H${length}`
+  const structure = gap ? `M${key} 0H${middle - labelExtent / 2}M${middle + labelExtent / 2} 0H${length}`
     : `M${key} 0H${length}`;
   const distance = gap ? middle : length + 12;
   const unitX = length ? (o.x1 - o.x0) / length : 1;

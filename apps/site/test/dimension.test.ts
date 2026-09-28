@@ -44,3 +44,10 @@ test('a margin shorter than its label uses the no-gap form', () => {
   expect(fragment).toContain('x="16" y="40"');
   expect(fragment).toContain('d="M0.5 0H2"');
 });
+
+
+test('a short vertical dimension fits its upright label inside the line', () => {
+  const fragment = dimensionLine({ x0: 10, y0: 80, x1: 10, y1: 24, label: '+1.47' });
+  expect(fragment).toContain('x="10" y="52"');
+  expect(fragment).toContain('text-anchor="middle"');
+});

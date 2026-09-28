@@ -206,8 +206,10 @@ async function engineRun(name) {
         const sample=await p.locator('#palette').evaluate(root=>{
           const svg=[...root.querySelectorAll('[data-palette-margin]')].find(e=>e.getClientRects().length),column=root.querySelector('[data-theme-value="'+document.documentElement.dataset.theme+'"] [data-palette-column="keyword"]');
           const text=svg.querySelector('.dimension-label'),line=svg.querySelector('.dimension-line > g');
-          return {count:svg.querySelectorAll('.dimension-line').length,text:text?.textContent,expected:'+'+(Number(column.dataset.ratio)-4.5).toFixed(2),transform:line?.getAttribute('transform'),underlines:[...root.querySelectorAll('[data-palette-token="keyword"]')].map(e=>({linked:e.hasAttribute('data-linked'),decoration:getComputedStyle(e).textDecorationLine}))};
-        });row.measurements.samples.push({scheme,width,label,...sample});assert.equal(sample.count,1);assert.equal(sample.text,sample.expected);assert.ok(sample.underlines.every(e=>e.linked&&e.decoration.includes('underline')));assert.ok(sample.transform.includes(width<600?'rotate(0)':'rotate(-90)'),JSON.stringify(sample));
+          const labelBox=text?.getBoundingClientRect(),exampleBox=column.querySelector('.palette-example').getBoundingClientRect();
+          const overlapsExample=labelBox&&labelBox.left<exampleBox.right&&labelBox.right>exampleBox.left&&labelBox.top<exampleBox.bottom&&labelBox.bottom>exampleBox.top;
+          return {overlapsExample,count:svg.querySelectorAll('.dimension-line').length,text:text?.textContent,expected:'+'+(Number(column.dataset.ratio)-4.5).toFixed(2),transform:line?.getAttribute('transform'),underlines:[...root.querySelectorAll('[data-palette-token="keyword"]')].map(e=>({linked:e.hasAttribute('data-linked'),decoration:getComputedStyle(e).textDecorationLine}))};
+        });row.measurements.samples.push({scheme,width,label,...sample});assert.equal(sample.count,1);assert.equal(sample.text,sample.expected);assert.equal(sample.overlapsExample,false,'margin label overlaps syntax example');assert.ok(sample.underlines.every(e=>e.linked&&e.decoration.includes('underline')));assert.ok(sample.transform.includes(width<600?'rotate(0)':'rotate(-90)'),JSON.stringify(sample));
       };
       for(const scheme of ['dark','light'])for(const width of [1440,390]){
         await p.setViewportSize({width,height:1000});await p.emulateMedia({colorScheme:scheme});await p.goto(base+'/#palette');await settled(p);
