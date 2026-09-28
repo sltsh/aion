@@ -298,10 +298,13 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
       settleLatest();
       return;
     }
+    const transition = scene.transition;
     // A resumed reveal shares the first one's start time on the document timeline, so it keeps the original deadline.
     const anchor = (reveal: ThemeMotionAnimation): void => {
       if (elapsed > 0) reveal.startTime = scene.start ?? null;
-      else watchPromise(reveal.ready, () => { if (typeof reveal.startTime === 'number') scene.start = reveal.startTime; }, () => {});
+      else watchPromise(reveal.ready, () => {
+        if (current(scene, transition) && typeof reveal.startTime === 'number') scene.start = reveal.startTime;
+      }, () => {});
     };
     // Firefox can accept the pseudoElement option without painting its clip.
     // The same scene expressed in CSS keeps the native snapshot transition.
@@ -318,7 +321,6 @@ export function initializeTheme(environment: ThemeEnvironment): ThemeController 
     }
     scene.animation = animation;
     anchor(animation);
-    const transition = scene.transition;
     watchPromise(animation.finished, () => {}, () => {
       if (!current(scene, transition)) return;
       safeSkip(transition);

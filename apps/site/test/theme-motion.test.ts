@@ -34,7 +34,7 @@ const source = () => {
   };
 };
 
-const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
+const harness = (options: { scene?: boolean; reduced?: boolean; css?: boolean } = {}) => {
   const system = Object.assign(source(), { matches: false });
   const reduced = Object.assign(source(), { matches: options.reduced === true });
   const page = source();
@@ -46,9 +46,17 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     ...page,
     innerWidth: 800,
     innerHeight: 600,
-    getComputedStyle: () => ({ getPropertyValue: (name: string) => name === '--slt-motion-scene' ? '720ms' : '' }),
+    getComputedStyle: () => ({ clipPath: options.css ? 'none' : undefined, getPropertyValue: (name: string) => name === '--slt-motion-scene' ? '720ms' : '' }),
   };
-  const root = { dataset: {}, ownerDocument: documentLike } as unknown as HTMLElement;
+  const properties = new Map<string, string>();
+  const root = {
+    dataset: {},
+    ownerDocument: documentLike,
+    style: {
+      setProperty: (name: string, value: string) => { properties.set(name, value); },
+      removeProperty: (name: string) => { properties.delete(name); },
+    },
+  } as unknown as HTMLElement;
   const stored = new Map<string, string>();
   const writes: string[] = [];
   const assets: string[] = [];
@@ -99,6 +107,7 @@ const harness = (options: { scene?: boolean; reduced?: boolean } = {}) => {
     clock,
     windowLike,
     root,
+    properties,
     system,
     reduced,
     documentLike,
@@ -380,6 +389,91 @@ describe('a viewport resize during the page scene', () => {
     expect(h.root.dataset.theme).toBe('dark');
     h.transitions[2]!.update(); h.transitions[2]!.ready.resolve(); await flush();
     expect(h.animations.at(-1)!.startTime).toBe(16);
+  });
+
+  it('does not let a cancelled reveal ready late move the resumed scene clock', async () => {
+    const h = harness({ scene: true });
+    const ready = deferred<void>();
+    const first: ThemeMotionAnimation = { ready: ready.promise, startTime: 16, cancel: vi.fn() };
+    h.animate.mockReturnValueOnce(first);
+    const controller = initializeTheme(h.environment);
+    controller.request('light'); h.transitions[0]!.update(); h.transitions[0]!.ready.resolve(); await flush();
+    h.clock.now = 300; h.windowLike.innerWidth = 759;
+    h.transitions[0]!.finished.resolve(); await flush();
+    h.transitions[1]!.update(); h.transitions[1]!.ready.resolve(); await flush();
+    expect(h.animations.at(-1)!.startTime).toBe(0);
+    ready.resolve(); await flush();
+    h.clock.now = 400; h.windowLike.innerWidth = 1100;
+    h.transitions[1]!.finished.resolve(); await flush();
+    h.transitions[2]!.update(); h.transitions[2]!.ready.resolve(); await flush();
+    expect(h.animations.at(-1)!.startTime).toBe(0);
+    controller.dispose();
+  });
+
+  it('keeps the CSS fallback progress on resize and removes its dimensions and delay on settlement', async () => {
+    const h = harness({ scene: true, css: true });
+    const controller = initializeTheme(h.environment);
+    controller.request('light'); h.transitions[0]!.update(); h.transitions[0]!.ready.resolve(); await flush();
+    expect(h.root.dataset['themeCssScene']).toBe('');
+    expect(h.properties.get('--site-theme-delay')).toBe('0ms');
+    h.clock.now = 300; h.windowLike.innerWidth = 759;
+    h.transitions[0]!.finished.resolve(); await flush();
+    h.transitions[1]!.update(); h.transitions[1]!.ready.resolve(); await flush();
+    expect(h.properties.get('--site-theme-width')).toBe('759px');
+    expect(h.properties.get('--site-theme-height')).toBe('600px');
+    expect(h.properties.get('--site-theme-delay')).toBe('-300ms');
+    h.clock.now = 720; h.transitions[1]!.finished.resolve(); await flush();
+    expect(h.root.dataset.theme).toBe('light');
+    expect(h.root.dataset['themeCssScene']).toBeUndefined();
+    expect(h.properties.size).toBe(0);
+    controller.dispose();
+  });
+
+  it('settles instead of starting an expired resumed reveal', async () => {
+    const { h, controller } = await resized();
+    h.transitions[1]!.update(); h.clock.now = 737;
+    h.transitions[1]!.ready.resolve(); await flush();
+    expect(h.animate).toHaveBeenCalledTimes(1);
+    expect(h.transitions[1]!.transition.skipTransition).toHaveBeenCalledTimes(1);
+    expect(h.root.dataset['themeTransition']).toBeUndefined();
+    expect(h.root.dataset.theme).toBe('light');
+    controller.dispose();
+  });
+
+  it('settles the latest choice immediately when a resumed transition API fails', async () => {
+    const h = harness({ scene: true });
+    const controller = initializeTheme(h.environment);
+    const heard = vi.fn(); controller.subscribe(heard);
+    controller.request('light'); h.transitions[0]!.update(); h.transitions[0]!.ready.resolve(); await flush();
+    h.startViewTransition.mockImplementationOnce(() => { throw new Error('unavailable'); });
+    h.clock.now = 300; h.windowLike.innerWidth = 759;
+    h.transitions[0]!.finished.resolve(); await flush();
+    expect(h.root.dataset.theme).toBe('light');
+    expect(h.root.dataset['themeTransition']).toBeUndefined();
+    expect(heard).toHaveBeenCalledTimes(1);
+    expect(h.writes).toEqual(['light']);
+    controller.dispose();
+  });
+
+  it('ignores old callbacks after latest-choice interruption and hidden-page restoration', async () => {
+    const { h, controller, heard } = await resized();
+    controller.request('dark');
+    h.transitions[2]!.update();
+    expect(heard.mock.calls.map(([theme]) => theme)).toEqual(['light', 'dark']);
+    h.transitions[1]!.update(); h.transitions[1]!.ready.resolve(); h.transitions[1]!.finished.reject(new Error('obsolete')); await flush();
+    expect(h.root.dataset.theme).toBe('dark');
+    h.documentLike.visibilityState = 'hidden'; h.documentLike.dispatch('visibilitychange', new Event('visibilitychange'));
+    expect(h.root.dataset['themeTransition']).toBeUndefined();
+    h.stored.set('aion-site-theme', 'light'); h.documentLike.visibilityState = 'visible';
+    h.page.dispatch('pageshow', { persisted: true } as unknown as Event);
+    h.transitions[2]!.ready.resolve(); h.transitions[2]!.finished.resolve(); await flush();
+    expect(h.root.dataset.theme).toBe('light');
+    expect(controller.theme).toBe('light');
+    expect(heard.mock.calls.map(([theme]) => theme)).toEqual(['light', 'dark', 'light']);
+    expect(h.assets).toEqual(['dark', 'light', 'dark', 'light']);
+    expect(h.writes).toEqual(['light', 'dark']);
+    expect(h.startViewTransition).toHaveBeenCalledTimes(3);
+    controller.dispose();
   });
 
   it('ends a skip without a resize, or past the deadline, without resuming', async () => {
