@@ -10,9 +10,12 @@ export const themedImage = (className: string, dark: string, light: string, labe
 
 export function renderHeader(page: 'home' | 'palette', _flags: SiteFlags, mode: 'live' | 'picture'): string {
   const picture = mode === 'picture';
-  const links = [['depth', SHELL.navDepth], ['solved', SHELL.navProof], ['install', SHELL.navInstall], ['palette', SHELL.navPalette]];
-  const nav = links.map(([id, label]) => picture ? `<span>${label}</span>`
-    : `<a href="${id === 'palette' ? page === 'palette' ? '#content' : '#palette' : `${page === 'home' ? '' : '/'}#${id}`}"${page === 'palette' && id === 'palette' ? ' aria-current="page"' : ''}>${label}</a>`).join('');
+  const links = [
+    { id: 'depth', label: SHELL.navDepth }, { id: 'solved', label: SHELL.navProof },
+    { id: 'install', label: SHELL.navInstall }, { id: 'palette', label: SHELL.navPalette },
+  ] as const;
+  const nav = links.map(({ id, label }) => picture ? `<span>${label}</span>` :
+    `<a href="${id === 'palette' ? page === 'palette' ? '#content' : '#palette' : `${page === 'home' ? '' : '/'}#${id}`}"${page === 'home' && id !== 'palette' ? ` data-section="${id}"` : ''}${page === 'palette' && id === 'palette' ? ' aria-current="page"' : ''}>${label}</a>`).join('');
   const wordmark = themedImage('header-wordmark', '/aion-wordmark.webp', '/aion-wordmark-light.webp', SHELL.darkLabel, 144, 48);
   const path = `<div class="site-path"><slt-site-mark placement="inline"></slt-site-mark>${picture ? `<span class="mark">${wordmark}</span>` : `<a class="mark" href="${page === 'home' ? '#overview' : '/#overview'}" aria-label="${SHELL.home}">${wordmark}</a>`}</div>`;
   if (picture) return `<div class="site-head site-head-picture" aria-hidden="true" inert>${path}<span class="menu-toggle picture-menu-toggle">${icon('menu')}${icon('close')}</span><div class="site-menu"><div class="site-nav">${nav}</div><div class="site-controls"><span class="source-link">${icon('github')}</span></div></div></div>`;

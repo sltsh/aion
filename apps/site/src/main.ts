@@ -199,7 +199,7 @@ const updateNavigation = (): void => {
   const jump = document.querySelector('.jump');
   const mobileJump = jump && getComputedStyle(jump).display === 'flex' ? jump.getBoundingClientRect().height : 0;
   const threshold = header + mobileJump + 48;
-  let active = tracked[0];
+  let active: typeof tracked[number] | undefined;
   for (const entry of tracked) if (entry.section.getBoundingClientRect().top <= threshold) active = entry;
   if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) active = tracked.at(-1);
   selectSection(active);

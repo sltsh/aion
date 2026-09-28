@@ -12,8 +12,9 @@ import { FLAGS } from '../src/flags.js';
 import { escapeAttr, escapeHtml } from '../src/render/html.js';
 import { landing, palette } from '../src/render/index.js';
 import { ANSI_SLOTS, GROUP_IDS, colourBlock, groups } from '../src/groups.js';
-import { CHAPTERS } from '../src/content.js';
+import { CHAPTERS, SHELL } from '../src/content.js';
 import { renderHeader } from '../src/render/shell.js';
+import { SITE_PAIRS } from '../src/pairs.js';
 import { gateSummary } from '../src/gate.js';
 import { swatch } from '../src/render/swatch.js';
 import { initializeTheme, readTheme, resolveTheme, syncFavicons, THEME_STORAGE_KEY, themeBootstrap } from '../src/theme.js';
@@ -469,6 +470,46 @@ describe('the new page shell', () => {
     const html = renderHeader('home', FLAGS, 'picture');
     expect(html).toContain('inert'); expect(html).toContain('aria-hidden="true"');
     expect(html).not.toMatch(/\bid=|<(?:header|nav|a|button)\b|\brole=/);
+  });
+  it('renders the live header destinations with their content labels and page state', () => {
+    const home = renderHeader('home', FLAGS, 'live');
+    const nav = home.slice(home.indexOf('<nav class="site-nav"'), home.indexOf('</nav>'));
+    const links = [...nav.matchAll(/<a href="([^"]+)"([^>]*)>([^<]+)<\/a>/g)];
+    expect(links.map((entry) => entry[3])).toEqual([SHELL.navDepth, SHELL.navProof, SHELL.navInstall, SHELL.navPalette]);
+    expect(links.map((entry) => entry[1])).toEqual(['#depth', '#solved', '#install', '#palette']);
+    expect(links.slice(0, 3).map((entry) => entry[2])).toEqual([
+      ' data-section="depth"', ' data-section="solved"', ' data-section="install"',
+    ]);
+    expect(nav).not.toContain('aria-current');
+
+    const paletteHeader = renderHeader('palette', FLAGS, 'live');
+    expect(paletteHeader).toContain('<a href="#content" aria-current="page">Palette</a>');
+    expect(paletteHeader).not.toContain('> /Palette<');
+
+    const picture = renderHeader('home', FLAGS, 'picture');
+    const pictureNav = picture.match(/class="site-nav">([\s\S]*?)<\/div>/)?.[1] ?? '';
+    expect([...pictureNav.matchAll(/<span>([^<]+)<\/span>/g)].map((entry) => entry[1]))
+      .toEqual([SHELL.navDepth, SHELL.navProof, SHELL.navInstall, SHELL.navPalette]);
+    expect(pictureNav).not.toContain('aria-current');
+    expect(pictureNav).not.toMatch(/<(?:a|button)\b/);
+  });
+  it('pairs header navigation text and underline and gives every target a 44px minimum', () => {
+    const css = readFileSync(join(root, 'src/styles/shell.css'), 'utf8');
+    expect(css).toMatch(/\.site-nav a\s*\{[^}]*min-height:\s*44px/);
+    expect(css).toContain('color: var(--aion-fg-secondary)');
+    expect(css).toContain('.site-nav a:hover, .site-nav a:focus-visible, .site-nav a[aria-current] { color: var(--aion-fg-primary);');
+    expect(css).toMatch(/\.site-nav a::after\s*\{[^}]*height:\s*3px[^}]*background:\s*var\(--aion-gold-solid\)/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.site-nav a::after\s*\{[^}]*transition:\s*none/);
+    const pairs = SITE_PAIRS.filter((pair) => pair.where.startsWith('header nav'));
+    expect(pairs).toEqual([
+      { fg: '--aion-fg-secondary', bg: '--aion-bg-surface', floor: 4.5, where: 'header nav links' },
+      { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'header nav current text' },
+      { fg: '--aion-gold-solid', bg: '--aion-bg-surface', floor: 3, where: 'header nav underline' },
+    ]);
+    for (const scheme of [dark(), light()]) for (const pair of pairs) {
+      expect(contrastEmitted(hexToOklch(scheme[pair.fg]!), hexToOklch(scheme[pair.bg]!)), pair.where)
+        .toBeGreaterThanOrEqual(pair.floor);
+    }
   });
   it('keys the chapter rail to its seven section targets in order', () => {
     const html = landing(FLAGS); const rail = html.slice(html.indexOf('<nav class="chapter-rail"'));
