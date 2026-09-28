@@ -15,6 +15,44 @@ export const SHELL = {
   explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
 } as const;
 export const CONTENT = {
+  states: {
+    title: 'Code remains legible with things on top of it.',
+    lede: 'Select, search or diff. Stack the states VS Code can draw and watch each colour stay above the floor.',
+    toolbar: 'Reading states', codeLabel: 'Three lines of code with reading states', background: 'background', lowest: 'lowest', floor: 'floor 4.5:1',
+    empty: 'Nothing on. Turn on what VS Code draws over the first two lines.',
+    stacked: (names: string): string => `Under the first two lines: ${names}.`,
+    noScript: 'The code and ratios show the current scheme. Enable JavaScript to stack its states.',
+    caption: 'These controls cover a named set of reading states, not every combination an editor can produce.',
+    reasons: {
+      currentSelection: 'VS Code draws the current line only while nothing is selected, so these two never stack.',
+      diffSides: 'A line is either added or removed, so those states never stack.',
+      outsideCoverage: 'This combination is outside the measured reading states.',
+    },
+    labels: { lineHighlight: 'current line', selection: 'selection', wordHighlight: 'word highlight', findMatchOther: 'other find matches', addedLine: 'added line', addedWord: 'added word', removedLine: 'removed line', removedWord: 'removed word' },
+    code: [
+      [['comment', '// resolve the age from the registry']],
+      [['keyword', 'const'], ['plain', ' '], ['variable', 'entry'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['keyword', 'await'], ['plain', ' '], ['variable', 'registry'], ['punctuation', '.'], ['function', 'get'], ['punctuation', '('], ['variable', 'id'], ['punctuation', ');']],
+      [['keyword', 'return'], ['plain', ' '], ['type', 'Epoch'], ['punctuation', '.'], ['function', 'of'], ['punctuation', '('], ['variable', 'entry'], ['punctuation', ','], ['plain', ' '], ['number', '1_440'], ['plain', ' '], ['operator', '*'], ['plain', ' '], ['number', '365'], ['punctuation', ');']],
+    ],
+  },
+  terminal: {
+    title: 'Sixteen slots, measured on both backgrounds.',
+    lede: 'The same colours in a standalone terminal and a VS Code panel. Each slot is measured wherever it ships.',
+    lightLede: 'The Light slots are measured on the panel and its terminal selection. No Light standalone scheme ships.',
+    exempt: 'exempt as text', measured: 'slots × measured backgrounds',
+    sessionLabel: (name: string): string => `${name} terminal session`,
+    exemptCaption: (slots: string): string => `Slot ${slots} is exempt as a text colour. SGR 30 selects slot 0, so programs can still print hard-to-read text in it: a real limitation. Its guarantee is text printed on top of it.`,
+    noExemptCaption: (ratio: string): string => `No slot is exempt. Every slot reads as text on both measured backgrounds, the lowest at ${ratio}:1.`,
+    session: [
+      [['green', '~/tidal'], ['blue', ' main'], ['brightBlack', ' $'], ['white', ' git status']],
+      [['white', 'On branch '], ['cyan', 'main']],
+      [['red', '  modified:   src/tide.ts']],
+      [['green', '  new file:   test/tide.test.ts']],
+      [['green', '~/tidal'], ['brightBlack', ' $'], ['white', ' node --test']],
+      [['green', '✔'], ['white', ' predicts the next high water '], ['brightBlack', '(2.1ms)']],
+      [['yellow', '⚠'], ['white', ' 1 test skipped · '], ['magenta', 'tests 5'], ['white', ' · '], ['brightGreen', 'pass 5'], ['white', ' · '], ['brightRed', 'fail 0']],
+    ],
+  },
   solved: {
     title: 'Every colour is solved, never chosen.',
     lede: 'Each accent is solved against the worst surface it can land on. Pick one and drag it until it fails.',

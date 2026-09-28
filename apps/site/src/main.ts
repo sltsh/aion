@@ -9,6 +9,9 @@ import './styles/hero.css';
 import './styles/claims.css';
 import './styles/depth.css';
 import './styles/probes.css';
+import './styles/states.css';
+import './styles/terminal.css';
+import { mountStates } from './chapters/states.js';
 import { mountSolved } from './chapters/solved.js';
 import { mountRounded } from './chapters/rounded.js';
 import { readProbeInputs } from './chapters/probe.js';
@@ -98,6 +101,8 @@ const probeInputs = readProbeInputs(document);
 const solvedRoot = document.querySelector<HTMLElement>('[data-solved]');
 const roundedRoot = document.querySelector<HTMLElement>('[data-rounded]');
 const disposeSolved = solvedRoot && probeInputs ? mountSolved(solvedRoot, theme, probeInputs) : () => {};
+const statesRoot = document.querySelector<HTMLElement>('[data-states]');
+const disposeStates = statesRoot && probeInputs ? mountStates(statesRoot, theme, probeInputs, { reducedMotion, visibility: document }) : () => {};
 const disposeRounded = roundedRoot && probeInputs ? mountRounded(roundedRoot, theme, probeInputs) : () => {};
 const chip = document.querySelector<HTMLButtonElement>('[data-scheme-chip]');
 const disposeChip = chip ? mountChip(chip, theme, heroController) : () => {};
@@ -287,5 +292,5 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) settl
 window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
-  if (!event.persisted) { disposeDepth(); disposeSolved(); disposeRounded(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
+  if (!event.persisted) { disposeDepth(); disposeSolved(); disposeRounded(); disposeStates(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
 }, { signal });

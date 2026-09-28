@@ -1,4 +1,13 @@
+import type { Oklch, Palette } from '@sltsh/aion-tokens';
 export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; where: string }[] = [
+  { fg: '--aion-status-success-text', bg: '--aion-bg-surface', floor: 4.5, where: 'States positive delta' },
+  { fg: '--aion-status-error-text', bg: '--aion-bg-surface', floor: 4.5, where: 'States negative delta' },
+  { fg: '--n-border', bg: '--n-sidebar', floor: 3, where: 'States toolbar control edge' },
+  { fg: '--a-gold', bg: '--n-sidebar', floor: 3, where: 'States toolbar active control edge' },
+  { fg: '--aion-fg-primary', bg: '--aion-bg-surface', floor: 4.5, where: 'States meters and Terminal slot labels' },
+  { fg: '--aion-fg-secondary', bg: '--aion-bg-surface', floor: 4.5, where: 'States background label and Terminal slot ratio labels' },
+  { fg: '--n-text-secondary', bg: '--n-sidebar', floor: 4.5, where: 'States toolbar labels' },
+  { fg: '--n-text-primary', bg: '--n-sidebar', floor: 4.5, where: 'States toolbar active labels' },
   { fg: '--aion-fg-primary', bg: '--aion-bg-raised', floor: 4.5, where: 'Solved and Rounded chip labels, verdict and dimension text' },
   { fg: '--aion-fg-secondary', bg: '--aion-bg-raised', floor: 4.5, where: 'Solved and Rounded secondary labels' },
   { fg: '--aion-status-success-text', bg: '--aion-bg-raised', floor: 4.5, where: 'Solved and Rounded passing verdict' },
@@ -38,3 +47,8 @@ export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; wher
   { fg: '--n-text-primary', bg: '--n-widget', floor: 4.5, where: 'hero handle labels' },
   { fg: '--a-gold', bg: '--n-editor', floor: 3, where: 'hero seam on both editor surfaces' },
 ];
+
+export function terminalPairs(source: Palette, backgrounds: readonly { name: string; oklch: Oklch }[]): readonly { fg: Oklch; bg: Oklch; floor: 4.5; where: string }[] {
+  const slots = ['white', 'brightBlack', 'green', 'blue', 'cyan', 'red', 'yellow', 'magenta', 'brightGreen', 'brightRed'] as const;
+  return backgrounds.flatMap(background => slots.map(slot => ({ fg: source.ansi[slot], bg: background.oklch, floor: 4.5 as const, where: `Terminal session ${slot} on ${background.name}` })));
+}
