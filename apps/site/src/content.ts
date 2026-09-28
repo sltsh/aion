@@ -1,3 +1,5 @@
+import type { PATHS } from './render/icons.js';
+
 export const CHAPTERS = [
   { id: 'depth', number: '01', title: 'Depth' },
   { id: 'solved', number: '02', title: 'Solved' },
@@ -151,16 +153,15 @@ export interface InstallEntry {
   readonly command: string;
   readonly localCommand: string;
   readonly note: string;
-  readonly action: string;
-  readonly href: string;
+  readonly badges: readonly { label: string; href: string; icon: keyof typeof PATHS }[];
 }
 
 export const INSTALL: readonly InstallEntry[] = [
-  { id: 'vscode', label: 'VS Code', note: 'Marketplace', command: 'code --install-extension sltsh.aion-theme', localCommand: 'code --install-extension sltsh.aion-theme', action: 'Marketplace', href: 'https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme' },
-  { id: 'obsidian', label: 'Obsidian', note: 'Community themes', command: 'Settings / Appearance / Themes / Aion', localCommand: 'Settings / Appearance / Themes / Aion', action: 'Obsidian directory', href: 'https://obsidian.md/themes?search=Aion' },
-  { id: 'ovsx', label: 'Cursor, Windsurf, VSCodium', note: 'Open VSX', command: 'Search the extensions view for Aion', localCommand: 'Search the extensions view for Aion', action: 'Open VSX', href: 'https://open-vsx.org/extension/sltsh/aion-theme' },
-  { id: 'wt', label: 'Windows Terminal', note: 'aion.json', command: 'Add aion.json to the schemes in settings.json', localCommand: 'Add aion.json to the schemes in settings.json', action: 'Download aion.json', href: '/downloads/aion.json' },
-  { id: 'css', label: 'CSS / Tailwind', note: 'npm', command: 'npm install @sltsh/aion-css', localCommand: 'npm run build', action: 'CSS package', href: 'https://www.npmjs.com/package/@sltsh/aion-css' },
+  { id: 'vscode', label: 'VS Code', note: 'Install the extension, then select Aion.', command: 'code --install-extension sltsh.aion-theme', localCommand: 'code --install-extension sltsh.aion-theme', badges: [{ label: 'Marketplace', href: 'https://marketplace.visualstudio.com/items?itemName=sltsh.aion-theme', icon: 'marketplace' }] },
+  { id: 'obsidian', label: 'Obsidian', note: 'Find Aion in Community themes.', command: 'Settings / Appearance / Themes / Aion', localCommand: 'Settings / Appearance / Themes / Aion', badges: [{ label: 'Obsidian', href: 'https://obsidian.md/themes?search=Aion', icon: 'obsidian' }] },
+  { id: 'ovsx', label: 'Cursor, Windsurf, VSCodium', note: 'Install from the Open VSX registry.', command: 'Search the extensions view for Aion', localCommand: 'Search the extensions view for Aion', badges: [{ label: 'Open VSX', href: 'https://open-vsx.org/extension/sltsh/aion-theme', icon: 'openVsx' }] },
+  { id: 'wt', label: 'Windows Terminal', note: 'Save aion.json in this folder. Restart Terminal and select Aion.', command: '%LOCALAPPDATA%\\Microsoft\\Windows Terminal\\Fragments\\sltsh', localCommand: '%LOCALAPPDATA%\\Microsoft\\Windows Terminal\\Fragments\\sltsh', badges: [{ label: 'Download', href: '/downloads/aion.json', icon: 'download' }] },
+  { id: 'css', label: 'CSS / Tailwind', note: 'Use the emitted CSS custom properties.', command: 'npm install @sltsh/aion-css', localCommand: 'npm run build', badges: [{ label: 'npm', href: 'https://www.npmjs.com/package/@sltsh/aion-css', icon: 'npm' }] },
 ];
 
 export const UNRELEASED_NOTE =
