@@ -10,7 +10,7 @@ const opposite = theme => theme === 'dark' ? 'light' : 'dark';
 const { solveLightness, contrastEmitted, hexToOklch } = await import('../../../../packages/tokens/dist/index.js');
 await mkdir(output, {recursive:true});
 const settled = async page => {
-  await page.waitForFunction(() => !document.documentElement.hasAttribute('data-intro') && !document.documentElement.hasAttribute('data-theme-transition'));
+  await page.waitForFunction(() => !document.querySelector('.splash-intro') && !document.documentElement.hasAttribute('data-intro') && !document.documentElement.hasAttribute('data-theme-transition'));
   await page.evaluate(async()=>{await document.fonts.ready;await Promise.all([...document.images].map(i=>i.decode().catch(()=>{})));});
 };
 const themeState = async page => page.evaluate(()=>({theme:document.documentElement.dataset.theme,far:document.querySelector('[data-hero-far]')?.dataset.theme,share:Number(document.querySelector('[data-hero]')?.dataset.heroShare),checked:document.querySelector('[role="switch"]').getAttribute('aria-checked')}));
@@ -56,21 +56,58 @@ const resizeProbe = () => {
     // Follow a motion sequence from `t0` until nothing runs, no intro or scene remains and the share holds for 3 frames.
     // The share's last change is stamped when it is written, so the order of frame callbacks cannot delay the end by a frame.
     async end(t0, bound = 6000) {
-      const hero = document.querySelector('[data-hero]'); let value = share(), changed = t0; const shares = [[0, window.__motionFrom ?? value]]; let introRemoved;
+      const hero = document.querySelector('[data-hero]'); let value = share(), changed = t0; const shares = [[0, window.__motionFrom ?? value]]; let introRemoved, gateReleased;
+      const hadIntro = !!document.querySelector('.splash-intro');
       const frameClock = window.requestAnimationFrame; window.requestAnimationFrame = callback => frameClock(t => { window.__paintTime = t; callback(t); });
-      const introObserver = new MutationObserver(() => { if (introRemoved === undefined && !document.documentElement.hasAttribute('data-intro')) introRemoved = performance.now() - t0; });
-      if (document.documentElement.hasAttribute('data-intro')) introObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-intro'] });
+      const introObserver = new MutationObserver(() => {
+        if (gateReleased === undefined && !document.documentElement.hasAttribute('data-intro')) gateReleased = performance.now() - t0;
+        if (hadIntro && introRemoved === undefined && !document.querySelector('.splash-intro')) introRemoved = performance.now() - t0;
+      });
+      if (hadIntro) introObserver.observe(document.documentElement, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-intro'] });
       let arrived; const observer = new MutationObserver(() => { const s = share(); if (s !== value) { value = s; changed = window.__paintTime ?? performance.now(); shares.push([changed - t0, s]); if (s >= .999) arrived ??= changed - t0; } });
       if (hero) observer.observe(hero, { attributes: true, attributeFilter: ['data-hero-share'] });
 
       let quiet = 0, calmSince, intervals = [], previous, seen = changed; const reveals = [], scenes = [];
       return new Promise(resolve => { const step = t => { if (previous !== undefined) intervals.push(t - previous); previous = t; const now = performance.now(); const r = scene(); if (r) { reveals.push([Math.round((t - t0) * 10) / 10, Math.round(r.progress * 1000) / 1000]); scenes.push({ t: t - t0, ...r }); }
-        const busy = window.freezeFrames || running().length || document.documentElement.hasAttribute('data-intro') || document.documentElement.hasAttribute('data-theme-transition');
+        const busy = window.freezeFrames || running().length || document.querySelector('.splash-intro') || document.documentElement.hasAttribute('data-intro') || document.documentElement.hasAttribute('data-theme-transition');
         if (busy) { quiet = 0; calmSince = undefined; } else { calmSince ??= now; quiet = seen === changed ? quiet + 1 : 0; } seen = changed;
-        if (quiet >= 3 || now - t0 > bound) { observer.disconnect(); introObserver.disconnect(); intervals.sort((a, b) => a - b); const ended = now - t0 <= bound; resolve({ ended, end: Math.max(changed, calmSince ?? now) - t0, frame: intervals[Math.floor(intervals.length / 2)] ?? 1000 / 60, share: value, reveals, scenes, shares, introRemoved, arrived }); } else raf(step); }; raf(step); });
+        if (quiet >= 3 || now - t0 > bound) { observer.disconnect(); introObserver.disconnect(); intervals.sort((a, b) => a - b); const ended = now - t0 <= bound; resolve({ ended, end: Math.max(changed, calmSince ?? now) - t0, frame: intervals[Math.floor(intervals.length / 2)] ?? 1000 / 60, share: value, reveals, scenes, shares, introRemoved, gateReleased, arrived }); } else raf(step); }; raf(step); });
     },
     frames,
   };
+};
+// Installed before the bootstrap: mutation clocks and rAF samples survive actual bfcache restoration.
+const introProbe = () => {
+  const probe = window.__introProbe = { documentId: `${performance.timeOrigin}`, frames: [], events: [], pageshows: [], pendingAt: null, insertedAt: null, gateReleasedAt: null, removedAt: null };
+  const type = () => performance.getEntriesByType('navigation')[0]?.type;
+  const opacity = el => el ? Number(getComputedStyle(el).opacity) : 0;
+  const visible = el => { if (!el) return false; const style = getComputedStyle(el), r = el.getBoundingClientRect(); return style.visibility === 'visible' && style.display !== 'none' && opacity(el) > 0 && r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < innerHeight; };
+  probe.sample = t => {
+    const app = document.querySelector('#app'), hero = document.querySelector('[data-hero]'), overlay = document.querySelector('.splash-intro');
+    const backdropOpacity = opacity(overlay?.querySelector('.splash-intro__backdrop'));
+    const appVisible = visible(app), heroVisible = appVisible && visible(hero);
+    return { t, navigationType: type(), pending: document.documentElement?.dataset.intro === 'pending', appVisible, heroVisible, heroPaint: heroVisible && (!overlay || backdropOpacity < .999), overlay: !!overlay, overlayOpacity: opacity(overlay), introPaint: visible(overlay), backdropOpacity, plateOpacity: opacity(overlay?.querySelector('.splash-intro__plate')), slats: [...document.querySelectorAll('[data-intro-slat]')].map(e => opacity(e)), share: Number(hero?.dataset.heroShare ?? 0) };
+  };
+  const observer = new MutationObserver(() => {
+    const t = performance.now(), pending = document.documentElement?.dataset.intro === 'pending', overlay = !!document.querySelector('.splash-intro');
+    if (pending && probe.pendingAt === null) { probe.pendingAt = t; probe.events.push({ event: 'pending', t }); }
+    if (overlay && probe.insertedAt === null) { probe.insertedAt = t; probe.events.push({ event: 'overlay-inserted', t }); }
+    if (!pending && probe.pendingAt !== null && probe.gateReleasedAt === null) { probe.gateReleasedAt = t; probe.events.push({ event: 'gate-released', t }); }
+    if (!overlay && probe.insertedAt !== null && probe.removedAt === null) { probe.removedAt = t; probe.events.push({ event: 'overlay-removed', t }); }
+  });
+  observer.observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-intro'] });
+  addEventListener('pageshow', e => probe.pageshows.push({ t: performance.now(), persisted: e.persisted, navigationType: type() }));
+  const frame = t => { probe.frames.push(probe.sample(t)); if (probe.frames.length < 900) requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
+};
+const introEvidence = page => page.evaluate(() => { const { sample, ...probe } = window.__introProbe; return probe; });
+const assertIntroFirstPaint = probe => {
+  assert.notEqual(probe.pendingAt, null, 'bootstrap did not set pending');
+  assert.notEqual(probe.insertedAt, null, 'client did not play the intro');
+  const before = probe.frames.filter(f => f.t < probe.insertedAt);
+  assert.ok(before.every(f => !f.appVisible), 'content flashed before the overlay');
+  const first = probe.frames.find(f => f.overlay);
+  assert.ok(first?.pending && !first.appVisible, 'the first overlay frame did not hide the page');
 };
 const assertStill = (still, label) => {
   assert.ok(still.move.delta <= .5, `${label}: a box moved ${JSON.stringify(still.move)}`);
@@ -280,7 +317,52 @@ async function engineRun(name) {
       await p.goto(base,{waitUntil:'domcontentloaded'});await p.waitForTimeout(1200);const boxes=await p.locator('.splash-intro__label').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return {text:e.textContent,x:r.x,y:r.y,right:r.right,bottom:r.bottom};}));assert.equal(boxes.length,8);assert.ok(boxes.every(r=>r.x>=0&&r.y>=0&&r.right<=width&&r.bottom<=1000),JSON.stringify(boxes));assert.ok((await p.locator('.splash-intro__wordmark').getAttribute('src')).includes(scheme==='light'?'aion-wordmark.webp':'aion-wordmark-light.webp'));row.measurements={boxes};
     });
     await run('splash-first-skip-reload',{reducedMotion:'no-preference'},async(p,_c,row)=>{
-      await p.goto(base,{waitUntil:'domcontentloaded'});await p.waitForTimeout(200);assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');await p.keyboard.press('Escape');await settled(p);await p.reload({waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),null);row.measurements={session:await p.evaluate(()=>sessionStorage.getItem('aion-site-intro'))};
+      await p.goto(base,{waitUntil:'domcontentloaded'});await p.waitForTimeout(200);assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');await p.keyboard.press('Escape');await settled(p);await p.reload({waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');assert.equal(await p.locator('.splash-intro').count(),1);row.measurements={session:await p.evaluate(()=>sessionStorage.getItem('aion-site-intro'))};
+    });
+    await run('intro-reload',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
+      await p.addInitScript(introProbe);await p.goto(base,{waitUntil:'domcontentloaded'});
+      await p.waitForFunction(()=>window.__introProbe.removedAt!==null);await p.waitForTimeout(750);
+      const first=await introEvidence(p);row.measurements.first=first;assertIntroFirstPaint(first);
+      assert.equal(await p.evaluate(()=>sessionStorage.getItem('aion-site-intro')),'played');
+      await p.reload({waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');
+      await capture('intro-reload-pending');await p.waitForFunction(()=>window.__introProbe.removedAt!==null);await p.waitForTimeout(750);
+      const reload=await introEvidence(p);row.measurements.reload=reload;assertIntroFirstPaint(reload);
+      assert.notEqual(reload.documentId,first.documentId);assert.ok(reload.frames.every(f=>f.navigationType==='reload'),'reload navigation type missing');
+      // Leave and return through the browser history; persisted pageshow distinguishes a restored document from a new one.
+      await p.goto(base+'/palette.html');await settled(p);await p.goBack({waitUntil:'domcontentloaded'});await p.waitForTimeout(200);
+      const back=await introEvidence(p),show=back.pageshows.at(-1);row.measurements.back={...back,method:show?.persisted?'actual goBack with bfcache restoration':'actual goBack with back_forward document navigation'};
+      assert.ok(show?.persisted||show?.navigationType==='back_forward','goBack was not a history navigation');
+      assert.equal(await p.locator('html').getAttribute('data-intro'),null);assert.equal(await p.locator('.splash-intro').count(),0);
+      const restored=back.frames.filter(f=>f.t>=show.t);assert.ok(restored.length,'no history-return frames');assert.ok(restored.every(f=>!f.pending&&!f.overlay),'history return replayed the intro');
+      await capture('intro-back-forward');
+      await p.route('**/assets/*.js',route=>route.abort());await p.reload({waitUntil:'domcontentloaded'});
+      assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');await p.waitForFunction(()=>window.__introProbe.gateReleasedAt!==null,{},{timeout:5000});
+      await p.waitForTimeout(50);const blocked=await introEvidence(p);row.measurements.blockedReload=blocked;
+      assert.ok(blocked.frames.every(f=>f.navigationType==='reload'));assert.equal(blocked.insertedAt,null,'blocked client unexpectedly played');
+      const intervals=blocked.frames.slice(1).map((f,i)=>f.t-blocked.frames[i].t).sort((a,b)=>a-b),frame=intervals[Math.floor(intervals.length/2)];
+      row.measurements.fallback={releaseMs:blocked.gateReleasedAt-blocked.pendingAt,frame};
+      assert.ok(row.measurements.fallback.releaseMs<=4000+frame,'bootstrap fallback missed its 4 s deadline');
+      assert.ok(blocked.frames.some(f=>f.appVisible&&!f.pending),'fallback did not paint content');await capture('intro-reload-blocked-released');
+    });
+    await run('intro-handoff',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
+      await p.addInitScript(introProbe);await p.goto(base,{waitUntil:'domcontentloaded'});
+      row.measurements.exitScreenshots=[];
+      for(const target of [1760,1950,2300,2800,2960]){
+        await p.waitForFunction(at=>window.__introProbe.insertedAt!==null&&performance.now()-window.__introProbe.insertedAt>=at,target);
+        const before=await p.evaluate(()=>window.__introProbe.sample(performance.now()));await capture(`intro-handoff-${target}`);
+        const after=await p.evaluate(()=>window.__introProbe.sample(performance.now()));row.measurements.exitScreenshots.push({target,before,after,path:row.artifacts.at(-1)});
+      }
+      await p.waitForFunction(()=>window.__introProbe.removedAt!==null);await p.waitForTimeout(750);
+      const probe=await introEvidence(p);row.measurements.timeline=probe;assertIntroFirstPaint(probe);
+      const frames=probe.frames.filter(f=>f.t>=probe.insertedAt),last=frames.findLastIndex(f=>f.introPaint),firstHero=frames.findIndex(f=>f.heroPaint);
+      assert.ok(last>=0&&firstHero>=0,'missing intro or hero paint samples');
+      assert.ok(firstHero<=last+1,'hero content missed the frame after the last intro frame');
+      assert.ok(frames.every(f=>f.introPaint||f.heroPaint),'blank frame during the handoff');
+      assert.ok(probe.gateReleasedAt<probe.removedAt,'content was held hidden until overlay removal');
+      const exit=frames.filter(f=>f.t>=probe.gateReleasedAt&&f.t<=probe.removedAt);
+      const intermediate=Array.from({length:8},(_,i)=>exit.filter(f=>f.slats[i]>.01&&f.slats[i]<.99).map(f=>f.slats[i]));row.measurements.opacityIntermediateFrames=intermediate.map(v=>v.length);
+      for(const [i,values] of intermediate.entries()){assert.ok(new Set(values).size>=2,`slat ${i} switched opacity without two intermediate frames`);assert.ok(values.every((v,j)=>j===0||v<=values[j-1]),`slat ${i} opacity reversed`);}
+      row.measurements.handoff={firstHeroFrame:firstHero,lastIntroFrame:last,firstHeroMs:frames[firstHero].t-probe.insertedAt,lastIntroMs:frames[last].t-probe.insertedAt,blankFrames:frames.filter(f=>!f.introPaint&&!f.heroPaint).length};
     });
     for(const [id,route,options] of [['deep','/#install',{reducedMotion:'no-preference'}],['reference','/palette.html',{reducedMotion:'no-preference'}],['reduced','/',{}]])await run(`splash-skipped-${id}`,options,async(p)=>{await p.goto(base+route,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),null);await settled(p);if(id==='reduced')assert.equal(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length),0);});
     await run('splash-blocked-client-timeout',{reducedMotion:'no-preference'},async(p,_c,row)=>{
