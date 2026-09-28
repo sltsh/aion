@@ -159,6 +159,7 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   root.ownerDocument.addEventListener('visibilitychange', onHide);
   root.ownerDocument.defaultView?.addEventListener('pagehide', onPageHide);
   sync(); measure();
+  void root.ownerDocument.fonts?.ready.then(() => { if (!disposed) measure(); });
   return {
     throwAcross() {
       if (disposed) return Promise.resolve('superseded');

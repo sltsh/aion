@@ -15,7 +15,7 @@ export function renderHeader(page: 'home' | 'palette', _flags: SiteFlags, mode: 
     : `<a href="${id === 'palette' ? page === 'palette' ? '#content' : '#palette' : `${page === 'home' ? '' : '/'}#${id}`}"${page === 'palette' && id === 'palette' ? ' aria-current="page"' : ''}>${label}</a>`).join('');
   const wordmark = themedImage('header-wordmark', '/aion-wordmark.webp', '/aion-wordmark-light.webp', SHELL.darkLabel, 144, 48);
   const path = `<div class="site-path"><slt-site-mark placement="inline"></slt-site-mark>${picture ? `<span class="mark">${wordmark}</span>` : `<a class="mark" href="${page === 'home' ? '#overview' : '/#overview'}" aria-label="${SHELL.home}">${wordmark}</a>`}</div>`;
-  if (picture) return `<div class="site-head site-head-picture" aria-hidden="true" inert>${path}<div class="site-nav">${nav}</div><span class="source-link">${icon('github')}</span></div>`;
+  if (picture) return `<div class="site-head site-head-picture" aria-hidden="true" inert>${path}<span class="menu-toggle picture-menu-toggle">${icon('menu')}${icon('close')}</span><div class="site-menu"><div class="site-nav">${nav}</div><div class="site-controls"><span class="source-link">${icon('github')}</span></div></div></div>`;
   return `<a class="skip-link" href="#content">${SHELL.skip}</a><header class="site-head">${path}
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" aria-label="${SHELL.menu}" data-menu-toggle>${icon('menu')}${icon('close')}</button>
     <div class="site-menu" id="site-menu"><nav class="site-nav" aria-label="${SHELL.navigation}">${nav}</nav>
