@@ -24,6 +24,10 @@ export const SITE_PAIRS: readonly { fg: string; bg: string; floor: 4.5 | 3; wher
   { fg: '--n-text-primary', bg: '--n-editor', floor: 4.5, where: 'hero headline and secondary CTA' },
   { fg: '--n-text-secondary', bg: '--n-editor', floor: 4.5, where: 'hero sub and header' },
   { fg: '--n-editor', bg: '--a-gold', floor: 4.5, where: 'hero primary CTA' },
+  { fg: '--n-editor', bg: '--a-gold', floor: 4.5, where: 'splash wordmark plate' },
+  ...(['keyword', 'function', 'type', 'string', 'number', 'variable', 'operator', 'comment'] as const).map((role) => ({
+    fg: '--n-editor', bg: `--s-${role}`, floor: 4.5 as const, where: `splash ${role} label`,
+  })),
   { fg: '--n-text-primary', bg: '--n-widget', floor: 4.5, where: 'hero handle labels' },
   { fg: '--a-gold', bg: '--n-editor', floor: 3, where: 'hero seam on both editor surfaces' },
 ];

@@ -62,6 +62,8 @@ test('ships OKLCH inputs, never hex, in the measures island', () => {
   expect(data.dark.editor).toEqual(buildPalette().neutral.editor);
   expect(data.light.editor).toEqual(lightPalette.neutral.editor);
   expect(data.dark.overlays).toEqual(buildPalette().overlay);
+  expect(data.dark.figures.syntax).toEqual(measures('dark').syntax);
+  expect(data.light.figures.syntax).toEqual(measures('light').syntax);
 });
 
 test('scheme styles cover explicit schemes and the system fallback without element rules', () => {

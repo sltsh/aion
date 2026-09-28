@@ -79,7 +79,7 @@ export function measureIsland(): string {
   const inputs = Object.fromEntries(Object.entries(palettes).map(([scheme, palette]) => [scheme, {
     editor: palette.neutral.editor, surfaces: palette.neutral, overlays: palette.overlay,
     washes: palette.diffWash, decoration: palette.decoration, secondaryDecoration: palette.secondaryDecoration,
-    accents: palette.accents, comment: palette.comment,
+    accents: palette.accents, comment: palette.comment, figures: measures(scheme as Scheme),
   }]));
   return `<script type="application/json" id="aion-measures">${JSON.stringify(inputs)}</script>`;
 }

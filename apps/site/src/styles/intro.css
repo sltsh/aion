@@ -1,0 +1,13 @@
+:root[data-intro="pending"] #app { visibility: hidden; }
+.splash-intro { position: fixed; inset: 0; z-index: 1000; overflow: hidden; background: var(--n-editor); color: var(--n-text-primary); visibility: visible; }
+.splash-intro__slats { position: absolute; inset: 0; }
+.splash-intro__slat { position: absolute; inset-block: 0; display: grid; place-items: center; }
+.splash-intro__label { position: absolute; display: flex; flex-direction: column; font: 600 13px/1.4 'Monaspace Neon', monospace; color: var(--n-editor); }
+.splash-intro__label b { font: 700 30px/1.1 'Monaspace Neon', monospace; }
+.splash-intro__center { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; pointer-events: none; }
+.splash-intro__plate { display: grid; min-width: 17rem; min-height: 8rem; place-items: center; padding: 1.5rem 2.5rem; background: var(--a-gold); color: var(--n-editor); clip-path: polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px); }
+.splash-intro__wordmark { display: block; width: 9rem; height: 3rem; object-fit: contain; }
+.splash-intro__skip { position: absolute; z-index: 3; right: 1.25rem; bottom: 1rem; padding: 0.25rem 0.5rem; background: var(--n-editor); color: var(--n-text-secondary); font: 500 0.75rem/1.4 'Monaspace Neon', monospace; }
+@media (prefers-reduced-motion: reduce) {
+  .splash-intro { visibility: hidden; }
+}

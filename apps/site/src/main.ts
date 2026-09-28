@@ -3,12 +3,15 @@ import '@sltsh/site-mark/register';
 import './styles.css';
 import './styles/shell.css';
 import './styles/chip.css';
+import './styles/intro.css';
 import '@sltsh/aion-lab/render/editor.css';
 import './styles/hero.css';
 import { mountHero } from './hero/controller.js';
 import { mountChip } from './chip.js';
 import { mountRail } from './rail.js';
 import { initializeTheme, syncFavicons } from './theme.js';
+import { isHomepagePath, runIntro, shouldPlayIntro } from './intro.js';
+import type { SchemeMeasures } from './measures.js';
 
 // A readable confirmation dwell, not an animation duration.
 const COPIED_MS = 2000;
@@ -27,12 +30,12 @@ const disclosure = duration('--slt-motion-disclosure', 360);
 const ease = motionStyle.getPropertyValue('--slt-ease-out').trim() || 'cubic-bezier(.22, 1, .36, 1)';
 const effects = new Map<Element, Animation>();
 const canMove = (): boolean => !reducedMotion.matches && !document.hidden;
-const animate = (target: HTMLElement, frames: Keyframe[], time = feedback): Animation | undefined => {
+const animate = (target: HTMLElement, frames: Keyframe[], time = feedback, options: KeyframeAnimationOptions = {}): Animation | undefined => {
   effects.get(target)?.cancel();
   effects.delete(target);
   if (!canMove() || !target.isConnected || typeof target.animate !== 'function') return;
   try {
-    const effect = target.animate(frames, { duration: time, easing: ease });
+    const effect = target.animate(frames, { ...options, duration: time, easing: ease });
     effects.set(target, effect);
     void effect.finished.catch(() => {}).finally(() => {
       if (effects.get(target) === effect) effects.delete(target);
@@ -57,7 +60,31 @@ const theme = initializeTheme({
 const heroRoot = document.querySelector<HTMLElement>('[data-hero]');
 const heroController = heroRoot ? mountHero(heroRoot, theme, { now: () => performance.now(), raf: (callback) => requestAnimationFrame(callback), cancelRaf: (id) => cancelAnimationFrame(id), reducedMotion, resize: window }) : null;
 root.classList.add('js');
-heroController?.arrive();
+const introHome = isHomepagePath(window.location.pathname);
+const introSession = (): Storage | null => { try { return window.sessionStorage; } catch { return null; } };
+const introEligible = introHome && shouldPlayIntro({ reducedMotion: reducedMotion.matches, hash: window.location.hash, session: introSession() });
+const introGeneration = theme.generation;
+const arriveIfCurrent = (): void => { if (theme.generation === introGeneration) heroController?.arrive(); };
+if (introEligible) {
+  try {
+    const island = JSON.parse(document.querySelector<HTMLScriptElement>('#aion-measures')?.textContent ?? '') as Partial<Record<'dark' | 'light', { figures?: SchemeMeasures }>>;
+    const figures = island[theme.theme]?.figures;
+    if (!figures) throw new Error('The splash figures are missing.');
+    void runIntro(document, figures, theme.theme, {
+      reducedMotion,
+      easing: ease,
+      themeGeneration: () => theme.generation,
+      subscribeTheme: (listener) => theme.subscribe(listener),
+      animate: (target, frames, options) => animate(target, frames, typeof options.duration === 'number' ? options.duration : feedback, options),
+    }).then(arriveIfCurrent);
+  } catch {
+    root.removeAttribute('data-intro');
+    arriveIfCurrent();
+  }
+} else {
+  root.removeAttribute('data-intro');
+  arriveIfCurrent();
+}
 const chip = document.querySelector<HTMLButtonElement>('[data-scheme-chip]');
 const disposeChip = chip ? mountChip(chip, theme, heroController) : () => {};
 const rail = document.querySelector<HTMLElement>('.chapter-rail');

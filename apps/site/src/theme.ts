@@ -1,3 +1,5 @@
+import { INTRO_KEY } from './intro.js';
+
 export const THEME_STORAGE_KEY = 'aion-site-theme';
 
 export type Theme = 'dark' | 'light';
@@ -56,7 +58,7 @@ export const readTheme = (storage: Pick<Storage, 'getItem'> | null): Theme | und
 export const resolveTheme = (saved: Theme | undefined, systemIsLight: boolean): Theme =>
   saved ?? (systemIsLight ? 'light' : 'dark');
 
-export const themeBootstrap = (): string => `<script>(function(){function set(theme){document.documentElement.dataset.theme=theme;document.querySelectorAll('link[data-theme-favicon]').forEach(function(link){link.media=link.getAttribute('data-theme-favicon')===theme?'all':'not all'})}try{var key='${THEME_STORAGE_KEY}',saved;try{saved=localStorage.getItem(key)}catch(e){}set(saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'))}catch(e){set(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}})();</script>`;
+export const themeBootstrap = (): string => `<script>(function(){function set(theme){document.documentElement.dataset.theme=theme;document.querySelectorAll('link[data-theme-favicon]').forEach(function(link){link.media=link.getAttribute('data-theme-favicon')===theme?'all':'not all'})}try{var key='${THEME_STORAGE_KEY}',saved;try{saved=localStorage.getItem(key)}catch(e){}set(saved==='light'||saved==='dark'?saved:(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'))}catch(e){set(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark')}try{var path=window.location.pathname;if((path==='/'||path==='/index.html')&&!window.location.hash&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&window.sessionStorage.getItem('${INTRO_KEY}')===null){document.documentElement.dataset.intro='pending';window.setTimeout(function(){if(document.documentElement.dataset.intro==='pending')delete document.documentElement.dataset.intro},4000)}}catch(e){}})();</script>`;
 
 const scheduleFrame = (callback: () => void): (() => void) => {
   if (typeof requestAnimationFrame === 'function' && typeof cancelAnimationFrame === 'function') {
