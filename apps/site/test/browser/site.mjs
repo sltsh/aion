@@ -271,7 +271,7 @@ async function engineRun(name) {
         if(evidence){result.frames=[];while(result.frames.length<24){const t=await p.evaluate(()=>performance.now()-window.__t0);if(t>2400)break;const beforeCapture=await p.evaluate(()=>({t:performance.now()-window.__t0,scene:window.__resizeProbe.scene(),share:window.__resizeProbe.share()}));const path=`${dir}/${screenshotName(`${row.id}-frame-${String(result.frames.length).padStart(2,'0')}`)}.png`;await p.screenshot({path});row.artifacts.push(path);const afterCapture=await p.evaluate(()=>({t:performance.now()-window.__t0,scene:window.__resizeProbe.scene(),share:window.__resizeProbe.share()}));result.frames.push({path,url:p.url(),viewport:p.viewportSize(),beforeCapture,afterCapture});}}
         Object.assign(result,await p.evaluate(()=>window.__ended));result.still=await p.evaluate(()=>window.__resizeProbe.still(2000));
         const path=`${dir}/${screenshotName(`${row.id}-${evidence?'evidence':resize?'resized':'baseline'}`)}.png`;await p.screenshot({path});row.artifacts.push(path);
-        Object.assign(result,{url:p.url(),viewport:p.viewportSize(),screenshot:path,transitions:await p.evaluate(()=>window.__transitions??null)});
+        Object.assign(result,{url:p.url(),viewport:p.viewportSize(),screenshot:path,transitions:await p.evaluate(()=>window.__transitions??null),finalTheme:await p.evaluate(()=>document.documentElement.dataset.theme),sceneMarker:await p.evaluate(()=>document.documentElement.hasAttribute('data-theme-transition'))});
         assert.deepEqual(errors,[],'page errors');return result;
       }catch(error){try{const path=`${dir}/${screenshotName(`${row.id}-${resize?'resized':'baseline'}-failure`)}.png`;await p.screenshot({path});row.artifacts.push(path);}catch{}throw error;}
       finally{await context.close();}
@@ -309,6 +309,14 @@ async function engineRun(name) {
         const starts=clock(resized),after=resized.reveals.filter(([t])=>t>resized.at);
         row.measurements.reveal={baselineStarts:clock(baseline),resizedStarts:starts,revealBefore:resized.revealBefore,after,baselineDeadline:deadline(baseline),resizedDeadline:deadline(resized),tolerance:frame,throwArrived:[baseline.arrived,resized.arrived]};
         for(const [i,r] of [baseline,resized].entries()){
+          // Owner-approved B1 exception: resizing an active page wipe settles it without recapture.
+          if(i===1&&kind==='chip-off'){
+            assert.equal(r.finalTheme,'light','resize did not retain the selected theme');
+            assert.equal(r.sceneMarker,false,'resize left the page scene active');
+            assert.equal(r.transitions.length,1,'resize recaptured or replayed the page wipe');
+            assert.ok(r.end<=baseline.end+frame,'resize extended the page wipe');
+            continue;
+          }
           assert.ok(clock(r).length,'no live page-scene reveal observed');
           assert.ok(r.scenes.every(s=>s.duration===720&&s.clip!=='none'),'the snapshot reveal has no visible clip or changed duration');
           assert.ok(spread(clock(r))<=frame,`the ${i?'resized':'baseline'} scene moved its clock: ${clock(r).map(Math.round)}`);
@@ -318,13 +326,13 @@ async function engineRun(name) {
           r.snapshotGaps=intervals.slice(1).map((t,j)=>({from:intervals[j].finished,to:t.ready,ms:t.ready-intervals[j].finished}));
           assert.ok(r.end>=deadline(r)-frame,`the scene ended at ${r.end.toFixed(1)} ms, before its deadline ${deadline(r).toFixed(1)} ms`);
         }
-        assert.ok(resized.end-deadline(resized)<=baseline.end-deadline(baseline)+frame,`the resize extended the scene past its own deadline`);
+        if(kind!=='chip-off')assert.ok(resized.end-deadline(resized)<=baseline.end-deadline(baseline)+frame,`the resize extended the scene past its own deadline`);
         if(kind==='chip-on'){
           const throwStart=r=>{const from=r.shares[0][1];return r.shares.filter(([,p])=>{const q=(p-from)/(1-from);return q>.02&&q<.98;}).map(([t,p])=>{const q=(p-from)/(1-from),b=1-Math.cbrt(1-q),u=1-b;return t-720*(3*u*u*b*.22+3*u*b*b*.36+b**3);});};
           const clocks=[throwStart(baseline),throwStart(resized)];row.measurements.reveal.throwStarts=clocks;
           for(const [i,r] of [baseline,resized].entries())assert.ok(clocks[i].length&&spread(clocks[i])<=frame&&Math.abs(r.shares.find(([,p])=>p===1)?.[0]-(Math.min(...clocks[i])+720))<=frame,'the throw changed its own timeline');
         }
-        if(resized.revealBefore!==null){
+        if(kind!=='chip-off'&&resized.revealBefore!==null){
           assert.ok(after.length>0,`the page scene stopped at the resize (${resized.reveals.length} reveal frames, none after ${resized.at.toFixed(0)} ms)`);
           assert.ok(after.every(([,q])=>q>=resized.revealBefore-.02),`the page scene restarted after the resize: ${resized.revealBefore} → ${after.map(([,q])=>q)}`);
         }
@@ -345,7 +353,7 @@ async function engineRun(name) {
       await cdp.send('Page.startScreencast',{format:'png',everyNthFrame:1,maxWidth:1440,maxHeight:1000});
       try{
         await p.evaluate(()=>document.querySelector('[data-scheme-chip]').addEventListener('click',()=>{window.__t0=performance.now();window.__epoch=performance.timeOrigin+window.__t0;},{capture:true,once:true}));
-        await p.locator('[data-scheme-chip]').click();await p.waitForFunction(()=>performance.now()-window.__t0>=300);
+        await p.locator('[data-scheme-chip]').click();await p.waitForFunction(()=>{const progress=window.__resizeProbe.reveal();return progress!==null&&progress>=.35&&progress<.8;});await p.evaluate(()=>window.__resizeProbe.frames(35));
         const resizeAt=await p.evaluate(()=>performance.now()-window.__t0);await p.setViewportSize({width:759,height:1000});await settled(p);await p.waitForTimeout(100);
         await cdp.send('Page.stopScreencast');await Promise.all(writes);
         const epoch=await p.evaluate(()=>window.__epoch);
