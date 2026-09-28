@@ -11,6 +11,7 @@ html { scroll-padding-top: 2rem; }
 .site-nav a:hover, .site-nav a:focus-visible, .site-nav a[aria-current] { color: var(--aion-fg-primary); background: transparent; }
 .site-nav a::after { position: absolute; right: 0; bottom: 2px; left: 0; height: 3px; background: var(--aion-gold-solid); content: ''; clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%); transform: scaleX(0); transform-origin: left; transition: transform var(--slt-motion-feedback, 160ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)); }
 .site-nav a[aria-current="location"]::after, .site-nav a[aria-current="page"]::after { transform: scaleX(1); }
+[data-nav-instant] .site-nav a, [data-nav-instant] .site-nav a::after { transition: none; }
 .hero-placeholder { padding: 6rem 0; }
 .chapter { min-height: 18rem; padding: 4rem 0; }
 .chapter-number { display: inline-block; margin-right: 1.5rem; font: 500 0.875rem 'Monaspace Neon', monospace; color: var(--aion-fg-secondary); }
@@ -21,6 +22,11 @@ html { scroll-padding-top: 2rem; }
 .site-head-picture { pointer-events: none; }
 .menu-toggle .icon { width: 1.4rem; height: 1.4rem; }
 .menu-toggle[aria-expanded="false"] .icon:last-child, .menu-toggle[aria-expanded="true"] .icon:first-child { display: none; }
+/* The palette page's desktop header needs this room at 600px once the nav takes its monospace treatment. */
+@media (min-width: 600px) and (max-width: 767px) {
+  .site-head:not(.diptych .site-head) { gap: 0.75rem; }
+  .site-head:not(.diptych .site-head) .site-nav { gap: 1rem; }
+}
 @media (max-width: 599px) {
   .site-head { gap: 0.5rem; justify-content: space-between; flex-wrap: wrap; min-height: 4.5rem; }
   .site-path { gap: 0.5rem; }

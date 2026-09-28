@@ -186,15 +186,22 @@ const tracked = [...document.querySelectorAll<HTMLAnchorElement>('[data-section]
   const section = id ? document.getElementById(id) : null;
   return section ? [{ anchor, section }] : [];
 });
-const selectSection = (active: typeof tracked[number] | undefined): void => {
+const selectSection = (active: typeof tracked[number] | undefined, instant = false): void => {
+  if (instant) root.dataset['navInstant'] = '';
   for (const entry of tracked) {
     if (entry === active) entry.anchor.setAttribute('aria-current', 'location');
     else entry.anchor.removeAttribute('aria-current');
   }
+  if (!instant) return;
+  // Resolve the new styles while transitions are off, so the change commits without starting any.
+  for (const entry of tracked) void getComputedStyle(entry.anchor).color, void getComputedStyle(entry.anchor, '::after').transform;
+  delete root.dataset['navInstant'];
 };
-let navigationFrame: number | undefined;
+let navigationFrame: number | undefined, navigationInstant = false;
 const updateNavigation = (): void => {
   navigationFrame = undefined;
+  const instant = navigationInstant;
+  navigationInstant = false;
   const header = Math.max(0, siteHead?.getBoundingClientRect().bottom ?? 0);
   const jump = document.querySelector('.jump');
   const mobileJump = jump && getComputedStyle(jump).display === 'flex' ? jump.getBoundingClientRect().height : 0;
@@ -202,9 +209,11 @@ const updateNavigation = (): void => {
   let active: typeof tracked[number] | undefined;
   for (const entry of tracked) if (entry.section.getBoundingClientRect().top <= threshold) active = entry;
   if (window.scrollY + window.innerHeight >= root.scrollHeight - 2) active = tracked.at(-1);
-  selectSection(active);
+  selectSection(active, instant);
 };
-const scheduleNavigation = (): void => {
+// Only scrolling moves the reading position; a resize, load or restore commits the current item without motion.
+const scheduleNavigation = (event?: Event): void => {
+  if (event?.type !== 'scroll') navigationInstant = true;
   if (navigationFrame === undefined && !signal.aborted) navigationFrame = requestAnimationFrame(updateNavigation);
 };
 for (const entry of tracked) entry.anchor.addEventListener('click', () => selectSection(entry), { signal });
@@ -212,7 +221,7 @@ window.addEventListener('scroll', scheduleNavigation, { passive: true, signal })
 window.addEventListener('resize', scheduleNavigation, { signal });
 window.addEventListener('hashchange', scheduleNavigation, { signal });
 window.addEventListener('load', scheduleNavigation, { signal });
-void document.fonts.ready.then(scheduleNavigation);
+void document.fonts.ready.then(() => scheduleNavigation());
 scheduleNavigation();
 
 const settleMotion = (): void => {
@@ -229,7 +238,7 @@ const settlePage = (): void => {
 };
 reducedMotion.addEventListener('change', (event) => { if (event.matches) settleMotion(); }, { signal });
 document.addEventListener('visibilitychange', () => { if (document.hidden) settlePage(); }, { signal });
-window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
+window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(event); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
   if (!event.persisted) { disposeCopy(); disposePalette(); disposeDepth(); disposeSolved(); disposeRounded(); disposeStates(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
