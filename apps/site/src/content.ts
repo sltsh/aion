@@ -1,5 +1,19 @@
 import type { PATHS } from './render/icons.js';
 
+export const STATE_SAMPLE = [
+  [['comment', '// read from cache']],
+  [['keyword', 'const'], ['plain', ' '], ['variable', 'entry'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['variable', 'cache'], ['punctuation', '.'], ['function', 'get'], ['punctuation', '('], ['variable', 'id'], ['punctuation', ');']],
+  [['variable', 'entry'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['variable', 'cache'], ['punctuation', '.'], ['function', 'get'], ['punctuation', '('], ['variable', 'next'], ['punctuation', ');']],
+  [['variable', 'entry'], ['plain', ' '], ['operator', '='], ['plain', ' '], ['variable', 'cache'], ['punctuation', '.'], ['function', 'get'], ['punctuation', '('], ['variable', 'prev'], ['punctuation', ');']],
+  [['punctuation', '<<<<<<<'], ['plain', ' current']],
+  [['keyword', 'return'], ['plain', ' '], ['variable', 'local'], ['punctuation', ';']],
+  [['punctuation', '|||||||'], ['plain', ' common']],
+  [['keyword', 'return'], ['plain', ' '], ['variable', 'base'], ['punctuation', ';']],
+  [['punctuation', '=======']],
+  [['keyword', 'return'], ['plain', ' '], ['variable', 'remote'], ['punctuation', ';']],
+  [['punctuation', '>>>>>>>'], ['plain', ' incoming']],
+] as const;
+
 export const CHAPTERS = [
   { id: 'depth', number: '01', title: 'Depth' },
   { id: 'solved', number: '02', title: 'Solved' },
