@@ -14,6 +14,8 @@ html { scroll-padding-top: 2rem; }
 .chapter-rail a { padding: 0.5rem 0 0.5rem 1rem; text-decoration: none; color: var(--aion-fg-secondary); border-left: 3px solid var(--aion-border-hairline); }
 .chapter-rail a[aria-current] { color: var(--aion-fg-primary); border-left-color: var(--aion-gold-solid); }
 .site-head-picture { pointer-events: none; }
+.menu-toggle .icon { width: 1.4rem; height: 1.4rem; }
+.menu-toggle[aria-expanded="false"] .icon:last-child, .menu-toggle[aria-expanded="true"] .icon:first-child { display: none; }
 @media (max-width: 599px) {
   .site-head { gap: 0.5rem; justify-content: space-between; flex-wrap: wrap; min-height: 4.5rem; }
   .site-path { gap: 0.5rem; }
