@@ -15,6 +15,7 @@ export const SHELL = {
   explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
 } as const;
 export const CONTENT = {
+  intro: { label: 'Aion syntax colours', wordmark: 'Aion', skip: 'Any key skips' },
   hero: {
     headline: ['Your code is', 'the deepest thing', 'on the screen.'],
     sub: 'Gold marks where you are. Every colour is solved, never chosen.',

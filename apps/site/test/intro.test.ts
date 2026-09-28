@@ -39,6 +39,7 @@ function introHarness() {
     setAttribute: vi.fn(),
     innerHTML: '',
     querySelectorAll: () => slats,
+    querySelector: () => ({}),
     remove: vi.fn(),
   };
   const document = Object.assign(new EventTarget(), {
@@ -121,6 +122,7 @@ describe('splash markup and animation lifecycle', () => {
     const html = introMarkup(figures, scheme);
     expect((html.match(/data-intro-role=/g) ?? []).length).toBe(8);
     expect(html).toContain('data-intro-scheme="' + scheme + '"');
+    expect(html).toContain(`src="${scheme === 'light' ? '/aion-wordmark.webp' : '/aion-wordmark-light.webp'}"`);
     for (const row of figures.syntax) {
       expect(html).toContain(`data-intro-role="${row.role}"`);
       expect(html).toContain(row.ratio.toFixed(2));
@@ -128,6 +130,22 @@ describe('splash markup and animation lifecycle', () => {
       expect(SITE_PAIRS).toContainEqual(expect.objectContaining({ fg: '--n-editor', bg: `--s-${row.role}`, floor: 4.5 }));
     }
     expect(SITE_PAIRS).toContainEqual(expect.objectContaining({ fg: '--n-editor', bg: '--a-gold', floor: 4.5 }));
+  });
+
+  it('completes naturally with approved timings for entry, exit and plate', async () => {
+    vi.useFakeTimers();
+    const h = introHarness();
+    const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+    await vi.runAllTimersAsync();
+    await pending;
+    expect(h.options).toHaveLength(17);
+    for (const effects of [h.options.slice(0, 8), h.options.slice(8, 16)]) {
+      expect(effects.map((effect) => effect.delay)).toEqual([0, 70, 140, 210, 280, 350, 420, 490]);
+      expect(effects.every((effect) => effect.duration === 560)).toBe(true);
+    }
+    expect(h.options[16]?.duration).toBe(160);
+    expect(h.overlay.remove).toHaveBeenCalledOnce();
+    vi.useRealTimers();
   });
 
   it('any key or press skips, cancels animations, removes the overlay and resolves', async () => {

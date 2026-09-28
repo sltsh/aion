@@ -1,3 +1,4 @@
+import { CONTENT } from './content.js';
 import type { SchemeMeasures, ShownRole } from './measures.js';
 import type { Theme } from './theme.js';
 
@@ -35,7 +36,7 @@ export function introMarkup(measures: SchemeMeasures, scheme: Theme): string {
     const value = measures.syntax.find((entry) => entry.role === role)!;
     return `<div class="splash-intro__slat" data-intro-slat data-index="${index}" style="background:var(--s-${role})" aria-label="${role} ${value.ratio.toFixed(2)}"><span class="splash-intro__label" data-intro-role="${role}">${role}<b>${value.ratio.toFixed(2)}</b></span></div>`;
   }).join('');
-  return `<div class="splash-intro" data-intro-scheme="${scheme}" role="img" aria-label="Aion syntax colours"><div class="splash-intro__slats">${slats}</div><div class="splash-intro__center"><div class="splash-intro__plate"><img class="splash-intro__wordmark" src="/aion-wordmark-light.webp" alt="Aion" width="144" height="48"></div></div><span class="splash-intro__skip">Any key skips</span></div>`;
+  return `<div class="splash-intro" data-intro-scheme="${scheme}" role="img" aria-label="${CONTENT.intro.label}"><div class="splash-intro__slats">${slats}</div><div class="splash-intro__center"><div class="splash-intro__plate"><img class="splash-intro__wordmark" src="${scheme === 'light' ? '/aion-wordmark.webp' : '/aion-wordmark-light.webp'}" alt="${CONTENT.intro.wordmark}" width="144" height="48"></div></div><span class="splash-intro__skip">${CONTENT.intro.skip}</span></div>`;
 }
 
 export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme, env: IntroEnv): Promise<void> {
@@ -93,8 +94,8 @@ export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme,
       slats.forEach((slat, index) => {
         const left = index * (band - 2) - height;
         const center = index * (band - 2) + band / 2;
-        const y = Math.max(70, center - (width - 130), Math.min(height - 150, center - 90));
-        const labelCenter = center - y;
+        const y = Math.max(70, Math.min(height - 80, center - 90));
+        const labelCenter = Math.max(60, Math.min(width - 60, center - y));
         slat.style.left = `${Math.round(left)}px`;
         slat.style.width = `${Math.round(band + height)}px`;
         slat.style.clipPath = `polygon(${height}px 0,100% 0,calc(100% - ${height}px) 100%,0 100%)`;
@@ -121,12 +122,12 @@ export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme,
         if (done) return;
         for (const [index, slat] of slats.entries()) {
           if (!animate(slat, [{ transform: 'none' }, { transform: `translateX(${width + height}px)` }], {
-            duration: 560, delay: 55 * index, fill: 'forwards',
+            duration: 560, delay: 70 * index, fill: 'forwards',
           })) { finish(); return; }
         }
         const plate = overlay?.querySelector<HTMLElement>('.splash-intro__plate');
-        if (plate && !animate(plate, [{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' })) { finish(); return; }
-        timers.push(setTimeout(finish, 55 * 7 + 560));
+        if (plate && !animate(plate, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' })) { finish(); return; }
+        timers.push(setTimeout(finish, 70 * 7 + 560));
       }, exitAfter));
     } catch {
       finish();
