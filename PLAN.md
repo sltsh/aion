@@ -583,8 +583,10 @@ and 64 informational rows; the root suite passes 505 tests (147 site tests), str
 typecheck passes, and the production build passes. These results do not establish native
 VS Code or Obsidian acceptance. The renderer-stack native recheck listed above remains open.
 
-**Next:** primary source/rendered acceptance and owner visual review, then the authorized
-integration decision. Review links are served temporarily at
+Primary source and rendered acceptance passed, including eight final Firefox/WebKit
+viewport captures and three further passing WebKit keyboard checks. The branch is ready
+for owner visual review; the earlier isolated engine warnings are retained without an
+unproven root-cause claim. Review links are served temporarily at
 `http://100.113.118.14:4193/` and `http://192.168.0.80:4193/`; the production preview uses
 port 4192 on both interfaces. Stop both review servers after the owner finishes. Merge,
 deployment and owner visual approval are not recorded as complete.
