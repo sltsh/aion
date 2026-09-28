@@ -74,7 +74,7 @@ const heroController = heroRoot ? mountHero(heroRoot, theme, { now: () => perfor
 root.classList.add('js');
 const introHome = isHomepagePath(window.location.pathname);
 const introSession = (): Storage | null => { try { return window.sessionStorage; } catch { return null; } };
-const introEligible = introHome && shouldPlayIntro({ reducedMotion: reducedMotion.matches, hash: window.location.hash, session: introSession() });
+const introEligible = introHome && shouldPlayIntro({ reducedMotion: reducedMotion.matches, hash: window.location.hash, session: introSession(), navigationType: (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type });
 const introGeneration = theme.generation;
 const arriveIfCurrent = (): void => { if (theme.generation === introGeneration) heroController?.arrive(); };
 if (introEligible) {

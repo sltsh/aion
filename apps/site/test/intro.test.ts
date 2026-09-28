@@ -12,7 +12,7 @@ const scriptBody = (): string => themeBootstrap().replace(/^<script>|<\/script>$
 function bootstrap(pathname = '/', hash = '', reducedMotion = false, sessionStorage: Pick<Storage, 'getItem' | 'setItem'> = {
   getItem: () => null,
   setItem: () => {},
-}) {
+}, navigationType?: 'navigate' | 'reload' | 'back_forward' | 'prerender') {
   const dataset: Record<string, string> = {};
   const timers: { callback: () => void; delay: number }[] = [];
   const document = {
@@ -23,6 +23,7 @@ function bootstrap(pathname = '/', hash = '', reducedMotion = false, sessionStor
     location: { pathname, hash },
     localStorage: { getItem: () => null },
     sessionStorage,
+    performance: { getEntriesByType: () => navigationType ? [{ type: navigationType }] : [] },
     matchMedia: (query: string) => ({ matches: query.includes('reduce') && reducedMotion }),
     setTimeout: (callback: () => void, delay: number) => { timers.push({ callback, delay }); return timers.length; },
   };
@@ -70,8 +71,8 @@ function introHarness() {
   };
 }
 
-describe('once-per-session intro eligibility', () => {
-  it('plays once per session and never on a deep link, reduced motion or blocked storage', () => {
+describe('navigation-aware intro eligibility', () => {
+  it('plays once per session and skips deep links and reduced motion even with unavailable storage', () => {
     const values = new Map<string, string>();
     const session = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => values.set(key, value) };
     expect(INTRO_KEY).toBe('aion-site-intro');
@@ -80,8 +81,26 @@ describe('once-per-session intro eligibility', () => {
     expect(shouldPlayIntro({ reducedMotion: false, hash: '', session })).toBe(false);
     expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: { getItem: () => null, setItem: vi.fn() } })).toBe(false);
     expect(shouldPlayIntro({ reducedMotion: true, hash: '', session: { getItem: () => null, setItem: vi.fn() } })).toBe(false);
-    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null })).toBe(false);
-    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: { getItem: () => null, setItem: () => { throw new Error('blocked'); } } })).toBe(false);
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null })).toBe(true);
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: { getItem: () => null, setItem: () => { throw new Error('blocked'); } } })).toBe(true);
+  });
+
+  it('holds bootstrap and client to the same navigation and storage truth table', () => {
+    for (const navigationType of [undefined, 'navigate', 'reload', 'back_forward', 'prerender'] as const)
+      for (const marker of [false, true]) for (const available of [true, false])
+        for (const reducedMotion of [false, true]) for (const hash of ['', '#install']) {
+          const setItem = vi.fn();
+          const session = { getItem: () => { if (!available) throw new Error('blocked'); return marker ? 'played' : null; }, setItem };
+          const expected = !reducedMotion && !hash && navigationType !== 'back_forward'
+            && (navigationType === 'reload' || !available || !marker);
+          const beforePaint = bootstrap('/', hash, reducedMotion, session, navigationType);
+          expect(beforePaint.dataset['intro'] === 'pending').toBe(expected);
+          expect(setItem).not.toHaveBeenCalled();
+          expect(shouldPlayIntro({ reducedMotion, hash, session, navigationType })).toBe(expected);
+          expect(setItem).toHaveBeenCalledTimes(expected ? 1 : 0);
+        }
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null, navigationType: 'reload' })).toBe(true);
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null, navigationType: 'back_forward' })).toBe(false);
   });
 
   it('keeps palette navigation out of the homepage intro without changing its interface', () => {
@@ -104,7 +123,7 @@ describe('theme bootstrap intro visibility', () => {
     expect(bootstrap('/', '', false, { getItem: () => 'played', setItem }).dataset['intro']).toBeUndefined();
     expect(setItem).not.toHaveBeenCalled();
     const blocked = { getItem: () => { throw new Error('blocked'); }, setItem };
-    expect(bootstrap('/', '', false, blocked).dataset['intro']).toBeUndefined();
+    expect(bootstrap('/', '', false, blocked).dataset['intro']).toBe('pending');
     expect(setItem).not.toHaveBeenCalled();
   });
 

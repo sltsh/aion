@@ -10,15 +10,14 @@ export function shouldPlayIntro(env: {
   readonly reducedMotion: boolean;
   readonly hash: string;
   readonly session: Pick<Storage, 'getItem' | 'setItem'> | null;
+  readonly navigationType?: 'navigate' | 'reload' | 'back_forward' | 'prerender';
 }): boolean {
-  if (env.reducedMotion || env.hash || !env.session) return false;
-  try {
-    if (env.session.getItem(INTRO_KEY) !== null) return false;
-    env.session.setItem(INTRO_KEY, 'played');
-    return true;
-  } catch {
-    return false;
-  }
+  if (env.reducedMotion || env.hash || env.navigationType === 'back_forward') return false;
+  let played = false;
+  try { played = env.session?.getItem(INTRO_KEY) != null; } catch { /* Unavailable storage behaves like a first visit. */ }
+  if (env.navigationType !== 'reload' && played) return false;
+  try { env.session?.setItem(INTRO_KEY, 'played'); } catch { /* The intro can play without persisting its session marker. */ }
+  return true;
 }
 
 export interface IntroEnv {
