@@ -1,0 +1,44 @@
+.probe-chapter{--site-mono:"Monaspace Neon",monospace;--site-sans:"Archivo",sans-serif;--site-heading-stretch:125%;display:grid;grid-template-columns:1fr;gap:48px;margin-top:112px;padding:72px 40px;background:var(--aion-bg-raised);color:var(--aion-fg-primary)}
+.probe-chapter h2{font:800 48px/1.02 var(--site-sans);font-stretch:var(--site-heading-stretch,125%);letter-spacing:-.035em;margin:14px 0 20px}
+.probe-chapter p{color:var(--aion-fg-secondary);font-size:17px;line-height:1.55}
+.solved-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:28px}
+.solved-chips button{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;background:none;border:1px solid var(--aion-border-ui);color:var(--aion-fg-secondary);font:13px var(--site-mono);cursor:pointer}
+.solved-chips i{width:12px;height:12px}
+.solved-chips small{font-size:11px}
+.solved-chips button[aria-pressed="true"]{border-color:var(--aion-border-focus);color:var(--aion-fg-primary)}
+.probe-label{display:block;font:13px var(--site-mono);margin:24px 0 8px}
+.probe-chapter input[type="range"]{width:100%;margin:0 0 18px;accent-color:var(--aion-gold-solid)}
+.probe-hold{display:flex;gap:8px;align-items:center;font:13px var(--site-mono);color:var(--aion-fg-secondary)}
+.probe-hold input{accent-color:var(--aion-gold-solid)}
+.probe-chapter .probe-verdict{margin-top:20px;font:14px/1.5 var(--site-mono)}
+.probe-chapter [data-verdict="pass"]{color:var(--aion-status-success-text)}
+.probe-chapter [data-verdict="fail"]{color:var(--aion-status-error-text)}
+.solved-probe{font:500 clamp(60px,8vw,120px)/1 var(--site-mono);padding:40px 32px;min-height:200px;display:flex;align-items:center;overflow:hidden;background:var(--n-editor);color:var(--s-type)}
+.probe-hex{font:13px var(--site-mono);color:var(--aion-fg-secondary);margin-top:12px}
+.solved-scale{display:block;width:100%;height:auto;margin-top:30px;overflow:visible;font:12px var(--site-mono)}
+.solved-scale text{fill:var(--aion-fg-secondary)}
+.solved-scale .probe-rule{stroke:var(--aion-border-hairline)}
+.solved-scale .probe-floor{stroke:var(--aion-fg-secondary)}
+.solved-scale .probe-shipped{stroke:var(--aion-gold-solid);stroke-width:3}
+.probe-chapter .probe-caption{font:12px/1.5 var(--site-mono);margin-top:16px}
+.rounded-steps{padding-left:20px;color:var(--aion-fg-secondary);font-size:17px}
+.rounded-steps li{padding:10px 0}
+.rounded-steps b{color:var(--aion-fg-primary)}
+.rounded-controls button{min-height:44px;padding:10px 16px;background:none;border:1px solid var(--aion-border-ui);color:var(--aion-fg-primary);font:14px var(--site-sans);cursor:pointer}
+.rounded-demo{border:1px solid var(--aion-border-hairline);padding:24px;min-width:0}
+.rounded-channels{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--aion-border-hairline)}
+.rounded-channel{display:flex;flex-direction:column;gap:4px;padding:14px 12px;border-left:1px solid var(--aion-border-hairline);font:12px var(--site-mono);color:var(--aion-fg-secondary)}
+.rounded-channel:first-child{border-left:0}
+.rounded-channel b,.channel-exact{color:var(--aion-fg-primary)}
+.channel-exact,.channel-byte{font-size:22px}
+.rounded-hex{display:flex;gap:12px;align-items:center;margin-top:18px;font:16px var(--site-mono)}
+.rounded-hex i{width:40px;height:40px;border:1px solid var(--aion-border-hairline)}
+.rounded-pair{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:end;margin:24px 0;font:12px var(--site-mono)}
+.rounded-pair>div{display:flex;flex-direction:column;gap:8px}
+.rounded-pair>div>b{font-size:clamp(22px,3vw,40px);line-height:1}
+.rounded-pair small{font-size:16px}
+.rounded-pair .rounded-gap b{font-size:16px}
+.probe-chapter .rounded-note{font:13px/1.5 var(--site-mono)}
+@media (min-width: 1100px){.probe-chapter{grid-template-columns:380px minmax(0,1fr);gap:56px}.solved-controls{position:sticky;top:48px}}
+@media (max-width: 599px){.probe-chapter{margin-top:64px;padding:40px 16px;gap:32px}.probe-chapter h2{font-size:34px}.rounded-demo{padding:16px}.rounded-channel{padding:12px 8px}.channel-exact,.channel-byte{font-size:14px}.rounded-pair{grid-template-columns:1fr 1fr;gap:12px}.rounded-pair .rounded-gap{grid-column:1/-1;order:3}.solved-probe{padding:32px 16px}}
+@media (prefers-reduced-motion: no-preference){.solved-chips button,.rounded-controls button{transition:border-color var(--slt-motion-feedback,160ms) var(--slt-ease-out,cubic-bezier(.22,1,.36,1)),color var(--slt-motion-feedback,160ms) var(--slt-ease-out,cubic-bezier(.22,1,.36,1))}}

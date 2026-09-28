@@ -8,6 +8,10 @@ import '@sltsh/aion-lab/render/editor.css';
 import './styles/hero.css';
 import './styles/claims.css';
 import './styles/depth.css';
+import './styles/probes.css';
+import { mountSolved } from './chapters/solved.js';
+import { mountRounded } from './chapters/rounded.js';
+import { readProbeInputs } from './chapters/probe.js';
 import { mountDepth } from './chapters/depth.js';
 import { mountHero } from './hero/controller.js';
 import { mountChip } from './chip.js';
@@ -90,6 +94,11 @@ if (introEligible) {
 }
 const depthRoot = document.querySelector<HTMLElement>('[data-depth]');
 const disposeDepth = depthRoot ? mountDepth(depthRoot) : () => {};
+const probeInputs = readProbeInputs(document);
+const solvedRoot = document.querySelector<HTMLElement>('[data-solved]');
+const roundedRoot = document.querySelector<HTMLElement>('[data-rounded]');
+const disposeSolved = solvedRoot && probeInputs ? mountSolved(solvedRoot, theme, probeInputs) : () => {};
+const disposeRounded = roundedRoot && probeInputs ? mountRounded(roundedRoot, theme, probeInputs) : () => {};
 const chip = document.querySelector<HTMLButtonElement>('[data-scheme-chip]');
 const disposeChip = chip ? mountChip(chip, theme, heroController) : () => {};
 const rail = document.querySelector<HTMLElement>('.chapter-rail');
@@ -278,5 +287,5 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) settl
 window.addEventListener('pageshow', (event) => { if (event.persisted) settlePage(); scheduleNavigation(); }, { signal });
 window.addEventListener('pagehide', (event) => {
   settlePage();
-  if (!event.persisted) { disposeDepth(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
+  if (!event.persisted) { disposeDepth(); disposeSolved(); disposeRounded(); disposeChip(); disposeRail(); heroController?.dispose(); theme.dispose(); lifetime.abort(); }
 }, { signal });

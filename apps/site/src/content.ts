@@ -15,6 +15,28 @@ export const SHELL = {
   explore: 'Explore the palette', source: 'GitHub', design: 'Design notes',
 } as const;
 export const CONTENT = {
+  solved: {
+    title: 'Every colour is solved, never chosen.',
+    lede: 'Each accent is solved against the worst surface it can land on. Pick one and drag it until it fails.',
+    accents: 'Syntax accents', lightness: 'Accent lightness', hold: 'Let the solver hold the floor',
+    on: 'on', passes: 'Passes on its worst surface,', fails: 'Fails on', floor: 'floor 4.5:1', shipped: 'shipped', scale: 'Contrast against the floor and shipped value',
+    caption: 'Measured from emitted bytes over seven surfaces: editor, current line, selection, word highlight, selection with word highlight, hover widget and find match.',
+  },
+  rounded: {
+    title: 'Your screen shows a rounded colour. Aion measures that one.',
+    steps: [
+      { title: 'Designed exactly.', body: 'Each colour starts as a precise value, with as many decimals as it needs.' },
+      { title: 'Sent rounded.', body: 'Your display only takes three whole numbers from 0 to 255, so every channel is rounded.' },
+      { title: 'Measured as sent.', body: 'Rounding can turn a pass into a fail. The gate reads the rounded colour, the one you see.' },
+    ],
+    lightness: 'Lightness of the example colour', find: 'Find a pass that fails',
+    exact: 'exact', screen: 'on your screen', gap: 'gap', pass: 'passes', fail: 'fails',
+    directions: { up: 'rounds up', down: 'rounds down', exact: 'exact' },
+    flipNote: 'The exact colour passes and the one on your screen fails. A gate that read the exact value would ship this.',
+    helpNote: 'Here rounding happens to help. The gate still reads the rounded value.',
+    dragNote: 'Drag across the floor: the two numbers cross it at different points.',
+    caption: 'An example colour at the comment’s hue, near the floor, on the current scheme’s editor.',
+  },
   claims: {
     eyebrow: 'The proof', title: 'Six claims. Each one measured.',
     extremes: {
