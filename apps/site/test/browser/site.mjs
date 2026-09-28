@@ -116,6 +116,39 @@ const assertStill = (still, label) => {
   assert.equal(still.mutations, 0, `${label}: still writing ${JSON.stringify(still.writes)}`);
 };
 const holdFrames = () => { const native = window.requestAnimationFrame.bind(window); window.heldFrames = []; window.requestAnimationFrame = callback => native(time => { if (window.freezeFrames) window.heldFrames.push(callback); else callback(time); }); };
+const chipGeometry = page => page.locator('[data-scheme-chip]').evaluate(button => {
+  const box = e => { const r = e.getBoundingClientRect(); return { x:r.x, y:r.y, width:r.width, height:r.height }; };
+  const rect = box(button), style = getComputedStyle(button);
+  return { rect, viewport:{width:innerWidth,height:innerHeight}, progress:Number(button.dataset.chipProgress),
+    surfaces:[...button.querySelectorAll('[data-chip-base] .chip-half')].map(e=>({scheme:e.dataset.theme,rgb:getComputedStyle(e).backgroundColor.match(/[\d.]+/g).slice(0,3).map(Number)})),
+    labels:[...button.querySelectorAll('[data-chip-base] .chip-label')].map(e=>{const range=document.createRange();range.selectNodeContents(e);const r=box(range);return {scheme:e.closest('[data-theme]').dataset.theme,rect:r,hit:document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===button};}),
+    focus:{visible:button.matches(':focus-visible'),width:parseFloat(style.outlineWidth),offset:parseFloat(style.outlineOffset),rgb:style.outlineColor.match(/[\d.]+/g).slice(0,3).map(Number)} };
+});
+// Decode the browser's screenshot, not a canvas reconstruction of the CSS. Keep every sampled coordinate and
+// excluded coordinate so the seam assertion can be audited against labels, the gold key and the outer cutouts.
+const chipPixels = (page, png, geometry) => page.evaluate(async ({png,g}) => {
+  const bytes=Uint8Array.from(atob(png),c=>c.charCodeAt(0)), image=await createImageBitmap(new Blob([bytes],{type:'image/png'}));
+  const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+  const pixels=ctx.getImageData(0,0,image.width,image.height).data, pad=8;
+  const at=(x,y)=>{const i=((y+pad)*image.width+x+pad)*4;return [...pixels.slice(i,i+3)];};
+  const limit=[0,1,2].map(i=>Math.max(...g.surfaces.map(s=>s.rgb[i]))), samples=[],mask=[], seam=[];
+  for(const y of [8,g.rect.height-8]) {
+    const candidates=[];for(let x=8;x<g.rect.width-8;x++){const rgb=at(x,y),d=g.surfaces.map(s=>s.rgb.reduce((n,v,i)=>n+(v-rgb[i])**2,0));candidates.push({x,y,rgb,light:d[1]<d[0]});}
+    const edge=candidates.find((s,i)=>i>0&&s.light&&!candidates[i-1].light);if(edge)seam.push(edge);
+  }
+  const intercept=seam.length===2?seam.reduce((s,p)=>s+p.x+p.y,0)/2:null;
+  const moving=(g.rect.width+g.rect.height)*g.progress;
+  for(let y=0;y<g.rect.height;y++)for(let x=0;x<g.rect.width;x++) {
+    if(![intercept,moving].some(edge=>edge!==null&&Math.abs(x+y-edge)<=2))continue;
+    const label=g.labels.some(l=>{const r=l.rect;return x>=r.x-g.rect.x-2&&x<=r.x-g.rect.x+r.width+2&&y>=r.y-g.rect.y-2&&y<=r.y-g.rect.y+r.height+2;});
+    const reason=y<4||x<4||x>=g.rect.width-4?'outer-cutout':y>=g.rect.height-4?'gold-key':label?'label':null;
+    if(reason){mask.push({x,y,reason});continue;}
+    const rgb=at(x,y);samples.push({x,y,rgb,bright:rgb.some((v,i)=>v>limit[i]+2)});
+  }
+  const ring=[];for(let x=12;x<g.rect.width-12;x++)for(const y of [-7,-6]){const rgb=at(x,y);if(rgb.every((v,i)=>Math.abs(v-g.focus.rgb[i])<=2))ring.push({x,y,rgb});}
+  const interior=[];for(let y=4;y<g.rect.height;y++)for(let x=12;x<g.rect.width-12;x++)interior.push(...at(x,y));
+  return {width:image.width,height:image.height,seam,intercept,limit,moving,samples,mask,ring,bytes:interior};
+}, {png:png.toString('base64'),g:geometry});
 async function engineRun(name) {
   const dir=`${output}/${name}`;await mkdir(dir,{recursive:true});const rows=[];let browser;
   try {browser=await engines[name].launch();}catch(error){const result={browser:name,unavailable:String(error),rows};await writeFile(`${dir}/results.json`,JSON.stringify(result,null,2));return result;}
@@ -132,6 +165,68 @@ async function engineRun(name) {
     finally{clearTimeout(deadline);rows.push(row);await context.close();await writeFile(`${dir}/results.json`,JSON.stringify({browser:name,version,rows},null,2));}
   }
   try {
+    const chipCapture=async(p,row,label)=>{
+      const geometry=await chipGeometry(p),r=geometry.rect,path=`${dir}/${screenshotName(label)}.png`;
+      const png=await p.screenshot({path,clip:{x:r.x-8,y:r.y-8,width:r.width+16,height:r.height+16},animations:'allow'});row.artifacts.push(path);
+      const painted=await chipPixels(p,png,geometry),{bytes,...pixels}=painted;
+      const values=`${dir}/${screenshotName(label)}-pixels.json`;await writeFile(values,JSON.stringify({geometry,...pixels},null,2));row.artifacts.push(values);
+      return {path,geometry,pixels,bytes};
+    };
+    for(const scheme of ['dark','light'])for(const width of widths)await run(`chip-labels-${scheme}-${width}`,{colorScheme:scheme,viewport:{width,height:1000}},async(p,_c,row)=>{
+      await p.goto(base+'/#install');await settled(p);await p.keyboard.press('Tab');await p.locator('[data-scheme-chip]').focus();await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      const shot=await chipCapture(p,row,row.id),{rect:r,labels,focus}=shot.geometry;row.measurements={geometry:shot.geometry,seam:shot.pixels.seam,intercept:shot.pixels.intercept};
+      await overflow(p);assert.ok(r.x>=7&&r.y>=7&&r.x+r.width+7<=width&&r.y+r.height+7<=1000,'chip or focus ring outside viewport');
+      assert.equal(labels.length,2);assert.equal(shot.pixels.seam.length,2,'could not locate the painted seam');
+      assert.ok(Math.abs(shot.pixels.seam[0].x-shot.pixels.seam[1].x-(shot.pixels.seam[1].y-shot.pixels.seam[0].y))<=1,'painted seam is not 45 degrees');
+      for(const label of labels){const b=label.rect,lo=b.x-r.x+b.y-r.y,hi=lo+b.width+b.height;
+        assert.ok(label.scheme==='dark'?hi<shot.pixels.intercept:lo>shot.pixels.intercept,`${label.scheme} label crosses painted seam: ${JSON.stringify({lo,hi,seam:shot.pixels.intercept})}`);
+        assert.ok(b.x>=r.x&&b.y>=r.y&&b.x+b.width<=r.x+r.width&&b.y+b.height<=r.y+r.height,'label outside chip');assert.ok(label.hit,'label obscured');}
+      assert.ok(focus.visible&&focus.width===2&&focus.offset===5,'keyboard focus ring absent');assert.ok(shot.pixels.ring.length>20,'focus ring obscured in screenshot');
+    });
+    for(const scheme of ['dark','light'])await run(`chip-artefact-${scheme}`,{colorScheme:scheme},async(p,_c,row)=>{
+      await p.goto(base+'/#install');await settled(p);row.measurements.comparisons=[];
+      const original=await chipCapture(p,row,`${row.id}-original`);
+      for(const surface of original.geometry.surfaces){
+        await p.evaluate(rgb=>{let under=document.querySelector('[data-chip-underlay]');if(!under){under=document.createElement('div');under.dataset.chipUnderlay='';document.body.append(under);}const r=document.querySelector('[data-scheme-chip]').getBoundingClientRect();under.style.cssText=`position:fixed;left:${r.x}px;top:${r.y}px;width:${r.width}px;height:${r.height}px;z-index:19;background:rgb(${rgb.join(',')})`;},surface.rgb);
+        const shot=await chipCapture(p,row,`${row.id}-opaque-${surface.scheme}`);
+        const changed=shot.pixels.samples.filter((s,i)=>s.rgb.some((v,c)=>v!==original.pixels.samples[i].rgb[c]));
+        row.measurements.comparisons.push({surface,changed,bright:shot.pixels.samples.filter(s=>s.bright),sampleCount:shot.pixels.samples.length});
+      }
+      assert.ok(original.pixels.samples.length>100,'too few unmasked seam pixels');assert.ok(row.measurements.comparisons.every(s=>!s.bright.length),'seam brighter than both emitted surfaces');
+      assert.ok(row.measurements.comparisons.every(s=>!s.changed.length),'seam admits its opaque background');
+    });
+    for(const scheme of ['dark','light'])await run(`chip-wipe-visible-${scheme}`,{colorScheme:scheme,reducedMotion:'no-preference'},async(_p,c,row)=>{
+      row.measurements.frames=[];
+      // Each target is a fresh real press. Hold the reached production RAF and pause the scene at its observed
+      // progress before capture: screenshot latency must not turn a nominal quarter-scene frame into its endpoint.
+      for(const target of [.25,.5,.75]) {
+        const p=await c.newPage();p.setDefaultTimeout(7000);await p.addInitScript(scheme=>{try{sessionStorage.setItem('aion-site-intro','seen');localStorage.setItem('aion-site-theme',scheme);}catch{}},scheme);await p.addInitScript(holdFrames);
+        await p.goto(base+'/#install');await settled(p);await p.waitForTimeout(800);await p.locator('#install').scrollIntoViewIfNeeded();
+        assert.equal(await p.evaluate(()=>{const r=document.querySelector('[data-hero]').getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}),false,'hero must be off screen');
+        assert.equal(await p.evaluate(()=>typeof document.startViewTransition), 'function','engine has no native page wipe');
+        assert.equal(await p.evaluate(()=>document.documentElement.dataset.theme),scheme,'capture did not start in the requested scheme');
+        const before=await chipCapture(p,row,`${row.id}-${target}-before`);
+        await p.evaluate(target=>{
+          const native=requestAnimationFrame.bind(window);window.__chipCapture=null;window.__chipVTReady=null;
+          const start=Document.prototype.startViewTransition;Document.prototype.startViewTransition=function(update){const transition=start.call(this,update);transition.ready.then(()=>{window.__chipVTReady=performance.now();},()=>{});return transition;};
+          document.querySelector('[data-scheme-chip]').addEventListener('click',()=>{
+            const clicked=performance.now();let scene;const watch=t=>{scene??=document.getAnimations().find(a=>a.effect?.pseudoElement==='::view-transition-new(root)'&&a.playState==='running');const q=scene?.effect?.getComputedTiming().progress;
+              if(typeof q==='number'&&q>=target-.025){window.freezeFrames=true;const sampledAt=performance.now(),local=Number(document.querySelector('[data-scheme-chip]').dataset.chipProgress),rootStart=scene.startTime;scene.pause();
+                window.__chipCapture={clicked,t,sampledAt,heldAt:performance.now(),vtReady:window.__chipVTReady,rootStart,scene:q,local,active:document.documentElement.hasAttribute('data-theme-transition'),group:getComputedStyle(document.querySelector('[data-scheme-chip]')).viewTransitionName};}
+              else native(watch);};native(watch);
+          },{capture:true,once:true});
+        },target);
+        await p.locator('[data-scheme-chip]').click();await p.waitForFunction(()=>window.__chipCapture!==null,undefined,{polling:50});
+        const held=await p.evaluate(()=>({...window.__chipCapture,beforeCapture:performance.now()})),shot=await chipCapture(p,row,`${row.id}-${target}-live`);
+        const captureEnd=await p.evaluate(()=>performance.now()),changed=shot.bytes.reduce((s,v,i)=>s+Number(v!==before.bytes[i]),0);
+        row.measurements.frames.push({target,...held,captureEnd,changed,path:shot.path,bright:shot.pixels.samples.filter(s=>s.bright),samples:shot.pixels.samples.length,bytes:shot.bytes});
+        await p.close();
+      }
+      const frames=row.measurements.frames;
+      for(const f of frames){assert.ok(f.active&&f.group==='aion-chip','capture was outside the native chip scene');assert.ok(Math.abs(f.scene-f.target)<=.05,`capture missed scene ${f.target}: ${f.scene}`);assert.ok(f.local>0&&f.local<=1,'local wipe did not run during scene');assert.ok(f.changed>10,'chip screenshot remained its outgoing frame');assert.deepEqual(f.bright,[],'moving seam brighter than both emitted surfaces');}
+      for(let i=1;i<frames.length;i++){assert.ok(frames[i].local>frames[i-1].local,'local progress did not advance');assert.ok(frames[i].bytes.some((v,j)=>v!==frames[i-1].bytes[j]),'chip snapshots frozen between scene fractions');}
+      row.measurements.frames=frames.map(({bytes,...f})=>f);
+    });
     for(const route of ['/', '/palette.html'])for(const scheme of ['dark','light'])for(const width of widths)await run(`${route==='/'?'home':'reference'}-${scheme}-${width}`,{viewport:{width,height:1000},colorScheme:scheme},async(p,_c,row,capture)=>{
       await p.addInitScript(()=>{window.copies=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>window.copies.push(text)}});});
       await p.goto(base+route);await settled(p);await overflow(p);await consistent(p,scheme);await capture(row.id,true);
