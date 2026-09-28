@@ -1,12 +1,16 @@
-:root { --site-chip-size: 44px; --site-chip-offset: 20px; }
+:root { --site-chip-size: 52px; --site-chip-offset: 20px; }
 body { padding-bottom: calc(var(--site-chip-size) + var(--site-chip-offset) + env(safe-area-inset-bottom)); }
-.scheme-chip { position: fixed; right: calc(var(--site-chip-offset) + env(safe-area-inset-right)); bottom: calc(var(--site-chip-offset) + env(safe-area-inset-bottom)); width: 104px; height: var(--site-chip-size); overflow: hidden; border: 0; padding: 0; background: none; color: var(--aion-fg-primary); cursor: pointer; z-index: 20; }
-.scheme-chip[hidden] { display: none; }
+.scheme-chip { position: fixed; right: calc(var(--site-chip-offset) + env(safe-area-inset-right)); bottom: calc(var(--site-chip-offset) + env(safe-area-inset-bottom)); width: 144px; height: var(--site-chip-size); overflow: hidden; border: 0; padding: 0; background: none; color: var(--aion-fg-primary); cursor: pointer; z-index: 20; view-transition-name: aion-chip; }
+.scheme-chip[hidden], .chip-reveal[hidden] { display: none; }
 .scheme-chip:focus-visible { outline: 2px solid var(--aion-border-focus); outline-offset: 5px; }
+.chip-reveal, .chip-state { position: absolute; inset: 0; pointer-events: none; }
+.chip-state { clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px); }
 .chip-half { position: absolute; inset: 0; display: flex; align-items: center; font: 500 12px 'Monaspace Neon', monospace; color: var(--n-text-primary); background: var(--n-editor); }
-.chip-half-dark { justify-content: flex-start; padding-left: 10px; clip-path: polygon(8px 0, 74px 0, 30px 100%, 0 100%, 0 8px); }
-.chip-half-light { justify-content: flex-end; padding-right: 10px; clip-path: polygon(74px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 30px 100%); }
+/* The dark half is an opaque backing; one clipped light half leaves no transparent seam. */
+.chip-half-dark { justify-content: flex-start; padding-left: 12px; }
+.chip-half-light { justify-content: flex-end; padding-right: 12px; clip-path: polygon(calc(50% + 26px) 0, 100% 0, 100% 100%, calc(50% - 26px) 100%); }
 .chip-key::after { content: ''; position: absolute; height: 3px; bottom: 0; left: 0; right: 0; background: var(--a-gold); }
-.chip-seam { position: absolute; top: 0; bottom: 0; left: 52px; width: 1px; transform: skewX(-45deg); background: var(--aion-border-hairline); pointer-events: none; }
+::view-transition-group(aion-chip) { animation: none; }
+::view-transition-old(aion-chip) { display: none; }
+::view-transition-new(aion-chip) { animation: none; mix-blend-mode: normal; }
 @media (max-width: 599px) { :root { --site-chip-offset: 16px; } }
-@media (prefers-reduced-motion: reduce) { .chip-seam { animation: none; } }

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { mountChip } from '../src/chip.js';
 import { initializeTheme, type ThemeEnvironment, type ThemeMotionAnimation, type ThemeMotionEnvironment, type ThemeViewTransition } from '../src/theme.js';
 
 type Deferred<T> = {
@@ -412,5 +413,36 @@ describe('a viewport resize during the page scene', () => {
     h.windowLike.dispatch('resize', new Event('resize'));
     expect(h.startViewTransition).toHaveBeenCalledTimes(1);
     expect(h.assets).toEqual(['dark', 'light']);
+  });
+});
+
+
+describe('chip during the page scene', () => {
+  it('keeps its own wipe through the deferred request publication, then settles an external commit', () => {
+    const h = harness({ scene: true }); const controller = initializeTheme(h.environment);
+    let time = 0, id = 0;
+    const frames = new Map<number, (time: number) => void>();
+    const base = { dataset: {}, querySelectorAll: () => [] };
+    const incoming = { ...base, dataset: {}, style: { clipPath: '' }, hidden: true };
+    const attributes = new Map<string, string>();
+    const button = Object.assign(source(), {
+      ownerDocument: h.documentLike, dataset: {}, hidden: true, focus: vi.fn(),
+      setAttribute: (key: string, value: string) => { attributes.set(key, value); },
+      querySelector: (selector: string) => selector === '[data-chip-base]' ? base : incoming,
+      getBoundingClientRect: () => ({ width: 144, height: 52 }),
+    });
+    const dispose = mountChip(button as unknown as HTMLButtonElement, controller, null, {
+      now: () => time, raf: callback => { frames.set(++id, callback); return id; }, cancelRaf: key => { frames.delete(key); },
+      reducedMotion: h.reduced as unknown as MediaQueryList, supportsViewTransitions: true,
+    });
+    button.dispatch('click', new Event('click'));
+    expect(incoming.hidden).toBe(false); expect(h.root.dataset.theme).toBe('dark');
+    h.transitions[0]!.update(); expect(attributes.get('aria-checked')).toBe('true'); expect(incoming.hidden).toBe(false);
+    time = 360; const queued = [...frames.values()]; frames.clear(); queued.forEach(callback => callback(time));
+    expect(incoming.style.clipPath).toBe('polygon(0 0, 98px 0, 46px 100%, 0 100%)');
+    h.page.dispatch('storage', { key: 'aion-site-theme', newValue: 'dark' } as unknown as Event);
+    expect(incoming.hidden).toBe(true); expect(frames.size).toBe(0); expect(attributes.get('aria-checked')).toBe('false');
+    queued.forEach(callback => callback(720)); expect(frames.size).toBe(0); expect(incoming.hidden).toBe(true);
+    dispose(); controller.dispose();
   });
 });

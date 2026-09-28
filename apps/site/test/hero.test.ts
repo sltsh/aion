@@ -45,7 +45,7 @@ function harness(reduce = false) {
   };
   const key = (name: string) => handle.dispatchEvent(Object.assign(new Event('keydown', { cancelable: true }), { key: name }));
   const storage = (theme: 'light' | 'dark') => resize.dispatchEvent(Object.assign(new Event('storage'), { key: 'aion-site-theme', newValue: theme }));
-  return { root, base, far, handle, line, controller, request, hero, advance, pointer, key, storage, reduced, resize, frames, page, figure, setWidth: (next: number) => { width = next; }, setHeight: (next: number) => { height = next; } };
+  return { root, base, far, handle, line, controller, request, hero, advance, pointer, key, storage, reduced, resize, frames, page, figure, setWidth: (next: number) => { width = next; }, setHeight: (next: number) => { height = next; }, chipClock: { now: () => time, raf: (callback: (time: number) => void) => { frames.set(++id, callback); return id; }, cancelRaf: (key: number) => { frames.delete(key); }, supportsViewTransitions: true } };
 }
 
 function releaseAt(h: ReturnType<typeof harness>, from: number, velocity: number, width = 1440, height = 900, type = 'pointerup') {
@@ -188,8 +188,14 @@ describe('Diptych controller', () => {
   });
   it('chip cancellation commits nothing; three rapid presses leave chip, page and layers consistent', async () => {
     const h = harness(); const chip = new Node(); chip.ownerDocument = h.root.ownerDocument;
-    const disposeChip = mountChip(chip as unknown as HTMLButtonElement, h.controller, h.hero);
-    chip.dispatchEvent(new Event('click')); h.advance(100); chip.dispatchEvent(new Event('click')); h.advance(360);
+    const chipBase = new Node(), chipIncoming = new Node();
+    chip.querySelector = selector => selector === '[data-chip-base]' ? chipBase : selector === '[data-chip-incoming]' ? chipIncoming : null;
+    const disposeChip = mountChip(chip as unknown as HTMLButtonElement, h.controller, h.hero, h.chipClock);
+    chip.dispatchEvent(new Event('click')); h.advance(100);
+    expect(Number(chip.dataset['chipProgress'])).toBeCloseTo(Number(h.root.dataset['heroShare']), 7);
+    chip.dispatchEvent(new Event('click')); h.advance(180);
+    expect(Number(chip.dataset['chipProgress'])).toBeCloseTo(Number(h.root.dataset['heroShare']), 7);
+    h.advance(180);
     expect(h.request).not.toHaveBeenCalled(); expect(h.root.dataset['heroShare']).toBe('0');
     chip.dispatchEvent(new Event('click')); chip.dispatchEvent(new Event('click')); chip.dispatchEvent(new Event('click')); h.advance(720); await Promise.resolve(); await Promise.resolve();
     expect(h.controller.theme).toBe('light'); expect(h.page.dataset['theme']).toBe('light'); expect(chip.getAttribute('aria-checked')).toBe('true'); expect(h.base.dataset['theme']).toBe('light'); expect(h.far.dataset['theme']).toBe('dark');
