@@ -53,7 +53,8 @@
   .hero-headline > span { white-space: normal; }
   .hero-sub { font-size: 16px; }
   .hero-actions { flex-direction: column; gap: 14px; }
-  .hero-editor { --site-hero-scale: calc((100vw - 32px) / 1244px); position: relative; width: calc(100% - 32px); height: calc(686px * var(--site-hero-scale)); left: auto; top: auto; margin: 28px 16px 0; zoom: 1; }
+  /* The height follows the width, so the controller's scale write never resizes the hero it observes. */
+  .hero-editor { --site-hero-scale: calc((100vw - 32px) / 1244px); position: relative; width: calc(100% - 32px); height: auto; aspect-ratio: 1244 / 686; left: auto; top: auto; margin: 28px 16px 0; zoom: 1; }
   .hero-editor-frame { width: 1244px; height: 686px; transform: scale(var(--site-hero-scale)); transform-origin: top left; }
   .hero-handle span { padding: 14px; }
   .hero-shell:has(.site-head[data-menu]) .hero-menu-portal .site-menu { display: none; position: relative; inset: auto; padding: 0.75rem 16px 1rem; background: var(--aion-bg-surface); border-bottom: 1px solid var(--aion-border-hairline); }

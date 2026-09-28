@@ -22,6 +22,48 @@ const consistent = async (page, theme) => {
 };
 const overflow = async page => assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth),0,'horizontal overflow');
 const screenshotName = id => id.replace(/[^a-z0-9-]/gi,'-');
+// Resize probes. The lab caret's infinite blink is ambient rendering that no interaction starts or ends; every other animation counts.
+const resizeProbe = () => {
+  const raf = window.requestAnimationFrame.bind(window);
+  const running = () => document.getAnimations().filter(a => a.playState === 'running' && !(a.animationName === 'blink' && a.effect?.getTiming().iterations === Infinity)).map(a => `${a.constructor.name}:${a.transitionProperty || a.animationName || a.id || 'animation'}:${a.effect?.target?.getAttribute?.('class') ?? a.effect?.pseudoElement ?? ''}`);
+  const share = () => Number(document.querySelector('[data-hero]')?.dataset.heroShare ?? 0);
+  const boxes = () => Object.fromEntries(['[data-hero]', '[data-hero-handle]', '[data-scheme-chip]', '.chapter-rail', ...[...document.querySelectorAll('#content > section[id]')].map(s => `#${s.id}`)].map(s => { const r = document.querySelector(s)?.getBoundingClientRect(); return [s, r ? [r.x, r.y, r.width, r.height] : null]; }));
+  const clips = () => ['[data-hero-far]', '[data-hero-seam-far]'].map(s => { const e = document.querySelector(s); return e ? getComputedStyle(e).clipPath : null; });
+  const frames = ms => new Promise(resolve => { const start = performance.now(), out = []; const step = t => { out.push(t); if (performance.now() - start < ms) raf(step); else resolve(out); }; raf(step); });
+  window.__resizeProbe = {
+    running, share,
+    // Every running animation seen on any frame for `ms`: a resize must start none.
+    async started(ms) { const seen = new Set(); const start = performance.now(); await new Promise(resolve => { const step = () => { running().forEach(n => seen.add(n)); if (performance.now() - start < ms) raf(step); else resolve(); }; raf(step); }); return [...seen]; },
+    async still(ms) {
+      let mutations = 0; const writes = new Set();
+      const observer = new MutationObserver(records => { mutations += records.length; records.slice(0, 8).forEach(r => writes.add(`${r.type}:${r.target.getAttribute?.('class') ?? r.target.nodeName}:${r.attributeName ?? ''}`)); });
+      observer.observe(document.documentElement, { subtree: true, attributes: true, childList: true, characterData: true });
+      const first = { boxes: boxes(), clips: clips() }; let move = { delta: 0 }, clipChanges = 0; const seen = new Set(); let count = 0;
+      await new Promise(resolve => { const start = performance.now(); const step = () => { count++; const now = boxes(); for (const [k, r] of Object.entries(now)) { const a = first.boxes[k]; const d = a && r ? Math.max(...r.map((v, i) => Math.abs(v - a[i]))) : a === r ? 0 : Infinity; if (d > move.delta) move = { el: k, delta: d, from: a, to: r }; } if (clips().some((c, i) => c !== first.clips[i])) clipChanges++; running().forEach(n => seen.add(n)); if (performance.now() - start < ms) raf(step); else resolve(); }; raf(step); });
+      observer.disconnect(); return { frames: count, move, clipChanges, running: [...seen], mutations, writes: [...writes].slice(0, 12) };
+    },
+    // Follow a motion sequence from `t0` until nothing runs, no intro or scene remains and the share holds for 3 frames.
+    // The share's last change is stamped when it is written, so the order of frame callbacks cannot delay the end by a frame.
+    async end(t0, bound = 6000) {
+      const hero = document.querySelector('[data-hero]'); let value = share(), changed = t0;
+      const observer = new MutationObserver(() => { const s = share(); if (s !== value) { value = s; changed = performance.now(); } });
+      if (hero) observer.observe(hero, { attributes: true, attributeFilter: ['data-hero-share'] });
+      let quiet = 0, calmSince, intervals = [], previous, seen = changed;
+      return new Promise(resolve => { const step = t => { if (previous !== undefined) intervals.push(t - previous); previous = t; const now = performance.now();
+        const busy = window.freezeFrames || running().length || document.documentElement.hasAttribute('data-intro') || document.documentElement.hasAttribute('data-theme-transition');
+        if (busy) { quiet = 0; calmSince = undefined; } else { calmSince ??= now; quiet = seen === changed ? quiet + 1 : 0; } seen = changed;
+        if (quiet >= 3 || now - t0 > bound) { observer.disconnect(); intervals.sort((a, b) => a - b); const ended = now - t0 <= bound; resolve({ ended, end: Math.max(changed, calmSince ?? now) - t0, frame: intervals[Math.floor(intervals.length / 2)] ?? 1000 / 60, share: value }); } else raf(step); }; raf(step); });
+    },
+    frames,
+  };
+};
+const assertStill = (still, label) => {
+  assert.ok(still.move.delta <= .5, `${label}: a box moved ${JSON.stringify(still.move)}`);
+  assert.equal(still.clipChanges, 0, `${label}: hero clip changed`);
+  assert.deepEqual(still.running, [], `${label}: animation running`);
+  assert.equal(still.mutations, 0, `${label}: still writing ${JSON.stringify(still.writes)}`);
+};
+const holdFrames = () => { const native = window.requestAnimationFrame.bind(window); window.heldFrames = []; window.requestAnimationFrame = callback => native(time => { if (window.freezeFrames) window.heldFrames.push(callback); else callback(time); }); };
 async function engineRun(name) {
   const dir=`${output}/${name}`;await mkdir(dir,{recursive:true});const rows=[];let browser;
   try {browser=await engines[name].launch();}catch(error){const result={browser:name,unavailable:String(error),rows};await writeFile(`${dir}/results.json`,JSON.stringify(result,null,2));return result;}
@@ -94,7 +136,7 @@ async function engineRun(name) {
       await p.evaluate(()=>{window.freezeFrames=true;});const before=(await themeState(p)).share;await p.setViewportSize({width:759,height:1000});const after=(await themeState(p)).share;row.measurements={before,after};assert.ok(Math.abs(after-before)<.001,JSON.stringify(row.measurements));await p.evaluate(()=>{window.freezeFrames=false;window.heldFrames.splice(0).forEach(callback=>requestAnimationFrame(callback));});assert.equal(await p.locator('.depth-list').isVisible(),true);assert.equal(await p.locator('[data-depth-stage]').isVisible(),false);
       await p.setViewportSize({width:1440,height:1000});await p.locator('#depth').scrollIntoViewIfNeeded();await p.waitForTimeout(800);
       await p.evaluate(()=>{window.depthMutations=0;new MutationObserver(records=>window.depthMutations+=records.length).observe(document.querySelector('[data-depth-frame]'),{childList:true});});
-      await p.locator('[data-depth-assemble]').click();await p.waitForTimeout(120);const motion=await p.evaluate(()=>({mutations:window.depthMutations,duration:getComputedStyle(document.querySelector('.depth-mover')).transitionDuration,transforms:[...document.querySelectorAll('.depth-mover:not(.depth-base)')].map(e=>getComputedStyle(e).transform)}));assert.equal(motion.mutations,0);assert.equal(motion.duration,'0.72s');assert.ok(motion.transforms.some(t=>t!=='none'&&t!=='matrix(1, 0, 0, 1, 0, 0)'));row.measurements=motion;
+      await p.locator('[data-depth-assemble]').click();await p.waitForTimeout(120);const motion=await p.evaluate(()=>({mutations:window.depthMutations,duration:getComputedStyle(document.querySelector('.depth-mover:not(.depth-base)')).transitionDuration,transforms:[...document.querySelectorAll('.depth-mover:not(.depth-base)')].map(e=>getComputedStyle(e).transform)}));assert.equal(motion.mutations,0);assert.equal(motion.duration,'0.72s');assert.ok(motion.transforms.some(t=>t!=='none'&&t!=='matrix(1, 0, 0, 1, 0, 0)'));row.measurements=motion;
     });
     await run('states-delta-motion-alignment',{reducedMotion:'no-preference',viewport:{width:1100,height:1000}},async(p,_c,row)=>{
       await p.goto(base+'/#states');await settled(p);await p.waitForTimeout(750);await p.locator('[data-state-scheme]:visible [data-state-toggle="selection"]').click();await p.waitForTimeout(150);
@@ -129,6 +171,63 @@ async function engineRun(name) {
     for(const [id,route,options] of [['deep','/#install',{reducedMotion:'no-preference'}],['reference','/palette.html',{reducedMotion:'no-preference'}],['reduced','/',{}]])await run(`splash-skipped-${id}`,options,async(p)=>{await p.goto(base+route,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),null);await settled(p);if(id==='reduced')assert.equal(await p.evaluate(()=>document.getAnimations().filter(a=>a.playState==='running').length),0);});
     await run('splash-blocked-client-timeout',{reducedMotion:'no-preference'},async(p,_c,row)=>{
       await p.route('**/assets/*.js',route=>route.abort());await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');const start=Date.now();await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'),{},{timeout:5000});row.measurements.releaseMs=Date.now()-start;assert.ok(row.measurements.releaseMs<=4100);assert.equal(await p.locator('#app').evaluate(e=>getComputedStyle(e).visibility),'visible');
+    });
+    // B1: a resize with nothing in flight starts no motion, and 720 ms later nothing moves, clips, animates or writes.
+    for(const [width,from] of [[1440,390],[1100,1440],[768,1100],[390,768]])await run(`resize-settle-${width}`,{reducedMotion:'no-preference',viewport:{width:from,height:1000}},async(p,_c,row)=>{
+      await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.addInitScript(resizeProbe);
+      await p.goto(base+'/#depth');await settled(p);await p.waitForTimeout(900);await p.locator('#depth').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await p.waitForTimeout(100);
+      assert.deepEqual(await p.evaluate(()=>window.__resizeProbe.running()),[],'motion in flight before the resize');
+      await p.setViewportSize({width,height:1000});const started=await p.evaluate(()=>window.__resizeProbe.started(720));const still=await p.evaluate(()=>window.__resizeProbe.still(2000));
+      row.measurements={from,width,started,still};assert.deepEqual(started,[],'the resize started motion');assertStill(still,`${from}→${width}`);
+    });
+    await run('resize-settle-hidden',{reducedMotion:'no-preference'},async(p,_c,row)=>{
+      await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.addInitScript(resizeProbe);
+      await p.goto(base+'/#depth');await settled(p);await p.waitForTimeout(900);
+      const visibility=hidden=>p.evaluate(h=>{Object.defineProperty(document,'hidden',{configurable:true,get:()=>h});Object.defineProperty(document,'visibilityState',{configurable:true,get:()=>h?'hidden':'visible'});document.dispatchEvent(new Event('visibilitychange'));},hidden);
+      await visibility(true);await p.setViewportSize({width:759,height:1000});await p.setViewportSize({width:1100,height:1000});await visibility(false);
+      const started=await p.evaluate(()=>window.__resizeProbe.started(720));const still=await p.evaluate(()=>window.__resizeProbe.still(2000));row.measurements={method:'emulated document.hidden and visibilitychange',started,still};
+      assert.deepEqual(started,[],'the hidden resize started motion');assertStill(still,'hidden resize');
+    });
+    await run('resize-settle-font-late',{reducedMotion:'no-preference',viewport:{width:1100,height:1000}},async(p,_c,row)=>{
+      let release;const gate=new Promise(resolve=>{release=resolve;});await p.route('**/*.woff2',async route=>{await gate;await route.continue();});
+      await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.addInitScript(resizeProbe);
+      await p.goto(base+'/#depth',{waitUntil:'domcontentloaded'});await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'));await p.waitForTimeout(900);
+      assert.equal(await p.evaluate(()=>document.fonts.status),'loading');await p.setViewportSize({width:1440,height:1000});await p.waitForTimeout(100);
+      release();await p.evaluate(()=>document.fonts.ready);const started=await p.evaluate(()=>window.__resizeProbe.started(720));const still=await p.evaluate(()=>window.__resizeProbe.still(2000));row.measurements={started,still};
+      assert.deepEqual(started,[],'the late font started motion');assertStill(still,'late font');
+    });
+    // B1 in flight: the resize keeps the share, neither restarts nor extends the sequence, and the page is still once it ends.
+    const sequence=async(kind,resize,row)=>{
+      const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'dark',reducedMotion:'no-preference'});const p=await context.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(7000);
+      try{
+        if(kind!=='intro')await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});
+        else await p.addInitScript(()=>new MutationObserver((_r,o)=>{if(document.querySelector('.splash-intro')){window.__t0=performance.now();o.disconnect();}}).observe(document,{subtree:true,childList:true}));
+        await p.addInitScript(resizeProbe);await p.addInitScript(holdFrames);
+        const mark=selector=>p.evaluate(s=>{window.__t0=undefined;(s?document.querySelector(s):window).addEventListener(s?'click':'pointerup',()=>{window.__t0=performance.now();},{capture:true,once:true});},selector);
+        if(kind==='intro')await p.goto(base,{waitUntil:'domcontentloaded'});
+        else{await p.goto(base+(kind==='chip-off'?'/#install':'/'));await settled(p);await p.waitForTimeout(900);}
+        if(kind==='glide'){const box=await p.locator('[data-hero-handle]').boundingBox();await p.mouse.move(box.x+box.width/2,box.y+box.height/2);await p.mouse.down();await mark(null);await p.mouse.move(box.x+box.width/2+25,box.y+box.height/2,{steps:3});await p.mouse.up();}
+        if(kind==='chip-on'||kind==='chip-off'){assert.equal(await p.evaluate(on=>{const r=document.querySelector('[data-hero]').getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}),kind==='chip-on');await mark('[data-scheme-chip]');await p.locator('[data-scheme-chip]').click();}
+        await p.waitForFunction(()=>window.__t0!==undefined);await p.evaluate(()=>{window.__ended=window.__resizeProbe.end(window.__t0);});
+        const result={kind,resized:resize};
+        if(resize){
+          await p.waitForFunction(at=>performance.now()-window.__t0>=at,{glide:400,intro:900,'chip-on':300,'chip-off':300}[kind]);
+          await p.evaluate(()=>{window.freezeFrames=true;});result.before=await p.evaluate(()=>window.__resizeProbe.share());result.at=await p.evaluate(()=>performance.now()-window.__t0);
+          await p.setViewportSize({width:759,height:1000});result.after=await p.evaluate(()=>window.__resizeProbe.share());
+          await p.evaluate(()=>{window.freezeFrames=false;window.heldFrames.splice(0).forEach(callback=>requestAnimationFrame(callback));});
+        }
+        Object.assign(result,await p.evaluate(()=>window.__ended));result.still=await p.evaluate(()=>window.__resizeProbe.still(2000));
+        assert.deepEqual(errors,[],'page errors');return result;
+      }catch(error){try{const path=`${dir}/${screenshotName(`${row.id}-${resize?'resized':'baseline'}-failure`)}.png`;await p.screenshot({path});row.artifacts.push(path);}catch{}throw error;}
+      finally{await context.close();}
+    };
+    for(const kind of ['glide','intro','chip-on','chip-off'])await run(`resize-settle-in-flight-${kind}`,{},async(_p,_c,row)=>{
+      const baseline=await sequence(kind,false,row);const resized=await sequence(kind,true,row);row.measurements={baseline,resized};
+      assert.ok(baseline.ended&&resized.ended,'the sequence did not finish within 6 s');
+      if(kind==='glide')assert.ok(baseline.end>1000&&resized.end>1000,'a release without velocity starts no glide to compare');
+      assert.ok(Math.abs(resized.after-resized.before)<1e-3,`share moved across the resize ${resized.before} → ${resized.after}`);
+      assert.ok(resized.end<=baseline.end+baseline.frame,`the resize extended the sequence: ${resized.end.toFixed(1)} ms against ${baseline.end.toFixed(1)} ms + ${baseline.frame.toFixed(1)} ms`);
+      assertStill(resized.still,`${kind} after the sequence`);
     });
     await run('clipboard-unavailable-and-rejection',{},async(p)=>{
       await p.addInitScript(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));await p.goto(base+'/#install');await settled(p);await p.locator('[data-install-target] [data-copy]').first().click();assert.match(await p.locator('.copy-status').textContent(),/unavailable|select/i);assert.equal(await p.locator('.install-command code').first().evaluate(e=>getComputedStyle(e).userSelect),'text');

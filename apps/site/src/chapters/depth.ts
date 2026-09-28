@@ -23,9 +23,9 @@ export function mountDepth(root: HTMLElement): () => void {
   const { signal } = lifetime;
   let disposed = false;
   let apart = true;
+  let built = false;
   let hovered = '';
   let focused = '';
-  let scale = 1;
   const movers: HTMLElement[] = [];
   const widgets = ['.find-widget', '.hover-card'].map((selector) => editor.querySelector<HTMLElement>(selector));
   const originalVisibility = widgets.map((widget) => widget?.style.visibility ?? '');
@@ -34,24 +34,21 @@ export function mountDepth(root: HTMLElement): () => void {
     const stratum = focused || hovered;
     root.querySelectorAll<HTMLElement>('[data-stratum]').forEach((node) => node.toggleAttribute('data-highlight', !!stratum && node.dataset['stratum'] === stratum));
   };
+  // Geometry is CSS: the scale follows the stage width and only `--site-depth-f` transitions, so a resize moves nothing on its own.
   const position = (): void => {
     root.toggleAttribute('data-depth-apart', apart);
     button.setAttribute('aria-pressed', String(!apart));
     button.textContent = apart ? CONTENT.depth.putTogether : CONTENT.depth.takeApart;
-    frame.style.left = `${apart ? 90 * scale : (stage.clientWidth - 1244 * scale) / 2}px`;
-    frame.style.top = `${(apart ? 200 : 20) * scale}px`;
-    stage.style.height = `${(apart ? 1010 : 726) * scale}px`;
-    movers.forEach((mover, index) => { const part = PARTS[index]; if (part) mover.style.transform = apart ? `translate(${part.x}px,${part.y}px)` : 'translate(0,0)'; });
   };
+  const place = (): void => { root.style.setProperty('--site-depth-scale', String(Math.min(1, Math.max(.1, (stage.clientWidth - 180) / 1244)))); };
   const measure = (): void => {
     if (disposed || !stage.clientWidth) return;
     movers.splice(0).forEach((node) => node.remove());
     widgets.forEach((widget, index) => { if (widget) widget.style.visibility = originalVisibility[index] ?? ''; });
     base.style.clipPath = originalBaseClip;
-    scale = Math.min(1, Math.max(.1, (stage.clientWidth - 180) / 1244));
-    frame.style.transform = `scale(${scale})`;
+    place();
     const bounds = editor.getBoundingClientRect();
-    const unit = bounds.width / 1244 || scale;
+    const unit = bounds.width / 1244 || 1;
     const clip = (element: HTMLElement): { x: number; y: number; width: number; height: number; inset: string } => {
       const rect = element.getBoundingClientRect();
       const x = (rect.left - bounds.left) / unit;
@@ -68,6 +65,8 @@ export function mountDepth(root: HTMLElement): () => void {
       const mover = root.ownerDocument.createElement('div');
       mover.className = 'depth-mover';
       mover.dataset['stratum'] = label.dataset['stratum'];
+      mover.style.setProperty('--site-depth-x', `${part.x}px`);
+      mover.style.setProperty('--site-depth-y', `${part.y}px`);
       const clone = editor.cloneNode(true) as HTMLElement;
       clone.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
       clone.style.clipPath = rect.inset;
@@ -85,12 +84,13 @@ export function mountDepth(root: HTMLElement): () => void {
     const code = editor.querySelector<HTMLElement>('.editor');
     if (code) base.style.clipPath = clip(code).inset;
     widgets.forEach((widget) => { if (widget) widget.style.visibility = 'hidden'; });
+    built = true;
     position();
     highlight();
   };
   root.setAttribute('data-depth-mounted', '');
   button.hidden = false;
-  button.addEventListener('click', () => { apart = !apart; position(); }, { signal });
+  button.addEventListener('click', () => { root.setAttribute('data-depth-moved', ''); apart = !apart; position(); }, { signal });
   root.querySelectorAll<HTMLElement>('.depth-ruler [data-stratum]').forEach((node) => {
     node.addEventListener('pointerenter', () => { hovered = node.dataset['stratum'] ?? ''; highlight(); }, { signal });
     node.addEventListener('pointerleave', () => { hovered = ''; highlight(); }, { signal });
@@ -101,13 +101,14 @@ export function mountDepth(root: HTMLElement): () => void {
   const measureWidth = (): void => {
     if (stage.clientWidth === measuredWidth) return;
     measuredWidth = stage.clientWidth;
-    measure();
+    // The parts are cut in the frame's own 1244px space, so a new width needs a new scale, not new parts.
+    if (built) place(); else measure();
   };
   view.addEventListener('resize', measureWidth, { signal });
   const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measureWidth);
   observer?.observe(stage);
   measure();
-  void root.ownerDocument.fonts?.ready.then(measure);
+  void root.ownerDocument.fonts?.ready.then(() => { built = false; measure(); });
   return () => {
     disposed = true;
     lifetime.abort();
@@ -117,11 +118,11 @@ export function mountDepth(root: HTMLElement): () => void {
     base.style.clipPath = originalBaseClip;
     root.removeAttribute('data-depth-mounted');
     root.removeAttribute('data-depth-apart');
+    root.removeAttribute('data-depth-moved');
     button.hidden = true;
     button.setAttribute('aria-pressed', 'true');
     button.textContent = CONTENT.depth.takeApart;
-    frame.removeAttribute('style');
-    stage.removeAttribute('style');
+    root.style.removeProperty('--site-depth-scale');
     root.querySelectorAll('[data-highlight]').forEach((node) => node.removeAttribute('data-highlight'));
   };
 }

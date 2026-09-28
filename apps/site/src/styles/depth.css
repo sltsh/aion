@@ -36,9 +36,14 @@
 .depth-stratum ul{list-style:none;padding:0;margin:0}
 .depth-stratum ul li{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:12px}
 
-@media (prefers-reduced-motion: no-preference){.depth-mover{transition:transform var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
-.depth-stage{transition:height var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
-.depth-frame{transition:top var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1)),left var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
+/* Only the assembly fraction transitions, and only once the button has asked for it. The scale is written on resize and never
+   animated, so a resize starts no motion and an assembly in flight keeps its own timeline on the new geometry. */
+@property --site-depth-f{syntax:"<number>";inherits:false;initial-value:0}
+.depth-chapter[data-depth-mounted] .depth-stage{height:calc((726px + 284px * var(--site-depth-f)) * var(--site-depth-scale, 1))}
+.depth-chapter[data-depth-mounted] .depth-frame{transform:scale(var(--site-depth-scale, 1));left:calc(var(--site-depth-f) * 90px * var(--site-depth-scale, 1) + (1 - var(--site-depth-f)) * (100cqw - 1244px * var(--site-depth-scale, 1)) / 2);top:calc((20px + 180px * var(--site-depth-f)) * var(--site-depth-scale, 1))}
+.depth-mover:not(.depth-base){transform:translate(calc(var(--site-depth-x, 0px) * var(--site-depth-f)), calc(var(--site-depth-y, 0px) * var(--site-depth-f)))}
+.depth-chapter[data-depth-apart] :is(.depth-stage, .depth-frame, .depth-mover:not(.depth-base)){--site-depth-f:1}
+@media (prefers-reduced-motion: no-preference){.depth-chapter[data-depth-moved] :is(.depth-stage, .depth-frame, .depth-mover:not(.depth-base)){transition:--site-depth-f var(--slt-motion-scene, 720ms) var(--slt-ease-out, cubic-bezier(.22, 1, .36, 1))}
 }
 
 @media (max-width: 759px){.depth-chapter{padding:64px 0}

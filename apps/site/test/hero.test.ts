@@ -135,3 +135,15 @@ it('observes later intrinsic size changes and disconnects on disposal', () => {
  vi.stubGlobal('ResizeObserver',class {constructor(callback:()=>void){deliver=callback;}observe(){}disconnect=disconnect;});
  try {const h=harness();h.hero.arrive();h.advance(720);h.setHeight(790);deliver();expect(h.root.dataset['heroShare']).toBe('0.42');expect(h.far.style.clipPath).toBe(seamGeometry(0.42,800,790).clip);h.hero.dispose();expect(disconnect).toHaveBeenCalledOnce();}finally{vi.unstubAllGlobals();}
 });
+
+// The measure loop: on phones the editor's height was 686px times the scale the controller writes from the hero's width,
+// so the write resized the hero its ResizeObserver watches and WebKit reported an undelivered loop.
+it('keeps the phone editor height independent of the scale the controller writes', () => {
+  const css = readFileSync(new URL('../src/styles/hero.css', import.meta.url), 'utf8');
+  const phone = css.slice(css.indexOf('@media (max-width: 600px)'));
+  const editor = /\.hero-editor\s*\{([^}]*)\}/.exec(phone)?.[1] ?? '';
+  expect(editor).toMatch(/aspect-ratio:\s*1244\s*\/\s*686/);
+  expect(editor).toMatch(/width:\s*calc\(100% - 32px\)/);
+  expect(editor).not.toMatch(/height:[^;]*--site-hero-scale/);
+  expect(editor).not.toMatch(/min-height|max-height/);
+});

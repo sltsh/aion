@@ -35,7 +35,9 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   class Node extends EventTarget {
     dataset: Record<string, string> = {};
     attrs = new Map<string, string>();
-    style = { clipPath: '', visibility: '' };
+    style = Object.assign(new Map<string, string>(), { clipPath: '', visibility: '',
+      setProperty(this: Map<string, string>, name: string, value: string) { this.set(name, value); },
+      removeProperty(this: Map<string, string>, name: string) { this.delete(name); } });
     hidden = true;
     textContent = '';
     clientWidth = 0;
@@ -69,7 +71,7 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   expect(measured).toHaveBeenCalledTimes(initialMeasurements);
   stage.clientWidth = 1100;
   deliverResize();
-  expect(measured).toHaveBeenCalledTimes(initialMeasurements + 1);
+  expect(measured).toHaveBeenCalledTimes(initialMeasurements);
   expect(button.hidden).toBe(false);
   expect(root.attrs.has('data-depth-mounted')).toBe(true);
   button.dispatchEvent(new Event('click'));
@@ -81,8 +83,7 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   deliverResize();
   deliverResize();
   expect(measured).toHaveBeenCalledTimes(assemblyMeasurements);
-  expect(stage.style).toHaveProperty('height', `${1010 * (1100 - 180) / 1244}px`);
-  expect(frame.style).toHaveProperty('top', `${200 * (1100 - 180) / 1244}px`);
+  expect(root.style.get('--site-depth-scale')).toBe(String((1100 - 180) / 1244));
   ruler.dispatchEvent(new Event('pointerenter'));
   expect(part.attrs.has('data-highlight')).toBe(true);
   ruler.dispatchEvent(new Event('focus'));
@@ -94,8 +95,65 @@ test('assembly, stratum focus and pointer highlighting dispose cleanly', async (
   expect(button.hidden).toBe(true);
   expect(root.attrs.has('data-depth-mounted')).toBe(false);
   expect(root.attrs.has('data-depth-apart')).toBe(false);
+  expect(root.attrs.has('data-depth-moved')).toBe(false);
+  expect(root.style.has('--site-depth-scale')).toBe(false);
   button.dispatchEvent(new Event('click'));
   expect(button.attrs.get('aria-pressed')).toBe('true');
   await Promise.resolve();
+  vi.unstubAllGlobals();
+});
+
+// The resize drift: every width change rebuilt the parts and rewrote transitioned height, left, top and transform.
+test('a resize rescales the Depth stage without rebuilding it or starting a transition', async () => {
+  const css = readFileSync(new URL('../src/styles/depth.css', import.meta.url), 'utf8');
+  const transitions = [...css.matchAll(/transition:([^;}]+)/g)].map((match) => match[1]!.trim().split(/\s+/)[0]);
+  expect(transitions).toEqual(['--site-depth-f']);
+  expect(css).toMatch(/\[data-depth-moved\][^{]*\{transition:--site-depth-f/);
+  expect(css).toContain('@property --site-depth-f');
+  const { mountDepth } = await import('../src/chapters/depth.js');
+  const written: string[] = [];
+  const node = (name: string) => {
+    const target = new EventTarget() as EventTarget & Record<string, unknown>;
+    const style = new Proxy({ setProperty: (key: string) => { written.push(`${name}.${key}`); }, removeProperty: () => {} } as Record<string, unknown>, {
+      set: (object, key, value) => { if (typeof key === 'string' && key !== 'clipPath' && key !== 'visibility') written.push(`${name}.${key}`); object[key as string] = value; return true; },
+    });
+    return Object.assign(target, { name, dataset: {}, style, hidden: true, textContent: '', clientWidth: 0, attrs: new Map<string, string>(),
+      toggleAttribute(key: string, on: boolean) { if (on) this.attrs.set(key, ''); else this.attrs.delete(key); written.push(`${name}[${key}]`); },
+      setAttribute(key: string, value: string) { this.attrs.set(key, value); written.push(`${name}[${key}]`); },
+      removeAttribute(key: string) { this.attrs.delete(key); },
+      getBoundingClientRect: () => ({ width: 1244, left: 0, top: 0 }), querySelector: ((): unknown => null) as (selector: string) => unknown, querySelectorAll: () => [], append: () => { written.push(`${name}.append`); } });
+  };
+  const stage = node('stage'), frame = node('frame'), base = node('base'), editor = node('editor'), button = node('button');
+  const root = node('root');
+  const view = new EventTarget();
+  base['querySelector'] = () => editor;
+  root['ownerDocument'] = { defaultView: view, fonts: { ready: new Promise(() => {}) }, createElement: () => node('mover') };
+  const nodes: Record<string, unknown> = { '[data-depth-stage]': stage, '[data-depth-frame]': frame, '[data-depth-base]': base, '[data-depth-assemble]': button };
+  root['querySelector'] = (selector: string) => nodes[selector] ?? null;
+  let deliverResize = () => {};
+  vi.stubGlobal('ResizeObserver', class { constructor(callback: () => void) { deliverResize = callback; } observe() {} disconnect() {} });
+  stage.clientWidth = 1100;
+  const measured = vi.spyOn(editor as unknown as { getBoundingClientRect: () => unknown }, 'getBoundingClientRect');
+  const dispose = mountDepth(root as unknown as HTMLElement);
+  const built = measured.mock.calls.length;
+  for (const width of [900, 1440, 760, 1100]) {
+    written.length = 0;
+    stage.clientWidth = width;
+    deliverResize();
+    view.dispatchEvent(new Event('resize'));
+    expect(written).toEqual(['root.--site-depth-scale']);
+    expect((root.attrs as Map<string, string>).has('data-depth-moved')).toBe(false);
+  }
+  expect(measured).toHaveBeenCalledTimes(built);
+  stage.clientWidth = 0;
+  deliverResize();
+  stage.clientWidth = 1244;
+  written.length = 0;
+  deliverResize();
+  expect(written).toEqual(['root.--site-depth-scale']);
+  expect(measured).toHaveBeenCalledTimes(built);
+  button.dispatchEvent(new Event('click'));
+  expect((root.attrs as Map<string, string>).has('data-depth-moved')).toBe(true);
+  dispose();
   vi.unstubAllGlobals();
 });
