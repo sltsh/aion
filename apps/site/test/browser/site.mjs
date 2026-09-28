@@ -115,8 +115,8 @@ async function engineRun(name) {
       assert.equal(await p.locator('[data-solved-verdict]').getAttribute('data-verdict'),'fail');await p.locator('[data-solved-hold]').check();assert.equal(await p.locator('[data-solved-verdict]').getAttribute('data-verdict'),'pass');
       await p.locator('[data-rounded-find]').click();assert.deepEqual(await p.locator('[data-rounded-values]:visible [data-verdict]').evaluateAll(es=>es.map(e=>e.dataset.verdict)),['pass','fail']);
       const state=p.locator('[data-state-scheme]:visible');assert.equal(await state.count(),1);assert.equal(await state.locator('[data-delta-visible]').count(),0);
-      const toggle=key=>state.locator(`[data-state-toggle="${key}"]`);await toggle('selection').click();assert.equal(await toggle('lineHighlight').isDisabled(),true);assert.ok((await p.locator('[data-state-reasons]').textContent()).length>0);
-      await toggle('addedWord').click();assert.equal(await toggle('addedLine').getAttribute('aria-pressed'),'true');assert.equal(await toggle('removedLine').isDisabled(),true);await toggle('addedLine').click();assert.equal(await toggle('addedWord').getAttribute('aria-pressed'),'false');
+      const toggle=key=>state.locator(`[data-state-toggle="${key}"]`);await toggle('selection').click();assert.equal(await toggle('lineHighlight').getAttribute('aria-disabled'),'true');assert.ok((await p.locator('[data-state-reasons]').textContent()).length>0);
+      await toggle('addedWord').click();assert.equal(await toggle('addedLine').getAttribute('aria-pressed'),'true');assert.equal(await toggle('removedLine').getAttribute('aria-disabled'),'false');await toggle('addedLine').click();assert.equal(await toggle('addedWord').getAttribute('aria-pressed'),'false');
       assert.equal(await state.locator('.states-code').evaluate(e=>getComputedStyle(e).fontSize),width<600?'16px':'22px');
       assert.equal(await p.locator('[data-terminal-session]:visible').count(),2);assert.equal(await p.locator('[data-terminal-slot]:visible').count(),16);
       assert.equal(await p.locator('.terminal-slots:visible').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').length),width<600?2:width<900?4:8);
@@ -152,6 +152,69 @@ async function engineRun(name) {
       await p.setViewportSize({width:1440,height:1000});await p.locator('#depth').scrollIntoViewIfNeeded();await p.waitForTimeout(800);
       await p.evaluate(()=>{window.depthMutations=0;new MutationObserver(records=>window.depthMutations+=records.length).observe(document.querySelector('[data-depth-frame]'),{childList:true});});
       await p.locator('[data-depth-assemble]').click();await p.waitForTimeout(120);const motion=await p.evaluate(()=>({mutations:window.depthMutations,duration:getComputedStyle(document.querySelector('.depth-mover:not(.depth-base)')).transitionDuration,transforms:[...document.querySelectorAll('.depth-mover:not(.depth-base)')].map(e=>getComputedStyle(e).transform)}));assert.equal(motion.mutations,0);assert.equal(motion.duration,'0.72s');assert.ok(motion.transforms.some(t=>t!=='none'&&t!=='matrix(1, 0, 0, 1, 0, 0)'));row.measurements=motion;
+    });
+    for(const scheme of ['dark','light'])for(const width of [1440,390])await run(`states-placement-${scheme}-${width}`,{colorScheme:scheme,viewport:{width,height:1000}},async(p,_c,row,capture)=>{
+      await p.goto(base+'/#states');await settled(p);
+      const {buildPalette,lightPalette,stackBackground,orderStack,hex}=await import('../../../../packages/tokens/dist/index.js');
+      const source=scheme==='dark'?buildPalette():lightPalette;
+      const lines=['// read from cache','const entry = cache.get(id);','entry = cache.get(next);','entry = cache.get(prev);','<<<<<<< current','return local;','||||||| common','return base;','=======','return remote;','>>>>>>> incoming'];
+      const occurrences=word=>lines.flatMap((text,line)=>[...text.matchAll(new RegExp(`\\b${word}\\b`,'g'))].map(m=>({line,from:m.index,to:m.index+word.length})));
+      const token=(line,word)=>({line,from:lines[line].indexOf(word),to:lines[line].indexOf(word)+word.length});
+      const full=(line,layer)=>({line,from:0,to:lines[line].length,layer,full:true});
+      const placements={lineHighlight:[full(1,'lineHighlight')],selection:[token(1,'entry')],wordHighlight:occurrences('entry'),findMatchOther:occurrences('cache'),addedLine:[full(2,'addedLine')],addedWord:[token(2,'next')],removedLine:[full(3,'removedLine')],removedWord:[token(3,'prev')],bracketMatch:[token(1,'('),token(1,')')],findRange:[{line:1,from:lines[1].indexOf('cache'),to:lines[1].indexOf(')')+1}],mergeConflict:[full(4,'mergeCurrentHeader'),full(5,'mergeChange'),full(6,'mergeCommonHeader'),full(7,'mergeChange'),full(9,'mergeChange'),full(10,'mergeIncomingHeader')]};
+      const colour=value=>'#'+value.match(/[\d.]+/g).slice(0,3).map(n=>Math.round(Number(n)).toString(16).padStart(2,'0')).join('');
+      const state=()=>p.locator('[data-state-scheme]:visible'),toggle=key=>state().locator(`[data-state-toggle="${key}"]`);
+      row.measurements.samples=[];
+      const inspect=async(selected,label,currentSource=source)=>{
+        const drawn=selected.flatMap(key=>placements[key].map(span=>({...span,layer:span.layer??key})));
+        const sample=await state().evaluate(root=>{
+          const rect=e=>{const b=e.getBoundingClientRect();return {left:b.left,right:b.right,width:b.width,top:b.top,bottom:b.bottom};};
+          const baseline=e=>{const probe=document.createElement('span');probe.style.cssText='display:inline-block;width:0;height:0;padding:0;margin:0;border:0;vertical-align:baseline';e.append(probe);const y=probe.getBoundingClientRect().top;probe.remove();return y;};
+          const rows=[...root.querySelectorAll('[data-state-line]')].map(e=>{const code=e.querySelector('code'),number=e.querySelector('.states-line-number');return {line:+e.dataset.stateLine,text:code.textContent,row:rect(e),code:rect(code),bg:getComputedStyle(code).backgroundColor,layers:code.dataset.lineLayers,baselineDelta:Math.abs(baseline(code)-baseline(number)),fragments:[...code.querySelectorAll('[data-state-fragment]')].map(f=>{const range=document.createRange();range.selectNodeContents(f);return {from:+f.dataset.from,to:+f.dataset.to,text:f.textContent,role:f.dataset.role,layers:f.dataset.layers,fg:getComputedStyle(f).color,bg:getComputedStyle(f).backgroundColor,box:rect(f),textBox:rect(range)};})};});
+          return {rows,editor:getComputedStyle(root.querySelector('.states-code')).backgroundColor,scroll:{width:root.querySelector('.states-code').clientWidth,content:root.querySelector('.states-code').scrollWidth,overflow:getComputedStyle(root.querySelector('.states-code')).overflowX},meters:[...root.querySelectorAll('[data-state-meter]')].map(e=>({role:e.dataset.stateMeter,value:e.querySelector('[data-state-value]').textContent,lowest:e.dataset.lowest,fg:getComputedStyle(e.querySelector('.states-meter-heading i')).backgroundColor})),swatches:[...root.querySelectorAll('[data-state-toggle]')].map(e=>({layer:e.dataset.stateToggle,bg:getComputedStyle(e.querySelector('i')).backgroundColor})),backgrounds:root.querySelector('[data-state-bghex]').textContent,backgroundSwatch:getComputedStyle(root.querySelector('[data-state-bg-swatch]')).backgroundColor};
+        });
+        row.measurements.samples.push({label,...sample});
+        assert.deepEqual(sample.rows.map(r=>r.text),lines,'sample text lost or duplicated');
+        const backgrounds=new Set();
+        for(const r of sample.rows){
+          assert.ok(r.baselineDelta<1,`${label} line ${r.line}: number/code baselines differ ${r.baselineDelta}px`);
+          assert.ok(Math.abs(r.code.right-r.row.right)<.5,`${label} line ${r.line}: full code fill stops before row edge`);
+          const fullLayers=orderStack(new Set(drawn.filter(s=>s.line===r.line&&s.full).map(s=>s.layer)));
+          assert.equal(r.layers,fullLayers.join(' '));assert.equal(colour(r.bg),hex(stackBackground(currentSource,currentSource.neutral.editor,fullLayers)));
+          let end=0;
+          for(const f of r.fragments){
+            assert.equal(f.from,end);end=f.to;assert.equal(f.text,lines[r.line].slice(f.from,f.to));
+            const layers=orderStack(new Set(drawn.filter(s=>s.line===r.line&&s.from<f.to&&f.from<s.to).map(s=>s.layer)));
+            assert.equal(f.layers,layers.join(' '),`${label} line ${r.line} span ${f.from}-${f.to}`);
+            assert.equal(colour(f.bg),hex(stackBackground(currentSource,currentSource.neutral.editor,layers)));backgrounds.add(colour(f.bg));
+            assert.ok(Math.abs(f.box.left-f.textBox.left)<.5&&Math.abs(f.box.right-f.textBox.right)<.5,`${label}: word fill extends past text`);
+          }
+          assert.equal(end,lines[r.line].length);
+        }
+        for(const meter of sample.meters){
+          const paints=sample.rows.flatMap(r=>r.fragments).filter(f=>f.role===meter.role);
+          meter.measured=paints.length?Math.min(...paints.map(f=>contrastEmitted(hexToOklch(colour(f.fg)),hexToOklch(colour(f.bg))))):contrastEmitted(hexToOklch(colour(meter.fg)),hexToOklch(colour(sample.editor)));
+          assert.equal(meter.value,meter.measured.toFixed(2)+':1',`${label} ${meter.role}: meter disagrees with painted minima`);
+        }
+        const lowest=Math.min(...sample.meters.map(m=>m.measured));for(const m of sample.meters)assert.equal(m.lowest,String(Math.abs(m.measured-lowest)<1e-10));
+        for(const swatch of sample.swatches)assert.equal(colour(swatch.bg),hex(stackBackground(currentSource,currentSource.neutral.editor,[swatch.layer==='mergeConflict'?'mergeCurrentHeader':swatch.layer])));
+        assert.deepEqual(new Set(sample.backgrounds.split(', ')),backgrounds);assert.equal(colour(sample.backgroundSwatch),colour(sample.rows[0].fragments[0].bg));
+        await overflow(p);if(width===390){assert.equal(sample.scroll.overflow,'auto');await state().locator('.states-code').evaluate(e=>{e.scrollLeft=e.scrollWidth;});const scrolled=await state().locator('.states-code').evaluate(e=>e.scrollLeft);assert.ok(Math.abs(scrolled-Math.max(0,sample.scroll.content-sample.scroll.width))<=1,'mobile code cannot scroll to its end');await state().locator('.states-code').evaluate(e=>{e.scrollLeft=0;});}
+      };
+      await inspect([],'empty');
+      for(const key of Object.keys(placements)){
+        await toggle(key).click();assert.ok(await toggle(key).evaluate(e=>document.activeElement===e),'toggle loses focus');
+        const selected=[key,...(key==='addedWord'?['addedLine']:key==='removedWord'?['removedLine']:[])];await inspect(selected,key);
+        await toggle(key==='addedWord'?'addedLine':key==='removedWord'?'removedLine':key).click();
+      }
+      for(const [selected,disabled] of [['selection','lineHighlight'],['lineHighlight','selection']]){
+        await toggle(selected).click();const button=toggle(disabled);assert.equal(await button.getAttribute('aria-disabled'),'true');assert.equal(await button.evaluate(e=>e.disabled),false);assert.equal(await button.getAttribute('aria-describedby'),'states-reasons');
+        assert.match(await p.locator('#states-reasons').textContent(),/line|Line/);await button.focus();await p.keyboard.press('Shift+Tab');await p.keyboard.press('Tab');assert.ok(await button.evaluate(e=>document.activeElement===e),'aria-disabled control cannot be reached by keyboard');
+        await p.keyboard.press('Enter');await button.evaluate(e=>e.click());assert.equal(await button.getAttribute('aria-pressed'),'false');await inspect([selected],`${selected}-disabled-ignored`);await toggle(selected).click();
+      }
+      await toggle('selection').click();await toggle('wordHighlight').click();await inspect(['selection','wordHighlight'],'selected-overlap');
+      await p.locator('[data-scheme-chip]').click();await settled(p);assert.equal(await toggle('selection').getAttribute('aria-pressed'),'true');assert.equal(await toggle('wordHighlight').getAttribute('aria-pressed'),'true');
+      await inspect(['selection','wordHighlight'],'scheme-retained',scheme==='dark'?lightPalette:buildPalette());await p.locator('#states').scrollIntoViewIfNeeded();await capture();
     });
     await run('states-delta-motion-alignment',{reducedMotion:'no-preference',viewport:{width:1100,height:1000}},async(p,_c,row)=>{
       await p.goto(base+'/#states');await settled(p);await p.waitForTimeout(750);await p.locator('[data-state-scheme]:visible [data-state-toggle="selection"]').click();await p.waitForTimeout(150);
