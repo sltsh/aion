@@ -73,6 +73,7 @@ describe('chip local wipe', () => {
   });
   it('on screen starts on the click, follows the throw curve and is complete at its commit', () => {
     const h = harness(true); h.press(); expect(h.progress()).toBe(0); expect(h.request).not.toHaveBeenCalled();
+    expect(h.hero.throwAcross).toHaveBeenCalledWith(0);
     h.advance(360); expect(h.progress()).toBeCloseTo(ease(.5), 7); h.advance(360); expect(h.progress()).toBe(1);
     h.commit(); expect(h.base.dataset['chipState']).toBe('light'); expect(h.frames.size).toBe(0); h.advance(720); expect(h.frames.size).toBe(0); h.dispose();
   });

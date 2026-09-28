@@ -186,6 +186,10 @@ describe('Diptych controller', () => {
     const stale = h.hero.throwAcross(); h.advance(100); h.storage('dark'); expect(await stale).toBe('superseded'); h.advance(720);
     expect(h.request).toHaveBeenCalledTimes(1); expect(h.root.dataset['heroShare']).toBe('0'); h.hero.dispose();
   });
+  it('a throw given its caller\'s start keeps that clock', async () => {
+    const h = harness(); h.advance(40); const complete = h.hero.throwAcross(30); h.advance(709); expect(h.request).not.toHaveBeenCalled(); h.advance(1);
+    expect(await complete).toBe('committed'); h.hero.dispose();
+  });
   it('chip cancellation commits nothing; three rapid presses leave chip, page and layers consistent', async () => {
     const h = harness(); const chip = new Node(); chip.ownerDocument = h.root.ownerDocument;
     const chipBase = new Node(), chipIncoming = new Node();

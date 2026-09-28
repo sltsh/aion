@@ -179,10 +179,10 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   sizeObserver?.observe(root);
   void root.ownerDocument.fonts?.ready.then(() => { if (!disposed) measure(); });
   return {
-    throwAcross() {
+    throwAcross(start = env.now()) {
       if (disposed) return Promise.resolve('superseded');
       interacted = true; endDrag(); throwStart = p;
-      return new Promise((resolve) => animate({ kind: 'throw', generation: controller.generation, start: env.now(), from: p, target: 1, duration: 720, resolve }));
+      return new Promise((resolve) => animate({ kind: 'throw', generation: controller.generation, start, from: p, target: 1, duration: 720, resolve }));
     },
     cancelThrow() { if (motion?.kind !== 'throw') return; stop(); tween(throwStart, 360, 'cancel'); },
     arrive() { if (disposed || interacted || arrived || controller.generation !== initialGeneration) return; arrived = true; p = 0; paint(); tween(0.42, 720, 'arrival'); },

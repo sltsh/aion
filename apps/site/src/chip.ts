@@ -1,7 +1,7 @@
 import type { Theme, ThemeController, ThemeMotionAnimation } from './theme.js';
 
 export interface Hero {
-  throwAcross(): Promise<'committed' | 'superseded'>;
+  throwAcross(start?: number): Promise<'committed' | 'superseded'>;
   cancelThrow(): void;
   arrive(): void;
   onScreen(): boolean;
@@ -109,10 +109,10 @@ export function mountChip(button: HTMLButtonElement, controller: ThemeController
     // several hundred milliseconds; the chip holds until the root animation's start resolves, up to several frames
     // after it is created, and then follows it. A cancelled scene keeps the last start.
     if (!onScreen) { controller.request(next, { scene: 'wipe', onSceneStart: run(0, 1, 720, false, at) }); return; }
-    throwing = true; const current = operation;
-    // The hero reads its clock as the throw starts; the chip shares that instant rather than its own paint's.
-    const thrown = hero!.throwAcross();
+    // The chip's frames run before the hero's, so it paints its end before the throw commits; both share one start.
     run(0, 1, 720, true, at);
+    throwing = true; const current = operation;
+    const thrown = hero!.throwAcross(at);
     const finishThrow = (result: 'committed' | 'superseded'): void => {
       if (disposed || current !== operation) return;
       throwing = false; expected = undefined; settle(controller.theme);
