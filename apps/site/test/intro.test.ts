@@ -32,41 +32,47 @@ function bootstrap(pathname = '/', hash = '', reducedMotion = false, sessionStor
 }
 
 function introHarness() {
-  const removeAttribute = vi.fn();
+  const dataset: Record<string, string> = { theme: 'dark', intro: 'pending' };
+  const removeAttribute = vi.fn((name: string) => { if (name === 'data-intro') delete dataset['intro']; });
   const body = { append: vi.fn() };
   const animations: { cancel: ReturnType<typeof vi.fn> }[] = [];
   const slats = Array.from({ length: 8 }, () => ({ style: {}, querySelector: () => ({ style: {} }) }));
+  const backdrop = {};
+  const plate = {};
   const overlay = {
     setAttribute: vi.fn(),
     innerHTML: '',
     querySelectorAll: () => slats,
-    querySelector: () => ({}),
+    querySelector: (selector: string) => selector === '.splash-intro__backdrop' ? backdrop : plate,
     remove: vi.fn(),
   };
   const document = Object.assign(new EventTarget(), {
     hidden: false,
+    defaultView: Object.assign(new EventTarget(), { innerWidth: 1440, innerHeight: 900 }),
     body,
-    documentElement: { removeAttribute, dataset: { theme: 'dark' } },
+    documentElement: { removeAttribute, dataset },
     createElement: () => overlay,
   }) as unknown as Document;
   const reducedMotion = Object.assign(new EventTarget(), { matches: false }) as MediaQueryList;
   let generation = 1;
   const themeListeners = new Set<() => void>();
   const options: KeyframeAnimationOptions[] = [];
+  const effects: { target: HTMLElement; frames: Keyframe[]; options: KeyframeAnimationOptions; introPending: boolean }[] = [];
   const env: IntroEnv = {
     reducedMotion,
     easing: 'token-ease',
     themeGeneration: () => generation,
     subscribeTheme(listener: () => void) { themeListeners.add(listener); return () => themeListeners.delete(listener); },
-    animate: vi.fn((_target: HTMLElement, _frames: Keyframe[], effect: KeyframeAnimationOptions) => {
+    animate: vi.fn((target: HTMLElement, frames: Keyframe[], effect: KeyframeAnimationOptions) => {
       options.push(effect);
+      effects.push({ target, frames, options: effect, introPending: dataset['intro'] === 'pending' });
       const animation = { cancel: vi.fn() };
       animations.push(animation);
       return animation;
     }),
   };
   return {
-    document, overlay, removeAttribute, body, animations, options, env,
+    document, overlay, backdrop, plate, slats, reducedMotion, removeAttribute, body, animations, options, effects, env,
     changeTheme() { generation += 1; themeListeners.forEach((listener) => listener()); },
   };
 }
@@ -157,14 +163,128 @@ describe('splash markup and animation lifecycle', () => {
     const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
     await vi.runAllTimersAsync();
     await pending;
-    expect(h.options).toHaveLength(17);
+    expect(h.options).toHaveLength(18);
     for (const effects of [h.options.slice(0, 8), h.options.slice(8, 16)]) {
       expect(effects.map((effect) => effect.delay)).toEqual([0, 70, 140, 210, 280, 350, 420, 490]);
       expect(effects.every((effect) => effect.duration === 560)).toBe(true);
     }
     expect(h.options[16]?.duration).toBe(160);
+    expect(h.options[17]?.duration).toBe(160);
     expect(h.overlay.remove).toHaveBeenCalledOnce();
     vi.useRealTimers();
+  });
+
+  it('reveals the page before the exit fades and hands off arrival before the next frame', async () => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const arrive = vi.fn();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env).then(arrive);
+      await vi.advanceTimersByTimeAsync(1829);
+      expect(h.document.documentElement.dataset['intro']).toBe('pending');
+      await vi.advanceTimersByTimeAsync(1);
+      expect(h.document.documentElement.dataset['intro']).toBeUndefined();
+      expect(h.overlay.remove).not.toHaveBeenCalled();
+      expect(arrive).not.toHaveBeenCalled();
+      const exits = h.effects.slice(8, 16);
+      expect(exits.every((effect) => !effect.introPending)).toBe(true);
+      for (const effect of exits) {
+        expect(effect.frames.map((frame) => frame.opacity)).toEqual([1, 0]);
+        expect(effect.options.duration).toBeGreaterThanOrEqual(2 * 1000 / 60);
+      }
+      const backdrop = h.effects.find((effect) => effect.target === h.backdrop);
+      expect(backdrop?.introPending).toBe(false);
+      expect(backdrop?.frames).toEqual([{ opacity: 1 }, { opacity: 0 }]);
+      expect(backdrop?.options.duration).toBe(160);
+      await vi.advanceTimersByTimeAsync(1049);
+      expect(h.overlay.remove).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(1);
+      await pending;
+      expect(h.overlay.remove).toHaveBeenCalledOnce();
+      expect(arrive).toHaveBeenCalledOnce();
+      expect(h.overlay.remove.mock.invocationCallOrder[0]).toBeLessThan(arrive.mock.invocationCallOrder[0]!);
+      expect(vi.getTimerCount()).toBe(0);
+      expect(h.animations.every((animation) => animation.cancel.mock.calls.length === 1)).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each(['keydown', 'pointerdown', 'motion', 'theme'] as const)('settles an exiting intro on %s without replay or pending timers', async (trigger) => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+      await vi.advanceTimersByTimeAsync(1830);
+      if (trigger === 'motion') {
+        Object.assign(h.env.reducedMotion, { matches: true });
+        h.reducedMotion.dispatchEvent(new Event('change'));
+      } else if (trigger === 'theme') h.changeTheme();
+      else h.document.dispatchEvent(new Event(trigger));
+      await expect(pending).resolves.toBeUndefined();
+      expect(h.overlay.remove).toHaveBeenCalledOnce();
+      expect(h.animations.every((animation) => animation.cancel.mock.calls.length === 1)).toBe(true);
+      expect(vi.getTimerCount()).toBe(0);
+      Object.assign(h.env.reducedMotion, { matches: false });
+      h.reducedMotion.dispatchEvent(new Event('change'));
+      h.changeTheme();
+      await vi.runAllTimersAsync();
+      expect(h.effects).toHaveLength(18);
+      expect(h.overlay.remove).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('keeps the original intro timeline through resize during entry and exit', async () => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+      await vi.advanceTimersByTimeAsync(300);
+      Object.assign(h.document.defaultView!, { innerWidth: 390, innerHeight: 844 });
+      h.document.defaultView!.dispatchEvent(new Event('resize'));
+      expect(h.effects).toHaveLength(8);
+      await vi.advanceTimersByTimeAsync(1530);
+      Object.assign(h.document.defaultView!, { innerWidth: 768, innerHeight: 1024 });
+      h.document.defaultView!.dispatchEvent(new Event('resize'));
+      expect(h.effects).toHaveLength(18);
+      expect(h.effects[8]?.frames[1]?.transform).toBe('translateX(2340px)');
+      await vi.advanceTimersByTimeAsync(1050);
+      await pending;
+      expect(h.overlay.remove).toHaveBeenCalledOnce();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('settles reduced motion during entry and fails open if an exit animation is unavailable', async () => {
+    vi.useFakeTimers();
+    try {
+      const reduced = introHarness();
+      const reducedIntro = runIntro(reduced.document, measures('dark'), 'dark', reduced.env);
+      Object.assign(reduced.reducedMotion, { matches: true });
+      reduced.reducedMotion.dispatchEvent(new Event('change'));
+      await expect(reducedIntro).resolves.toBeUndefined();
+      expect(reduced.overlay.remove).toHaveBeenCalledOnce();
+      expect(vi.getTimerCount()).toBe(0);
+
+      const failed = introHarness();
+      const animate = failed.env.animate;
+      const pending = runIntro(failed.document, measures('dark'), 'dark', {
+        ...failed.env,
+        animate: (target, frames, options) => failed.effects.length === 8 ? undefined : animate(target, frames, options),
+      });
+      await vi.advanceTimersByTimeAsync(1830);
+      await expect(pending).resolves.toBeUndefined();
+      expect(failed.overlay.remove).toHaveBeenCalledOnce();
+      expect(failed.document.documentElement.dataset['intro']).toBeUndefined();
+      expect(failed.animations.every((animation) => animation.cancel.mock.calls.length === 1)).toBe(true);
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('any key or press skips, cancels animations, removes the overlay and resolves', async () => {

@@ -35,7 +35,7 @@ export function introMarkup(measures: SchemeMeasures, scheme: Theme): string {
     const value = measures.syntax.find((entry) => entry.role === role)!;
     return `<div class="splash-intro__slat" data-intro-slat data-index="${index}" style="background:var(--s-${role})" aria-label="${role} ${value.ratio.toFixed(2)}"><span class="splash-intro__label" data-intro-role="${role}">${role}<b>${value.ratio.toFixed(2)}</b></span></div>`;
   }).join('');
-  return `<div class="splash-intro" data-intro-scheme="${scheme}" role="img" aria-label="${CONTENT.intro.label}"><div class="splash-intro__slats">${slats}</div><div class="splash-intro__center"><div class="splash-intro__plate"><img class="splash-intro__wordmark" src="${scheme === 'light' ? '/aion-wordmark.webp' : '/aion-wordmark-light.webp'}" alt="${CONTENT.intro.wordmark}" width="144" height="48"></div></div><span class="splash-intro__skip">${CONTENT.intro.skip}</span></div>`;
+  return `<div class="splash-intro" data-intro-scheme="${scheme}" role="img" aria-label="${CONTENT.intro.label}"><div class="splash-intro__backdrop" aria-hidden="true"></div><div class="splash-intro__slats">${slats}</div><div class="splash-intro__center"><div class="splash-intro__plate"><img class="splash-intro__wordmark" src="${scheme === 'light' ? '/aion-wordmark.webp' : '/aion-wordmark-light.webp'}" alt="${CONTENT.intro.wordmark}" width="144" height="48"></div></div><span class="splash-intro__skip">${CONTENT.intro.skip}</span></div>`;
 }
 
 export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme, env: IntroEnv): Promise<void> {
@@ -119,13 +119,17 @@ export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme,
       const exitAfter = 80 + 7 * 70 + 560 + 700;
       timers.push(setTimeout(() => {
         if (done) return;
+        // The page must already paint beneath every translucent exit frame.
+        doc.documentElement.removeAttribute('data-intro');
         for (const [index, slat] of slats.entries()) {
-          if (!animate(slat, [{ transform: 'none' }, { transform: `translateX(${width + height}px)` }], {
+          if (!animate(slat, [{ transform: 'none', opacity: 1 }, { transform: `translateX(${width + height}px)`, opacity: 0 }], {
             duration: 560, delay: 70 * index, fill: 'forwards',
           })) { finish(); return; }
         }
         const plate = overlay?.querySelector<HTMLElement>('.splash-intro__plate');
         if (plate && !animate(plate, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' })) { finish(); return; }
+        const backdrop = overlay?.querySelector<HTMLElement>('.splash-intro__backdrop');
+        if (backdrop && !animate(backdrop, [{ opacity: 1 }, { opacity: 0 }], { duration: 160, fill: 'forwards' })) { finish(); return; }
         timers.push(setTimeout(finish, 70 * 7 + 560));
       }, exitAfter));
     } catch {

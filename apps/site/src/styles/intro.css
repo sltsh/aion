@@ -1,5 +1,6 @@
 :root[data-intro="pending"] #app { visibility: hidden; }
-.splash-intro { position: fixed; inset: 0; z-index: 1000; overflow: hidden; background: var(--n-editor); color: var(--n-text-primary); visibility: visible; }
+.splash-intro { position: fixed; inset: 0; z-index: 1000; overflow: hidden; color: var(--n-text-primary); visibility: visible; }
+.splash-intro__backdrop { position: absolute; inset: 0; background: var(--n-editor); }
 .splash-intro__slats { position: absolute; inset: 0; }
 .splash-intro__slat { position: absolute; inset-block: 0; display: grid; place-items: center; }
 .splash-intro__label { position: absolute; display: flex; flex-direction: column; font: 600 13px/1.4 'Monaspace Neon', monospace; color: var(--n-editor); }
