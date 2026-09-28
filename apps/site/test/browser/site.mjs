@@ -220,7 +220,7 @@ async function engineRun(name) {
       }
       await p.setViewportSize({width:600,height:1000});await p.locator('#palette [data-theme-value]:visible [data-palette-column="keyword"]').focus();await inspect('light',600,'before boundary');
       await p.setViewportSize({width:599,height:1000});await inspect('light',599,'after boundary');
-      await p.locator('[data-palette-token="keyword"]').first().focus();await p.emulateMedia({colorScheme:'dark'});await settled(p);assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');await inspect('dark',599,'scheme change selected');await capture('palette-margin-selected-scheme-change');
+      await p.locator('[data-palette-token="keyword"]').first().focus();await p.emulateMedia({colorScheme:'dark'});await p.waitForFunction(()=>document.documentElement.dataset.theme==='dark');await settled(p);assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');await inspect('dark',599,'scheme change selected');await capture('palette-margin-selected-scheme-change');
     });
     await run('install-align',{},async(p,_c,row,capture)=>{
       row.measurements.samples=[];
