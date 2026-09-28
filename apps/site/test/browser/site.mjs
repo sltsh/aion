@@ -187,6 +187,68 @@ async function engineRun(name) {
     await run('splash-blocked-client-timeout',{reducedMotion:'no-preference'},async(p,_c,row)=>{
       await p.route('**/assets/*.js',route=>route.abort());await p.goto(base,{waitUntil:'domcontentloaded'});assert.equal(await p.locator('html').getAttribute('data-intro'),'pending');const start=Date.now();await p.waitForFunction(()=>!document.documentElement.hasAttribute('data-intro'),{},{timeout:5000});row.measurements.releaseMs=Date.now()-start;assert.ok(row.measurements.releaseMs<=4100);assert.equal(await p.locator('#app').evaluate(e=>getComputedStyle(e).visibility),'visible');
     });
+    await run('dimension-upright',{},async(p,_c,row,capture)=>{
+      row.measurements.samples=[];
+      for(const scheme of ['dark','light']){
+        await p.emulateMedia({colorScheme:scheme});await p.goto(base+'/#solved');await settled(p);
+        await p.locator('[data-solved-accent="violet"]').click();
+        await p.locator('[data-solved-lightness]').evaluate((e,s)=>{e.value=s==='dark'?e.min:e.max;e.dispatchEvent(new Event('input',{bubbles:true}));},scheme);
+        assert.equal(await p.locator('[data-solved-verdict]').getAttribute('data-verdict'),'fail');
+        const sample=await p.locator('.solved-scale:visible .dimension-label-error').evaluate(e=>{
+          const m=e.getScreenCTM(),probe=document.createElement('span');probe.style.color='var(--aion-status-error-text)';e.closest('section').append(probe);
+          const expected=getComputedStyle(probe).color;probe.remove();return {text:e.textContent,angle:Math.atan2(m.b,m.a)*180/Math.PI,fill:getComputedStyle(e).fill,expected};
+        });row.measurements.samples.push({scheme,...sample});assert.ok(Math.abs(sample.angle)<.01,JSON.stringify(sample));assert.equal(sample.fill,sample.expected);await capture(`dimension-upright-${scheme}`);
+      }
+    });
+    await run('palette-margin',{},async(p,_c,row,capture)=>{
+      row.measurements.samples=[];
+      const inspect=async(scheme,width,label)=>{
+        const sample=await p.locator('#palette').evaluate(root=>{
+          const svg=[...root.querySelectorAll('[data-palette-margin]')].find(e=>e.getClientRects().length),column=root.querySelector('[data-theme-value="'+document.documentElement.dataset.theme+'"] [data-palette-column="keyword"]');
+          const text=svg.querySelector('.dimension-label'),line=svg.querySelector('.dimension-line > g');
+          return {count:svg.querySelectorAll('.dimension-line').length,text:text?.textContent,expected:'+'+(Number(column.dataset.ratio)-4.5).toFixed(2),transform:line?.getAttribute('transform'),underlines:[...root.querySelectorAll('[data-palette-token="keyword"]')].map(e=>({linked:e.hasAttribute('data-linked'),decoration:getComputedStyle(e).textDecorationLine}))};
+        });row.measurements.samples.push({scheme,width,label,...sample});assert.equal(sample.count,1);assert.equal(sample.text,sample.expected);assert.ok(sample.underlines.every(e=>e.linked&&e.decoration.includes('underline')));assert.ok(sample.transform.includes(width<600?'rotate(0)':'rotate(-90)'),JSON.stringify(sample));
+      };
+      for(const scheme of ['dark','light'])for(const width of [1440,390]){
+        await p.setViewportSize({width,height:1000});await p.emulateMedia({colorScheme:scheme});await p.goto(base+'/#palette');await settled(p);
+        const column=p.locator('#palette [data-theme-value]:visible [data-palette-column="keyword"]'),token=p.locator('[data-palette-token="keyword"]').first();
+        await column.hover();await inspect(scheme,width,'chart hover');await p.mouse.move(0,0);await column.focus();await inspect(scheme,width,'chart focus');await capture(`palette-margin-${scheme}-${width}`);
+        await column.evaluate(e=>e.blur());await token.hover();await inspect(scheme,width,'file hover');await p.mouse.move(0,0);await token.focus();await p.keyboard.press('Shift+Tab');await p.keyboard.press('Tab');assert.ok(await token.evaluate(e=>document.activeElement===e),'file token is keyboard focusable');await inspect(scheme,width,'file focus');await token.evaluate(e=>e.blur());
+        assert.equal(await p.locator('[data-palette-margin]:visible .dimension-line').count(),0);assert.equal(await p.locator('#palette [data-linked]').count(),0);
+      }
+      await p.setViewportSize({width:600,height:1000});await p.locator('#palette [data-theme-value]:visible [data-palette-column="keyword"]').focus();await inspect('light',600,'before boundary');
+      await p.setViewportSize({width:599,height:1000});await inspect('light',599,'after boundary');
+      await p.locator('[data-palette-token="keyword"]').first().focus();await p.emulateMedia({colorScheme:'dark'});await settled(p);assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');await inspect('dark',599,'scheme change selected');await capture('palette-margin-selected-scheme-change');
+    });
+    await run('install-align',{},async(p,_c,row,capture)=>{
+      row.measurements.samples=[];
+      for(const width of [1440,1280,768,390]){
+        await p.setViewportSize({width,height:1000});await p.goto(base+'/#install');await settled(p);await overflow(p);
+        const tiles=await p.locator('.install-tile').evaluateAll(es=>es.map(e=>{const box=e.getBoundingClientRect(),button=e.querySelector('.install-copy'),title=e.querySelector('h3'),b=button.getBoundingClientRect(),t=title.getBoundingClientRect();return {id:e.dataset.installTarget,top:box.top,copyTop:b.top,titleHeight:t.height,titleLine:parseFloat(getComputedStyle(title).lineHeight),titleWidth:t.width,scrollWidth:title.scrollWidth,order:[...e.querySelectorAll('.install-actions a,.install-actions button')].map(n=>n.className)};}));
+        row.measurements.samples.push({width,tiles});
+        for(const tile of tiles){const peers=tiles.filter(t=>Math.abs(t.top-tile.top)<1);assert.ok(peers.every(t=>Math.abs(t.copyTop-tile.copyTop)<=1),JSON.stringify({width,peers}));assert.ok(tile.scrollWidth<=tile.titleWidth+1);assert.equal(tile.order.at(-1),'install-copy');assert.ok(tile.order.slice(0,-1).every(c=>c==='install-badge'));}
+        if(width===1280)assert.ok(tiles.some(t=>t.titleHeight>t.titleLine*1.5),'no wrapped title exercised');
+        for(const tile of await p.locator('.install-tile').all()){
+          const controls=tile.locator('.install-badge,.install-copy');await controls.first().focus();
+          for(let i=0;i<await controls.count();i++){assert.ok(await controls.nth(i).evaluate(e=>document.activeElement===e),'badges then Copy keyboard order');if(i+1<await controls.count())await p.keyboard.press('Tab');}
+        }
+        await p.locator('#install').scrollIntoViewIfNeeded();await capture(`install-align-${width}`,true);
+      }
+    });
+    await run('light-frames',{},async(p,_c,row,capture)=>{
+      row.measurements.samples=[];
+      const selectors=['.diptych .window','.depth-frame .window','.states-chapter .states-code','.terminal-chapter .terminal-sessions','.install-chapter .install-thumbnail','.install-editor .window'];
+      for(const scheme of ['dark','light']){
+        await p.emulateMedia({colorScheme:scheme});await p.goto(base);await settled(p);
+        for(const selector of selectors){
+          const frames=await p.locator(selector).evaluateAll(es=>es.map(e=>{
+            const own=e.closest('[data-theme]')?.dataset.theme||document.documentElement.dataset.theme,probe=document.createElement('span');probe.style.color=own==='light'?'var(--n-divider)':'var(--n-hairline)';e.append(probe);const expected=getComputedStyle(probe).color;probe.remove();const css=getComputedStyle(e);return {own,visible:!!e.getClientRects().length,border:css.borderTopColor,width:css.borderTopWidth,expected};
+          }));row.measurements.samples.push({scheme,selector,frames});assert.ok(frames.length,selector);
+          for(const frame of frames){assert.equal(frame.border,frame.expected,JSON.stringify({scheme,selector,frame}));assert.ok(parseFloat(frame.width)>0,selector+' no painted border');}
+        }
+        assert.ok(row.measurements.samples.filter(s=>s.scheme===scheme&&['.diptych .window','.install-editor .window'].includes(s.selector)).every(s=>s.frames.some(f=>f.own===opposite(scheme))),'opposite scheme preview missing');await capture(`light-frames-${scheme}`,true);
+      }
+    });
     // B1: a resize with nothing in flight starts no motion, and 720 ms later nothing moves, clips, animates or writes.
     for(const [width,from] of [[1440,390],[1100,1440],[768,1100],[390,768]])await run(`resize-settle-${width}`,{reducedMotion:'no-preference',viewport:{width:from,height:1000}},async(p,_c,row)=>{
       await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.addInitScript(resizeProbe);
