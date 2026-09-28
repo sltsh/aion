@@ -1,0 +1,14 @@
+:root, [data-theme] { --site-frame-edge: var(--n-hairline); }
+[data-theme="light"] { --site-frame-edge: var(--n-divider); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) { --site-frame-edge: var(--n-divider); }
+}
+
+.diptych .window,
+.depth-frame .window,
+.states-chapter .states-code,
+.terminal-chapter .terminal-sessions,
+.install-chapter .install-thumbnail,
+.install-editor .window {
+  border-color: var(--site-frame-edge);
+}
