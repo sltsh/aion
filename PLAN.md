@@ -492,10 +492,11 @@ The corrected compositor required re-solving Light's selection and added-line wa
 as well as the affected fills, with the comment fixed. Raw-key hierarchy and visibility,
 painted visibility and selection cues, and all covered contrast floors now pass.
 The inactive selection retains its earlier emitted colour and alpha. Five independent
-byte fixtures retain the binding editor/peek stacks and the selection-highlight alpha
-seam. The final palette also passed all 1,112 Chromium stack pixels with no helper mismatch
+byte fixtures retain representative binding editor/peek composites. The final palette
+also passed all 1,112 Chromium stack pixels with no helper mismatch
 and 12,232 foreground checks with no floor failure (worst 4.5046:1). These calculations
-and browser fixtures are not native VS Code acceptance.
+and browser fixtures are not native VS Code acceptance. The restored notebook and peek
+per-key gates retain their earlier emitted-alpha calculation and are outside this pixel matrix.
 
 - **Dark:** `editor.findMatchHighlightBackground`, `editor.findRangeHighlightBackground`,
   `editor.focusedStackFrameHighlightBackground`, `editor.foldBackground`,
