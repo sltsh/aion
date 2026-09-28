@@ -233,6 +233,42 @@ async function engineRun(name) {
       await p.goto(base+'/#states');await settled(p);
       for(const width of [1440,1920]){await p.setViewportSize({width,height:1000});await p.locator('#states').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));await p.waitForTimeout(100);const g=await p.evaluate(()=>{const rail=document.querySelector('.chapter-rail'),chip=document.querySelector('[data-scheme-chip]'),r=rail.getBoundingClientRect(),c=chip.getBoundingClientRect();return {gutter:document.querySelector('#depth').getBoundingClientRect().left,hidden:rail.hidden,current:rail.querySelector('[aria-current]')?.hash,overlap:!rail.hidden&&r.left<c.right&&r.right>c.left&&r.top<c.bottom&&r.bottom>c.top};});assert.equal(g.hidden,g.gutter<190);assert.equal(g.current,'#states');assert.equal(g.overlap,false);row.measurements[width]=g;}
     });
+    if(name==='chromium')for(const input of ['pointer','touch'])await run(`throw-flick-${input}`,{hasTouch:input==='touch',viewport:{width:input==='touch'?390:1440,height:1000},reducedMotion:'no-preference'},async(p,c,row)=>{
+      await p.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.addInitScript(resizeProbe);
+      await p.goto(base);await settled(p);await p.waitForTimeout(900);
+      const geometry=await p.locator('[data-hero]').evaluate(h=>{const r=h.getBoundingClientRect();return {width:r.width,height:r.height,share:Number(h.dataset.heroShare)};});
+      assert.ok(Math.abs(geometry.share-.42)<1e-6,'the flick did not start from rest');
+      await p.evaluate(()=>{
+        window.__inputs=[];window.__commits=[];
+        for(const type of ['pointerdown','pointermove','pointerup','pointercancel'])window.addEventListener(type,e=>window.__inputs.push({type:e.type,pointerType:e.pointerType,trusted:e.isTrusted,x:e.clientX,y:e.clientY,t:performance.now(),share:window.__resizeProbe.share(),dragging:document.querySelector('[data-hero]').classList.contains('hero-dragging'),onHandle:!!e.target.closest('[data-hero-handle]')}));
+        window.addEventListener('pointerup',()=>{window.__t0=performance.now();window.__motionFrom=window.__resizeProbe.share();window.__ended=window.__resizeProbe.end(window.__t0);},{capture:true,once:true});
+        new MutationObserver(records=>{for(const r of records)if(r.attributeName==='data-theme')window.__commits.push({t:performance.now()-window.__t0,theme:document.documentElement.dataset.theme,share:window.__resizeProbe.share()});}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+      });
+      const box=await p.locator('[data-hero-handle]').boundingBox(),x=box.x+box.width/2,y=box.y+box.height/2;
+      // The pointer projection misses the magnet, so only speed admits its commit. The touch hold
+      // lets the initial press leave the velocity window before two native move samples.
+      const distance=input==='touch'?64:50;
+      if(input==='pointer'){await p.mouse.move(x,y);await p.mouse.down();await p.mouse.move(x-distance,y);await p.mouse.up();}
+      else{const session=await c.newCDPSession(p);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});await p.waitForTimeout(110);await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+1,y}]});await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x-distance,y}]});await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await session.detach();}
+      row.measurements=await p.evaluate(()=>({inputs:window.__inputs,commits:window.__commits,t0:window.__t0,share:window.__resizeProbe.share(),theme:document.documentElement.dataset.theme}));Object.assign(row.measurements,{geometry,distance});
+      await p.waitForFunction(()=>document.documentElement.dataset.theme==='light');await settled(p);
+      const motion=await p.evaluate(()=>window.__ended),recorded=await p.evaluate(()=>({inputs:window.__inputs,commits:window.__commits,t0:window.__t0,scroll:scrollY,transitions:window.__transitions}));
+      row.measurements={method:input==='touch'?'native Chromium CDP touch':'native Playwright mouse',geometry,distance,...recorded,motion};
+      const down=recorded.inputs.find(e=>e.type==='pointerdown'),up=recorded.inputs.find(e=>e.type==='pointerup');
+      assert.ok(down&&up&&down.onHandle&&down.dragging,'the real handle did not admit the drag');
+      assert.ok(recorded.inputs.every(e=>e.trusted&&e.pointerType===(input==='touch'?'touch':'mouse')),'the flick used synthetic input or the wrong pointer type');
+      assert.equal(recorded.inputs.filter(e=>e.type==='pointerdown').length,1);assert.equal(recorded.inputs.filter(e=>e.type==='pointerup').length,1);assert.equal(recorded.inputs.filter(e=>e.type==='pointercancel').length,0);
+      const samples=recorded.inputs.filter(e=>['pointerdown','pointermove'].includes(e.type)&&e.t>=down.t&&up.t-e.t<=90),first=samples[0],last=samples.at(-1);
+      assert.ok(samples.length>=2,'release has fewer than two recent real input samples');
+      const velocity=(last.share-first.share)/Math.max(16,last.t-first.t),normalSpeed=velocity*(geometry.width+geometry.height)/Math.SQRT2,projection=up.share+velocity*320;
+      Object.assign(row.measurements,{velocity,normalSpeed,projection,releaseElapsed:up.t-down.t});
+      assert.ok(normalSpeed>=1,`flick below speed threshold: ${normalSpeed}`);if(input==='pointer')assert.ok(projection<.94,`the pointer projection reached the far magnet without needing speed: ${projection}`);
+      assert.ok(motion.arrived!==undefined&&motion.arrived<=720+motion.frame,'the committing flick missed its arrival deadline');
+      assert.equal(recorded.commits.length,1,'one throw must commit exactly once');assert.equal(recorded.commits[0].theme,'light');
+      // The page scene may defer its root mutation while Chromium prepares a snapshot. Its request must start at arrival.
+      assert.equal(recorded.transitions.length,1,'one flick must request exactly one page scene');assert.ok(Math.abs(recorded.transitions[0].start-motion.arrived)<=motion.frame,'commit request did not coincide with edge arrival');assert.ok(recorded.commits[0].t>=motion.arrived-motion.frame,'theme committed before edge arrival');
+      assert.equal(recorded.scroll,0,'a handle flick scrolled the page');await consistent(p,'light');
+    });
     await run('touch-outside-tab-scroll',{hasTouch:true,viewport:{width:390,height:1000}},async(p,c,row)=>{
       await p.goto(base);await settled(p);const before=(await themeState(p)).share;
       const prevented=await p.locator('[data-hero]').evaluate(e=>{const event=new PointerEvent('pointerdown',{bubbles:true,cancelable:true,pointerType:'touch',pointerId:7,button:0,clientX:30,clientY:350});e.dispatchEvent(event);return event.defaultPrevented;});assert.equal(prevented,false);
@@ -422,6 +458,7 @@ async function engineRun(name) {
         if(kind==='chip-on'||kind==='chip-off'){assert.equal(await p.evaluate(on=>{const r=document.querySelector('[data-hero]').getBoundingClientRect();return r.bottom>0&&r.top<innerHeight;}),kind==='chip-on');await mark('[data-scheme-chip]');await p.locator('[data-scheme-chip]').click();}
         await p.waitForFunction(()=>window.__t0!==undefined);await p.evaluate(()=>{window.__ended=window.__resizeProbe.end(window.__t0);});
         const result={kind,resized:resize};
+        if(kind==='glide')result.releaseGeometry=await p.locator('[data-hero]').evaluate(h=>{const r=h.getBoundingClientRect();return {width:r.width,height:r.height};});
         if(resize){
           await p.waitForFunction(at=>performance.now()-window.__t0>=at,{glide:400,intro:900,'chip-on':300,'chip-off':300}[kind]);
           if(evidence){const path=`${dir}/${screenshotName(`${row.id}-before-resize`)}.png`;await p.screenshot({path});row.artifacts.push(path);result.beforeFrame={path,url:p.url(),viewport:p.viewportSize(),t:await p.evaluate(()=>performance.now()-window.__t0)};}
@@ -443,17 +480,40 @@ async function engineRun(name) {
     for(const kind of ['glide','intro','chip-on','chip-off'])await run(`resize-settle-in-flight-${kind}`,{},async(_p,_c,row)=>{
       const baseline=await sequence(kind,false,row);const resized=await sequence(kind,true,row);const evidence=await sequence(kind,true,row,true);row.measurements={baseline,resized,evidence};
       assert.ok(baseline.ended&&resized.ended,'the sequence did not finish within 6 s');
-      if(kind==='glide')assert.ok(baseline.end>1000&&resized.end>1000,'a release without velocity starts no glide to compare');
       assert.ok(Math.abs(resized.after-resized.before)<1e-3,`share moved across the resize ${resized.before} → ${resized.after}`);
       const frame=Math.max(baseline.frame,resized.frame);
       const spread=list=>list.length?Math.max(...list)-Math.min(...list):Infinity;
-      if(kind==='glide'||kind==='intro'){
+      if(kind==='glide'){
+        const clock=r=>{
+          const from=r.shares[0][1],tau=320;
+          // Fit p(t) = endpoint + amplitude*exp(-t/tau) before the resize. Neither the final
+          // share nor the controller's release calculation supplies this physical endpoint. The first
+          // pending RAF was scheduled before the timestamp probe and cannot supply a frame timestamp.
+          const fit=r.shares.slice(2).filter(([t])=>t>0&&t<300);assert.ok(fit.length>=3,'too few painted glide samples to reconstruct its endpoint');
+          const n=fit.length,sx=fit.reduce((s,[t])=>s+Math.exp(-t/tau),0),sy=fit.reduce((s,[,p])=>s+p,0),sxx=fit.reduce((s,[t])=>s+Math.exp(-2*t/tau),0),sxy=fit.reduce((s,[t,p])=>s+Math.exp(-t/tau)*p,0);
+          const amplitude=(n*sxy-sx*sy)/(n*sxx-sx*sx),endpoint=(sy-amplitude*sx)/n;
+          assert.ok(endpoint>.06&&endpoint<.94,'the short backward drag must rest outside both magnets');assert.ok(endpoint<from,'the backward release has no physical glide to compare');
+          assert.ok(Math.abs(r.share-endpoint)<1e-6,`rest ${r.share} differs from reconstructed physical endpoint ${endpoint}`);
+          const {width,height}=r.releaseGeometry,tolerance=.5*Math.SQRT2/(width+height),duration=tau*Math.log(Math.abs(endpoint-from)/tolerance);
+          const moving=r.shares.slice(2).filter(([t,p])=>t>0&&p!==r.share),starts=moving.map(([t,p])=>t+tau*Math.log((endpoint-p)/(endpoint-from)));
+          const start=Math.min(...starts),deadline=start+duration,last=r.shares.at(-1)?.[0];
+          return {starts,start,endpoint,velocity:(endpoint-from)/tau,tolerance,duration,settleDuration:0,deadline,last,lastGlideNormalDistance:Math.abs(moving.at(-1)?.[1]-endpoint)*(width+height)/Math.SQRT2};
+        };
+        const clocks=[clock(baseline),clock(resized)];row.measurements.motion=clocks;
+        for(const [i,r] of [baseline,resized].entries()){
+          const c=clocks[i];assert.ok(c.starts.length,'no hero motion observed');
+          assert.ok(spread(c.starts)<=frame,`the ${i?'resized':'baseline'} glide moved its clock: ${c.starts.map(Math.round)}`);
+          assert.ok(Math.abs(c.start)<=frame,'the glide did not begin on release');
+          assert.ok(c.last>=c.deadline-frame&&c.last<=c.deadline+frame,`the glide last moved at ${c.last?.toFixed(1)} ms, deadline ${c.deadline.toFixed(1)} ms`);
+          assert.ok(c.lastGlideNormalDistance>=.5-1e-6,'physical glide handed over before its 0.5 px endpoint tolerance');
+        }
+        assert.ok(resized.end-clocks[1].deadline<=baseline.end-clocks[0].deadline+frame,'the resize extended the sequence past its own deadline');
+      }else if(kind==='intro'){
         // Read each run's clock from its painted shares. Separate page loads can delay the intro's timers or pointer delivery.
         const clock=r=>{
-          const target=kind==='intro'?.42:r.share,from=kind==='intro'?0:r.shares[0][1],duration=kind==='intro'?720:3200;
+          const target=.42,from=0,duration=720;
           const starts=r.shares.filter(([,p])=>{const q=(p-from)/(target-from);return q>.02&&q<.98;}).map(([t,p])=>{
             const q=(p-from)/(target-from);
-            if(kind==='glide')return t+320*Math.log(1-q);
             const b=1-Math.cbrt(1-q),u=1-b;
             return t-720*(3*u*u*b*.22+3*u*b*b*.36+b**3);
           });
