@@ -337,9 +337,9 @@ async function engineRun(name) {
       assert.equal(await p.locator('.solved-scale:visible').count(),1);assert.equal(await p.locator('[data-copy]:not(:disabled)').count(),0);row.measurements={shipped:L,floor};
     });
     await run('hero-motion-storage-keyboard', {reducedMotion:'no-preference'},async(p,c,row)=>{
-      await c.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.goto(base);await settled(p);await p.waitForTimeout(750);
+      await c.addInitScript(()=>{try{sessionStorage.setItem('aion-site-intro','seen');}catch{}});await p.goto(base);await settled(p);await p.waitForTimeout(750);const rested=(await themeState(p)).share;
       const q=await c.newPage();await q.goto(base+'/#install');await settled(q);
-      await p.locator('[data-scheme-chip]').click();await p.waitForTimeout(100);await q.locator('[data-scheme-chip]').click();await q.waitForFunction(()=>document.documentElement.dataset.theme==='light');await p.waitForTimeout(1000);await consistent(p,'light');await consistent(q,'light');assert.equal((await themeState(p)).share,0);
+      await p.locator('[data-scheme-chip]').click();await p.waitForTimeout(100);await q.locator('[data-scheme-chip]').click();await q.waitForFunction(()=>document.documentElement.dataset.theme==='light');await p.waitForTimeout(1000);await consistent(p,'light');await consistent(q,'light');assert.ok(Math.abs((await themeState(p)).share-rested)<=0.005,'storage theme change kept the resting share');
       await p.locator('[data-scheme-chip]').evaluate(e=>{e.click();e.click();e.click();});await p.waitForTimeout(1600);await settled(p);await consistent(p,'dark');
       await p.evaluate(()=>{window.wipes=[];const original=Element.prototype.animate;Element.prototype.animate=function(frames,options){if(this===document.documentElement)window.wipes.push(options);return original.call(this,frames,options);};});
       const handle=p.locator('[data-hero-handle]');await handle.focus();await p.keyboard.press('End');await p.waitForFunction(()=>document.documentElement.dataset.theme==='light');await settled(p);await consistent(p,'light');
@@ -399,7 +399,7 @@ async function engineRun(name) {
           assert.equal(meter.value,meter.measured.toFixed(2)+':1',`${label} ${meter.role}: meter disagrees with painted minima`);
         }
         const lowest=Math.min(...sample.meters.map(m=>m.measured));for(const m of sample.meters)assert.equal(m.lowest,String(Math.abs(m.measured-lowest)<1e-10));
-        for(const swatch of sample.swatches)assert.equal(colour(swatch.bg),hex(stackBackground(currentSource,currentSource.neutral.editor,[swatch.layer==='mergeConflict'?'mergeCurrentHeader':swatch.layer])));
+        for(const swatch of sample.swatches)assert.equal(colour(swatch.bg),hex(stackBackground(currentSource,currentSource.neutral.editor,({mergeConflict:['mergeCurrentHeader'],addedWord:['addedLine','addedWord'],removedWord:['removedLine','removedWord']})[swatch.layer]??[swatch.layer])));
         assert.deepEqual(new Set(sample.backgrounds.split(', ')),backgrounds);assert.equal(colour(sample.backgroundSwatch),colour(sample.rows[0].fragments[0].bg));
         await overflow(p);if(width===390){assert.equal(sample.scroll.overflow,'auto');await state().locator('.states-code').evaluate(e=>{e.scrollLeft=e.scrollWidth;});const scrolled=await state().locator('.states-code').evaluate(e=>e.scrollLeft);assert.ok(Math.abs(scrolled-Math.max(0,sample.scroll.content-sample.scroll.width))<=1,'mobile code cannot scroll to its end');await state().locator('.states-code').evaluate(e=>{e.scrollLeft=0;});}
       };
