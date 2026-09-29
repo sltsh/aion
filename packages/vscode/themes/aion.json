@@ -256,6 +256,7 @@
     "gitDecoration.stageModifiedResourceForeground": "#ea955f",
     "gitDecoration.submoduleResourceForeground": "#7db2f7",
     "gitDecoration.untrackedResourceForeground": "#59cdc8",
+    "gitlens.trailingLineForegroundColor": "#848993",
     "icon.foreground": "#a7acb7",
     "input.background": "#262a32",
     "input.border": "#70757e",

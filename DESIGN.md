@@ -76,7 +76,7 @@ ANSI slots are measured separately on the light panel and its terminal selection
 | Exempt rows, all documented | 5 |
 | Reading states per syntax colour | 559 |
 | Lowest ratio in a reading state | 4.50:1 |
-| Interface keys the theme sets | 623 |
+| Interface keys the theme sets | 624 |
 | TextMate rules | 64 |
 | Semantic tokens | 32 |
 

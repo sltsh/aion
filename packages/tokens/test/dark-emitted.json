@@ -375,6 +375,7 @@
   "vscode.colors.gitDecoration.stageModifiedResourceForeground": "#ea955f",
   "vscode.colors.gitDecoration.submoduleResourceForeground": "#7db2f7",
   "vscode.colors.gitDecoration.untrackedResourceForeground": "#59cdc8",
+  "vscode.colors.gitlens.trailingLineForegroundColor": "#848993",
   "vscode.colors.icon.foreground": "#a7acb7",
   "vscode.colors.input.background": "#262a32",
   "vscode.colors.input.border": "#70757e",

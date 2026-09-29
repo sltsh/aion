@@ -569,6 +569,7 @@ export const minimap = {
 
 export const git = {
   'git.blame.editorDecorationForeground': dim,
+  'gitlens.trailingLineForegroundColor': dim,
   'gitDecoration.addedResourceForeground': green,
   'gitDecoration.modifiedResourceForeground': copper,
   'gitDecoration.deletedResourceForeground': coral,
@@ -963,6 +964,7 @@ const palettePairs = (palette: Palette): PalettePairs => {
   // Inline blame is persistent editor metadata, not incidental chrome. The dim role is
   // too quiet on Light, so promote it to secondary text without competing with primary.
   keyColours.set('git.blame.editorDecorationForeground', hex(palette.neutral.textSecondary));
+  keyColours.set('gitlens.trailingLineForegroundColor', hex(palette.neutral.textSecondary));
   for (const name of Object.keys(findMatch) as (keyof typeof findMatch)[]) {
     add(hex(findMatch[name]), hex(palette.findMatch[name]));
   }
