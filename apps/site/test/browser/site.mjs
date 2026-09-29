@@ -740,6 +740,15 @@ async function engineRun(name) {
       await p.addInitScript(() => { Document.prototype.startViewTransition = undefined; }); await prepareChipMotion(p); await clickChip(p);
       const data = await chipMotionEvidence(p); row.measurements = { data }; assert.equal(data.final.theme, 'light'); assert.equal(data.final.base, 'light'); assert.equal(data.final.incomingHidden, true); assert.equal(data.final.progress, 0); assert.equal(data.writes.length, 0); assert.equal(data.transitions.length, 0); assert.equal(data.final.focused, true); await consistent(p, 'light'); row.measurements.still = await chipIdle(p);
     });
+    await run(`theme-keeps-seam-${name}`, { reducedMotion: 'no-preference' }, async (p, _c, row) => {
+      await p.addInitScript(() => { try { sessionStorage.setItem('aion-site-intro', 'seen'); } catch {} });
+      await p.goto(base + '/'); await settled(p); await p.waitForTimeout(1000);
+      const share = async () => Number(await p.locator('[data-hero]').getAttribute('data-hero-share'));
+      const before = await share(); assert.ok(before > 0.2 && before < 0.6, `arrival rested at ${before}`);
+      await p.locator('[data-scheme-chip]').click(); await p.waitForFunction(() => document.documentElement.dataset.theme === 'light'); await settled(p); await p.waitForTimeout(300);
+      const after = await share(); row.measurements = { before, after, state: await themeState(p) };
+      assert.equal(row.measurements.state.theme, 'light'); assert.ok(Math.abs(after - before) <= 0.005, `share moved ${before} to ${after}`);
+    });
     // B1 in flight: the resize keeps the share, neither restarts nor extends the sequence, and the page is still once it ends.
     const sequence=async(kind,resize,row,evidence=false)=>{
       const context=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'dark',reducedMotion:'no-preference'});const p=await context.newPage();const errors=[];p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(7000);
