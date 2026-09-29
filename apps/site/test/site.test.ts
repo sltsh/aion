@@ -497,7 +497,8 @@ describe('the new page shell', () => {
     const css = readFileSync(join(root, 'src/styles/shell.css'), 'utf8');
     expect(css).toMatch(/\.site-nav a, \.site-nav > span\s*\{[^}]*min-height:\s*44px/);
     expect(css).toContain('color: var(--aion-fg-secondary)');
-    expect(css).toContain('.site-nav a:hover, .site-nav a:focus-visible, .site-nav a[aria-current] { color: var(--aion-fg-primary);');
+    expect(css).toContain('.site-nav a:focus-visible, .site-nav a[aria-current] { color: var(--aion-fg-primary);');
+    expect(css).toMatch(/@media \(hover: hover\)\s*\{[^@]*\.site-nav a:hover \{ color: var\(--aion-fg-primary\);/);
     expect(css).toMatch(/\.site-nav a::after\s*\{[^}]*height:\s*3px[^}]*background:\s*var\(--aion-gold-solid\)/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.site-nav a::after\s*\{[^}]*transition:\s*none/);
     const pairs = SITE_PAIRS.filter((pair) => pair.where.startsWith('header nav'));

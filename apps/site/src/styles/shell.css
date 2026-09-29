@@ -15,7 +15,6 @@ html { scroll-padding-top: 2rem; }
   .site-nav a:hover { color: var(--aion-fg-primary); background: transparent; }
   .site-nav a:hover::after { transform: scaleX(1); }
 }
-@media (hover: none) { .site-nav a:hover:not([aria-current]) { color: var(--aion-fg-secondary); background: transparent; } }
 [data-nav-instant] .site-nav a, [data-nav-instant] .site-nav a::after { transition: none; }
 .hero-placeholder { padding: 6rem 0; }
 .chapter { min-height: 18rem; padding: 4rem 0; }
