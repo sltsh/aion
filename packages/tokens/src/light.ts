@@ -255,11 +255,22 @@ export const lightDiffWash = {
   removedWord: { color: [0.860, 0.070, 28], alpha: 0.350 },
 } as const satisfies Record<string, Overlay>;
 
-// The strips are the only opaque diff marker. Their restrained chroma keeps the gutter
-// quieter than the body washes while the 0.06 lightness separation distinguishes meaning.
+// The strips carry the line number, the current line's included, so both answer to 3:1.
+// Green starts 0.06 above the coral for colour vision, and its chroma cap keeps the pair
+// equally loud.
+const lightStrip = (name: string, hue: number, lightness: [number, number], maxChroma: number): Oklch => {
+  const best = solveMarker({
+    hues: [hue], against: lightNeutral.page,
+    foregrounds: { lineNumber: lightEditorNeutral.muted, activeLineNumber: lightEditorNeutral.textPrimary },
+    stacks: [[]], floor: NON_TEXT_FLOOR, minChroma: 0.04, lightness, chroma: [0.04, maxChroma],
+  });
+  if (best === null) throw new Error(`no light ${name} strip`);
+  return best.colour;
+};
+const removedStrip = lightStrip('removed', ACCENTS.coral[2], [0.6, 0.98], 0.18);
 export const lightDiff = {
-  addedStrip: gamutSafe(0.266, 0.076, ACCENTS.green[2], 'added strip'),
-  removedStrip: gamutSafe(0.206, 0.076, ACCENTS.coral[2], 'removed strip'),
+  addedStrip: lightStrip('added', ACCENTS.green[2], [removedStrip[0] + 0.061, 0.98], 0.10),
+  removedStrip,
   addedGutter: lightAccents.green,
   removedGutter: lightAccents.coral,
 } as const satisfies Record<string, Oklch>;
