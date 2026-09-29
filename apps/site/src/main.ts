@@ -47,7 +47,7 @@ const animate = (target: HTMLElement, frames: Keyframe[], time = feedback, optio
   effects.delete(target);
   if (!canMove() || !target.isConnected || typeof target.animate !== 'function') return;
   try {
-    const effect = target.animate(frames, { ...options, duration: time, easing: ease });
+    const effect = target.animate(frames, { easing: ease, ...options, duration: time });
     effects.set(target, effect);
     void effect.finished.catch(() => {}).finally(() => {
       if (effects.get(target) === effect) effects.delete(target);
@@ -96,6 +96,7 @@ if (introEligible) {
     void runIntro(document, figures, theme.theme, {
       reducedMotion,
       easing: ease,
+      exitEasing: 'cubic-bezier(.64, 0, .78, 0)',
       themeGeneration: () => theme.generation,
       subscribeTheme: (listener) => theme.subscribe(listener),
       animate: (target, frames, options) => animate(target, frames, typeof options.duration === 'number' ? options.duration : feedback, options),

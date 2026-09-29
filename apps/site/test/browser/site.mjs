@@ -156,6 +156,17 @@ const introProbe = () => {
   const frame = t => { probe.frames.push(probe.sample(t)); if (probe.frames.length < 900) requestAnimationFrame(frame); };
   requestAnimationFrame(frame);
 };
+const exitFrameProbe = () => {
+  const probe = window.__exitFrames = { insertedAt: null, gateReleasedAt: null, removedAt: null, frames: [] };
+  const check = t => {
+    if (probe.insertedAt === null && document.querySelector('.splash-intro')) probe.insertedAt = t;
+    if (probe.insertedAt !== null && probe.gateReleasedAt === null && !document.documentElement.hasAttribute('data-intro')) probe.gateReleasedAt = t;
+    if (probe.insertedAt !== null && probe.removedAt === null && !document.querySelector('.splash-intro')) probe.removedAt = t;
+  };
+  new MutationObserver(() => check(performance.now())).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-intro'] });
+  const frame = t => { check(t); probe.frames.push(t); if (probe.removedAt === null || t < probe.removedAt + 100) requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
+};
 const introEvidence = page => page.evaluate(() => { const { sample, ...probe } = window.__introProbe; return probe; });
 const assertIntroFirstPaint = probe => {
   assert.notEqual(probe.pendingAt, null, 'bootstrap did not set pending');
@@ -517,6 +528,17 @@ async function engineRun(name) {
       else{await p.reload({waitUntil:'domcontentloaded'});row.measurements.method='page.reload';}
       await p.waitForFunction(()=>document.documentElement.dataset.intro==='pending'||!!document.querySelector('.splash-intro'),{},{timeout:3000});
       await capture('intro-hard-reload');await settled(p);
+    });
+    await run('intro-exit-frames',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
+      await p.addInitScript(exitFrameProbe);await p.goto(base,{waitUntil:'domcontentloaded'});
+      await p.waitForFunction(()=>window.__exitFrames.removedAt!==null);await p.waitForTimeout(250);
+      const probe=await p.evaluate(()=>window.__exitFrames);
+      const dropped=(from,to)=>{const times=probe.frames.filter(t=>t>=from&&t<=to);return times.slice(1).filter((t,i)=>t-times[i]>25).length;};
+      const entrance=dropped(probe.insertedAt,probe.insertedAt+80+7*70+560),exit=dropped(probe.gateReleasedAt,probe.removedAt);
+      row.measurements.exitFrames={entrance,exit,entranceMs:80+7*70+560,exitMs:probe.removedAt-probe.gateReleasedAt};
+      await capture('intro-exit-frames');
+      // Headless Chromium paints the ease-in exit at about twice the entrance's dropped frames (software compositing of viewport-wide slats); only Firefox asserts.
+      if(name==='firefox')assert.ok(exit<=entrance+4,`exit dropped ${exit} frames against ${entrance} in the entrance`);
     });
     await run('intro-handoff',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
       await p.addInitScript(introProbe);await p.goto(base,{waitUntil:'domcontentloaded'});

@@ -74,6 +74,7 @@ emulated touch press plus native scrolling because Playwright exposes only touch
 Round 2 added cases for each behaviour a calculation cannot show: `resize-settle-*` (a resize
 starts no motion and an in-flight intro, glide or chip wipe keeps its own timeline),
 `intro-reload`, `intro-reload-hash`, `intro-hard-reload` and `intro-handoff` (replay on reload, with or without a hash, never on back/forward, no blank frame),
+`intro-exit-frames` (dropped frames in the entrance and exit windows; asserted in Firefox, recorded in Chromium and WebKit),
 `throw-flick-*` (native flick commit), `theme-keeps-seam-*` (a scheme-chip change keeps the hero seam's share), `chip-labels-*`, `chip-artefact-*`,
 `chip-wipe-visible-*` and `chip-motion-*` (the chip's seam, its wipe on the page scene's clock
 and its interruption rules), `states-placement-*` (per-toggle placement), `solved-strip-*`,

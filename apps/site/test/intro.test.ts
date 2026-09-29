@@ -61,6 +61,7 @@ function introHarness() {
   const env: IntroEnv = {
     reducedMotion,
     easing: 'token-ease',
+    exitEasing: 'token-ease-in',
     themeGeneration: () => generation,
     subscribeTheme(listener: () => void) { themeListeners.add(listener); return () => themeListeners.delete(listener); },
     animate: vi.fn((target: HTMLElement, frames: Keyframe[], effect: KeyframeAnimationOptions) => {
@@ -195,6 +196,41 @@ describe('splash markup and animation lifecycle', () => {
     expect(h.options[17]?.duration).toBe(160);
     expect(h.overlay.remove).toHaveBeenCalledOnce();
     vi.useRealTimers();
+  });
+
+  it('the exit accelerates out on the ease-in easing and the entrance keeps the ease-out token', async () => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+      await vi.runAllTimersAsync();
+      await pending;
+      expect(h.options.slice(0, 8).every((effect) => effect.easing === 'token-ease')).toBe(true);
+      expect(h.options.slice(8, 16).every((effect) => effect.easing === 'token-ease-in')).toBe(true);
+      expect(h.options.slice(16).every((effect) => effect.easing === 'token-ease')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('the page is revealed before the first exit frame', async () => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+      await vi.advanceTimersByTimeAsync(1829);
+      expect(h.effects).toHaveLength(8);
+      expect(h.document.documentElement.dataset['intro']).toBe('pending');
+      await vi.advanceTimersByTimeAsync(1);
+      const revealed = h.removeAttribute.mock.invocationCallOrder[0]!;
+      const firstExit = (h.env.animate as ReturnType<typeof vi.fn>).mock.invocationCallOrder[8]!;
+      expect(revealed).toBeLessThan(firstExit);
+      expect(h.effects.slice(8).every((effect) => !effect.introPending)).toBe(true);
+      await vi.runAllTimersAsync();
+      await pending;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('reveals the page before the exit fades and hands off arrival before the next frame', async () => {
