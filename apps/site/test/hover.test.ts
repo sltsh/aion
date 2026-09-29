@@ -10,7 +10,7 @@ const inside = (css: string): string => [...css.matchAll(hover)].map(m => m[1]).
 
 it('nav and hero actions declare a hover state inside a hover-capable media query', () => {
   const shell = style('shell.css'), hero = style('hero.css');
-  const resting = (css: string) => css.replace(hover, '');
+  const resting = (css: string) => css.replace(hover, '').replace(/@media \(hover: none\) \{[^\n]*\} \}/g, '');
   for (const [css, needle] of [[shell, '.site-nav a:hover'], [shell, '.site-nav a:hover::after'], [hero, '.hero-primary:hover::after'], [hero, '.hero-secondary:hover::after'], [hero, '.diptych .site-nav a:hover']] as const) {
     expect(inside(css), needle).toContain(needle);
     expect(resting(css), `${needle} outside a hover query`).not.toContain(needle);

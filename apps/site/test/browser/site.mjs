@@ -958,6 +958,21 @@ async function engineRun(name) {
       }
       row.measurements=measured;
     });
+    for(const width of [1440,1280,1100,768])await run(`nav-centred-${width}`,{viewport:{width,height:1000}},async(p,_c,row,capture)=>{
+      row.measurements=[];
+      for(const scheme of ['dark','light'])for(const page of ['/','/palette.html']){
+        await p.emulateMedia({colorScheme:scheme});await p.goto(base+page);await settled(p);
+        const m=await p.evaluate(()=>{const c=e=>{const r=e.getBoundingClientRect();return {centre:r.left+r.width/2,left:r.left,right:r.right};};
+          const head=document.querySelector('header.site-head'),nav=head.querySelector('.site-nav'),path=head.querySelector('.site-path'),controls=head.querySelector('.site-controls');
+          const picture=document.querySelector('.site-head-picture .site-nav');return {head:c(head),nav:c(nav),path:c(path),controls:c(controls),picture:picture?c(picture):null,scroll:document.documentElement.scrollWidth,view:innerWidth};});
+        row.measurements.push({scheme,page,...m});const tag=`${scheme} ${page}`;
+        assert.ok(Math.abs(m.nav.centre-m.head.centre)<=2,`${tag}: nav centre ${m.nav.centre} vs header ${m.head.centre}`);
+        assert.ok(m.path.right<=m.nav.left&&m.nav.right<=m.controls.left,`${tag}: nav overlaps path or controls`);
+        assert.ok(m.scroll<=m.view,`${tag}: horizontal overflow`);
+        if(m.picture)assert.ok(Math.abs(m.picture.centre-m.nav.centre)<=2,`${tag}: picture nav is off the live nav by ${m.picture.centre-m.nav.centre}`);
+        await capture(`nav-centred-${width}-${scheme}-${page==='/'?'home':'palette'}`);
+      }
+    });
     for(const scheme of ['dark','light'])await run(`rounded-spacing-colour-${scheme}`,{colorScheme:scheme},async(p,_c,row,capture)=>{
       await p.goto(base+'/#rounded');await settled(p);
       const m=await p.evaluate(()=>{const visible=[...document.querySelectorAll('[data-rounded-values]')].find(e=>e.getClientRects().length);const css=(e,k)=>getComputedStyle(e)[k];const channels=visible.querySelector('.rounded-channels'),channel=visible.querySelector('.rounded-channel');

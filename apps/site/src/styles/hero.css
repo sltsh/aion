@@ -12,6 +12,7 @@
 .diptych .site-nav a:focus-visible, .diptych .site-nav a[aria-current] { color: var(--n-text-primary); }
 @media (hover: hover) { .diptych .site-nav a:hover { color: var(--n-text-primary); } }
 .diptych .site-nav { margin-left: auto; }
+@media (min-width: 768px) { .diptych .site-nav { margin-left: 0; } }
 .diptych .site-path { gap: 12px; }
 .diptych .header-wordmark img { height: 19px; width: auto; }
 .hero-layer[data-theme="dark"] .theme-image [data-theme-asset="light"], .hero-layer[data-theme="light"] .theme-image [data-theme-asset="dark"] { display: none; }
