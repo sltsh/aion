@@ -515,6 +515,18 @@ per-key gates retain their earlier emitted-alpha calculation and are outside thi
   `editor.rangeHighlightBackground`, `editor.selectionHighlightBackground`,
   `editor.wordHighlightBackground`, `diffEditor.removedLineBackground`.
 
+The 2026-09-29 Light theme review is **calculation; not yet checked natively**. It
+darkened the Light comment, re-tiered every Light syntax accent above it, gave the diff
+its own green and coral, solved every Light decoration into three tiers by painted shift,
+and added Light-only coverage gutter keys. Every Light decoration and every Light syntax
+colour is therefore a calculation until the owner checks each of these in VS Code with Aion
+Light, recording visible yes/no and text readable yes/no: bracket match next to the caret;
+merge conflict (current, incoming and common headers, merge editor change fill); a diff
+with a changed word in an added and a removed line; hover, symbol and strong word
+highlight; debug stack frame and focused frame; comment range; search editor match;
+coverage gutters, outlines and fills, next to a diff where VS Code allows both; a
+selection over a removed diff word; the comment against regular text.
+
 Checked in the applications themselves on 2026-09-05, not in a calculation:
 
 - **VS Code, dense TypeScript and TSX**, semantic highlighting on and off, the six
