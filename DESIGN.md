@@ -1003,6 +1003,17 @@ Light muted sits at lightness 0.550, lower than the dark ramp's tenth step, so t
 layer needs no muted exemption. Light border sits at 0.595, which clears the 3:1 non-text
 floor against the page.
 
+Light accents read at least `LIGHT_ACCENT_MARGIN` (1.06) times the comment's contrast on
+the editor, so the comment stays the quietest text. Teal keeps its Dark hue less
+`LIGHT_HUE_DRIFT` (-5 degrees, toward blue): at 192 the gamut at that lightness cannot
+carry its chroma floor, and 5 is the smallest step that can. Light decorations sit in three
+tiers by painted shift from the editor: the selection, then the word and find fills, then
+the quiet states, each leading the next by `LIGHT_TIER_RATIO` (1.35), and tier 3 stays
+within 0.030 to 0.035. Light alone sets `testing.coveredGutterBackground` and
+`testing.uncoveredGutterBackground`, solved against the line number at 3:1, because the
+diff-derived default puts a pale wash under a number it cannot carry. All of this is
+calculation, not native rendering.
+
 **Known consequence.** Light gold reads olive rather than gold. A
 yellow hue cannot be both light and 4.5:1 against near-white. The light layer therefore
 does not carry Aion's signature the way the dark layer does. The same independently tuned

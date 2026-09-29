@@ -492,9 +492,10 @@ had overstated the Light binding ratio (4.502 calculated versus 4.419 in Chromiu
 The corrected compositor required re-solving Light's selection and added-line wash,
 as well as the affected fills, with the comment fixed. Raw-key hierarchy and visibility,
 painted visibility and selection cues, and all covered contrast floors now pass.
-The inactive selection retains its earlier emitted colour and alpha. Five independent
-byte fixtures retain representative binding editor/peek composites. The final palette
-also passed all 1,112 Chromium stack pixels with no helper mismatch
+The inactive selection was re-solved with the tiers on 2026-09-29 and no longer keeps its
+earlier emitted colour. Five independent
+byte fixtures retain representative binding editor/peek composites. The palette of that
+date also passed all 1,112 Chromium stack pixels with no helper mismatch
 and 12,232 foreground checks with no floor failure (worst 4.5046:1). These calculations
 and browser fixtures are not native VS Code acceptance. The restored notebook and peek
 per-key gates retain their earlier emitted-alpha calculation and are outside this pixel matrix.
@@ -525,7 +526,11 @@ merge conflict (current, incoming and common headers, merge editor change fill);
 with a changed word in an added and a removed line; hover, symbol and strong word
 highlight; debug stack frame and focused frame; comment range; search editor match;
 coverage gutters, outlines and fills, next to a diff where VS Code allows both; a
-selection over a removed diff word; the comment against regular text.
+selection over a removed diff word; the comment against regular text; the current line,
+selection, inactive selection, word highlight, selection highlight, other find match, find
+range and fold, range highlight, and unchanged code. Two weak spots to look at first: find
+range or fold beside an added line (0.0279 apart, below the 0.03 the rest hold), and the
+current line next to a range highlight or hover.
 
 Checked in the applications themselves on 2026-09-05, not in a calculation:
 

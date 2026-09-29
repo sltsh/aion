@@ -202,22 +202,23 @@ export const lightOverlay = {
   selection: { color: [0.800, 0.100, 246], alpha: 0.500 },
   findMatchOther: { color: [0.880, 0.100, 84], alpha: 0.500 },
   wordHighlight: { color: [0.900, 0.120, 194], alpha: 0.450 },
-  lineHighlight: { color: [0.780, 0.110, 260], alpha: 0.150 },
+  lineHighlight: { color: [0.948, 0.010, 90], alpha: 0.950 },
 } as const satisfies Record<string, Overlay>;
 
 // Find and folded ranges need a cyan hue to stay visible without hiding a selection on
 // a diff word. Selection highlight is halved by VS Code's CSS after its key is emitted.
 export const lightDecoration: Record<DecorationName, Overlay> = {
   selectionHighlight: { color: [0.870, 0.060, 252], alpha: 0.850 },
-  // Keep the inactive fill's emitted colour when re-solving the active selection.
+  // Re-solved with the tiers on 2026-09-29; it no longer keeps its earlier emitted colour.
   inactiveSelection: { color: [0.940, 0.030, 246], alpha: 0.750 },
-  findRange: { color: [0.920, 0.050, 202], alpha: 0.450 },
+  findRange: { color: [0.950, 0.070, 196], alpha: 0.450 },
   rangeHighlight: { color: [0.890, 0.050, 260], alpha: 0.350 },
-  fold: { color: [0.920, 0.050, 202], alpha: 0.450 },
+  fold: { color: [0.950, 0.070, 196], alpha: 0.450 },
 };
 
-// Tier 3 (LIGHT_TIER): painted 0.03-0.035 from the editor, solved with solveOverlay against the comment over every
-// covered stack, at least 0.03 from each diff fill unless the distinctness test names the pair exempt.
+// Tier 3 (LIGHT_TIER) is painted 0.03-0.035 from the editor; strongWord and searchMatch
+// are tier 2. Each is solved with solveOverlay against the comment over every covered stack,
+// at least 0.03 from each diff fill unless the distinctness test names the pair exempt.
 export const lightSecondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
   hover: { color: [0.910, 0.040, 259], alpha: 0.450 },
   symbol: { color: [0.960, 0.050, 90], alpha: 0.500 },
@@ -249,7 +250,7 @@ export const lightFindMatch = {
 // and leaves the comment above 4.5:1 on every reading stack they land in.
 export const lightDiffWash = {
   addedLine: { color: [0.800, 0.130, 144], alpha: 0.150 },
-  addedWord: { color: [0.850, 0.190, 136], alpha: 0.300 },
+  addedWord: { color: [0.850, 0.190, 148], alpha: 0.290 },
   removedLine: { color: [0.870, 0.070, 30], alpha: 0.250 },
   removedWord: { color: [0.860, 0.070, 28], alpha: 0.350 },
 } as const satisfies Record<string, Overlay>;

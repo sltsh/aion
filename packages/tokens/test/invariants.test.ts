@@ -503,12 +503,16 @@ const DIFF_LAYERS = new Set<StackLayer>(['addedLine', 'removedLine', 'addedWord'
 const DIFF_EXEMPT: Record<string, string> = {
   covered: 'Gate B: the coverage outline (coveredBorder) and gutter carry the distinction from a diff',
   uncovered: 'Gate B: the coverage outline (uncoveredBorder) and gutter carry the distinction from a diff',
-  unchangedCode: 'Gate C: the collapsed unchanged region of a diff editor, drawn where no diff fill is',
-  mergeCommonHeader: 'Gate C: merge editor only, never beside a diff fill',
+  unchangedCode: 'Gate C: never on a line with a diff fill, and 3 context lines from one by default; can touch at contextLineCount 0',
+  mergeCommonHeader: 'Gate C: only on inline conflict marker lines, which a diff pane can show (edge case)',
 };
-// Owner ruling, Gate C addendum: cyan find and fold ranges are exempt from the added line only.
-// The best any placement reached was 0.0279; every other pair they are in must pass.
-const PAIR_EXEMPT = new Set(['addedLine vs findRange', 'addedLine vs fold']);
+// Owner ruling, Gate C addendum: cyan find and fold ranges answer to a lower floor against the
+// added line only. The best any placement reached was 0.0279 on the search grid and that is
+// the shipped distance; every other pair they are in must pass 0.03.
+const PAIR_FLOOR: Record<string, number> = { 'addedLine vs findRange': 0.0275, 'addedLine vs fold': 0.0275 };
+// The current line stacks with a diff fill under the caret and never replaces it, so it is not
+// held to the diff distinctness. It is held apart from the other reading-state fills instead.
+const LINE_EXEMPT = 'lineHighlight';
 
 test('light diff fills stand apart from every other secondary decoration', () => {
   const editor = LIGHT_SHIPPED.neutral.editor;
@@ -519,13 +523,23 @@ test('light diff fills stand apart from every other secondary decoration', () =>
   const failures: string[] = [];
   for (const [fill, stack] of fills) {
     for (const name of RENDER_ORDER) {
-      if (DIFF_LAYERS.has(name) || name in DIFF_EXEMPT || PAIR_EXEMPT.has(`${fill} vs ${name}`)) continue;
+      if (DIFF_LAYERS.has(name) || name in DIFF_EXEMPT || name === LINE_EXEMPT) continue;
       const gap = distanceEmitted(
         stackBackground(LIGHT_SHIPPED, editor, stack), stackBackground(LIGHT_SHIPPED, editor, [name]));
-      if (gap < 0.03) failures.push(`${fill} vs ${name} ${gap.toFixed(4)}`);
+      if (gap < (PAIR_FLOOR[`${fill} vs ${name}`] ?? 0.03)) failures.push(`${fill} vs ${name} ${gap.toFixed(4)}`);
     }
   }
   expect(failures).toEqual([]);
+});
+
+test('the light current line stands apart from hover, range highlight and the incoming header', () => {
+  const editor = LIGHT_SHIPPED.neutral.editor;
+  const line = stackBackground(LIGHT_SHIPPED, editor, ['lineHighlight']);
+  const gaps = (['hover', 'rangeHighlight', 'mergeIncomingHeader'] as const).map((name) =>
+    [name, distanceEmitted(line, stackBackground(LIGHT_SHIPPED, editor, [name]))] as const);
+  for (const [name, gap] of gaps) {
+    expect(gap, `lineHighlight vs ${name} ${gap.toFixed(4)}`).toBeGreaterThanOrEqual(0.03);
+  }
 });
 
 test('light coverage keys stand apart', () => {

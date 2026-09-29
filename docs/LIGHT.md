@@ -99,7 +99,8 @@ npm run sync:design
 Those checks validate the calculated and browser-previewed palette. The packaged Light
 theme was checked and approved in VS Code on 2026-09-12 after the final palette, diff,
 minimap and inline Git blame adjustments. Any later palette change requires fresh native
-acceptance.
+acceptance. The 2026-09-29 Light changes (darker comment, re-tiered accents, decoration tiers,
+diff hues, coverage gutters) are calculation only until rechecked in VS Code.
 
 See [RELEASING.md](RELEASING.md) for the tag-driven publication process and
 [DESIGN.md](../DESIGN.md) for the complete colour and contrast specification.

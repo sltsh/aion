@@ -10,6 +10,10 @@ the versions follow Semantic Versioning.
 - Gate a named set of VS Code decoration stacks in renderer paint order in both themes,
   and re-solve the overlays that fell below the text contrast floor. The new values are
   calculation only until checked in VS Code.
+- Aion Light: the comment is darker and every syntax accent reads above it. Decorations
+  fall into three tiers by how far they move the editor, the diff has its own green and
+  coral, the current line is a faint warm grey, and the coverage gutters are set apart
+  from the diff. These are calculation only until checked in VS Code.
 
 ## 1.2.0
 
