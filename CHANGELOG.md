@@ -19,6 +19,9 @@ the versions follow Semantic Versioning.
 - The site is rebuilt around chapters on the palette, depth, reading states, solved
   decorations, rounding and the terminal, with a new intro, theme wipe and install badges.
 - The listing screenshots are native VS Code renders of a demo project.
+- Aion Light: the diff gutter strips are lighter and gated against the current line
+  number they sit beside. Calculation only until checked in VS Code.
+- GitLens inline blame uses the same secondary text colour as VS Code's built-in blame.
 
 ## 1.2.0
 
