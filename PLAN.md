@@ -636,3 +636,30 @@ click (owner, 2026-09-28). D8's resting hero seam misses the header below 1100px
 exception. The ~30 s drift investigation was dropped by the owner.
 
 Owner visual approval and native VS Code and Obsidian acceptance remain separate and open.
+
+## Site round 3 — 2026-09-29
+
+Round 3 answers the owner's round 2 feedback:
+- hover states on the nav and hero actions, and a centred nav from 768px
+- the hero seam keeps its share through a theme change
+- the intro replays on a reload with a hash, and exits on an ease-in curve
+- a coloured call to action per install target
+- the Rounded probe drawn as comment text on the editor
+- the states chapter draws VS Code's bracket-match border, and shows each word swatch over its line
+
+No palette or token changed.
+
+**Calculations:** `npm run verify` passes 12,564 checks with zero failures. The root suite, strict typecheck and production build pass, with 274 site tests. Every install call-to-action label and its fill is paired in `pairs.ts` and held at 4.5:1 by `contrastEmitted` in both schemes (at least 6.72:1). The bracket border reads at 3:1 against the editor in both schemes. Every states toolbar swatch sits at least 0.03 OKLab from what it lands on.
+
+**Browser:** the whole production harness ran on the final site source (`/tmp/aion-r3-final`) in Chromium 153, Firefox 155 and WebKit 26.6: 140, 136 and 136 cases.
+- 15 failures were harness expectations of the replaced behaviour: a storage theme change resetting the seam to 0, and word swatches drawn over the editor. They were corrected, and all 15 pass on retry (`/tmp/aion-r3-final-retry1`), as do the three baseline flakes that recurred.
+- An earlier partial run found a 36px page overflow at 320px from the Rounded sample; it is fixed.
+- Headless Chromium drops about 7–9 more frames on the intro's ease-in exit than on its entrance. That is software compositing; the owner judges the exit on the page.
+
+Browser evidence is rendering and timing in those engines, not native editor acceptance.
+
+**Decisions:**
+- A theme change keeps the seam's share, and the page wipe still covers the hero.
+- The intro exit's ease-in mirror of `--slt-ease-out` is a local brand extension.
+
+Owner visual approval, including the install copy, and native VS Code and Obsidian acceptance remain separate and open.
