@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.3.0
+
 ### Changed
 
 - Gate a named set of VS Code decoration stacks in renderer paint order in both themes,
