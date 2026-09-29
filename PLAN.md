@@ -590,3 +590,32 @@ unproven root-cause claim. Review links are served temporarily at
 `http://100.113.118.14:4193/` and `http://192.168.0.80:4193/`; the production preview uses
 port 4192 on both interfaces. Stop both review servers after the owner finishes. Merge,
 deployment and owner visual approval are not recorded as complete.
+
+## Site round 2 — 2026-09-29
+
+Round 2 covers resize settling (B1), the intro on reload and its handoff (B2, B3), the chip
+seam and chip wipe (B4, D2), the Depth size, Solved strip, Rounded spacing and colour, States
+placement and coloured copy (C1–C5), install badges, Light frame edges and the header nav
+(D1, D3, D4), the Dimension label and the Palette margin. No palette or token changed.
+
+**Calculations:** `npm run verify` passes 12,564 checks with zero failures, 5 exemptions
+and 64 informational rows; the root suite, strict typecheck and the production build pass
+(611 tests, 253 of them in the site). New coloured copy is paired in `pairs.ts` and held at 4.5:1 by
+`contrastEmitted` in both schemes; the Rounded exact, byte and gap figures read blue, teal
+and gold solid on the raised surface.
+
+**Browser:** the whole production harness ran in Chromium 153, Firefox 155 and WebKit 26.6
+on the final source (`/tmp/aion-round2-final-harness/run-7`): 121, 117 and 117 cases, all
+passing except Chromium `chip-motion-cancel-throw`, a probe timestamp artefact whose
+corrected check passes for every chip clock case in all three engines (`run-8-retry`).
+Earlier full runs are retained: run-1 found the resize-started nav transitions and a 15–19px
+palette-page overflow at 600px, both fixed; run-2 found a chip/hero start offset in Firefox.
+Browser evidence is rendering and timing in those engines, not native editor acceptance.
+
+**Decisions and exceptions:** the page theme wipe may settle at once on resize (owner,
+2026-09-28). With the hero off screen the chip wipe runs on the page scene's clock, holding
+until the root animation starts, because WebKit held that first frame 360–415 ms after the
+click (owner, 2026-09-28). D8's resting hero seam misses the header below 1100px, an accepted
+exception. The ~30 s drift investigation was dropped by the owner.
+
+Owner visual approval and native VS Code and Obsidian acceptance remain separate and open.

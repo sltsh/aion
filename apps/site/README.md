@@ -71,5 +71,13 @@ The matrix covers both pages and schemes at 1440, 1280, 1100, 768, 600, 599, 390
 plus focused keyboard, splash, storage, motion, touch admission, resize and rail checks.
 Chromium verifies a native touch swipe through CDP. Firefox and WebKit verify an unprevented
 emulated touch press plus native scrolling because Playwright exposes only touch tap there.
+Round 2 added cases for each behaviour a calculation cannot show: `resize-settle-*` (a resize
+starts no motion and an in-flight intro, glide or chip wipe keeps its own timeline),
+`intro-reload` and `intro-handoff` (replay on reload, never on back/forward, no blank frame),
+`throw-flick-*` (native flick commit), `chip-labels-*`, `chip-artefact-*`,
+`chip-wipe-visible-*` and `chip-motion-*` (the chip's seam, its wipe on the page scene's clock
+and its interruption rules), `states-placement-*` (per-toggle placement), `solved-strip-*`,
+`depth-scale-*`, `dimension-upright`, `palette-margin`, `install-align`, `light-frames`,
+`nav-current-*` and `rounded-spacing-colour-*`.
 Browser results and the calculation gates are recorded separately in `PLAN.md`; neither
 establishes native VS Code or Obsidian acceptance. Owner visual approval remains separate.
