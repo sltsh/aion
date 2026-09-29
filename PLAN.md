@@ -483,8 +483,8 @@ Tasks 1 to 11 are done.
 
 ## Native acceptance
 
-The renderer-stack re-solve below is **calculation; not yet checked natively**. The
-previous VS Code checks do not establish the appearance of these changed keys:
+The renderer-stack re-solve below was checked in VS Code and approved by the owner on
+2026-09-29, as released in 1.3.0. It changed these keys:
 
 The native CSS compositor uses Skia's premultiplied byte source-over formula, verified
 against 1,112 Chromium editor/peek pixels before the palette repair. Exact interpolation
@@ -516,21 +516,12 @@ per-key gates retain their earlier emitted-alpha calculation and are outside thi
   `editor.rangeHighlightBackground`, `editor.selectionHighlightBackground`,
   `editor.wordHighlightBackground`, `diffEditor.removedLineBackground`.
 
-The 2026-09-29 Light theme review is **calculation; not yet checked natively**. It
+The 2026-09-29 Light theme review was checked in VS Code with Aion Light and approved by
+the owner on 2026-09-29, as released in 1.3.0 with the lighter diff gutter strips. It
 darkened the Light comment, re-tiered every Light syntax accent above it, gave the diff
 its own green and coral, solved every Light decoration into three tiers by painted shift,
-and added Light-only coverage gutter keys. Every Light decoration and every Light syntax
-colour is therefore a calculation until the owner checks each of these in VS Code with Aion
-Light, recording visible yes/no and text readable yes/no: bracket match next to the caret;
-merge conflict (current, incoming and common headers, merge editor change fill); a diff
-with a changed word in an added and a removed line; hover, symbol and strong word
-highlight; debug stack frame and focused frame; comment range; search editor match;
-coverage gutters, outlines and fills, next to a diff where VS Code allows both; a
-selection over a removed diff word; the comment against regular text; the current line,
-selection, inactive selection, word highlight, selection highlight, other find match, find
-range and fold, range highlight, and unchanged code. Two weak spots to look at first: find
-range or fold beside an added line (0.0279 apart, below the 0.03 the rest hold), and the
-current line next to a range highlight or hover.
+and added Light-only coverage gutter keys. The approval was recorded as a whole, not item
+by item.
 
 Checked in the applications themselves on 2026-09-05, not in a calculation:
 
