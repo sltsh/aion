@@ -54,3 +54,21 @@ test('the right column spaces its channels',()=>{
  expect(px('--site-rounded-channel-gap')).toBeGreaterThan(0);
  expect(px('--site-rounded-row-gap')).toBeGreaterThan(4);
 });
+
+test('the rounded sample shows comment text in the probed colour on the editor',async()=>{
+ const {CONTENT}=await import('../src/content.js');
+ const {hex}=await import('@sltsh/aion-tokens');
+ const {roundedView}=await import('../src/chapters/rounded.js');
+ for(const source of [buildPalette(),lightPalette]){
+  const base=source.comment,bg=source.neutral.editor,L=roundedFloor(base,bg);
+  {
+   const html=roundedView(base,bg,L,true);
+   const sample=/<span class="rounded-sample"[^>]*style="([^"]*)">([^<]*)<\/span>/.exec(html);
+   expect(sample).not.toBeNull();
+   expect(sample![1]).toContain(`color:${hex([L,base[1],base[2]])}`);
+   expect(sample![1]).toContain('background:var(--n-editor)');
+   expect(sample![2]).toBe(CONTENT.rounded.sample);
+   expect(html).toContain(CONTENT.rounded.sampleCaption);
+  }
+ }
+});

@@ -103,6 +103,7 @@ export const CONTENT = {
     directions: { up: 'rounds up', down: 'rounds down', exact: 'exact' },
     flipNote: 'The exact colour passes and the one on your screen fails. A gate that read the exact value would ship this.',
     helpNote: 'Here rounding happens to help. The gate still reads the rounded value.',
+    sample: '// why this colour', sampleCaption: 'The comment at this lightness, on the editor',
     dragNote: 'Drag across the floor: the two numbers cross it at different points.',
     caption: 'An example colour at the comment’s hue, near the floor, on the current scheme’s editor.',
   },
