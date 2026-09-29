@@ -47,7 +47,7 @@ const animate = (target: HTMLElement, frames: Keyframe[], time = feedback, optio
   effects.delete(target);
   if (!canMove() || !target.isConnected || typeof target.animate !== 'function') return;
   try {
-    const effect = target.animate(frames, { ...options, duration: time, easing: ease });
+    const effect = target.animate(frames, { easing: ease, ...options, duration: time });
     effects.set(target, effect);
     void effect.finished.catch(() => {}).finally(() => {
       if (effects.get(target) === effect) effects.delete(target);
@@ -77,6 +77,17 @@ const introSession = (): Storage | null => { try { return window.sessionStorage;
 const introEligible = introHome && shouldPlayIntro({ reducedMotion: reducedMotion.matches, hash: window.location.hash, session: introSession(), navigationType: (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type });
 const introGeneration = theme.generation;
 const arriveIfCurrent = (): void => { if (theme.generation === introGeneration) heroController?.arrive(); };
+const introHash = window.location.hash;
+if (introEligible && introHash) {
+  const hashObserver = new MutationObserver(() => {
+    if (root.hasAttribute('data-intro')) return;
+    hashObserver.disconnect();
+    let id = introHash.slice(1);
+    try { id = decodeURIComponent(id); } catch { /* A malformed escape names the raw fragment. */ }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'instant' });
+  });
+  hashObserver.observe(root, { attributes: true, attributeFilter: ['data-intro'] });
+}
 if (introEligible) {
   try {
     const island = JSON.parse(document.querySelector<HTMLScriptElement>('#aion-measures')?.textContent ?? '') as Partial<Record<'dark' | 'light', { figures?: SchemeMeasures }>>;
@@ -85,6 +96,7 @@ if (introEligible) {
     void runIntro(document, figures, theme.theme, {
       reducedMotion,
       easing: ease,
+      exitEasing: 'cubic-bezier(.64, 0, .78, 0)',
       themeGeneration: () => theme.generation,
       subscribeTheme: (listener) => theme.subscribe(listener),
       animate: (target, frames, options) => animate(target, frames, typeof options.duration === 'number' ? options.duration : feedback, options),

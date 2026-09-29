@@ -12,7 +12,8 @@ export function shouldPlayIntro(env: {
   readonly session: Pick<Storage, 'getItem' | 'setItem'> | null;
   readonly navigationType?: 'navigate' | 'reload' | 'back_forward' | 'prerender';
 }): boolean {
-  if (env.reducedMotion || env.hash || env.navigationType === 'back_forward') return false;
+  if (env.reducedMotion || env.navigationType === 'back_forward') return false;
+  if (env.hash && env.navigationType !== 'reload') return false;
   let played = false;
   try { played = env.session?.getItem(INTRO_KEY) != null; } catch { /* Unavailable storage behaves like a first visit. */ }
   if (env.navigationType !== 'reload' && played) return false;
@@ -23,6 +24,7 @@ export function shouldPlayIntro(env: {
 export interface IntroEnv {
   readonly reducedMotion: Pick<MediaQueryList, 'matches' | 'addEventListener' | 'removeEventListener'>;
   readonly easing: string;
+  readonly exitEasing: string;
   readonly themeGeneration: () => number;
   readonly subscribeTheme: (listener: () => void) => () => void;
   readonly animate: (target: HTMLElement, frames: Keyframe[], options: KeyframeAnimationOptions) => Pick<Animation, 'cancel'> | undefined;
@@ -72,7 +74,7 @@ export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme,
     const onMotion = (): void => { if (env.reducedMotion.matches) finish(); };
     const animate = (element: HTMLElement, frames: Keyframe[], options: KeyframeAnimationOptions): boolean => {
       try {
-        const animation = env.animate(element, frames, { ...options, easing: env.easing });
+        const animation = env.animate(element, frames, { easing: env.easing, ...options });
         if (!animation) return false;
         animations.push(animation);
         return true;
@@ -123,7 +125,7 @@ export function runIntro(doc: Document, measures: SchemeMeasures, scheme: Theme,
         doc.documentElement.removeAttribute('data-intro');
         for (const [index, slat] of slats.entries()) {
           if (!animate(slat, [{ transform: 'none', opacity: 1 }, { transform: `translateX(${width + height}px)`, opacity: 0 }], {
-            duration: 560, delay: 70 * index, fill: 'forwards',
+            duration: 560, delay: 70 * index, fill: 'forwards', easing: env.exitEasing,
           })) { finish(); return; }
         }
         const plate = overlay?.querySelector<HTMLElement>('.splash-intro__plate');

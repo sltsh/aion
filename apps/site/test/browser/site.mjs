@@ -156,6 +156,17 @@ const introProbe = () => {
   const frame = t => { probe.frames.push(probe.sample(t)); if (probe.frames.length < 900) requestAnimationFrame(frame); };
   requestAnimationFrame(frame);
 };
+const exitFrameProbe = () => {
+  const probe = window.__exitFrames = { insertedAt: null, gateReleasedAt: null, removedAt: null, frames: [] };
+  const check = t => {
+    if (probe.insertedAt === null && document.querySelector('.splash-intro')) probe.insertedAt = t;
+    if (probe.insertedAt !== null && probe.gateReleasedAt === null && !document.documentElement.hasAttribute('data-intro')) probe.gateReleasedAt = t;
+    if (probe.insertedAt !== null && probe.removedAt === null && !document.querySelector('.splash-intro')) probe.removedAt = t;
+  };
+  new MutationObserver(() => check(performance.now())).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-intro'] });
+  const frame = t => { check(t); probe.frames.push(t); if (probe.removedAt === null || t < probe.removedAt + 100) requestAnimationFrame(frame); };
+  requestAnimationFrame(frame);
+};
 const introEvidence = page => page.evaluate(() => { const { sample, ...probe } = window.__introProbe; return probe; });
 const assertIntroFirstPaint = probe => {
   assert.notEqual(probe.pendingAt, null, 'bootstrap did not set pending');
@@ -527,6 +538,37 @@ async function engineRun(name) {
       assert.ok(row.measurements.fallback.releaseMs<=4000+frame,'bootstrap fallback missed its 4 s deadline');
       assert.ok(blocked.frames.some(f=>f.appVisible&&!f.pending),'fallback did not paint content');await capture('intro-reload-blocked-released');
     });
+    const inView=(p,id)=>p.evaluate(id=>{const r=document.getElementById(id).getBoundingClientRect();return r.top<innerHeight&&r.bottom>0;},id);
+    await run('intro-reload-hash',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
+      await p.addInitScript(()=>{window.__hashProbe={sceneAtGate:null};new MutationObserver(()=>{if(window.__hashProbe.sceneAtGate===null&&!document.documentElement.hasAttribute('data-intro')){queueMicrotask(()=>{const e=document.getElementById('install');if(e){const r=e.getBoundingClientRect();window.__hashProbe.sceneAtGate=r.top<innerHeight&&r.bottom>0;}});}}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-intro']});});
+      await p.goto(base+'/#install',{waitUntil:'domcontentloaded'});await settled(p);
+      assert.equal(await p.locator('html').getAttribute('data-intro'),null,'a deep link played the intro');
+      await p.reload({waitUntil:'domcontentloaded'});
+      assert.equal(await p.locator('html').getAttribute('data-intro'),'pending','a reload with a hash did not play the intro');
+      await capture('intro-reload-hash-pending');assert.equal(await p.locator('.splash-intro').count(),1);
+      await settled(p);await p.waitForTimeout(400);
+      assert.equal(await inView(p,'install'),true,'#install is not in the viewport after the intro');
+      row.measurements.atGate=await p.evaluate(()=>window.__hashProbe.sceneAtGate);
+      assert.equal(row.measurements.atGate,true,'the target was not in view when the page was revealed');
+    });
+    await run('intro-hard-reload',{reducedMotion:'no-preference'},async(p,c,row,capture)=>{
+      await p.goto(base,{waitUntil:'domcontentloaded'});await settled(p);
+      if(name==='chromium'){const session=await c.newCDPSession(p);await session.send('Page.reload',{ignoreCache:true});row.measurements.method='CDP Page.reload ignoreCache';}
+      else{await p.reload({waitUntil:'domcontentloaded'});row.measurements.method='page.reload';}
+      await p.waitForFunction(()=>document.documentElement.dataset.intro==='pending'||!!document.querySelector('.splash-intro'),{},{timeout:3000});
+      await capture('intro-hard-reload');await settled(p);
+    });
+    await run('intro-exit-frames',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
+      await p.addInitScript(exitFrameProbe);await p.goto(base,{waitUntil:'domcontentloaded'});
+      await p.waitForFunction(()=>window.__exitFrames.removedAt!==null);await p.waitForTimeout(250);
+      const probe=await p.evaluate(()=>window.__exitFrames);
+      const dropped=(from,to)=>{const times=probe.frames.filter(t=>t>=from&&t<=to);return times.slice(1).filter((t,i)=>t-times[i]>25).length;};
+      const entrance=dropped(probe.insertedAt,probe.insertedAt+80+7*70+560),exit=dropped(probe.gateReleasedAt,probe.removedAt);
+      row.measurements.exitFrames={entrance,exit,entranceMs:80+7*70+560,exitMs:probe.removedAt-probe.gateReleasedAt};
+      await capture('intro-exit-frames');
+      // Headless Chromium paints the ease-in exit at about twice the entrance's dropped frames (software compositing of viewport-wide slats); only Firefox asserts.
+      if(name==='firefox')assert.ok(exit<=entrance+4,`exit dropped ${exit} frames against ${entrance} in the entrance`);
+    });
     await run('intro-handoff',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
       await p.addInitScript(introProbe);await p.goto(base,{waitUntil:'domcontentloaded'});
       row.measurements.exitScreenshots=[];
@@ -787,6 +829,15 @@ async function engineRun(name) {
     if (name === 'chromium') await run('chip-motion-no-view-transition', { reducedMotion: 'no-preference' }, async (p, _c, row) => {
       await p.addInitScript(() => { Document.prototype.startViewTransition = undefined; }); await prepareChipMotion(p); await clickChip(p);
       const data = await chipMotionEvidence(p); row.measurements = { data }; assert.equal(data.final.theme, 'light'); assert.equal(data.final.base, 'light'); assert.equal(data.final.incomingHidden, true); assert.equal(data.final.progress, 0); assert.equal(data.writes.length, 0); assert.equal(data.transitions.length, 0); assert.equal(data.final.focused, true); await consistent(p, 'light'); row.measurements.still = await chipIdle(p);
+    });
+    await run(`theme-keeps-seam-${name}`, { reducedMotion: 'no-preference' }, async (p, _c, row) => {
+      await p.addInitScript(() => { try { sessionStorage.setItem('aion-site-intro', 'seen'); } catch {} });
+      await p.goto(base + '/'); await settled(p); await p.waitForTimeout(1000);
+      const share = async () => Number(await p.locator('[data-hero]').getAttribute('data-hero-share'));
+      const before = await share(); assert.ok(before > 0.2 && before < 0.6, `arrival rested at ${before}`);
+      await p.locator('[data-scheme-chip]').click(); await p.waitForFunction(() => document.documentElement.dataset.theme === 'light'); await settled(p); await p.waitForTimeout(300);
+      const after = await share(); row.measurements = { before, after, state: await themeState(p) };
+      assert.equal(row.measurements.state.theme, 'light'); assert.ok(Math.abs(after - before) <= 0.005, `share moved ${before} to ${after}`);
     });
     // B1 in flight: the resize keeps the share, neither restarts nor extends the sequence, and the page is still once it ends.
     const sequence=async(kind,resize,row,evidence=false)=>{

@@ -35,9 +35,9 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   const svg = line.ownerSVGElement;
   const initialGeneration = controller.generation;
   let interacted = false, arrived = false;
-  let p = 0, width = 0, height = 0, handleY = 0;
+  let p = 0, rest = 0, width = 0, height = 0, handleY = 0;
   let disposed = false, frame: number | undefined, motion: Motion | undefined;
-  let drag: { id: number; offset: number; samples: [number, number][] } | undefined;
+  let drag: { id: number; offset: number; start: number; samples: [number, number][] } | undefined;
   let throwStart = 0;
 
   const paint = (): void => {
@@ -81,7 +81,7 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     frame = undefined;
     let active = motion;
     if (!active || disposed) return;
-    if (active.generation !== controller.generation) { stop(); p = 0; paint(); return; }
+    if (active.generation !== controller.generation) { stop(); p = rest; paint(); return; }
     let elapsed = Math.max(0, time - active.start);
     if (active.kind === 'glide' && elapsed >= active.duration && active.endpoint !== active.target) {
       active = { ...active, kind: 'settle', start: active.start + active.duration, from: active.endpoint!, duration: 160, curve: undefined };
@@ -92,20 +92,20 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     paint();
     if (!done) { frame = env.raf(tick); return; }
     motion = undefined;
-    if (p === 1 && commits(active.kind)) commit();
+    if (p === 1 && commits(active.kind)) commit(); else rest = p;
     active.resolve?.('committed');
   };
   const animate = (next: Motion): void => {
     stop(); motion = next;
     if (env.reducedMotion.matches || (next.target === next.from && !next.curve)) {
       p = next.target; paint(); motion = undefined;
-      if (p === 1 && commits(next.kind)) commit();
+      if (p === 1 && commits(next.kind)) commit(); else rest = p;
       next.resolve?.('committed');
     } else frame = env.raf(tick);
   };
   const tween = (target: number, duration: number, kind: Motion['kind']): void => animate({ kind, generation: controller.generation, start: env.now(), from: p, target, duration });
   const sync = (): void => {
-    stop(); endDrag(); p = 0;
+    stop(); endDrag(); p = rest;
     base.dataset['theme'] = controller.theme; far.dataset['theme'] = other(controller.theme);
     line.dataset['theme'] = controller.theme; if (farLine) farLine.dataset['theme'] = other(controller.theme);
     const labels = handle.querySelectorAll<HTMLElement>('[data-handle-scheme]');
@@ -123,7 +123,7 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     const onTab = Boolean(target?.closest?.('[data-hero-handle]'));
     if ((width <= 600 && !onTab) || !inGrabBand({ x, y, onTab, pointerType: event.pointerType }, p, width, height)) return;
     event.preventDefault(); interacted = true; stop();
-    drag = { id: event.pointerId, offset: x - (seamGeometry(p, width, height).top - y), samples: [[env.now(), p]] };
+    drag = { id: event.pointerId, offset: x - (seamGeometry(p, width, height).top - y), start: p, samples: [[env.now(), p]] };
     root.setPointerCapture(event.pointerId); root.classList.add('hero-dragging');
   };
   const onMove = (event: PointerEvent): void => {
@@ -136,9 +136,11 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   const onRelease = (event: PointerEvent): void => {
     if (!drag || event.pointerId !== drag.id) return;
     const velocity = event.type === 'pointercancel' ? 0 : releaseVelocity(drag.samples, env.now());
+    const gestureStart = drag.start;
     endDrag();
     const from = p;
     if (commitsOnRelease(from, velocity, width, height)) {
+      rest = gestureStart;
       const minimum = (1 - from) / (TAU * (1 - Math.exp(-720 / TAU)));
       const speed = Math.max(velocity, minimum);
       const duration = from === 1 ? 0 : Math.min(720, -TAU * Math.log1p(-(1 - from) / (speed * TAU)));
@@ -159,9 +161,9 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     if (!env.reducedMotion.matches || !motion) return;
     const active = motion; motion = undefined;
     if (frame !== undefined) env.cancelRaf(frame); frame = undefined;
-    if (active.generation !== controller.generation) { p = 0; paint(); active.resolve?.('superseded'); return; }
+    if (active.generation !== controller.generation) { p = rest; paint(); active.resolve?.('superseded'); return; }
     p = active.target; paint();
-    if (p === 1 && commits(active.kind)) commit();
+    if (p === 1 && commits(active.kind)) commit(); else rest = p;
     active.resolve?.('committed');
   };
   const onResize: EventListener = measure;
@@ -181,7 +183,7 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
   return {
     throwAcross(start = env.now()) {
       if (disposed) return Promise.resolve('superseded');
-      interacted = true; endDrag(); throwStart = p;
+      interacted = true; endDrag(); throwStart = p; rest = p;
       return new Promise((resolve) => animate({ kind: 'throw', generation: controller.generation, start, from: p, target: 1, duration: 720, resolve }));
     },
     cancelThrow() { if (motion?.kind !== 'throw') return; stop(); tween(throwStart, 360, 'cancel'); },

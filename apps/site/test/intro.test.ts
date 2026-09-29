@@ -61,6 +61,7 @@ function introHarness() {
   const env: IntroEnv = {
     reducedMotion,
     easing: 'token-ease',
+    exitEasing: 'token-ease-in',
     themeGeneration: () => generation,
     subscribeTheme(listener: () => void) { themeListeners.add(listener); return () => themeListeners.delete(listener); },
     animate: vi.fn((target: HTMLElement, frames: Keyframe[], effect: KeyframeAnimationOptions) => {
@@ -97,8 +98,8 @@ describe('navigation-aware intro eligibility', () => {
         for (const reducedMotion of [false, true]) for (const hash of ['', '#install']) {
           const setItem = vi.fn();
           const session = { getItem: () => { if (!available) throw new Error('blocked'); return marker ? 'played' : null; }, setItem };
-          const expected = !reducedMotion && !hash && navigationType !== 'back_forward'
-            && (navigationType === 'reload' || !available || !marker);
+          const expected = !reducedMotion && navigationType !== 'back_forward'
+            && (navigationType === 'reload' || (!hash && (!available || !marker)));
           const beforePaint = bootstrap('/', hash, reducedMotion, session, navigationType);
           expect(beforePaint.dataset['intro'] === 'pending').toBe(expected);
           expect(setItem).not.toHaveBeenCalled();
@@ -107,6 +108,29 @@ describe('navigation-aware intro eligibility', () => {
         }
     expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null, navigationType: 'reload' })).toBe(true);
     expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null, navigationType: 'back_forward' })).toBe(false);
+  });
+
+  const fresh = () => ({ getItem: () => null, setItem: vi.fn() });
+
+  it('a reload plays the intro even with a hash', () => {
+    const played = { getItem: () => 'played', setItem: vi.fn() };
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: played, navigationType: 'reload' })).toBe(true);
+    expect(bootstrap('/', '#install', false, played, 'reload').dataset['intro']).toBe('pending');
+  });
+
+  it('a deep link with a hash still skips it', () => {
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: fresh(), navigationType: 'navigate' })).toBe(false);
+    expect(bootstrap('/', '#install', false, fresh(), 'navigate').dataset['intro']).toBeUndefined();
+  });
+
+  it('back and forward still skip it', () => {
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: fresh(), navigationType: 'back_forward' })).toBe(false);
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: fresh(), navigationType: 'back_forward' })).toBe(false);
+  });
+
+  it('reduced motion still skips a reload', () => {
+    expect(shouldPlayIntro({ reducedMotion: true, hash: '#install', session: fresh(), navigationType: 'reload' })).toBe(false);
+    expect(bootstrap('/', '#install', true, fresh(), 'reload').dataset['intro']).toBeUndefined();
   });
 
   it('keeps palette navigation out of the homepage intro without changing its interface', () => {
@@ -172,6 +196,41 @@ describe('splash markup and animation lifecycle', () => {
     expect(h.options[17]?.duration).toBe(160);
     expect(h.overlay.remove).toHaveBeenCalledOnce();
     vi.useRealTimers();
+  });
+
+  it('the exit accelerates out on the ease-in easing and the entrance keeps the ease-out token', async () => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+      await vi.runAllTimersAsync();
+      await pending;
+      expect(h.options.slice(0, 8).every((effect) => effect.easing === 'token-ease')).toBe(true);
+      expect(h.options.slice(8, 16).every((effect) => effect.easing === 'token-ease-in')).toBe(true);
+      expect(h.options.slice(16).every((effect) => effect.easing === 'token-ease')).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('the page is revealed before the first exit frame', async () => {
+    vi.useFakeTimers();
+    try {
+      const h = introHarness();
+      const pending = runIntro(h.document, measures('dark'), 'dark', h.env);
+      await vi.advanceTimersByTimeAsync(1829);
+      expect(h.effects).toHaveLength(8);
+      expect(h.document.documentElement.dataset['intro']).toBe('pending');
+      await vi.advanceTimersByTimeAsync(1);
+      const revealed = h.removeAttribute.mock.invocationCallOrder[0]!;
+      const firstExit = (h.env.animate as ReturnType<typeof vi.fn>).mock.invocationCallOrder[8]!;
+      expect(revealed).toBeLessThan(firstExit);
+      expect(h.effects.slice(8).every((effect) => !effect.introPending)).toBe(true);
+      await vi.runAllTimersAsync();
+      await pending;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('reveals the page before the exit fades and hands off arrival before the next frame', async () => {

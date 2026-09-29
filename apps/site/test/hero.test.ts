@@ -173,12 +173,39 @@ describe('Diptych controller', () => {
   });
   it('storage commits cancel a drag and a glide, re-seat schemes and permit another reveal', () => {
     const h = harness(); h.hero.arrive(); h.advance(720); h.pointer('pointerdown', 452); h.storage('light');
-    expect(h.root.releasePointerCapture).toHaveBeenCalledWith(1); expect(h.root.dataset['heroShare']).toBe('0');
+    expect(h.root.releasePointerCapture).toHaveBeenCalledWith(1); expect(h.root.dataset['heroShare']).toBe('0.42');
     expect(h.page.dataset['theme']).toBe('light'); expect(h.base.dataset['theme']).toBe('light'); expect(h.far.dataset['theme']).toBe('dark');
-    h.pointer('pointermove', 0); expect(h.root.dataset['heroShare']).toBe('0');
-    h.key('PageUp'); h.advance(160); expect(h.root.dataset['heroShare']).toBe('0.25');
+    h.pointer('pointermove', 0); expect(h.root.dataset['heroShare']).toBe('0.42');
+    h.key('PageUp'); h.advance(160); const stepped = h.root.dataset['heroShare']; expect(stepped).not.toBe('0.42');
     h.pointer('pointerdown', 690); h.advance(20); h.pointer('pointermove', 620); h.pointer('pointerup', 620); h.storage('dark'); h.advance(3200);
-    expect(h.root.dataset['heroShare']).toBe('0'); expect(h.request).not.toHaveBeenCalled(); h.hero.dispose();
+    expect(h.root.dataset['heroShare']).toBe(stepped); expect(h.request).not.toHaveBeenCalled(); h.hero.dispose();
+  });
+  it('a theme change keeps the resting share and swaps the schemes', () => {
+    const h = harness(); h.hero.arrive(); h.advance(720); h.key('ArrowRight'); h.advance(160); h.key('ArrowRight'); h.advance(160);
+    const rested = h.root.dataset['heroShare']; expect(Number(rested)).toBeCloseTo(0.32, 6);
+    h.controller.request('light'); expect(h.root.dataset['heroShare']).toBe(rested);
+    expect(h.base.dataset['theme']).toBe('light'); expect(h.far.dataset['theme']).toBe('dark'); h.hero.dispose();
+  });
+  it('a theme change from storage keeps the resting share', () => {
+    const h = harness(); h.hero.arrive(); h.advance(720); const rested = h.root.dataset['heroShare']; expect(rested).toBe('0.42');
+    h.storage('light'); expect(h.root.dataset['heroShare']).toBe(rested); expect(h.base.dataset['theme']).toBe('light');
+    h.storage('dark'); expect(h.root.dataset['heroShare']).toBe(rested); expect(h.base.dataset['theme']).toBe('dark'); h.hero.dispose();
+  });
+  it('a thrown commit comes back at the throw\'s starting share', async () => {
+    const h = harness(); h.hero.arrive(); h.advance(720); const complete = h.hero.throwAcross(); h.advance(720);
+    expect(await complete).toBe('committed'); expect(h.controller.theme).toBe('light');
+    expect(h.root.dataset['heroShare']).toBe('0.42'); expect(h.base.dataset['theme']).toBe('light'); expect(h.far.dataset['theme']).toBe('dark');
+    h.pointer('pointerdown', 452); h.advance(20); h.pointer('pointermove', -310); h.pointer('pointerup', -310); h.advance(3200);
+    expect(h.controller.theme).toBe('dark'); expect(h.root.dataset['heroShare']).toBe('0.42'); h.hero.dispose();
+  });
+  it('reduced motion keeps the share too', async () => {
+    const h = harness(true); h.hero.arrive(); expect(h.root.dataset['heroShare']).toBe('0.42');
+    h.controller.request('light'); expect(h.root.dataset['heroShare']).toBe('0.42');
+    const complete = h.hero.throwAcross(); expect(await complete).toBe('committed');
+    expect(h.controller.theme).toBe('dark'); expect(h.root.dataset['heroShare']).toBe('0.42'); h.hero.dispose();
+  });
+  it('the first paint before arrival is still 0', () => {
+    const h = harness(); expect(h.root.dataset['heroShare']).toBe('0'); h.storage('light'); expect(h.root.dataset['heroShare']).toBe('0'); h.hero.dispose();
   });
   it('throws in 720ms; a storage commit supersedes the pending throw without another commit', async () => {
     const h = harness(); const complete = h.hero.throwAcross(); h.advance(719); expect(h.request).not.toHaveBeenCalled(); h.advance(1);

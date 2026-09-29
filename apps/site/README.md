@@ -73,8 +73,9 @@ Chromium verifies a native touch swipe through CDP. Firefox and WebKit verify an
 emulated touch press plus native scrolling because Playwright exposes only touch tap there.
 Round 2 added cases for each behaviour a calculation cannot show: `resize-settle-*` (a resize
 starts no motion and an in-flight intro, glide or chip wipe keeps its own timeline),
-`intro-reload` and `intro-handoff` (replay on reload, never on back/forward, no blank frame),
-`throw-flick-*` (native flick commit), `chip-labels-*`, `chip-artefact-*`,
+`intro-reload`, `intro-reload-hash`, `intro-hard-reload` and `intro-handoff` (replay on reload, with or without a hash, never on back/forward, no blank frame),
+`intro-exit-frames` (dropped frames in the entrance and exit windows; asserted in Firefox, recorded in Chromium and WebKit),
+`throw-flick-*` (native flick commit), `theme-keeps-seam-*` (a scheme-chip change keeps the hero seam's share), `chip-labels-*`, `chip-artefact-*`,
 `chip-wipe-visible-*` and `chip-motion-*` (the chip's seam, its wipe on the page scene's clock
 and its interruption rules), `states-placement-*` (per-toggle placement), `states-light-visible` (Light bracket match, merge conflict and added word differ from their surroundings by 0.03 in OKLab), `solved-strip-*`,
 `depth-scale-*`, `dimension-upright`, `palette-margin`, `install-align`, `install-cta-*`, `light-frames`,
