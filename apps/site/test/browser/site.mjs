@@ -933,6 +933,31 @@ async function engineRun(name) {
       await p.setViewportSize({width:1440,height:1000});await p.goto(base+'/palette.html');await settled(p);
       const paletteNav=p.locator('header.site-head .site-nav [aria-current]');assert.equal(await paletteNav.count(),1);assert.equal(await paletteNav.textContent(),'Palette');assert.equal(await paletteNav.getAttribute('aria-current'),'page');await capture(`nav-current-${scheme}-palette`);
     });
+    for(const scheme of ['dark','light'])await run(`hover-nav-${scheme}`,{colorScheme:scheme},async(p,_c,row,capture)=>{
+      await p.goto(base);await settled(p);
+      const link=p.locator('header.site-head .site-nav a[data-section="install"]');
+      const read=()=>link.evaluate(e=>{const u=getComputedStyle(e,'::after');return {colour:getComputedStyle(e).color,transform:u.transform,box:[...Object.values(e.getBoundingClientRect().toJSON())]};});
+      const rest=await read();assert.equal(rest.transform,'matrix(0, 0, 0, 1, 0, 0)','rest underline is collapsed');
+      await link.hover();await p.waitForFunction(()=>document.querySelector('header.site-head .site-nav a[data-section="install"]').matches(':hover'));
+      const over=await read();row.measurements={rest,over};
+      assert.match(over.transform,/^matrix\(1, 0, 0, 1, 0, 0\)$/,'hover underline is full');assert.notEqual(over.colour,rest.colour,'hover text goes to primary');
+      assert.deepEqual(over.box,rest.box,'hover moves nothing');await capture(`hover-nav-${scheme}`);
+    });
+    for(const scheme of ['dark','light'])await run(`hover-hero-${scheme}`,{colorScheme:scheme},async(p,_c,row,capture)=>{
+      await p.goto(base);await settled(p);
+      const read=sel=>p.locator(sel).evaluate(e=>{const u=getComputedStyle(e,'::after'),r=e.getBoundingClientRect();return {opacity:u.opacity,background:u.backgroundColor,box:[r.x,r.y,r.width,r.height]};});
+      const measured={};
+      for(const name of ['primary','secondary']){
+        const sel=`.hero-base .hero-${name}`,el=p.locator(sel);await p.mouse.move(2,2);
+        const rest=await read(sel);assert.equal(rest.opacity,'0',`${name} rests without its hover mark`);
+        await el.hover();await p.waitForFunction(s=>document.querySelector(s).matches(':hover'),sel);
+        const over=await read(sel);measured[name]={rest,over};
+        assert.equal(over.opacity,'1',`${name} hover mark is shown`);assert.notEqual(over.background,'rgba(0, 0, 0, 0)');
+        assert.ok(over.box.every((v,i)=>Math.abs(v-rest.box[i])<=0.5),`${name} hover moved layout: ${rest.box} to ${over.box}`);
+        await capture(`hover-hero-${scheme}-${name}`);
+      }
+      row.measurements=measured;
+    });
     for(const scheme of ['dark','light'])await run(`rounded-spacing-colour-${scheme}`,{colorScheme:scheme},async(p,_c,row,capture)=>{
       await p.goto(base+'/#rounded');await settled(p);
       const m=await p.evaluate(()=>{const visible=[...document.querySelectorAll('[data-rounded-values]')].find(e=>e.getClientRects().length);const css=(e,k)=>getComputedStyle(e)[k];const channels=visible.querySelector('.rounded-channels'),channel=visible.querySelector('.rounded-channel');
