@@ -14,6 +14,11 @@ the versions follow Semantic Versioning.
   fall into three tiers by how far they move the editor, the diff has its own green and
   coral, the current line is a faint warm grey, and the coverage gutters are set apart
   from the diff. These are calculation only until checked in VS Code.
+- Contrast gates and tests read the emitted 8-bit hex with byte-accurate compositing, and
+  every Dark emitted value is guarded by a snapshot.
+- The site is rebuilt around chapters on the palette, depth, reading states, solved
+  decorations, rounding and the terminal, with a new intro, theme wipe and install badges.
+- The listing screenshots are native VS Code renders of a demo project.
 
 ## 1.2.0
 
