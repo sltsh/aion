@@ -8,7 +8,7 @@ for(const released of [false,true]) test(`five ordered targets copy exactly thei
  const html=renderInstall({released});
  expect([...html.matchAll(/data-install-target="([^"]+)"/g)].map(m=>m[1])).toEqual(['vscode','obsidian','ovsx','wt','css']);
  for(const target of INSTALL){ const command=released?target.command:target.localCommand;expect(html).toContain(`<h3>${target.label}</h3>`);expect(html).toContain(`data-text="${escapeAttr(command)}"`);for(const badge of target.badges) expect(html).toContain(`href="${badge.href}"`); }
- expect(html).not.toContain('Herdr');expect(html).toContain('Every target here is generated from the same tokens and passes the same gate.');
+ expect(html).not.toContain('Herdr');expect(html).toContain(CONTENT.install.scope);
  expect(html).toContain('data-terminal-preview="dark"');expect([...html.matchAll(/class="install-dual"/g)]).toHaveLength(4);
  for(const scheme of ['dark','light'] as const) for(const [name,value]of Object.entries(obsidianColors(scheme)))expect(html).toContain(`${name}:${value};`);
 });
@@ -58,13 +58,14 @@ test('badges link to their channels with monochrome glyphs',()=>{
  expect(UNRELEASED_NOTE).toContain('local CSS build');
  expect(renderInstall({released:false})).toContain('npm run build');
 });
-test('badge text and edge are paired on both schemes',async()=>{
+test('call-to-action and Copy pairs are declared and read on both schemes',async()=>{
  const {SITE_PAIRS}=await import('../src/pairs.js');
  const {variables}=await import('@sltsh/aion-lab/variables');
  const {buildPalette,lightPalette,contrastEmitted,hexToOklch}=await import('@sltsh/aion-tokens');
- const pairs=SITE_PAIRS.filter(pair=>pair.where.startsWith('install badge'));
+ const pairs=SITE_PAIRS.filter(pair=>pair.where.includes('call-to-action')||pair.where.startsWith('install Copy'));
  expect(pairs).toEqual(expect.arrayContaining([
-  expect.objectContaining({fg:'--n-text-primary',bg:'--n-sidebar',floor:4.5}),
+  ...INSTALL.map(target=>expect.objectContaining({fg:'--n-editor',bg:`--a-${target.accent}`,floor:4.5})),
+  expect.objectContaining({fg:'--n-text-secondary',bg:'--n-editor',floor:4.5}),
   expect.objectContaining({fg:'--n-border',bg:'--n-editor',floor:3}),
  ]));
  for(const palette of [buildPalette(),lightPalette]){
