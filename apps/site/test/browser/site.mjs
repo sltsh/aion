@@ -113,7 +113,10 @@ const chipEaseTime = q => { const b = 1 - Math.cbrt(1 - q), u = 1 - b; return 3 
 const chipClock = (data, { click = 0, from = 0, to = 1, duration = 720, eased = false, until = Infinity, anchor, held } = {}) => {
   const clicked = data.clicks[click].t, at = anchor ?? clicked;
   if (anchor !== undefined) assert.ok(Number.isFinite(anchor) && anchor >= clicked, 'page scene start not recorded after the click');
-  const writes = data.writes.filter(s => (anchor === undefined ? s.t > at : s.t >= at - 1) && s.t < until);
+  // A frame's callbacks carry its start time, which can precede an input handled inside that frame, so the
+  // writes before `until` end at the first one recorded at or after it rather than by timestamp alone.
+  const cut = data.writes.findIndex(s => s.t >= until);
+  const writes = (cut < 0 ? data.writes : data.writes.slice(0, cut)).filter(s => anchor === undefined ? s.t > at : s.t >= at - 1);
   const moving = writes.filter(s => { const q = (s.progress - from) / (to - from); return q > .02 && q < .98; });
   const withheld = held && held[0] < at + duration && held[1] > at;
   assert.ok(moving.length >= (withheld ? 2 : 3), 'too few live chip writes to reconstruct its clock');
