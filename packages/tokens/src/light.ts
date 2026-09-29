@@ -54,8 +54,9 @@ export const lightEditorNeutral: Record<NeutralName, Oklch> = {
 // dim chrome is a little quieter again, and ANSI white/bright-black retain their terminal
 // roles instead of inheriting whichever neutral happened to be emitted first.
 // The comment is the budget every light overlay is solved against. At 0.516 no tinted
-// selection fitted under a diff wash; 0.490 buys that room and stays quieter than dim text.
-export const lightComment: Oklch = lightNeutralRole(0.490);
+// selection fitted under a diff wash; 0.4725 reads 6.33:1 on the editor, which lets every
+// syntax accent sit a margin above it, and stays 0.03 apart from secondary text.
+export const lightComment: Oklch = lightNeutralRole(0.4725);
 export const lightDimText: Oklch = lightNeutralRole(0.510);
 export const lightAnsiWhite: Oklch = lightNeutralRole(0.340);
 export const lightAnsiBrightBlack: Oklch = lightNeutralRole(0.505);
@@ -98,15 +99,20 @@ export const LIGHT_CHROMA_FLOOR_EXCEPTION: Partial<Record<AccentName, number>> =
 
 const solveOnLightSurface = (
   name: AccentName, hue: number, startChroma: number, floor: number, minimumChroma = 0,
+  editorFloor = 0,
 ): Oklch => {
   let chroma = startChroma;
   for (let i = 0; i < 60; i += 1) {
     const rounded = Math.round(chroma * 10000) / 10000;
     // Lower lightness means more contrast here, so rounding down never breaks the floor.
     let L = floorTo(solveLightness(rounded, hue, lightNeutral.input, floor, 'down'), 3);
+    if (editorFloor > 0) {
+      L = Math.min(L, floorTo(solveLightness(rounded, hue, lightNeutral.page, editorFloor, 'down'), 3));
+    }
     for (let step = 0; step <= LIGHTNESS_SEARCH_STEPS; step += 1) {
       const colour: Oklch = [L, rounded, hue];
-      if (inGamut(colour) && contrastEmitted(colour, lightNeutral.input) >= floor) return colour;
+      if (inGamut(colour) && contrastEmitted(colour, lightNeutral.input) >= floor
+        && (editorFloor === 0 || contrastEmitted(colour, lightNeutral.page) >= editorFloor)) return colour;
       L -= LIGHTNESS_STEP;
     }
     // An in-gamut branch can occur below the continuous contrast boundary. The modest
@@ -123,8 +129,18 @@ const solveOnLightSurface = (
 // is what lets the selection be seen.
 export const LIGHT_SYNTAX_FLOOR = 4.8;
 
+// Every accent reads this much louder than the comment on the editor, so the comment
+// stays the quietest thing a reader reads while the accents keep their own tier.
+export const LIGHT_ACCENT_MARGIN = 1.06;
+
+// Degrees of hue an accent may move from its Dark hue where the gamut blocks the margin.
+// Teal drifts toward blue because the gamut at this lightness cannot carry its chroma
+// floor at hue 192; -5 is the smallest step that can.
+export const LIGHT_HUE_DRIFT: Partial<Record<AccentName, number>> = { teal: -5 };
+
 export const lightAccent = (name: AccentName): Oklch => {
-  const [, chroma, hue] = ACCENTS[name];
+  const [, chroma, darkHue] = ACCENTS[name];
+  const hue = darkHue + (LIGHT_HUE_DRIFT[name] ?? 0);
   const ceiling = CHROMA_CEILING[name] ?? CHROMA_DEFAULT[1];
   const minimum = LIGHT_CHROMA_FLOOR_EXCEPTION[name] ?? CHROMA_DEFAULT[0];
   return solveOnLightSurface(
@@ -133,6 +149,7 @@ export const lightAccent = (name: AccentName): Oklch => {
     Math.min(chroma * CHROMA_BOOST * LIGHT_ACCENT_CHROMA_SCALE, ceiling),
     LIGHT_SYNTAX_FLOOR,
     minimum,
+    contrastEmitted(lightComment, lightNeutral.page) * LIGHT_ACCENT_MARGIN,
   );
 };
 

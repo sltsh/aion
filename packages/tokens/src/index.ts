@@ -20,7 +20,7 @@ export {
 export type { LightNeutralName, LightDecorationName } from './light.js';
 export {
   LIGHT_LIGHTNESS, lightNeutral, lightEditorNeutral, lightDimText, lightComment, lightSyntax,
-  lightAnsiWhite, lightAnsiBrightBlack, LIGHT_CHROMA_FLOOR_EXCEPTION,
+  lightAnsiWhite, lightAnsiBrightBlack, LIGHT_CHROMA_FLOOR_EXCEPTION, LIGHT_ACCENT_MARGIN, LIGHT_HUE_DRIFT,
   lightAccent, lightAccents, lightAccentScale, lightOverlay, lightDecoration,
   lightSecondaryDecoration, lightFindMatch, lightDiff,
   lightDiffWash, lightBrackets, lightCursor, lightAnsi, lightTerminalSelection,

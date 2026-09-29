@@ -11,8 +11,10 @@ import {
   lightAccent, lightAccentScale, lightAnsi, lightDiff, lightDiffWash, lightEditorNeutral,
   lightAnsiBrightBlack, lightAnsiWhite, lightComment, lightDecoration, lightDimText, lightNeutral,
   lightOverlay,
-  LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection,
+  LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection, lightAccents, LIGHT_ACCENT_MARGIN,
+  LIGHT_HUE_DRIFT, LIGHT_SYNTAX_FLOOR,
 } from '../src/light.js';
+import { lightPalette } from '../src/preview.js';
 import { LIGHT_SHIPPED, SHIPPED, orderStack, readingForegrounds, readingStates, stackBackground } from '../src/states.js';
 import { distanceEmitted } from '../src/solve.js';
 
@@ -433,4 +435,36 @@ test('no light black reads on a light chromatic slot at the floor', () => {
     const ratio = contrastEmitted(blackest, lightAnsi[slot]);
     expect(ratio, `pure black on light ${slot} = ${ratio.toFixed(2)}`).toBeLessThan(CONTRAST_FLOOR);
   }
+});
+
+test('every light accent sits the approved margin above the comment', () => {
+  const editor = LIGHT_SHIPPED.neutral.editor;
+  const floor = contrastEmitted(LIGHT_SHIPPED.comment, editor) * LIGHT_ACCENT_MARGIN;
+  for (const name of ACCENT_NAMES) {
+    const accent = lightPalette.accents[name];
+    const onEditor = contrastEmitted(accent, editor);
+    expect(onEditor, `light ${name} on editor ${onEditor.toFixed(3)} vs ${floor.toFixed(3)}`)
+      .toBeGreaterThanOrEqual(floor);
+    const onInput = contrastEmitted(accent, lightNeutral.input);
+    expect(onInput, `light ${name} on input ${onInput.toFixed(3)}`)
+      .toBeGreaterThanOrEqual(LIGHT_SYNTAX_FLOOR);
+  }
+});
+
+test('the light comment stays apart from secondary text', () => {
+  const gap = distanceEmitted(LIGHT_SHIPPED.comment, LIGHT_SHIPPED.neutral.textSecondary);
+  expect(gap).toBeGreaterThanOrEqual(0.03);
+});
+
+test('every light accent keeps its Dark hue within the drift allowance', () => {
+  for (const name of ACCENT_NAMES) {
+    const drift = Math.abs(lightAccents[name][2] - ACCENTS[name][2]);
+    expect(drift, `light ${name} hue drift`).toBeLessThanOrEqual(8);
+    expect(drift, `light ${name} hue drift`).toBeCloseTo(Math.abs(LIGHT_HUE_DRIFT[name] ?? 0), 6);
+  }
+});
+
+test('the emitted light palette carries the solved comment and accents', () => {
+  expect(lightPalette.comment).toEqual(lightComment);
+  for (const name of ACCENT_NAMES) expect(lightPalette.accents[name], name).toEqual(lightAccents[name]);
 });
