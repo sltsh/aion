@@ -407,6 +407,35 @@ async function engineRun(name) {
       await p.locator('[data-scheme-chip]').click();await settled(p);assert.equal(await toggle('selection').getAttribute('aria-pressed'),'true');assert.equal(await toggle('wordHighlight').getAttribute('aria-pressed'),'true');
       await inspect(['selection','wordHighlight'],'scheme-retained',scheme==='dark'?lightPalette:buildPalette());await p.locator('#states').scrollIntoViewIfNeeded();await capture();
     });
+    await run('states-light-visible',{colorScheme:'light',viewport:{width:1440,height:1000}},async(p,_c,row,capture)=>{
+      await p.goto(base+'/#states');await settled(p);
+      const {distanceEmitted}=await import('../../../../packages/tokens/dist/index.js');
+      const state=p.locator('[data-state-scheme]:visible'),code=state.locator('.states-code');
+      for(const key of ['bracketMatch','mergeConflict','addedWord'])await state.locator(`[data-state-toggle="${key}"]`).click();
+      await code.scrollIntoViewIfNeeded();
+      const geometry=await code.evaluate(root=>{const origin=root.getBoundingClientRect(),rel=e=>{const b=e.getBoundingClientRect();return {x:b.left-origin.left,y:b.top-origin.top,width:b.width,height:b.height};};
+        const fragments=layer=>[...root.querySelectorAll(`[data-state-fragment][data-layers~="${layer}"]`)].map(rel),rows=[...root.querySelectorAll('[data-state-line]')].map(e=>({line:+e.dataset.stateLine,code:rel(e.querySelector('code'))}));
+        return {bracket:fragments('bracketMatch'),word:fragments('addedWord'),rows,client:{width:root.clientWidth,scroll:root.scrollWidth}};});
+      const png=await code.screenshot();row.artifacts.push(await (async()=>{const path=`${output}/${name}/states-light-visible-code.png`;await writeFile(path,png);return path;})());
+      const modes=await p.evaluate(async({png,boxes})=>{
+        const image=await createImageBitmap(new Blob([Uint8Array.from(atob(png),c=>c.charCodeAt(0))],{type:'image/png'})),canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);
+        return boxes.map(b=>{const counts=new Map(),x0=Math.floor(b.x)+1,x1=Math.floor(b.x+b.width)-1,y0=Math.floor(b.y)+1,y1=Math.floor(b.y+b.height)-1;
+          if(x1<=x0||y1<=y0)return null;const data=ctx.getImageData(x0,y0,x1-x0,y1-y0).data;
+          for(let i=0;i<data.length;i+=4){const k=[data[i],data[i+1],data[i+2]].map(v=>v.toString(16).padStart(2,'0')).join('');counts.set(k,(counts.get(k)??0)+1);}
+          return '#'+[...counts].sort((a,b)=>b[1]-a[1])[0][0];});
+      },{png:png.toString('base64'),boxes:[...geometry.bracket,...geometry.word,...geometry.rows.flatMap(r=>[{x:r.code.x+2,y:r.code.y+r.code.height*.25,width:8,height:r.code.height*.5},{x:r.code.x+r.code.width-12,y:r.code.y+r.code.height*.25,width:8,height:r.code.height*.5}])]});
+      const strips=geometry.rows.map((r,i)=>({line:r.line,right:modes[geometry.bracket.length+geometry.word.length+i*2+1]}));
+      const lineFill=line=>strips.find(x=>x.line===line).right;
+      const checks=[
+        ...geometry.bracket.map((_,i)=>({label:`bracketMatch ${i}`,span:modes[i],around:lineFill(1)})),
+        {label:'mergeConflict',span:lineFill(4),around:lineFill(0)},
+        ...geometry.word.map((_,i)=>({label:`addedWord ${i}`,span:modes[geometry.bracket.length+i],around:lineFill(2)})),
+      ];
+      assert.equal(geometry.bracket.length,2,'bracket spans');assert.ok(geometry.word.length>=1,'added word spans');
+      row.measurements={checks:checks.map(c=>({...c,distance:c.span&&c.around?distanceEmitted(hexToOklch(c.span),hexToOklch(c.around)):null}))};
+      for(const c of row.measurements.checks)assert.ok(c.distance!==null&&c.distance>=0.03,`${c.label}: ${c.span} vs ${c.around} = ${c.distance}`);
+      await capture();
+    });
     await run('states-delta-motion-alignment',{reducedMotion:'no-preference',viewport:{width:1100,height:1000}},async(p,_c,row)=>{
       await p.goto(base+'/#states');await settled(p);await p.waitForTimeout(750);await p.locator('[data-state-scheme]:visible [data-state-toggle="selection"]').click();await p.waitForTimeout(150);
       assert.ok(await p.locator('[data-delta-visible]').count()>0);const bars=await p.locator('[data-state-scheme]:visible .states-meter-bar').evaluateAll(es=>es.map(e=>e.getBoundingClientRect().top));assert.ok(Math.max(...bars)-Math.min(...bars)<1,JSON.stringify(bars));

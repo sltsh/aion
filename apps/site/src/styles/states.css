@@ -20,3 +20,4 @@
 @media(max-width:899px){.states-meters{grid-template-columns:repeat(3,1fr)}.states-meter:nth-child(3){border-right:0}.states-meter:nth-child(4){padding-left:0}}
 @media(max-width:599px){.states-code{font-size:16px;padding:20px 0}.states-code-row{grid-template-columns:42px 1fr}.states-line-number{padding-right:12px}.states-meters{grid-template-columns:repeat(2,1fr)}.states-meter:nth-child(3){border-right:1px solid var(--n-hairline)}.states-meter:nth-child(even){border-right:0}.states-meter:nth-child(odd){padding-left:0}.states-meter:nth-child(4){padding-left:18px}.states-meter>b{font-size:28px}.states-chapter{margin-top:72px;padding-top:40px}}
 @media(prefers-reduced-motion:reduce){.states-chapter *{transition:none!important}}
+.states-code [data-layers~="bracketMatch"]{outline:1px solid var(--a-gold-border);outline-offset:-1px}

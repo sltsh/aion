@@ -1,7 +1,8 @@
 import { expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { buildPalette, lightPalette, hex, stackBackground } from '@sltsh/aion-tokens';
-import { TOOLBAR, enabledAt, drawnBackgrounds, togglePlacement, placementRatios } from '../src/chapters/placement.js';
+import { buildPalette, lightPalette, hex, stackBackground, distanceEmitted, contrastEmitted, hexToOklch } from '@sltsh/aion-tokens';
+import { variables } from '@sltsh/aion-lab/variables';
+import { TOOLBAR, PLACEMENT, enabledAt, drawnBackgrounds, togglePlacement, placementRatios } from '../src/chapters/placement.js';
 import type { ToolbarLayer } from '../src/chapters/placement.js';
 import { cancelCount, countTo } from '../src/chapters/states.js';
 import type { CountEnvironment } from '../src/chapters/states.js';
@@ -125,4 +126,26 @@ test('scheme changes retain covered toggles, clear deltas and disposal removes i
   word.dispatchEvent(new Event('click'));
   const pressed = word.attrs.get('aria-pressed');
   dispose(); word.dispatchEvent(new Event('click')); expect(word.attrs.get('aria-pressed')).toBe(pressed);
+});
+
+test('every states toolbar swatch differs from the editor in both schemes', () => {
+  for (const [scheme, source] of [['dark', buildPalette()], ['light', lightPalette]] as const) for (const layer of TOOLBAR) {
+    const word = layer === 'addedWord' ? 'addedLine' : layer === 'removedWord' ? 'removedLine' : null;
+    const against = word ? stackBackground(source, source.neutral.editor, [word]) : source.neutral.editor;
+    const swatch = stackBackground(source, source.neutral.editor, layer === 'mergeConflict' ? ['mergeCurrentHeader'] : word ? [word, layer] : [layer]);
+    expect(distanceEmitted(swatch, against), `${scheme} ${layer}`).toBeGreaterThanOrEqual(0.03);
+  }
+});
+
+test('bracket match draws the border VS Code draws', () => {
+  const css = readFileSync(new URL('../src/styles/states.css', import.meta.url), 'utf8');
+  const rule = /\[data-layers~="bracketMatch"\]\{([^}]*)\}/.exec(css);
+  expect(rule, 'a rule keyed on the bracketMatch layer').not.toBeNull();
+  expect(rule![1]).toContain('var(--a-gold-border)');
+  expect(PLACEMENT.bracketMatch).toHaveLength(2);
+  for (const [scheme, source] of [['dark', buildPalette()], ['light', lightPalette]] as const) {
+    const values = variables(source);
+    expect(values['--a-gold-border']).toBe(hex(source.scales.gold.border));
+    expect(contrastEmitted(hexToOklch(values['--a-gold-border']!), source.neutral.editor), `${scheme} border on editor`).toBeGreaterThanOrEqual(3);
+  }
 });

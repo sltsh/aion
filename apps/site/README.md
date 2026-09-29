@@ -76,7 +76,7 @@ starts no motion and an in-flight intro, glide or chip wipe keeps its own timeli
 `intro-reload` and `intro-handoff` (replay on reload, never on back/forward, no blank frame),
 `throw-flick-*` (native flick commit), `chip-labels-*`, `chip-artefact-*`,
 `chip-wipe-visible-*` and `chip-motion-*` (the chip's seam, its wipe on the page scene's clock
-and its interruption rules), `states-placement-*` (per-toggle placement), `solved-strip-*`,
+and its interruption rules), `states-placement-*` (per-toggle placement), `states-light-visible` (Light bracket match, merge conflict and added word differ from their surroundings by 0.03 in OKLab), `solved-strip-*`,
 `depth-scale-*`, `dimension-upright`, `palette-margin`, `install-align`, `install-cta-*`, `light-frames`,
 `nav-current-*`, `rounded-spacing-colour-*`, `hover-nav-*`, `hover-hero-*` and
 `nav-centred-*` (round 3: hover states, and the nav on the header's centre line).
