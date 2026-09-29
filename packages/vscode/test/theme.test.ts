@@ -577,14 +577,20 @@ test('the modelled layers are exactly the emitted editor text-layer keys', () =>
 test('custom light previews keep accent and neutral secondary decorations linked to their palette', () => {
   const palette = buildLightPalette({ accentChroma: 0.8, baseHue: 200 });
   const custom = buildColors(palette);
-  expect(custom['editor.hoverHighlightBackground']).toBe(
-    hexAlpha(palette.scales.blue.subtle, lightSecondaryDecoration.hover.alpha));
-  expect(custom['mergeEditor.change.background']).toBe(
-    hexAlpha(palette.scales.green.subtle, lightSecondaryDecoration.mergeChange.alpha));
+  for (const [key, name] of [
+    ['editor.hoverHighlightBackground', 'hover'],
+    ['mergeEditor.change.background', 'mergeChange'],
+  ] as const) {
+    const shipped = lightSecondaryDecoration[name];
+    const linked = palette.secondaryDecoration[name];
+    expect(custom[key], key).toBe(hexAlpha(linked.color, linked.alpha));
+    expect(linked.alpha, key).toBe(shipped.alpha);
+    expect(linked.color[2], key).toBeCloseTo(shipped.color[2], 6);
+    expect(linked.color[1], key).not.toBeCloseTo(shipped.color[1], 3);
+  }
   expect(custom['diffEditor.unchangedCodeBackground']).toBe(
-    hexAlpha(palette.overlay.lineHighlight.color, lightSecondaryDecoration.unchangedCode.alpha));
+    hexAlpha(palette.secondaryDecoration.unchangedCode.color, lightSecondaryDecoration.unchangedCode.alpha));
   expect(custom['editor.hoverHighlightBackground']).not.toBe(lightBuilt.colors['editor.hoverHighlightBackground']);
-  expect(custom['diffEditor.unchangedCodeBackground']).not.toBe(lightBuilt.colors['diffEditor.unchangedCodeBackground']);
 });
 
 // An alpha byte means one of two different things. In most keys it is the opacity of a

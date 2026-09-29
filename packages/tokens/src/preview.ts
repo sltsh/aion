@@ -239,25 +239,13 @@ export function buildLightPalette(overrides: Partial<LightPreviewOptions> = {}):
     shiftOverlay(value, 0, accentChromaScale));
   const decoration = mapValues(lightDecoration, (value, name): Overlay =>
     shiftOverlay(value, name === 'selectionHighlight' || name === 'inactiveSelection' ? 0 : hueDelta, chromaScale));
-  const secondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
-    hover: { color: scales.blue.subtle, alpha: lightSecondaryDecoration.hover.alpha },
-    symbol: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.symbol.alpha },
-    strongWord: { color: scales.teal.subtle, alpha: lightSecondaryDecoration.strongWord.alpha },
-    stackFrame: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.stackFrame.alpha },
-    focusedStackFrame: { color: scales.green.subtle, alpha: lightSecondaryDecoration.focusedStackFrame.alpha },
-    bracketMatch: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.bracketMatch.alpha },
-    commentRange: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.commentRange.alpha },
-    activeCommentRange: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.activeCommentRange.alpha },
-    unchangedCode: { color: overlay.lineHighlight.color, alpha: lightSecondaryDecoration.unchangedCode.alpha },
-    mergeCurrentHeader: { color: scales.green.subtle, alpha: lightSecondaryDecoration.mergeCurrentHeader.alpha },
-    mergeIncomingHeader: { color: scales.blue.subtle, alpha: lightSecondaryDecoration.mergeIncomingHeader.alpha },
-    mergeCommonHeader: { color: overlay.lineHighlight.color, alpha: lightSecondaryDecoration.mergeCommonHeader.alpha },
-    mergeChange: { color: scales.green.subtle, alpha: lightSecondaryDecoration.mergeChange.alpha },
-    mergeChangeWord: { color: scales.green.subtle, alpha: lightSecondaryDecoration.mergeChangeWord.alpha },
-    searchMatch: { color: scales.gold.subtle, alpha: lightSecondaryDecoration.searchMatch.alpha },
-    covered: { color: scales.green.subtle, alpha: lightSecondaryDecoration.covered.alpha },
-    uncovered: { color: scales.coral.subtle, alpha: lightSecondaryDecoration.uncovered.alpha },
-  };
+  const linked = (name: SecondaryDecorationName): Overlay => ({
+    color: shiftHue(lightSecondaryDecoration[name].color, 0, accentLightnessDelta * 0.2, accentChromaScale),
+    alpha: lightSecondaryDecoration[name].alpha,
+  });
+  const secondaryDecoration = mapValues(lightSecondaryDecoration, (value, name): Overlay =>
+    name === 'unchangedCode' || name === 'mergeCommonHeader'
+      ? shiftOverlay(value, hueDelta, chromaScale) : linked(name));
   const diff = mapValues(lightDiff, (value): Oklch =>
     shiftHue(value, 0, accentLightnessDelta, accentChromaScale));
   const findMatch = mapValues(lightFindMatch, (value): Oklch =>

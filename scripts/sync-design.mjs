@@ -48,7 +48,7 @@ for (const line of emitted.split('\n')) {
 // theme, never typed: the prose said 630 interface keys, 54 TextMate rules and 25 covered
 // states while the code produced 622, 64 and 35.
 const { checks, readingStates } = await import('../packages/tokens/dist/index.js');
-const { hex, neutral, fg, border, accent, status, syntax, cursor, compositeEmitted, overlay, paletteStrip } =
+const { hex, neutral, fg, border, accent, status, syntax, cursor, SHIPPED, stackBackground, paletteStrip } =
   await import('../packages/tokens/dist/index.js');
 const appBase = [
   ['Main content', 'neutral.editor', neutral.editor],
@@ -68,9 +68,9 @@ const appBase = [
   ['Link', 'fg.link', fg.link],
   ['Caret', 'cursor', cursor],
   ['Selection on main content', 'selection composited over neutral.editor',
-    compositeEmitted(overlay.selection.color, overlay.selection.alpha, neutral.editor)],
+    stackBackground(SHIPPED, neutral.editor, ['selection'])],
   ['Current line on main content', 'lineHighlight composited over neutral.editor',
-    compositeEmitted(overlay.lineHighlight.color, overlay.lineHighlight.alpha, neutral.editor)],
+    stackBackground(SHIPPED, neutral.editor, ['lineHighlight'])],
 ];
 tables.appBase = appBase.map(([role, token, colour]) => `| ${role} | ${token} | \`${hex(colour)}\` |`);
 tables.appAccents = Object.entries(accent).map(([name, scale]) =>

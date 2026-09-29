@@ -46,13 +46,9 @@ test('the strips separate by lightness and stay close to what that allows', () =
   }
 });
 
-// The paler Light diff washes and secondaries freed comment budget for these, so their
-// optimum rose while their values stayed; the owner chose the 0.03 target over the maximum.
-const LIGHT_TARGET_RATIO = 0.85;
-
 const overlayPins: readonly {
   scheme: 'dark' | 'light'; source: StateSource; name: StackLayer;
-  owner: 'overlay' | 'decoration' | 'secondaryDecoration'; minRatio?: number;
+  owner: 'overlay' | 'decoration' | 'secondaryDecoration';
 }[] = [
   { scheme: 'dark', source: SHIPPED, name: 'findMatchOther', owner: 'overlay' },
   { scheme: 'dark', source: SHIPPED, name: 'wordHighlight', owner: 'overlay' },
@@ -60,14 +56,13 @@ const overlayPins: readonly {
     .map((name) => ({ scheme: 'dark' as const, source: SHIPPED, name, owner: 'decoration' as const })),
   { scheme: 'light', source: LIGHT_SHIPPED, name: 'wordHighlight', owner: 'overlay' },
   ...(['selectionHighlight', 'findRange', 'rangeHighlight', 'fold'] as const)
-    .map((name) => ({ scheme: 'light' as const, source: LIGHT_SHIPPED, name, owner: 'decoration' as const,
-      ...(name === 'selectionHighlight' ? {} : { minRatio: LIGHT_TARGET_RATIO }) })),
+    .map((name) => ({ scheme: 'light' as const, source: LIGHT_SHIPPED, name, owner: 'decoration' as const })),
 ];
 
 // The comment stays fixed. Each search uses the renderer-order rows containing the moved
 // layer, the existing visibility floor, and at least half the selection cue beneath it.
 test.each(overlayPins)('$scheme $name stays within 5% of its constrained optimum',
-  ({ source, name, owner, minRatio }) => {
+  ({ source, name, owner }) => {
     const shipped = (source[owner] as Record<string, Overlay>)[name]!;
     const editor = source.neutral.editor;
     const selected = compositeEmitted(source.overlay.selection.color, source.overlay.selection.alpha, editor);
@@ -109,7 +104,7 @@ test.each(overlayPins)('$scheme $name stays within 5% of its constrained optimum
     expect(best, `${name} has no solution`).not.toBeNull();
     const actual = score(shipped);
     expect(actual / best!.distance, `${name}: ${actual.toFixed(4)} / ${best!.distance.toFixed(4)}`)
-      .toBeGreaterThanOrEqual(minRatio ?? 0.95);
+      .toBeGreaterThanOrEqual(0.95);
   }, 20_000,
 );
 
@@ -145,5 +140,5 @@ test('the light removed line stays within 5% of its constrained optimum', () => 
   });
   expect(best, 'the light removed line has no solution').not.toBeNull();
   const actual = score(shipped);
-  expect(actual / best!.distance).toBeGreaterThanOrEqual(LIGHT_TARGET_RATIO);
+  expect(actual / best!.distance).toBeGreaterThanOrEqual(0.95);
 }, 20_000);

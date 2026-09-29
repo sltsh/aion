@@ -181,16 +181,16 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // stack. The selection remains the strongest reading cue, including through a word or
 // another find match.
 export const lightOverlay = {
-  selection: { color: [0.900, 0.050, 250], alpha: 0.700 },
+  selection: { color: [0.780, 0.110, 250], alpha: 0.300 },
   findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.40 },
-  wordHighlight: { color: [0.900, 0.100, 200], alpha: 0.450 },
+  wordHighlight: { color: [0.900, 0.110, 200], alpha: 0.450 },
   lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },
 } as const satisfies Record<string, Overlay>;
 
 // Find and folded ranges need a cyan hue to stay visible without hiding a selection on
 // a diff word. Selection highlight is halved by VS Code's CSS after its key is emitted.
 export const lightDecoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: [0.910, 0.000, 250], alpha: 0.900 },
+  selectionHighlight: { color: [0.910, 0.030, 250], alpha: 0.900 },
   // Keep the inactive fill's emitted colour when re-solving the active selection.
   inactiveSelection: { color: gamutSafe(0.835, 0.085, 250, 'inactive selection'), alpha: 0.25 },
   findRange: { color: [0.920, 0.070, 210], alpha: 0.450 },
@@ -231,9 +231,9 @@ export const lightFindMatch = {
 // and leaves the comment above 4.5:1 on every reading stack they land in.
 export const lightDiffWash = {
   addedLine: { color: [0.860, 0.060, 148], alpha: 0.250 },
-  addedWord: { color: [0.920, 0.140, 148], alpha: 0.250 },
-  removedLine: { color: [0.860, 0.030, 22], alpha: 0.250 },
-  removedWord: { color: [0.880, 0.060, 22], alpha: 0.350 },
+  addedWord: { color: [0.900, 0.100, 148], alpha: 0.300 },
+  removedLine: { color: [0.900, 0.050, 22], alpha: 0.350 },
+  removedWord: { color: [0.860, 0.060, 22], alpha: 0.300 },
 } as const satisfies Record<string, Overlay>;
 
 // The strips are the only opaque diff marker. Their restrained chroma keeps the gutter
