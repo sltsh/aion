@@ -77,7 +77,7 @@ starts no motion and an in-flight intro, glide or chip wipe keeps its own timeli
 `throw-flick-*` (native flick commit), `chip-labels-*`, `chip-artefact-*`,
 `chip-wipe-visible-*` and `chip-motion-*` (the chip's seam, its wipe on the page scene's clock
 and its interruption rules), `states-placement-*` (per-toggle placement), `solved-strip-*`,
-`depth-scale-*`, `dimension-upright`, `palette-margin`, `install-align`, `light-frames`,
+`depth-scale-*`, `dimension-upright`, `palette-margin`, `install-align`, `install-cta-*`, `light-frames`,
 `nav-current-*`, `rounded-spacing-colour-*`, `hover-nav-*`, `hover-hero-*` and
 `nav-centred-*` (round 3: hover states, and the nav on the header's centre line).
 Browser results and the calculation gates are recorded separately in `PLAN.md`; neither

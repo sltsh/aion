@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { expect,test } from 'vitest';
 import { obsidianColors } from '@sltsh/aion-obsidian/colors';
 import { renderInstall } from '../src/render/install.js';
-import { INSTALL, UNRELEASED_NOTE } from '../src/content.js';
+import { CONTENT, INSTALL, UNRELEASED_NOTE } from '../src/content.js';
 import { escapeAttr } from '../src/render/html.js';
 for(const released of [false,true]) test(`five ordered targets copy exactly their shown instructions (${released})`,()=>{
  const html=renderInstall({released});
@@ -91,4 +91,53 @@ test('one copy controller copies text/scheme values, clears at2s, and reports un
  delete source.dataset['text'];source.dataset['dark']='dark value';source.dataset['light']='light value';click();await Promise.resolve();expect(clipboard.writeText).toHaveBeenLastCalledWith('light value');
  view.navigator.clipboard=undefined;click();expect(status.textContent).toContain('Copy is unavailable');expect(source.dataset['copied']).toBeUndefined();
  dispose();expect(vi.getTimerCount()).toBe(0);click();expect(clipboard.writeText).toHaveBeenCalledTimes(2);vi.unstubAllGlobals();vi.useRealTimers();
+});
+
+const ACCENTS=['blue','coral','teal','green','gold'] as const;
+const schemes=async()=>{
+ const {variables}=await import('@sltsh/aion-lab/variables');
+ const {buildPalette,lightPalette,contrastEmitted,hexToOklch}=await import('@sltsh/aion-tokens');
+ const ratio=(values:Record<string,string>,fg:string,bg:string)=>contrastEmitted(hexToOklch(values[fg]!),hexToOklch(values[bg]!));
+ return {ratio,list:[['dark',variables(buildPalette())],['light',variables(lightPalette)]] as const};
+};
+test('every install CTA label reads on its fill in both schemes',async()=>{
+ const {ratio,list}=await schemes();
+ const css=readFileSync(new URL('../src/styles/install.css',import.meta.url),'utf8');
+ expect(css).toMatch(/\.install-badge\{[^}]*background:var\(--site-cta\);color:var\(--n-editor\)/);
+ expect(css).toContain('.install-badge:hover{box-shadow:inset 0 0 0 3px var(--n-editor)}');
+ for(const target of INSTALL){
+  expect(css).toContain(`.install-tile[data-accent="${target.accent}"]{--site-cta:var(--a-${target.accent})}`);
+  for(const [scheme,values] of list) expect(ratio(values,'--n-editor',`--a-${target.accent}`),`${target.id} ${scheme}`).toBeGreaterThanOrEqual(4.5);
+ }
+ expect(INSTALL.map(target=>target.accent)).toEqual(['blue','coral','teal','green','gold']);
+ expect(ACCENTS).not.toContain('violet');
+});
+test('every CTA fill edge reads on the tile at 3:1 in both schemes',async()=>{
+ const {ratio,list}=await schemes();
+ for(const target of INSTALL) for(const [scheme,values] of list) expect(ratio(values,`--a-${target.accent}`,'--n-editor'),`${target.id} ${scheme}`).toBeGreaterThanOrEqual(3);
+});
+test('the secondary copy button label reads on the tile in both schemes',async()=>{
+ const {ratio,list}=await schemes();
+ for(const [scheme,values] of list) expect(ratio(values,'--n-text-secondary','--n-editor'),scheme).toBeGreaterThanOrEqual(4.5);
+});
+test('each target has exactly one primary CTA',()=>{
+ const html=renderInstall({released:true});
+ const tiles=html.split('<article class="install-tile"').slice(1);
+ expect(tiles).toHaveLength(5);
+ for(const [index,tile] of tiles.entries()){
+  expect(tile.match(/<a [^>]*data-cta/g)).toHaveLength(1);
+  expect(tile).toContain(`data-accent="${INSTALL[index]!.accent}"`);
+  expect(tile).toContain(`<span>${INSTALL[index]!.badges[0]!.label}</span>`);
+ }
+});
+test('the install copy comes from content.ts',()=>{
+ expect(CONTENT.install.title).toBe('Install Aion');
+ expect(CONTENT.install.scope).toBe('Five places to read code, one set of tokens. Every target passes the same contrast gate.');
+ expect(INSTALL.map(target=>target.badges[0]!.label)).toEqual(['Install in VS Code','Get it in Obsidian','Install from Open VSX','Download for Windows Terminal','Add the CSS package']);
+ const html=renderInstall({released:true});
+ expect(html).toContain(`>${CONTENT.install.title}</h2>`);
+ expect(html).toContain(`<p>${CONTENT.install.scope}</p>`);
+ for(const target of INSTALL) expect(html).toContain(`<span>${target.badges[0]!.label}</span>`);
+ const source=readFileSync(new URL('../src/render/install.ts',import.meta.url),'utf8');
+ for(const target of INSTALL) expect(source).not.toContain(target.badges[0]!.label);
 });

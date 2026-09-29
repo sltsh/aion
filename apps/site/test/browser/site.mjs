@@ -609,6 +609,25 @@ async function engineRun(name) {
         await p.locator('#install').scrollIntoViewIfNeeded();await capture(`install-align-${width}`,true);
       }
     });
+    for(const width of [1440,768,390])for(const scheme of ['dark','light'])await run(`install-cta-${width}-${scheme}`,{colorScheme:scheme,viewport:{width,height:1000}},async(p,_c,row,capture)=>{
+      await p.goto(base+'/#install');await settled(p);await p.locator('#install').scrollIntoViewIfNeeded();
+      const tiles=p.locator('.install-tile');assert.equal(await tiles.count(),5);
+      row.measurements=[];
+      for(let i=0;i<5;i++){
+        const tile=tiles.nth(i),cta=tile.locator('[data-cta]');assert.equal(await cta.count(),1,'one CTA per tile');
+        await tile.scrollIntoViewIfNeeded();await p.mouse.move(2,2);
+        const read=()=>cta.evaluate(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {id:e.closest('.install-tile').dataset.installTarget,height:r.height,font:parseFloat(s.fontSize),fill:s.backgroundColor,label:s.color,inset:s.boxShadow,box:[r.x,r.y,r.width,r.height]};});
+        const rest=await read();assert.ok(rest.height>=48,`${rest.id} CTA height ${rest.height}`);assert.ok(rest.font>=13,`${rest.id} CTA text ${rest.font}px`);
+        await cta.hover();await p.waitForFunction(e=>e.matches(':hover'),await cta.elementHandle());
+        const over=await read();row.measurements.push({rest,over});
+        assert.notEqual(over.inset,rest.inset,`${rest.id} hover changes computed style`);
+        assert.ok(over.box.every((v,j)=>Math.abs(v-rest.box[j])<=0.5),`${rest.id} hover moved layout`);
+        const copy=await tile.locator('.install-copy').evaluate(e=>({height:e.getBoundingClientRect().height,font:parseFloat(getComputedStyle(e).fontSize)}));
+        assert.ok(copy.height>=48&&copy.font>=13,`${rest.id} copy control ${JSON.stringify(copy)}`);
+        if(i===0)await capture(`install-cta-${width}-${scheme}-hover`);
+      }
+      await p.mouse.move(2,2);await p.locator('#install').scrollIntoViewIfNeeded();await capture(`install-cta-${width}-${scheme}`,true);
+    });
     await run('light-frames',{},async(p,_c,row,capture)=>{
       row.measurements.samples=[];
       const selectors=['.diptych .window','.depth-frame .window','.states-chapter .states-code','.terminal-chapter .terminal-sessions','.install-chapter .install-thumbnail','.install-editor .window'];
