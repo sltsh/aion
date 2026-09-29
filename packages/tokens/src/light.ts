@@ -198,24 +198,26 @@ export const lightDecoration: Record<DecorationName, Overlay> = {
   fold: { color: [0.920, 0.070, 210], alpha: 0.450 },
 };
 
+// Solved against the comment over every covered stack with a 0.03 visibility floor, aimed at 0.03-0.035 so the selection stays louder.
+// Solved against the comment over every covered stack with a 0.03 visibility floor, aimed at 0.03-0.035 so the selection stays louder.
 export const lightSecondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
-  hover: { color: lightAccentScale('blue').subtle, alpha: 0.12 },
-  symbol: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
-  strongWord: { color: lightAccentScale('teal').subtle, alpha: 0.12 },
-  stackFrame: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
-  focusedStackFrame: { color: lightAccentScale('green').subtle, alpha: 0.12 },
-  bracketMatch: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
-  commentRange: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
-  activeCommentRange: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
-  unchangedCode: { color: lightOverlay.lineHighlight.color, alpha: 0.3 },
-  mergeCurrentHeader: { color: lightAccentScale('green').subtle, alpha: 0.12 },
-  mergeIncomingHeader: { color: lightAccentScale('blue').subtle, alpha: 0.12 },
-  mergeCommonHeader: { color: lightOverlay.lineHighlight.color, alpha: 0.20 },
-  mergeChange: { color: lightAccentScale('green').subtle, alpha: 0.10 },
-  mergeChangeWord: { color: lightAccentScale('green').subtle, alpha: 0.12 },
-  searchMatch: { color: lightAccentScale('gold').subtle, alpha: 0.10 },
-  covered: { color: lightAccentScale('green').subtle, alpha: 0.12 },
-  uncovered: { color: lightAccentScale('coral').subtle, alpha: 0.14 },
+  hover: { color: [0.920, 0.030, 255], alpha: 0.500 },
+  symbol: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  strongWord: { color: [0.950, 0.060, 192], alpha: 0.450 },
+  stackFrame: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  focusedStackFrame: { color: [0.960, 0.060, 148], alpha: 0.450 },
+  bracketMatch: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  commentRange: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  activeCommentRange: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  unchangedCode: { color: [0.920, 0.000, 264], alpha: 0.500 },
+  mergeCurrentHeader: { color: [0.960, 0.060, 148], alpha: 0.450 },
+  mergeIncomingHeader: { color: [0.920, 0.030, 255], alpha: 0.500 },
+  mergeCommonHeader: { color: [0.920, 0.000, 264], alpha: 0.500 },
+  mergeChange: { color: [0.960, 0.060, 148], alpha: 0.450 },
+  mergeChangeWord: { color: [0.960, 0.060, 148], alpha: 0.450 },
+  searchMatch: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  covered: { color: [0.960, 0.060, 148], alpha: 0.450 },
+  uncovered: { color: [0.920, 0.020, 22], alpha: 0.500 },
 };
 
 export type LightDecorationName = DecorationName;
@@ -224,20 +226,14 @@ export const lightFindMatch = {
   current: lightAccentScale('gold').subtle,
 } as const;
 
-const LIGHT_DIFF_WASH_COLOR = {
-  added: lightAccents.green,
-  removed: lightAccents.coral,
-} as const;
-
-// The native byte compositor exhausts the comment budget on a selected added word.
-// A pale, more chromatic green line preserves its semantic hue and selection cue while
-// recovering luminance for the reading overlays. The word keeps the solid accent.
-// Both line searches retain the existing visibility and selection-cue constraints.
+// Solved with the Light secondaries: each line and word clears the 0.03 visibility floor
+// (the word against its own line), keeps the selection cue through the wash above half,
+// and leaves the comment above 4.5:1 on every reading stack they land in.
 export const lightDiffWash = {
-  addedLine: { color: [0.890, 0.200, 148], alpha: 0.430 },
-  addedWord: { color: LIGHT_DIFF_WASH_COLOR.added, alpha: 0.03 },
-  removedLine: { color: [0.890, 0.040, 22], alpha: 0.500 },
-  removedWord: { color: LIGHT_DIFF_WASH_COLOR.removed, alpha: 0.03 },
+  addedLine: { color: [0.860, 0.060, 148], alpha: 0.250 },
+  addedWord: { color: [0.920, 0.140, 148], alpha: 0.250 },
+  removedLine: { color: [0.860, 0.030, 22], alpha: 0.250 },
+  removedWord: { color: [0.880, 0.060, 22], alpha: 0.350 },
 } as const satisfies Record<string, Overlay>;
 
 // The strips are the only opaque diff marker. Their restrained chroma keeps the gutter

@@ -325,6 +325,41 @@ test('every light editor decoration moves the editor far enough to be seen', () 
   }
 });
 
+test('every light secondary decoration moves the editor far enough to be seen, after native painting', () => {
+  const editor = LIGHT_SHIPPED.neutral.editor;
+  for (const name of Object.keys(LIGHT_SHIPPED.secondaryDecoration) as StackLayer[]) {
+    const shift = distanceEmitted(stackBackground(LIGHT_SHIPPED, editor, [name]), editor);
+    expect(shift, `light ${name} moves the editor by ${shift.toFixed(4)}`)
+      .toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+  }
+});
+
+test('a diff word stands out from its own line, in both schemes', () => {
+  for (const [scheme, source] of [['dark', SHIPPED], ['light', LIGHT_SHIPPED]] as const) {
+    const editor = source.neutral.editor;
+    for (const [line, word] of [['addedLine', 'addedWord'], ['removedLine', 'removedWord']] as const) {
+      const shift = distanceEmitted(
+        stackBackground(source, editor, [line, word]),
+        stackBackground(source, editor, [line]),
+      );
+      expect(shift, `${scheme} ${word} over ${line} moves it by ${shift.toFixed(4)}`)
+        .toBeGreaterThanOrEqual(OVERLAY_VISIBILITY);
+    }
+  }
+});
+
+test('no secondary decoration outshines the selection, in both schemes', () => {
+  for (const [scheme, source] of [['dark', SHIPPED], ['light', LIGHT_SHIPPED]] as const) {
+    const editor = source.neutral.editor;
+    const selection = distanceEmitted(stackBackground(source, editor, ['selection']), editor);
+    for (const name of Object.keys(source.secondaryDecoration) as StackLayer[]) {
+      const shift = distanceEmitted(stackBackground(source, editor, [name]), editor);
+      expect(shift, `${scheme} ${name} against the selection's ${selection.toFixed(4)}`)
+        .toBeLessThan(selection);
+    }
+  }
+});
+
 // Light's word highlight and other find matches once outshone its selection, which then
 // read as the weakest cue in the editor. Dark never did.
 test('the selection is the loudest reading overlay, in both schemes', () => {
