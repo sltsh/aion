@@ -472,10 +472,10 @@ this is a calculation.
 
 Open work, in the order it unblocks the rest:
 
-- [ ] **Native check in VS Code** of the Light change above: selection, selection
-      highlight, inactive selection, find range, folded range, word highlight, other find
-      matches, and the darker syntax. Then the Obsidian and site Light pages, whose accents
-      moved with it.
+- [ ] **Light other find matches** (`editor.findMatchHighlightBackground`, the pale yellow
+      on every match but the current one) read faint in the 1.2.0 check. Not pressing: it
+      sits at three quarters of the selection, so a louder one needs the selection raised
+      with it or an exception to that rule.
 
 ## Order and parallelism
 
@@ -551,7 +551,11 @@ The Aion Light theme was checked and approved in VS Code on 2026-09-12 after the
 palette, diff, minimap and inline Git blame adjustments. Dark ANSI black was checked in
 VS Code on 2026-09-25 and the Obsidian comment in both schemes. The 2026-09-25 Light
 syntax, comment and overlay change makes the Light states a calculation again until
-rechecked. The listing screenshots, `screenshots/vscode-{dark,light}.png`, are VS Code
+rechecked. Aion Light 1.2.0 was checked and approved in VS Code on 2026-09-25: the
+selection, the decorations including the find range, the word highlight, other find
+matches and the darker syntax. The Obsidian theme and the site were approved under 1.2.0
+the same day.
+The listing screenshots, `screenshots/vscode-{dark,light}.png`, are VS Code
 1.139.1 renders of both themes from the 2026-09-27 tokens (Linux, Xvfb, 2x, via
 `scripts/vscode-screenshots.sh`): evidence that the theme renders, not a legibility review.
 Any later palette change makes
