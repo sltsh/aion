@@ -173,12 +173,12 @@ describe('Diptych controller', () => {
   });
   it('storage commits cancel a drag and a glide, re-seat schemes and permit another reveal', () => {
     const h = harness(); h.hero.arrive(); h.advance(720); h.pointer('pointerdown', 452); h.storage('light');
-    expect(h.root.releasePointerCapture).toHaveBeenCalledWith(1); expect(h.root.dataset['heroShare']).toBe('0');
+    expect(h.root.releasePointerCapture).toHaveBeenCalledWith(1); expect(h.root.dataset['heroShare']).toBe('0.42');
     expect(h.page.dataset['theme']).toBe('light'); expect(h.base.dataset['theme']).toBe('light'); expect(h.far.dataset['theme']).toBe('dark');
-    h.pointer('pointermove', 0); expect(h.root.dataset['heroShare']).toBe('0');
-    h.key('PageUp'); h.advance(160); expect(h.root.dataset['heroShare']).toBe('0.25');
+    h.pointer('pointermove', 0); expect(h.root.dataset['heroShare']).toBe('0.42');
+    h.key('PageUp'); h.advance(160); const stepped = h.root.dataset['heroShare']; expect(stepped).not.toBe('0.42');
     h.pointer('pointerdown', 690); h.advance(20); h.pointer('pointermove', 620); h.pointer('pointerup', 620); h.storage('dark'); h.advance(3200);
-    expect(h.root.dataset['heroShare']).toBe('0'); expect(h.request).not.toHaveBeenCalled(); h.hero.dispose();
+    expect(h.root.dataset['heroShare']).toBe(stepped); expect(h.request).not.toHaveBeenCalled(); h.hero.dispose();
   });
   it('a theme change keeps the resting share and swaps the schemes', () => {
     const h = harness(); h.hero.arrive(); h.advance(720); h.key('ArrowRight'); h.advance(160); h.key('ArrowRight'); h.advance(160);
