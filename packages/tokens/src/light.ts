@@ -8,6 +8,7 @@ import {
   ACCENTS, ANSI_HUE, BASE_CHROMA, BASE_HUE, BRIGHT_TO_NORMAL, CHROMA_CEILING,
   CHROMA_DEFAULT, CONTRAST_FLOOR, NON_TEXT_FLOOR, SYNTAX, bracketPairs, capitalise,
 } from './palette.js';
+import { solveMarker } from './solve.js';
 import { mapValues } from './util.js';
 
 // `border` is solved against `input`, the darkest surface a control edge encloses, not
@@ -198,41 +199,41 @@ export const lightAccentScale = (name: AccentName): AccentScale => {
 // stack. The selection remains the strongest reading cue, including through a word or
 // another find match.
 export const lightOverlay = {
-  selection: { color: [0.780, 0.110, 250], alpha: 0.300 },
-  findMatchOther: { color: gamutSafe(0.916, 0.078, 90, 'other find match'), alpha: 0.40 },
-  wordHighlight: { color: [0.900, 0.110, 200], alpha: 0.450 },
-  lineHighlight: { color: gamutSafe(0.948, 0.024, BASE_HUE, 'current line'), alpha: 0.95 },
+  selection: { color: [0.800, 0.100, 246], alpha: 0.500 },
+  findMatchOther: { color: [0.880, 0.100, 84], alpha: 0.500 },
+  wordHighlight: { color: [0.900, 0.120, 194], alpha: 0.450 },
+  lineHighlight: { color: [0.780, 0.110, 260], alpha: 0.150 },
 } as const satisfies Record<string, Overlay>;
 
 // Find and folded ranges need a cyan hue to stay visible without hiding a selection on
 // a diff word. Selection highlight is halved by VS Code's CSS after its key is emitted.
 export const lightDecoration: Record<DecorationName, Overlay> = {
-  selectionHighlight: { color: [0.910, 0.030, 250], alpha: 0.900 },
+  selectionHighlight: { color: [0.870, 0.060, 252], alpha: 0.850 },
   // Keep the inactive fill's emitted colour when re-solving the active selection.
-  inactiveSelection: { color: gamutSafe(0.835, 0.085, 250, 'inactive selection'), alpha: 0.25 },
-  findRange: { color: [0.920, 0.070, 210], alpha: 0.450 },
-  rangeHighlight: { color: [0.910, 0.040, 264], alpha: 0.500 },
-  fold: { color: [0.920, 0.070, 210], alpha: 0.450 },
+  inactiveSelection: { color: [0.940, 0.030, 246], alpha: 0.750 },
+  findRange: { color: [0.920, 0.050, 202], alpha: 0.450 },
+  rangeHighlight: { color: [0.890, 0.050, 260], alpha: 0.350 },
+  fold: { color: [0.920, 0.050, 202], alpha: 0.450 },
 };
 
-// Solved against the comment over every covered stack with a 0.03 visibility floor, aimed at 0.03-0.035 so the selection stays louder.
-// Solved against the comment over every covered stack with a 0.03 visibility floor, aimed at 0.03-0.035 so the selection stays louder.
+// Tier 3 (LIGHT_TIER): painted 0.03-0.035 from the editor, solved with solveOverlay against the comment over every
+// covered stack, at least 0.03 from each diff fill unless the distinctness test names the pair exempt.
 export const lightSecondaryDecoration: Record<SecondaryDecorationName, Overlay> = {
-  hover: { color: [0.920, 0.030, 255], alpha: 0.500 },
+  hover: { color: [0.910, 0.040, 259], alpha: 0.450 },
   symbol: { color: [0.960, 0.050, 90], alpha: 0.500 },
-  strongWord: { color: [0.950, 0.060, 192], alpha: 0.450 },
+  strongWord: { color: [0.900, 0.120, 194], alpha: 0.450 },
   stackFrame: { color: [0.960, 0.050, 90], alpha: 0.500 },
-  focusedStackFrame: { color: [0.960, 0.060, 148], alpha: 0.450 },
+  focusedStackFrame: { color: [0.960, 0.120, 107], alpha: 0.250 },
   bracketMatch: { color: [0.960, 0.050, 90], alpha: 0.500 },
   commentRange: { color: [0.960, 0.050, 90], alpha: 0.500 },
   activeCommentRange: { color: [0.960, 0.050, 90], alpha: 0.500 },
   unchangedCode: { color: [0.920, 0.000, 264], alpha: 0.500 },
-  mergeCurrentHeader: { color: [0.960, 0.060, 148], alpha: 0.450 },
-  mergeIncomingHeader: { color: [0.920, 0.030, 255], alpha: 0.500 },
+  mergeCurrentHeader: { color: [0.960, 0.120, 107], alpha: 0.250 },
+  mergeIncomingHeader: { color: [0.910, 0.040, 259], alpha: 0.450 },
   mergeCommonHeader: { color: [0.920, 0.000, 264], alpha: 0.500 },
-  mergeChange: { color: [0.960, 0.060, 148], alpha: 0.450 },
-  mergeChangeWord: { color: [0.960, 0.060, 148], alpha: 0.450 },
-  searchMatch: { color: [0.960, 0.050, 90], alpha: 0.500 },
+  mergeChange: { color: [0.960, 0.120, 107], alpha: 0.250 },
+  mergeChangeWord: { color: [0.960, 0.120, 107], alpha: 0.250 },
+  searchMatch: { color: [0.880, 0.100, 84], alpha: 0.500 },
   covered: { color: [0.960, 0.060, 148], alpha: 0.450 },
   uncovered: { color: [0.920, 0.020, 22], alpha: 0.500 },
 };
@@ -247,10 +248,10 @@ export const lightFindMatch = {
 // (the word against its own line), keeps the selection cue through the wash above half,
 // and leaves the comment above 4.5:1 on every reading stack they land in.
 export const lightDiffWash = {
-  addedLine: { color: [0.860, 0.060, 148], alpha: 0.250 },
-  addedWord: { color: [0.900, 0.100, 148], alpha: 0.300 },
-  removedLine: { color: [0.900, 0.050, 22], alpha: 0.350 },
-  removedWord: { color: [0.860, 0.060, 22], alpha: 0.300 },
+  addedLine: { color: [0.800, 0.130, 144], alpha: 0.150 },
+  addedWord: { color: [0.850, 0.190, 136], alpha: 0.300 },
+  removedLine: { color: [0.870, 0.070, 30], alpha: 0.250 },
+  removedWord: { color: [0.860, 0.070, 28], alpha: 0.350 },
 } as const satisfies Record<string, Overlay>;
 
 // The strips are the only opaque diff marker. Their restrained chroma keeps the gutter
@@ -260,6 +261,22 @@ export const lightDiff = {
   removedStrip: gamutSafe(0.206, 0.076, ACCENTS.coral[2], 'removed strip'),
   addedGutter: lightAccents.green,
   removedGutter: lightAccents.coral,
+} as const satisfies Record<string, Oklch>;
+
+// The coverage gutter fills the line-number cell, so it answers to 3:1 against the number
+// alone. VS Code derives it from the diff keys unless it is set, which would put the diff's
+// pale wash under a number it cannot carry.
+const lightGutter = (name: string, hue: number): Oklch => {
+  const best = solveMarker({
+    hues: [hue], against: lightNeutral.page, foregrounds: { lineNumber: lightEditorNeutral.muted },
+    stacks: [[]], floor: NON_TEXT_FLOOR, minChroma: 0.04, lightness: [0.6, 0.98], chroma: [0.04, 0.18],
+  });
+  if (best === null) throw new Error(`no light coverage gutter for ${name}`);
+  return best.colour;
+};
+export const lightCoverageGutter = {
+  covered: lightGutter('covered', ACCENTS.green[2]),
+  uncovered: lightGutter('uncovered', ACCENTS.coral[2]),
 } as const satisfies Record<string, Oklch>;
 
 export const lightBrackets: readonly Oklch[] = bracketPairs.map((name) => lightAccents[name]);

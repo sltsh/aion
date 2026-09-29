@@ -23,7 +23,7 @@ export {
   lightAnsiWhite, lightAnsiBrightBlack, LIGHT_CHROMA_FLOOR_EXCEPTION, LIGHT_ACCENT_MARGIN, LIGHT_HUE_DRIFT,
   lightAccent, lightAccents, lightAccentScale, lightOverlay, lightDecoration,
   lightSecondaryDecoration, lightFindMatch, lightDiff,
-  lightDiffWash, lightBrackets, lightCursor, lightAnsi, lightTerminalSelection,
+  lightDiffWash, lightCoverageGutter, lightBrackets, lightCursor, lightAnsi, lightTerminalSelection,
 } from './light.js';
 
 export type { StatusScale } from './status.js';
@@ -40,7 +40,7 @@ export { solveMarker, solveOverlay, binding, distanceEmitted } from './solve.js'
 
 export type { ReadingState, StateSource, SurfaceName, StackLayer } from './states.js';
 export {
-  readingStates, readingForegrounds, SHIPPED, LIGHT_SHIPPED, RENDER_ORDER,
+  readingStates, readingForegrounds, SHIPPED, LIGHT_SHIPPED, RENDER_ORDER, LIGHT_TIER, LIGHT_TIER_RATIO,
   producible, covered, orderStack, stackName, stackBackground, paintedAlpha,
 } from './states.js';
 

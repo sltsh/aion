@@ -29,10 +29,17 @@ test('the committed light theme matches the generated light theme', () => {
   expect(onDisk).toEqual(JSON.parse(JSON.stringify(lightBuilt)));
 });
 
+// Dark leaves both gutter keys to VS Code's diff-derived default, and adding them there would
+// change the Dark theme. Light sets them so the line number reads on the coverage cell.
+const LIGHT_ONLY_KEYS = ['testing.coveredGutterBackground', 'testing.uncoveredGutterBackground'];
+
 test('the light theme keeps the dark theme structure', () => {
   expect(lightBuilt.name).toBe('Aion Light');
   expect(lightBuilt.type).toBe('light');
-  expect(Object.keys(lightBuilt.colors).sort()).toEqual(Object.keys(built.colors).sort());
+  expect(Object.keys(lightBuilt.colors).filter((key) => !LIGHT_ONLY_KEYS.includes(key)).sort())
+    .toEqual(Object.keys(built.colors).sort());
+  expect(Object.keys(lightBuilt.colors).filter((key) => LIGHT_ONLY_KEYS.includes(key)).sort())
+    .toEqual([...LIGHT_ONLY_KEYS].sort());
   expect(lightBuilt.tokenColors.map((rule) => [rule.name, rule.scope])).toEqual(
     built.tokenColors.map((rule) => [rule.name, rule.scope]),
   );
@@ -920,4 +927,16 @@ test('no high contrast only key is set outside the structural allowlist', () => 
 test('the structural allowlist names no key that stopped being high contrast only', () => {
   const stale = [...STRUCTURAL].filter((key) => !highContrastOnly.keys.includes(key));
   expect(stale, `no longer high contrast only: ${stale.join(', ')}`).toEqual([]);
+});
+
+test('the light theme sets both coverage borders and both coverage gutters, and the number reads on each gutter', () => {
+  for (const key of ['testing.coveredBorder', 'testing.uncoveredBorder', ...LIGHT_ONLY_KEYS]) {
+    expect(lightBuilt.colors[key], key).toBeDefined();
+  }
+  const number = lightEditorNeutral.muted;
+  for (const key of LIGHT_ONLY_KEYS) {
+    const ratio = contrastEmitted(number, hexToOklch(lightBuilt.colors[key]!));
+    expect(ratio, `${key} carries the line number at ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(NON_TEXT_FLOOR);
+  }
+  for (const key of LIGHT_ONLY_KEYS) expect(built.colors[key], `Dark leaves ${key} to the default`).toBeUndefined();
 });

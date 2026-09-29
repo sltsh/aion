@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import {
-  CONTRAST_FLOOR, LIGHT_SHIPPED, MEANING_PAIR_GAP, NON_TEXT_FLOOR, SHIPPED,
+  CONTRAST_FLOOR, LIGHT_SHIPPED, LIGHT_TIER, LIGHT_TIER_RATIO, MEANING_PAIR_GAP, NON_TEXT_FLOOR, SHIPPED,
   compositeEmitted, contrastEmitted, diff, distanceEmitted, neutral, orderStack,
   readingForegrounds, readingStates, solveMarker, solveOverlay, stackBackground,
 } from '../src/index.js';
@@ -46,6 +46,20 @@ test('the strips separate by lightness and stay close to what that allows', () =
   }
 });
 
+// Gate C: a Light tier member's optimum is computed with its tier cap as a constraint, because
+// the tiers outrank the optimum. Tier 3 is painted 0.035 or less; tier 2 sits between 0.035 and
+// the selection, each times the approved ratio. Painted shift is measured through stackBackground.
+const tierCap = (source: StateSource, name: StackLayer, painted: number): boolean => {
+  if (source !== LIGHT_SHIPPED) return true;
+  if ((LIGHT_TIER[3] as readonly StackLayer[]).includes(name)) return painted <= 0.035;
+  if ((LIGHT_TIER[2] as readonly StackLayer[]).includes(name)) {
+    const editor = source.neutral.editor;
+    const selection = distanceEmitted(stackBackground(source, editor, ['selection']), editor);
+    return painted <= selection / LIGHT_TIER_RATIO && painted >= 0.035 * LIGHT_TIER_RATIO;
+  }
+  return true;
+};
+
 const overlayPins: readonly {
   scheme: 'dark' | 'light'; source: StateSource; name: StackLayer;
   owner: 'overlay' | 'decoration' | 'secondaryDecoration';
@@ -79,6 +93,7 @@ test.each(overlayPins)('$scheme $name stays within 5% of its constrained optimum
       const next = { ...source, [owner]: { ...source[owner], [name]: candidate } } as StateSource;
       const shift = distanceEmitted(compositeEmitted(candidate.color, candidate.alpha, editor), editor);
       if (shift < 0.03 || ((owner === 'overlay' || source === LIGHT_SHIPPED) && shift >= selectionShift)) return false;
+      if (!tierCap(source, name, distanceEmitted(stackBackground(next, editor, [name]), editor))) return false;
       if (owner === 'overlay') {
         const over = (base: Oklch) => compositeEmitted(candidate.color, candidate.alpha, base);
         if (distanceEmitted(over(selected), over(editor)) <= selectionShift * 0.5) return false;
@@ -123,6 +138,9 @@ test('the light removed line stays within 5% of its constrained optimum', () => 
   const accepts = (candidate: Overlay): boolean => {
     const line = (base: Oklch): Oklch => compositeEmitted(candidate.color, candidate.alpha, base);
     const over = (base: Oklch): Oklch => compositeEmitted(word.color, word.alpha, line(base));
+    // Tier 3 cap (Gate C): the line is painted 0.035 or less.
+    const paintedLine = distanceEmitted(stackBackground({ ...source, diffWash: { ...source.diffWash, removedLine: candidate } }, editor, ['removedLine']), editor);
+    if (paintedLine > 0.035) return false;
     if (distanceEmitted(line(editor), editor) < 0.03 || contrastEmitted(line(editor), editor) <= 1.07 ||
         contrastEmitted(over(editor), editor) <= contrastEmitted(line(editor), editor) ||
         contrastEmitted(over(selected), over(editor)) <= 1 + (selectionRatio - 1) * 0.5) return false;

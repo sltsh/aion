@@ -996,5 +996,12 @@ const substitute = (key: string, value: string, pairs: PalettePairs): string => 
 
 export const buildColors = (palette: Palette): Record<string, string> => {
   const pairs = palettePairs(palette);
-  return Object.fromEntries(Object.entries(colors).map(([key, value]) => [key, substitute(key, value, pairs)]));
+  const built = Object.fromEntries(Object.entries(colors).map(([key, value]) => [key, substitute(key, value, pairs)]));
+  // Dark leaves both gutter keys to VS Code's diff-derived default; Light sets them so the
+  // line number reads on the cell.
+  if (palette.coverageGutter !== undefined) {
+    built['testing.coveredGutterBackground'] = hex(palette.coverageGutter.covered);
+    built['testing.uncoveredGutterBackground'] = hex(palette.coverageGutter.uncovered);
+  }
+  return built;
 };

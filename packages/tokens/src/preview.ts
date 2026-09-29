@@ -13,7 +13,7 @@ import {
 import {
   lightAccents, lightAnsi, lightBrackets, lightComment, lightDiff, lightDiffWash,
   lightDecoration, lightDimText, lightEditorNeutral, lightFindMatch, lightOverlay, lightAccentScale,
-  lightSecondaryDecoration, lightCursor, lightTerminalSelection,
+  lightSecondaryDecoration, lightCoverageGutter, lightCursor, lightTerminalSelection,
 } from './light.js';
 import type { LightDecorationName } from './light.js';
 import type { StatusScale } from './status.js';
@@ -74,6 +74,7 @@ export interface Palette {
   readonly statuses: Record<StatusName, StatusScale>;
   readonly decoration: Record<LightDecorationName, Overlay>;
   readonly secondaryDecoration: Record<SecondaryDecorationName, Overlay>;
+  readonly coverageGutter?: Record<'covered' | 'uncovered', Oklch>;
 }
 
 // The lab drives this. At the default options it must equal the shipped palette exactly,
@@ -275,6 +276,8 @@ export function buildLightPalette(overrides: Partial<LightPreviewOptions> = {}):
     statuses,
     decoration,
     secondaryDecoration,
+    coverageGutter: mapValues(lightCoverageGutter, (value): Oklch =>
+      shiftHue(value, 0, accentLightnessDelta, accentChromaScale)),
   };
 }
 

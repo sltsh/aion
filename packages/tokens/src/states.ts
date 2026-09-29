@@ -70,6 +70,20 @@ export const RENDER_ORDER = [
   'wordHighlight', 'strongWord', 'findMatchOther', 'commentRange', 'activeCommentRange',
 ] as const satisfies readonly StackLayer[];
 
+// Light's decorations sit in three tiers by painted shift from the editor. Tier 1 is the
+// selection, tier 2 the reading cues a reader looks for, tier 3 everything that only has to
+// be seen. One ratio separates adjacent tiers; the owner approved it in Gate C.
+export const LIGHT_TIER_RATIO = 1.35;
+export const LIGHT_TIER: Record<1 | 2 | 3, readonly StackLayer[]> = {
+  1: ['selection'],
+  2: ['wordHighlight', 'strongWord', 'selectionHighlight', 'findMatchOther', 'searchMatch',
+    'addedWord', 'removedWord'],
+  3: ['lineHighlight', 'inactiveSelection', 'findRange', 'fold', 'rangeHighlight', 'hover',
+    'symbol', 'bracketMatch', 'stackFrame', 'focusedStackFrame', 'mergeCurrentHeader',
+    'mergeCommonHeader', 'mergeIncomingHeader', 'unchangedCode', 'mergeChange', 'mergeChangeWord',
+    'covered', 'uncovered', 'commentRange', 'activeCommentRange', 'addedLine', 'removedLine'],
+};
+
 const BASES = [[], ['lineHighlight'], ['selection'], ['inactiveSelection']] as const;
 const DIFFS = [[], ['addedLine'], ['addedLine', 'addedWord'], ['removedLine'],
   ['removedLine', 'removedWord']] as const;

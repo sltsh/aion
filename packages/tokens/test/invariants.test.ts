@@ -8,14 +8,17 @@ import {
   CONTRAST_FLOOR, NON_TEXT_FLOOR, MEANING_PAIR_GAP, STATUS,
 } from '../src/palette.js';
 import {
-  lightAccent, lightAccentScale, lightAnsi, lightDiff, lightDiffWash, lightEditorNeutral,
+  lightCoverageGutter, lightAccent, lightAccentScale, lightAnsi, lightDiff, lightDiffWash, lightEditorNeutral,
   lightAnsiBrightBlack, lightAnsiWhite, lightComment, lightDecoration, lightDimText, lightNeutral,
-  lightOverlay,
+  lightOverlay, lightSecondaryDecoration,
   LIGHT_CHROMA_FLOOR_EXCEPTION, lightTerminalSelection, lightAccents, LIGHT_ACCENT_MARGIN,
   LIGHT_HUE_DRIFT, LIGHT_SYNTAX_FLOOR,
 } from '../src/light.js';
 import { lightPalette } from '../src/preview.js';
-import { LIGHT_SHIPPED, SHIPPED, orderStack, readingForegrounds, readingStates, stackBackground } from '../src/states.js';
+import {
+  LIGHT_SHIPPED, LIGHT_TIER, LIGHT_TIER_RATIO, RENDER_ORDER, SHIPPED, orderStack, readingForegrounds,
+  readingStates, stackBackground,
+} from '../src/states.js';
 import { distanceEmitted } from '../src/solve.js';
 
 const syntaxColor = (role: SyntaxRole): Oklch => ACCENTS[SYNTAX[role]];
@@ -363,18 +366,20 @@ test('no secondary decoration outshines the selection, in both schemes', () => {
 });
 
 // Light's word highlight and other find matches once outshone its selection, which then
-// read as the weakest cue in the editor. Dark never did.
+// read as the weakest cue in the editor. Dark never did. The comparison is painted: a raw
+// alpha composite missed VS Code halving the selection highlight and rounding every alpha.
 test('the selection is the loudest reading overlay, in both schemes', () => {
-  for (const [scheme, set, extra, editor] of [
-    ['dark', overlay, {}, neutral.editor],
-    ['light', lightOverlay, lightDecoration, lightEditorNeutral.editor],
+  for (const [scheme, source, extra] of [
+    ['dark', SHIPPED, {}],
+    ['light', LIGHT_SHIPPED, LIGHT_SHIPPED.decoration],
   ] as const) {
-    const shift = (value: { color: Oklch; alpha: number }): number =>
-      distanceEmitted(compositeEmitted(value.color, value.alpha, editor), editor);
-    const selection = shift(set.selection);
-    for (const [name, value] of [...Object.entries(set), ...Object.entries(extra)]) {
+    const editor = source.neutral.editor;
+    const shift = (name: string): number =>
+      distanceEmitted(stackBackground(source, editor, [name as StackLayer]), editor);
+    const selection = shift('selection');
+    for (const name of [...Object.keys(source.overlay), ...Object.keys(extra)]) {
       if (name === 'selection') continue;
-      expect(shift(value), `${scheme} ${name} against the selection's ${selection.toFixed(4)}`)
+      expect(shift(name), `${scheme} ${name} against the selection's ${selection.toFixed(4)}`)
         .toBeLessThan(selection);
     }
   }
@@ -467,4 +472,77 @@ test('every light accent keeps its Dark hue within the drift allowance', () => {
 test('the emitted light palette carries the solved comment and accents', () => {
   expect(lightPalette.comment).toEqual(lightComment);
   for (const name of ACCENT_NAMES) expect(lightPalette.accents[name], name).toEqual(lightAccents[name]);
+});
+
+const paintedShift = (layers: readonly StackLayer[]): number => distanceEmitted(
+  stackBackground(LIGHT_SHIPPED, LIGHT_SHIPPED.neutral.editor, layers), LIGHT_SHIPPED.neutral.editor);
+
+test('light decoration tiers each lead the next by the approved ratio', () => {
+  const all = ([1, 2, 3] as const).flatMap((tier) => LIGHT_TIER[tier]);
+  expect([...all].sort(), 'LIGHT_TIER covers every render layer exactly once')
+    .toEqual([...RENDER_ORDER].sort());
+  const shifts = ([1, 2, 3] as const).map((tier) =>
+    LIGHT_TIER[tier].map((name) => [name, paintedShift([name])] as const));
+  const min = (rows: readonly (readonly [string, number])[]) => Math.min(...rows.map(([, v]) => v));
+  const max = (rows: readonly (readonly [string, number])[]) => Math.max(...rows.map(([, v]) => v));
+  const [one, two, three] = shifts as [typeof shifts[0], typeof shifts[0], typeof shifts[0]];
+  const report = (rows: typeof one) => rows.map(([n, v]) => `${n} ${v.toFixed(4)}`).join(', ');
+  expect(min(one), `tier 1 ${report(one)} against tier 2 ${report(two)}`)
+    .toBeGreaterThanOrEqual(max(two) * LIGHT_TIER_RATIO);
+  expect(min(two), `tier 2 ${report(two)} against tier 3 ${report(three)}`)
+    .toBeGreaterThanOrEqual(max(three) * LIGHT_TIER_RATIO);
+  for (const [name, value] of three) {
+    expect(value, `tier 3 ${name}`).toBeGreaterThanOrEqual(0.03);
+    expect(value, `tier 3 ${name}`).toBeLessThanOrEqual(0.035);
+  }
+});
+
+const DIFF_LAYERS = new Set<StackLayer>(['addedLine', 'removedLine', 'addedWord', 'removedWord']);
+// Each pair is exempt for a stated reason. Everything else has to be told apart from a diff
+// fill by at least the visibility floor, painted.
+const DIFF_EXEMPT: Record<string, string> = {
+  covered: 'Gate B: the coverage outline (coveredBorder) and gutter carry the distinction from a diff',
+  uncovered: 'Gate B: the coverage outline (uncoveredBorder) and gutter carry the distinction from a diff',
+  unchangedCode: 'Gate C: the collapsed unchanged region of a diff editor, drawn where no diff fill is',
+  mergeCommonHeader: 'Gate C: merge editor only, never beside a diff fill',
+};
+// Owner ruling, Gate C addendum: cyan find and fold ranges are exempt from the added line only.
+// The best any placement reached was 0.0279; every other pair they are in must pass.
+const PAIR_EXEMPT = new Set(['addedLine vs findRange', 'addedLine vs fold']);
+
+test('light diff fills stand apart from every other secondary decoration', () => {
+  const editor = LIGHT_SHIPPED.neutral.editor;
+  const fills: [string, StackLayer[]][] = [
+    ['addedLine', ['addedLine']], ['removedLine', ['removedLine']],
+    ['addedWord', ['addedLine', 'addedWord']], ['removedWord', ['removedLine', 'removedWord']],
+  ];
+  const failures: string[] = [];
+  for (const [fill, stack] of fills) {
+    for (const name of RENDER_ORDER) {
+      if (DIFF_LAYERS.has(name) || name in DIFF_EXEMPT || PAIR_EXEMPT.has(`${fill} vs ${name}`)) continue;
+      const gap = distanceEmitted(
+        stackBackground(LIGHT_SHIPPED, editor, stack), stackBackground(LIGHT_SHIPPED, editor, [name]));
+      if (gap < 0.03) failures.push(`${fill} vs ${name} ${gap.toFixed(4)}`);
+    }
+  }
+  expect(failures).toEqual([]);
+});
+
+test('light coverage keys stand apart', () => {
+  const editor = LIGHT_SHIPPED.neutral.editor;
+  const gap = distanceEmitted(
+    stackBackground(LIGHT_SHIPPED, editor, ['covered']), stackBackground(LIGHT_SHIPPED, editor, ['uncovered']));
+  expect(gap, `covered vs uncovered ${gap.toFixed(4)}`).toBeGreaterThanOrEqual(0.03);
+});
+
+test('the emitted light palette carries the solved decorations', () => {
+  for (const [group, source] of [
+    ['overlay', lightOverlay], ['decoration', lightDecoration],
+    ['secondaryDecoration', lightSecondaryDecoration], ['diffWash', lightDiffWash],
+  ] as const) {
+    for (const [name, value] of Object.entries(source)) {
+      expect((lightPalette[group] as Record<string, unknown>)[name], `${group}.${name}`).toEqual(value);
+    }
+  }
+  expect(lightPalette.coverageGutter).toEqual(lightCoverageGutter);
 });
