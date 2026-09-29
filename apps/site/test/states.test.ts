@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { buildPalette, lightPalette, hex, stackBackground, distanceEmitted, contrastEmitted, hexToOklch } from '@sltsh/aion-tokens';
 import { variables } from '@sltsh/aion-lab/variables';
-import { TOOLBAR, PLACEMENT, enabledAt, drawnBackgrounds, togglePlacement, placementRatios } from '../src/chapters/placement.js';
+import { TOOLBAR, PLACEMENT, enabledAt, drawnBackgrounds, togglePlacement, placementRatios, toolbarStack } from '../src/chapters/placement.js';
 import type { ToolbarLayer } from '../src/chapters/placement.js';
 import { cancelCount, countTo } from '../src/chapters/states.js';
 import type { CountEnvironment } from '../src/chapters/states.js';
@@ -50,7 +50,7 @@ for (const released of [true, false]) test(`complete code sample, scroll access 
   expect(html).not.toContain('data-delta-visible');
   expect(html).toContain('data-state-toggle="mergeConflict"');
   expect(html).not.toContain('mergeChangeWord');
-  for (const source of [buildPalette(), lightPalette]) for (const layer of TOOLBAR) expect(html).toContain(hex(stackBackground(source, source.neutral.editor, [layer === 'mergeConflict' ? 'mergeCurrentHeader' : layer])));
+  for (const source of [buildPalette(), lightPalette]) for (const layer of TOOLBAR) expect(html).toContain(hex(stackBackground(source, source.neutral.editor, toolbarStack(layer))));
   const css = readFileSync(new URL('../src/styles/states.css', import.meta.url), 'utf8');
   expect(css).toMatch(/font:[^;]*22px/); expect(css).toContain('max-width:599px'); expect(css).toContain('font-size:16px');
 });
@@ -132,7 +132,7 @@ test('every states toolbar swatch differs from the editor in both schemes', () =
   for (const [scheme, source] of [['dark', buildPalette()], ['light', lightPalette]] as const) for (const layer of TOOLBAR) {
     const word = layer === 'addedWord' ? 'addedLine' : layer === 'removedWord' ? 'removedLine' : null;
     const against = word ? stackBackground(source, source.neutral.editor, [word]) : source.neutral.editor;
-    const swatch = stackBackground(source, source.neutral.editor, layer === 'mergeConflict' ? ['mergeCurrentHeader'] : word ? [word, layer] : [layer]);
+    const swatch = stackBackground(source, source.neutral.editor, toolbarStack(layer));
     expect(distanceEmitted(swatch, against), `${scheme} ${layer}`).toBeGreaterThanOrEqual(0.03);
   }
 });

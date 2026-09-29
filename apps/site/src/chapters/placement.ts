@@ -5,6 +5,9 @@ import { STATE_ROLES } from './stack.js';
 
 export const TOOLBAR = ['lineHighlight', 'selection', 'wordHighlight', 'findMatchOther', 'addedLine', 'addedWord', 'removedLine', 'removedWord', 'bracketMatch', 'findRange', 'mergeConflict'] as const;
 export type ToolbarLayer = (typeof TOOLBAR)[number];
+// A word fill is only ever drawn over its line fill, so its swatch shows the pair.
+export const toolbarStack = (layer: ToolbarLayer): StackLayer[] =>
+  layer === 'mergeConflict' ? ['mergeCurrentHeader'] : layer === 'addedWord' ? ['addedLine', 'addedWord'] : layer === 'removedWord' ? ['removedLine', 'removedWord'] : [layer];
 export type Span = { line: number; from?: number; to?: number };
 export type TextSpan = { line: number; from: number; to: number };
 export const STATE_IDENTIFIER = 'entry';

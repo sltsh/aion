@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dark, light } from '@sltsh/aion-css';
 import { buildPalette, checks, flatten, lightPalette, readingStates, semantic, semanticLight, accentScale, neutral, contrastEmitted, hexToOklch, hex, RENDER_ORDER, stackBackground } from '@sltsh/aion-tokens';
+import { TOOLBAR, toolbarStack } from '../src/chapters/placement.js';
 import { variables } from '@sltsh/aion-lab/variables';
 import { obsidianColors } from '@sltsh/aion-obsidian/colors';
 import { probeSurfaces } from '../src/chapters/probe.js';
@@ -429,6 +430,7 @@ describe('parity with the emitter', () => {
         ...[buildPalette(), lightPalette].flatMap(source => [
           ...probeSurfaces(source).map(surface => hex(surface.background)),
           ...RENDER_ORDER.map(layer => hex(stackBackground(source, source.neutral.editor, [layer]))),
+          ...TOOLBAR.map(layer => hex(stackBackground(source, source.neutral.editor, toolbarStack(layer)))),
         ]),
       ].map((v) => v.toLowerCase()),
     );
