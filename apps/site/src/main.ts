@@ -77,6 +77,17 @@ const introSession = (): Storage | null => { try { return window.sessionStorage;
 const introEligible = introHome && shouldPlayIntro({ reducedMotion: reducedMotion.matches, hash: window.location.hash, session: introSession(), navigationType: (performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined)?.type });
 const introGeneration = theme.generation;
 const arriveIfCurrent = (): void => { if (theme.generation === introGeneration) heroController?.arrive(); };
+const introHash = window.location.hash;
+if (introEligible && introHash) {
+  const hashObserver = new MutationObserver(() => {
+    if (root.hasAttribute('data-intro')) return;
+    hashObserver.disconnect();
+    let id = introHash.slice(1);
+    try { id = decodeURIComponent(id); } catch { /* A malformed escape names the raw fragment. */ }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'instant' });
+  });
+  hashObserver.observe(root, { attributes: true, attributeFilter: ['data-intro'] });
+}
 if (introEligible) {
   try {
     const island = JSON.parse(document.querySelector<HTMLScriptElement>('#aion-measures')?.textContent ?? '') as Partial<Record<'dark' | 'light', { figures?: SchemeMeasures }>>;

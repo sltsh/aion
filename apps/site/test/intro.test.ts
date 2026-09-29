@@ -97,8 +97,8 @@ describe('navigation-aware intro eligibility', () => {
         for (const reducedMotion of [false, true]) for (const hash of ['', '#install']) {
           const setItem = vi.fn();
           const session = { getItem: () => { if (!available) throw new Error('blocked'); return marker ? 'played' : null; }, setItem };
-          const expected = !reducedMotion && !hash && navigationType !== 'back_forward'
-            && (navigationType === 'reload' || !available || !marker);
+          const expected = !reducedMotion && navigationType !== 'back_forward'
+            && (navigationType === 'reload' || (!hash && (!available || !marker)));
           const beforePaint = bootstrap('/', hash, reducedMotion, session, navigationType);
           expect(beforePaint.dataset['intro'] === 'pending').toBe(expected);
           expect(setItem).not.toHaveBeenCalled();
@@ -107,6 +107,29 @@ describe('navigation-aware intro eligibility', () => {
         }
     expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null, navigationType: 'reload' })).toBe(true);
     expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: null, navigationType: 'back_forward' })).toBe(false);
+  });
+
+  const fresh = () => ({ getItem: () => null, setItem: vi.fn() });
+
+  it('a reload plays the intro even with a hash', () => {
+    const played = { getItem: () => 'played', setItem: vi.fn() };
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: played, navigationType: 'reload' })).toBe(true);
+    expect(bootstrap('/', '#install', false, played, 'reload').dataset['intro']).toBe('pending');
+  });
+
+  it('a deep link with a hash still skips it', () => {
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: fresh(), navigationType: 'navigate' })).toBe(false);
+    expect(bootstrap('/', '#install', false, fresh(), 'navigate').dataset['intro']).toBeUndefined();
+  });
+
+  it('back and forward still skip it', () => {
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '#install', session: fresh(), navigationType: 'back_forward' })).toBe(false);
+    expect(shouldPlayIntro({ reducedMotion: false, hash: '', session: fresh(), navigationType: 'back_forward' })).toBe(false);
+  });
+
+  it('reduced motion still skips a reload', () => {
+    expect(shouldPlayIntro({ reducedMotion: true, hash: '#install', session: fresh(), navigationType: 'reload' })).toBe(false);
+    expect(bootstrap('/', '#install', true, fresh(), 'reload').dataset['intro']).toBeUndefined();
   });
 
   it('keeps palette navigation out of the homepage intro without changing its interface', () => {

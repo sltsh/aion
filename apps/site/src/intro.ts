@@ -12,7 +12,8 @@ export function shouldPlayIntro(env: {
   readonly session: Pick<Storage, 'getItem' | 'setItem'> | null;
   readonly navigationType?: 'navigate' | 'reload' | 'back_forward' | 'prerender';
 }): boolean {
-  if (env.reducedMotion || env.hash || env.navigationType === 'back_forward') return false;
+  if (env.reducedMotion || env.navigationType === 'back_forward') return false;
+  if (env.hash && env.navigationType !== 'reload') return false;
   let played = false;
   try { played = env.session?.getItem(INTRO_KEY) != null; } catch { /* Unavailable storage behaves like a first visit. */ }
   if (env.navigationType !== 'reload' && played) return false;

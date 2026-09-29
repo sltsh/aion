@@ -498,6 +498,26 @@ async function engineRun(name) {
       assert.ok(row.measurements.fallback.releaseMs<=4000+frame,'bootstrap fallback missed its 4 s deadline');
       assert.ok(blocked.frames.some(f=>f.appVisible&&!f.pending),'fallback did not paint content');await capture('intro-reload-blocked-released');
     });
+    const inView=(p,id)=>p.evaluate(id=>{const r=document.getElementById(id).getBoundingClientRect();return r.top<innerHeight&&r.bottom>0;},id);
+    await run('intro-reload-hash',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
+      await p.addInitScript(()=>{window.__hashProbe={sceneAtGate:null};new MutationObserver(()=>{if(window.__hashProbe.sceneAtGate===null&&!document.documentElement.hasAttribute('data-intro')){queueMicrotask(()=>{const e=document.getElementById('install');if(e){const r=e.getBoundingClientRect();window.__hashProbe.sceneAtGate=r.top<innerHeight&&r.bottom>0;}});}}).observe(document,{subtree:true,attributes:true,attributeFilter:['data-intro']});});
+      await p.goto(base+'/#install',{waitUntil:'domcontentloaded'});await settled(p);
+      assert.equal(await p.locator('html').getAttribute('data-intro'),null,'a deep link played the intro');
+      await p.reload({waitUntil:'domcontentloaded'});
+      assert.equal(await p.locator('html').getAttribute('data-intro'),'pending','a reload with a hash did not play the intro');
+      await capture('intro-reload-hash-pending');assert.equal(await p.locator('.splash-intro').count(),1);
+      await settled(p);await p.waitForTimeout(400);
+      assert.equal(await inView(p,'install'),true,'#install is not in the viewport after the intro');
+      row.measurements.atGate=await p.evaluate(()=>window.__hashProbe.sceneAtGate);
+      assert.equal(row.measurements.atGate,true,'the target was not in view when the page was revealed');
+    });
+    await run('intro-hard-reload',{reducedMotion:'no-preference'},async(p,c,row,capture)=>{
+      await p.goto(base,{waitUntil:'domcontentloaded'});await settled(p);
+      if(name==='chromium'){const session=await c.newCDPSession(p);await session.send('Page.reload',{ignoreCache:true});row.measurements.method='CDP Page.reload ignoreCache';}
+      else{await p.reload({waitUntil:'domcontentloaded'});row.measurements.method='page.reload';}
+      await p.waitForFunction(()=>document.documentElement.dataset.intro==='pending'||!!document.querySelector('.splash-intro'),{},{timeout:3000});
+      await capture('intro-hard-reload');await settled(p);
+    });
     await run('intro-handoff',{reducedMotion:'no-preference'},async(p,_c,row,capture)=>{
       await p.addInitScript(introProbe);await p.goto(base,{waitUntil:'domcontentloaded'});
       row.measurements.exitScreenshots=[];
