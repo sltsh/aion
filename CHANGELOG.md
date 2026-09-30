@@ -5,6 +5,8 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+## 1.3.1
+
 ### Changed
 
 - Site hero: the caret after the headline blinks, the subheading holds one line above the
