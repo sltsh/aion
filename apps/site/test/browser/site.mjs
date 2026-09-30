@@ -22,7 +22,7 @@ const consistent = async (page, theme) => {
 };
 const overflow = async page => assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth),0,'horizontal overflow');
 const screenshotName = id => id.replace(/[^a-z0-9-]/gi,'-');
-// Resize probes. The lab caret's infinite blink is ambient rendering that no interaction starts or ends; every other animation counts.
+// Resize probes. The lab and hero carets' infinite blink is ambient rendering that no interaction starts or ends; every other animation counts.
 const resizeProbe = () => {
   const raf = window.requestAnimationFrame.bind(window);
   const running = () => document.getAnimations().filter(a => a.playState === 'running' && !(a.animationName === 'blink' && a.effect?.getTiming().iterations === Infinity)).map(a => `${a.constructor.name}:${a.transitionProperty || a.animationName || a.id || 'animation'}:${a.effect?.target?.getAttribute?.('class') ?? a.effect?.pseudoElement ?? ''}`);

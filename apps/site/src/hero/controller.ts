@@ -61,7 +61,11 @@ export function mountHero(root: HTMLElement, controller: ThemeController, env: H
     for (const editor of root.querySelectorAll<HTMLElement>('.hero-editor')) editor.style.setProperty('--site-hero-scale', String(Math.max(0, width - 32) / 1244));
     const box = root.getBoundingClientRect(); width = box.width; height = box.height;
     const editor = base.querySelector<HTMLElement>('.hero-editor');
-    handleY = editor ? editor.getBoundingClientRect().top - box.top + (width <= 600 ? 26 : -30) : height * 0.6;
+    const actions = base.querySelector<HTMLElement>('.hero-actions');
+    const editorTop = editor ? editor.getBoundingClientRect().top - box.top : undefined;
+    handleY = editorTop === undefined ? height * 0.6
+      : width <= 600 ? editorTop + 26
+      : actions ? (actions.getBoundingClientRect().bottom - box.top + editorTop) / 2 : editorTop - 30;
     handleY = Math.max(60, Math.min(height - 30, handleY));
     svg?.setAttribute('width', String(width)); svg?.setAttribute('height', String(height)); paint();
   };

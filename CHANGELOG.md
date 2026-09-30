@@ -5,6 +5,12 @@ the versions follow Semantic Versioning.
 
 ## Unreleased
 
+### Changed
+
+- Site hero: the caret after the headline blinks, the subheading holds one line above the
+  600px breakpoint, and the scheme handle sits centred between the install buttons and the
+  editor instead of over the install button.
+
 ## 1.3.0
 
 ### Changed
